@@ -95,6 +95,9 @@ htmlcov/
 sillytavern/
 node_modules/
 
+# === EXTERNAL (third-party clones, NOT vendored) ===
+external/
+
 # === PLANNING (sprint tracking ongoing, gitignored) ===
 .planning/
 
