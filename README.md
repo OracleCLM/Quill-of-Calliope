@@ -1,4 +1,4 @@
-# Calliope.AI
+# Quill of Calliope
 
 > Musa della poesia epica. Assistente AI per narrazione e gestione di giochi di ruolo testuali.
 
@@ -6,7 +6,7 @@
 
 ## Cosa è
 
-Calliope.AI aiuta a:
+Quill of Calliope aiuta a:
 - **Generare drafts** di risposte RP in inglese literate partendo da intent italiano
 - **Tracciare context** persistente cross-sessione (char sheets + lore + scene attive)
 - **Tradurre** italiano → inglese con vocabolario fantasy coerente

@@ -1,4 +1,4 @@
-# Calliope.AI — TTS plan
+# Quill of Calliope — TTS plan
 
 ## v1.1 — Minimal English single voice (2026-05-17, M3 sprint)
 
@@ -50,7 +50,7 @@ Real scene text integration pending scene-gen sprint.
 
 ---
 
-# Calliope.AI — TTS plan (M5 feature — full vision)
+# Quill of Calliope — TTS plan (M5 feature — full vision)
 
 > Text-to-speech narration con punteggiatura-aware + per-char voice profile. Operator listen audio drafts mentre cammina/cucina.
 

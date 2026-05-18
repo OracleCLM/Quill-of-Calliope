@@ -1,6 +1,6 @@
 # Discord Import Runbook — Kingdom of Yokai
 
-End-to-end procedure: Discord server → datasets locali per Calliope.AI.
+End-to-end procedure: Discord server → datasets locali per Quill of Calliope.
 
 ---
 
@@ -53,7 +53,7 @@ NOTE: Tupperbox dashboard mostra SOLO i tuoi tuppers (Horo/operator). Tuppers di
 ### Fase A — DCE exportguild (messaggi + threads)
 
 ```bash
-cd /tmp/discord_import/raw && set -a && source /home/nic/Scrivania/Calliope.AI/.env && set +a && \
+cd /tmp/discord_import/raw && set -a && source /home/nic/Scrivania/Quill_of_Calliope/.env && set +a && \
   ~/.local/bin/dce exportguild \
     -t "$DISCORD_USER_TOKEN" \
     -g "$KOY_GUILD_ID" \
@@ -86,7 +86,7 @@ Manuale dashboard (vedi Prerequisiti §3). Output atteso in `/tmp/discord_import
 ### Fase D — Parser → datasets clean
 
 ```bash
-cd /home/nic/Scrivania/Calliope.AI && \
+cd /home/nic/Scrivania/Quill_of_Calliope && \
   python3 scripts/import_discord_history.py \
     --raw /tmp/discord_import/raw/ \
     --roles /tmp/discord_import/roles/ \

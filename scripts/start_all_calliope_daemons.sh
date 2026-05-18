@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Start all Calliope.AI daemons: LLM gateway (8766) + Mascot WS (8767)
+# Start all Quill of Calliope daemons: LLM gateway (8766) + Mascot WS (8767)
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

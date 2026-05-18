@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Build ChromaDB index for Calliope.AI project.
+Build ChromaDB index for Quill of Calliope project.
 
 Collections:
   calliope_messages   — RP message corpus
@@ -420,7 +420,7 @@ def index_scenes_yaml(
 
 def main(argv: Optional[list[str]] = None) -> None:
     parser = argparse.ArgumentParser(
-        description="Build ChromaDB index for Calliope.AI"
+        description="Build ChromaDB index for Quill of Calliope"
     )
     parser.add_argument(
         "--input-messages", dest="input_messages", required=True,

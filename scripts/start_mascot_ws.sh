@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Calliope.AI — Mascot WebSocket Server daemon launcher
+# Quill of Calliope — Mascot WebSocket Server daemon launcher
 # Usage: start_mascot_ws.sh [--stop | --status]
 set -euo pipefail
 

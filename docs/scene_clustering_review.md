@@ -1,4 +1,4 @@
-# Scene Clustering Review — Calliope.AI M1
+# Scene Clustering Review — Quill of Calliope M1
 Generated: 2026-05-17T02:08:30Z
 Total scenes: 303 | Scenes with timestamps: 303
 

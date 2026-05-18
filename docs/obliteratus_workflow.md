@@ -1,4 +1,4 @@
-# OBLITERATUS workflow per Calliope.AI Tier 4b
+# OBLITERATUS workflow per Quill of Calliope Tier 4b
 
 > Abliteration top censored models per uso uncensored alta-qualità in scene sensibili.
 
@@ -40,7 +40,7 @@ obliteratus obliterate meta-llama/Llama-3.1-8B-Instruct --method advanced
 - Sufficient per 7B-13B abliteration
 - Per 70B → A100 Pro subscription serve
 
-## Top candidates per Calliope.AI Tier 4b
+## Top candidates per Quill of Calliope Tier 4b
 
 Modelli censored top-quality da abliteration:
 

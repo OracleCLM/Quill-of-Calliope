@@ -168,7 +168,7 @@ def export_phonemes(text: str, output_dir: str = "/tmp") -> dict[str, Any]:
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Calliope.AI — TTS phoneme export (espeak-ng + timing JSON)"
+        description="Quill of Calliope — TTS phoneme export (espeak-ng + timing JSON)"
     )
     parser.add_argument("text", help="Input text to synthesise")
     parser.add_argument(

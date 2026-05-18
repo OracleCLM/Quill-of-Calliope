@@ -1,11 +1,11 @@
-# Calliope.AI — Live2D Mascot Dashboard (Phase 1)
+# Quill of Calliope — Live2D Mascot Dashboard (Phase 1)
 
 Mascot dashboard locale. PIXI.js + pixi-live2d-display (CDN). Placeholder model: Hiyori (Cubism 4).
 
 ## Setup
 
 ```bash
-cd /home/nic/Scrivania/Calliope.AI
+cd /home/nic/Scrivania/Quill_of_Calliope
 python3 -m http.server 8080
 ```
 

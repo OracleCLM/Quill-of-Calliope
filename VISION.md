@@ -1,4 +1,4 @@
-# Calliope.AI — Vision
+# Quill of Calliope — Vision
 
 > Musa della poesia epica. Assistente AI per narrazione e gestione di giochi di ruolo testuali, con focus letterario, persistenza del contesto, e privacy locale.
 
@@ -104,7 +104,7 @@ Commands:
 ## Privacy
 
 - **Local-only NM**: NO cloud upload dei dati RP (Discord/ChatGPT export inclusi)
-- **ChromaDB shard separata**: `~/Scrivania/Calliope.AI/.chroma_calliope/`
+- **ChromaDB shard separata**: `~/Scrivania/Quill_of_Calliope/.chroma_calliope/`
 - **.gitignore aggressivo**: datasets/ + .chroma_calliope/ + sessions/ + private chars
 - **Skills no leak cross-project**: Calliope skills NON share data con Atlante / cops
 - **NO pod** per ora (operator-mandate). SL future option SOLO se abliterated 70B+ serve.
@@ -114,7 +114,7 @@ Commands:
 ## Repository structure
 
 ```
-Calliope.AI/
+Quill_of_Calliope/
 ├── README.md
 ├── VISION.md (questo file)
 ├── LICENSE (TBD: AGPL-3.0 coerente OBLITERATUS upstream o MIT più permissive)

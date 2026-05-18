@@ -6,4 +6,4 @@ The moon hung low over the palace gardens, its silver light fractured by the tre
 “You know nothing of what you guard,” the assassin snarled, voice like gravel and wind through cracks. “The throne was never meant for bloodline—it belongs to those who *remember*.” He lunged, a blur of shadow and steel, but Aurora pivoted, Moonveil singing as it deflected the strike. Sparks flared, brief as dying stars, illuminating the pain beneath his rage. She saw it then—the faint, pulsing sigil beneath his collarbone, the same mark etched into the forbidden tablets beneath the temple: a sign of the Forgotten Clan, exiled for attempting to merge yokai essence with human ambition. This was no mere intruder. He was a ghost of history, a remnant of the old rebellion—and somehow, his fate was tangled with the throne’s succession. As the garden’s fox spirits began to whisper in alarm, Aurora knew the truth was no longer just hidden in scrolls. It was bleeding into the present, blade in hand.
 
 ---
-_Calliope.AI M3 narrative chain — 2026-05-17T22:21:15_
+_Quill of Calliope M3 narrative chain — 2026-05-17T22:21:15_

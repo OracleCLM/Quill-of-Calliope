@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Calliope.AI TTS — bilingual EN/IT code-switch + single voice fallback.
+"""Quill of Calliope TTS — bilingual EN/IT code-switch + single voice fallback.
 
 Engine priority:
   1. Piper TTS (if ONNX model in ~/.local/share/piper/voices/)

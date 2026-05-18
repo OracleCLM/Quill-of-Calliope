@@ -4,4 +4,4 @@
 [Scene 4 generation failed]
 
 ---
-_Calliope.AI M3 narrative chain — 2026-05-17T22:21:15_
+_Quill of Calliope M3 narrative chain — 2026-05-17T22:21:15_

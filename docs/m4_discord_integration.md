@@ -1,4 +1,4 @@
-# Calliope.AI Discord Bot Integration — M4
+# Quill of Calliope Discord Bot Integration — M4
 
 ## Overview
 

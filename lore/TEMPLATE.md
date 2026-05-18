@@ -1,4 +1,4 @@
-<!-- Calliope.AI lore document template -->
+<!-- Quill of Calliope lore document template -->
 <!-- Copia in lore/<topic>.md e compila. Stile: category-agnostic, flessibile per mix folklore + light novel + medieval bucolic + custom -->
 
 ---

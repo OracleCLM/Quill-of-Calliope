@@ -7,7 +7,7 @@ Operator-authorized cross-repo import (sprint R-CALLIOPE-LIVE2D-INFRA-EXTRACT-FO
 
 ```bash
 # From Vesta repo root
-ln -s /home/nic/Scrivania/Calliope.AI/shared/live2d_mascot \
+ln -s /home/nic/Scrivania/Quill_of_Calliope/shared/live2d_mascot \
       ./shared/live2d_mascot
 ```
 
@@ -27,7 +27,7 @@ _core.app.title = "vesta-mascot-ws"
 
 ```python
 import sys
-sys.path.insert(0, "/home/nic/Scrivania/Calliope.AI/shared")
+sys.path.insert(0, "/home/nic/Scrivania/Quill_of_Calliope/shared")
 from live2d_mascot.server.ws_server import app, main
 ```
 
@@ -35,7 +35,7 @@ from live2d_mascot.server.ws_server import app, main
 
 ```html
 <!-- Absolute path (NM-local dev) -->
-<script src="/home/nic/Scrivania/Calliope.AI/shared/live2d_mascot/frontend/core/state_machine.js"></script>
+<script src="/home/nic/Scrivania/Quill_of_Calliope/shared/live2d_mascot/frontend/core/state_machine.js"></script>
 
 <!-- Relative path via symlink (recommended) -->
 <script src="../shared/live2d_mascot/frontend/core/state_machine.js"></script>

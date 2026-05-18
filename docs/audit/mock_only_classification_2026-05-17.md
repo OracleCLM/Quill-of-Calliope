@@ -1,4 +1,4 @@
-# Mock-Only Audit — Calliope.AI
+# Mock-Only Audit — Quill of Calliope
 **Date**: 2026-05-17 (sprint R-CALLIOPE-MOCK-ONLY-AUDIT)
 **Pattern**: AP1 Mock Loop Fallacy — mock test PASS ≠ real function works
 **Scope**: `tests/` directory, 12 files with mock/patch usage

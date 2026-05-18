@@ -1,4 +1,4 @@
-# Dataset Schema — Calliope.AI
+# Dataset Schema — Quill of Calliope
 
 Reference for all dataset output formats produced by the import pipeline.
 Updated: 2026-05-17.

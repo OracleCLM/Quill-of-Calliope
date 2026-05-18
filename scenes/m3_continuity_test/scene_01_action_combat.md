@@ -6,4 +6,4 @@ Moonlight spilled like liquid silver across the palace gardens of the Kingdom of
 Then—movement. A ripple behind the peony hedges. Not the sway of a fox-spirit or the flicker of a paper lantern, but something deliberate, predatory. Aurora halted, her breath steady as she summoned the veil of night-mist around her fingers. From the corner of her vision, a figure emerged—clad in ash-gray wrappings, face masked, twin daggers sheathed in shadow. An assassin. Not of Yokai blood, but something colder, foreign. Their golden eyes locked onto hers, unflinching. Before they could strike, a breeze carried the scent of plum blossoms and iron—the assassin’s intent, sharpened like a blade. And Aurora, heir to the Moonveil Throne, smiled faintly, knowing the gardens had become a stage for blood or revelation.
 
 ---
-_Calliope.AI M3 narrative chain — 2026-05-17T22:21:15_
+_Quill of Calliope M3 narrative chain — 2026-05-17T22:21:15_

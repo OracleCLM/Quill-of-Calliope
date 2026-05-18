@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Calliope.AI — Twitch Bot daemon launcher
+# Quill of Calliope — Twitch Bot daemon launcher
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

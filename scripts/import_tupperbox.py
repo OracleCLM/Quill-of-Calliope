@@ -1,4 +1,4 @@
-"""Import Tupperbox characters into Calliope.AI YAML format."""
+"""Import Tupperbox characters into Quill of Calliope YAML format."""
 
 from __future__ import annotations
 
@@ -59,7 +59,7 @@ def main() -> None:
     log = logging.getLogger(__name__)
 
     parser = argparse.ArgumentParser(
-        description="Import Tupperbox characters into Calliope.AI YAML format."
+        description="Import Tupperbox characters into Quill of Calliope YAML format."
     )
     parser.add_argument(
         "--input",

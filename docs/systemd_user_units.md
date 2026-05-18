@@ -1,4 +1,4 @@
-# Calliope.AI — systemd User Units (optional auto-start)
+# Quill of Calliope — systemd User Units (optional auto-start)
 
 Doc-only. Operator decides whether to install.
 
@@ -16,12 +16,12 @@ loginctl enable-linger $USER # allow user units to survive logout
 
 ```ini
 [Unit]
-Description=Calliope.AI LLM Gateway HTTP (port 8766)
+Description=Quill of Calliope LLM Gateway HTTP (port 8766)
 After=network.target
 
 [Service]
 Type=simple
-WorkingDirectory=/home/nic/Scrivania/Calliope.AI
+WorkingDirectory=/home/nic/Scrivania/Quill_of_Calliope
 ExecStart=/home/nic/anaconda3/bin/python3 scripts/llm_gateway_http.py
 Restart=on-failure
 RestartSec=5
@@ -38,13 +38,13 @@ WantedBy=default.target
 
 ```ini
 [Unit]
-Description=Calliope.AI Mascot WebSocket Server (port 8767)
+Description=Quill of Calliope Mascot WebSocket Server (port 8767)
 After=network.target calliope-llm-gateway.service
 Wants=calliope-llm-gateway.service
 
 [Service]
 Type=simple
-WorkingDirectory=/home/nic/Scrivania/Calliope.AI
+WorkingDirectory=/home/nic/Scrivania/Quill_of_Calliope
 ExecStart=/home/nic/anaconda3/bin/python3 scripts/mascot_ws_server.py --port 8767
 Restart=on-failure
 RestartSec=3

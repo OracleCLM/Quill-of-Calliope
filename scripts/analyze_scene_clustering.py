@@ -198,7 +198,7 @@ def main() -> None:
     # -----------------------------------------------------------------------
     # Write report (placeholder for Groq section — filled externally)
     # -----------------------------------------------------------------------
-    header = f"""# Scene Clustering Review — Calliope.AI M1
+    header = f"""# Scene Clustering Review — Quill of Calliope M1
 Generated: {datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')}
 Total scenes: {total} | Scenes with timestamps: {len(records_with_ts)}
 

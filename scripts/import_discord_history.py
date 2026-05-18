@@ -1,4 +1,4 @@
-"""Import Discord Channel Exporter (DCE) JSON exports into Calliope.AI dataset.
+"""Import Discord Channel Exporter (DCE) JSON exports into Quill of Calliope dataset.
 
 Usage:
     python scripts/import_discord_history.py --input-dir /tmp/discord_import/raw/ --output datasets/discord_yokai/messages_clean.jsonl
@@ -172,7 +172,7 @@ def parse_channel(data: dict, tupper_names: set) -> list[dict]:
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
-        description="Import Discord Channel Exporter JSON files into Calliope.AI dataset.",
+        description="Import Discord Channel Exporter JSON files into Quill of Calliope dataset.",
     )
     parser.add_argument(
         "--input-dir",

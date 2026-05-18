@@ -1,4 +1,4 @@
-# Calliope.AI — MVP scope (M1+M2+M3)
+# Quill of Calliope — MVP scope (M1+M2+M3)
 
 > Definizione strict del primo workflow funzionante operator-usable.
 

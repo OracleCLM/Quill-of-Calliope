@@ -1,4 +1,4 @@
-# Calliope.AI — M4 Kickoff Plan
+# Quill of Calliope — M4 Kickoff Plan
 
 **Status**: PLANNING (sprint R-CALLIOPE-DAEMON-LAUNCHER-FIX-M4-KICKOFF, 2026-05-18)
 **M3 baseline**: route_scene ✓ | narrative_state ✓ | TTS bilingual ✓ | Live2D Phase-2 ✓ | scene_narrative chain ✓

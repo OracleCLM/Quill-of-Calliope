@@ -1,4 +1,4 @@
-# Calliope.AI — Twitch Streaming Integration
+# Quill of Calliope — Twitch Streaming Integration
 
 **Status**: M4 implemented — `scripts/twitch_bot.py` + `frontend/twitch_overlay/`
 **Requires**: operator Twitch account + app registration

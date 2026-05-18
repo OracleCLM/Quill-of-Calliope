@@ -1,4 +1,4 @@
-"""Tests for Calliope.AI daemon launcher scripts."""
+"""Tests for Quill of Calliope daemon launcher scripts."""
 from __future__ import annotations
 
 import os

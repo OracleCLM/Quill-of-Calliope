@@ -64,7 +64,7 @@ def test_generate_scene_e2e(tmp_path: Path) -> None:
     assert "action_combat" in content
     assert "A great battle unfolds." in content
     assert "**Latency**:" in content
-    assert "Calliope.AI M3" in content
+    assert "Quill of Calliope M3" in content
 
 
 # ── Integration tests — real gateway ─────────────────────────────────────────

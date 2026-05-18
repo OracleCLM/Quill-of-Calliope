@@ -1,6 +1,6 @@
-# Vesta-Minerva → Calliope.AI reuse map
+# Vesta-Minerva → Quill of Calliope reuse map
 
-> Mapping componenti riutilizzabili da Vesta-Minerva (Workspace sub-system) per Calliope.AI persona+memory tracking.
+> Mapping componenti riutilizzabili da Vesta-Minerva (Workspace sub-system) per Quill of Calliope persona+memory tracking.
 
 ## Cosa è Vesta-Minerva
 
@@ -13,11 +13,11 @@ Funzioni core esistenti:
 - Multi-channel routing (Telegram/voice/iMessage adapter)
 - Constitutional gate pre-output
 
-## Componenti riutilizzabili per Calliope.AI
+## Componenti riutilizzabili per Quill of Calliope
 
 ### ✅ HIGH-VALUE reuse
 
-| Componente Vesta | Path approssimativo | Calliope.AI use case | Adattamento |
+| Componente Vesta | Path approssimativo | Quill of Calliope use case | Adattamento |
 |------------------|---------------------|---------------------|-------------|
 | **Persona tracker** | `vesta_system1/persona_tracker.py` | Tracking NPC + PC across scenes | Adapt: char_id invece di user_id |
 | **Memory store Mem0 wrapper** | `vesta_system1/memory_store.py` | Persistent memory per char + lore | Riusa diretto, separate namespace `calliope_*` |
@@ -26,7 +26,7 @@ Funzioni core esistenti:
 
 ### 🟡 MEDIUM-VALUE reuse
 
-| Componente Vesta | Calliope.AI use case |
+| Componente Vesta | Quill of Calliope use case |
 |------------------|---------------------|
 | ChromaDB wrapper | Riuso pattern, separate shard |
 | Conversational history schema | Adapt per scene history |
@@ -42,10 +42,10 @@ Funzioni core esistenti:
 
 ### Path A — Import as library
 
-Crea `~/Scrivania/Calliope.AI/src/vesta_lib/` directory locale:
+Crea `~/Scrivania/Quill_of_Calliope/src/vesta_lib/` directory locale:
 ```python
 # Setup
-mkdir -p ~/Scrivania/Calliope.AI/src/vesta_lib
+mkdir -p ~/Scrivania/Quill_of_Calliope/src/vesta_lib
 # Copia files riutilizzabili (NO modify originale Workspace)
 cp ~/Scrivania/Workspace/vesta_system1/persona_tracker.py src/vesta_lib/
 cp ~/Scrivania/Workspace/vesta_system1/memory_store.py src/vesta_lib/
@@ -63,7 +63,7 @@ CONTRO: divergence eventuale = doppia maintenance
 ### Path B — Import as git submodule
 
 ```bash
-cd ~/Scrivania/Calliope.AI
+cd ~/Scrivania/Quill_of_Calliope
 git submodule add ~/Scrivania/Workspace vesta_upstream
 # Import via path absolute
 sys.path.insert(0, str(Path(__file__).parent / "vesta_upstream/vesta_system1"))
@@ -88,7 +88,7 @@ CONTRO: setup overhead, P3 future
 
 **Path A** per M2-M3 (1-2 settimane dev). Veloce, full control, nessuna dipendenza Workspace state.
 
-Migrazione **Path C** quando Calliope.AI matura + altri progetti vorranno usare vesta-core.
+Migrazione **Path C** quando Quill of Calliope matura + altri progetti vorranno usare vesta-core.
 
 ## Schema mapping char ↔ persona
 
@@ -141,4 +141,4 @@ class MemoryEntry:
 
 1. Verifica esistenza file Vesta-Minerva (questa analisi è pattern-based, da confermare quando wake-up)
 2. Spawn sonnet1-cops sprint M2-prep: copy files Vesta + adapt + tests basic
-3. Operator review + approve before merge in Calliope.AI src/
+3. Operator review + approve before merge in Quill of Calliope src/

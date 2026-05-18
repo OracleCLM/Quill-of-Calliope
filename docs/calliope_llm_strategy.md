@@ -1,4 +1,4 @@
-# Calliope.AI — LLM strategy 4-tier + OBLITERATUS plan
+# Quill of Calliope — LLM strategy 4-tier + OBLITERATUS plan
 
 > Token-conscious routing. MCP-first rigoroso (operator-mandate). Claude API SOLO scene climax critical.
 
@@ -121,7 +121,7 @@ mcp__ollama-tools__ollama_ask(
 **Invocation pattern**:
 ```bash
 # Spawn ad-hoc Claude session in dir Calliope con context
-cd ~/Scrivania/Calliope.AI
+cd ~/Scrivania/Quill_of_Calliope
 claude --model claude-opus-4-7 --dangerously-skip-permissions
 # Poi nel prompt: load context da ChromaDB (skill pre-built)
 # /skill calliope-load-scene-context <scene_id>

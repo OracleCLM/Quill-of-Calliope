@@ -1,5 +1,5 @@
 /**
- * Calliope.AI — Twitch Overlay
+ * Quill of Calliope — Twitch Overlay
  * OBS browser source: ws://localhost:8767 | Live2D mascot + scene text bubble
  */
 

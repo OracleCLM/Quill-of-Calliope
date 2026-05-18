@@ -8,4 +8,4 @@ The assassin's hiss still lingered in the air as they regained their footing, th
 As the dance between Aurora and the assassin intensified, the palace gardens themselves seemed to be holding their breath. The trees stood like sentinels, their branches motionless, while the flowers appeared to lean in, as if to witness the unfolding drama. The moon above cast an argent glow, its light imbuing the mist-shield with an ethereal strength. Aurora's determination hardened, her will forged in the crucible of her ancestors' legacy. She would not let this unknown assassin disrupt the harmony of the palace, nor would she allow the Moonveil succession to be decided by the whims of a faceless killer. The fate of the throne, and the future of the Yokai, hung in the balance, and Aurora was ready to defend it with every fiber of her being.
 
 ---
-_Calliope.AI M3 narrative chain — 2026-05-17T22:21:15_
+_Quill of Calliope M3 narrative chain — 2026-05-17T22:21:15_

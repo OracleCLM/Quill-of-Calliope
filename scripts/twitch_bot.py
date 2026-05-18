@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Calliope.AI Twitch bot — mascot state control via chat commands.
+"""Quill of Calliope Twitch bot — mascot state control via chat commands.
 
 Architecture:
   - Pure logic (testable, no twitchio dependency): VALID_*, check_cooldown, push_event

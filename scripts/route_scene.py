@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""LLM scene routing decision engine for Calliope.AI RP assistant.
+"""LLM scene routing decision engine for Quill of Calliope RP assistant.
 
 Implements docs/llm_routing.md v1 operator-approved matrix.
 Handles content safety blocks, NSFW threshold forcing, and scene-type→tier mapping.

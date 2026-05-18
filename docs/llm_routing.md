@@ -1,4 +1,4 @@
-# LLM Routing — Calliope.AI
+# LLM Routing — Quill of Calliope
 
 **Operator-approved 2026-05-17 (via father-NM)**. Schema definitivo per M2/M3.
 

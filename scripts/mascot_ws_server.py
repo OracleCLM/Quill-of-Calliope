@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Calliope.AI mascot WebSocket server — thin wrapper.
+"""Quill of Calliope mascot WebSocket server — thin wrapper.
 
 Delegates to shared/live2d_mascot/server/ws_server.py (repo-agnostic core).
 Calliope-specific overrides:

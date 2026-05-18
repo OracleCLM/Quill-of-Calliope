@@ -1,6 +1,6 @@
 # SillyTavern Evaluation Plan (Path C hybrid)
 
-> Setup + test rapido SillyTavern come foundation Calliope.AI. 1 giorno effort. Decision data-driven post-eval.
+> Setup + test rapido SillyTavern come foundation Quill of Calliope. 1 giorno effort. Decision data-driven post-eval.
 
 ## Status
 

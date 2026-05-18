@@ -1,4 +1,4 @@
-<!-- Calliope.AI scene running summary template -->
+<!-- Quill of Calliope scene running summary template -->
 <!-- Copia in scenes/<scene_id>.md per ogni scena attiva. -->
 <!-- IMPORTANTE: scene long-tail (settimane/mesi tipici). Persistence forever-by-default. -->
 

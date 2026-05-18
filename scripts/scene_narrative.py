@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Calliope.AI M3 — narrative chain generator.
+Quill of Calliope M3 — narrative chain generator.
 """
 
 import argparse
@@ -121,7 +121,7 @@ def generate_scene_chain(
                 f"**Latency**: {latency_ms}ms | **Chars**: {len(scene_text)}\n\n"
                 f"{scene_text}\n\n"
                 f"---\n"
-                f"_Calliope.AI M3 narrative chain — {timestamp}_\n"
+                f"_Quill of Calliope M3 narrative chain — {timestamp}_\n"
             )
 
         stats.append(
@@ -187,7 +187,7 @@ def write_narrative_index(
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Calliope.AI M3 narrative chain generator")
+    parser = argparse.ArgumentParser(description="Quill of Calliope M3 narrative chain generator")
     parser.add_argument("--seed", type=str, required=True, help="Starting prompt for scene 1")
     parser.add_argument("--n-scenes", type=int, default=3, help="Number of scenes in chain")
     parser.add_argument(

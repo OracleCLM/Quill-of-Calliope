@@ -7,7 +7,7 @@
 
 set -euo pipefail
 
-REPO=/home/nic/Scrivania/Calliope.AI
+REPO=/home/nic/Scrivania/Quill_of_Calliope
 PY=/home/nic/anaconda3/bin/python
 LOG=/tmp/discord_import/cron.log
 

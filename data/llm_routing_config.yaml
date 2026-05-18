@@ -1,4 +1,4 @@
-# Calliope.AI LLM routing config — operator-editable
+# Quill of Calliope LLM routing config — operator-editable
 # docs/llm_routing.md v1 (2026-05-17)
 matrix:
   action_combat:

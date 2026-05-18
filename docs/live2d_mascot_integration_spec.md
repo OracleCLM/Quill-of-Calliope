@@ -1,4 +1,4 @@
-# Live2D Mascot Integration Spec — Calliope.AI
+# Live2D Mascot Integration Spec — Quill of Calliope
 
 **Status**: PHASE-2 IMPL DONE (2026-05-17) — Phase-3 pending
 **Version**: v1.5

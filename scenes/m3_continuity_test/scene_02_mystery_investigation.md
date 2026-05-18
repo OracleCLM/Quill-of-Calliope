@@ -6,4 +6,4 @@ The assassin moved like spilled ink across moonlight—a blur of ash-gray that d
 Aurora’s faint smile didn’t waver, though her eyes, the color of storm-touched violets, hardened. "The gardens bloom poorly for uninvited blades," she murmured, her voice a low chime beneath the rustle of disturbed blossoms. With a subtle twist of her wrist, the mist-shield didn't just hold – it *flowed*. Tendrils of condensed moonlight lashed out, not to pierce, but to entangle, seeking the joints beneath the wrappings, the solidity beneath the shadow. The assassin hissed, a sound like tearing silk, recoiling as the chill kiss of Aurora’s power grazed their forearm. This was no mere intruder; the iron-tang of their magic was alien, a discordant note in the symphony of Yokai essence that thrummed through the palace stones. Aurora’s mind raced faster than her mist: *Who sends a blade that smells of dead stars to a throne bathed in moonlight?* The dance had begun, and the fate of the Moonveil succession hung on its first, deadly steps.
 
 ---
-_Calliope.AI M3 narrative chain — 2026-05-17T22:21:15_
+_Quill of Calliope M3 narrative chain — 2026-05-17T22:21:15_

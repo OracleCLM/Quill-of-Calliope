@@ -1,4 +1,4 @@
-# Calliope.AI — Image generation plan (M5 feature, paired with TTS)
+# Quill of Calliope — Image generation plan (M5 feature, paired with TTS)
 
 > Visual scene generation con char consistency cross-image. NSFW-capable per battle/horror scene narrative. NM-CPU OK (tempi lunghi tollerati).
 
@@ -118,7 +118,7 @@ Stima per char (training + generated):
 - Trained LoRA file: 150MB (SDXL LoRA size)
 - Generated scenes: 4MB/image × 100/anno = 400MB
 
-Per 5 char active: ~3GB. Total Calliope.AI dir: 5-15GB realistic ongoing. Disk OK (operator 458GB total).
+Per 5 char active: ~3GB. Total Quill of Calliope dir: 5-15GB realistic ongoing. Disk OK (operator 458GB total).
 
 Backup: Discord backup-natural per drafts importanti. Local archive `datasets/generated/<year>/` se serve preserve, altrimenti ephemeral cleanup oltre 90 giorni.
 

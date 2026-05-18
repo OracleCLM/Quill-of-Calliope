@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Calliope.AI Phase-3 E2E demo — 3-scene chain + TTS + WS broadcast cycle."""
+"""Quill of Calliope Phase-3 E2E demo — 3-scene chain + TTS + WS broadcast cycle."""
 from __future__ import annotations
 import argparse
 import json
@@ -74,7 +74,7 @@ def _post(endpoint: str, data: dict) -> bool:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Calliope.AI Phase-3 E2E demo")
+    parser = argparse.ArgumentParser(description="Quill of Calliope Phase-3 E2E demo")
     parser.add_argument("--output-dir", default="scenes/m3_e2e_demo/")
     parser.add_argument("--no-start-daemons", action="store_true")
     parser.add_argument("--skip-tts", action="store_true")

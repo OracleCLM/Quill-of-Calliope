@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Calliope.AI — Excel RP history importer M1.
+"""Quill of Calliope — Excel RP history importer M1.
 
 Pipeline:
 1. Load .xlsx → DataFrame pandas
@@ -14,7 +14,7 @@ Pipeline:
 
 Usage:
     python import_excel_history.py /tmp/calliope_import/Yokai.xlsx
-    python import_excel_history.py /tmp/calliope_import/Yokai.xlsx --output ~/Scrivania/Calliope.AI
+    python import_excel_history.py /tmp/calliope_import/Yokai.xlsx --output ~/Scrivania/Quill_of_Calliope
 """
 from __future__ import annotations
 
@@ -229,12 +229,12 @@ def extract_narrator_messages(df: pd.DataFrame) -> list[str]:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Calliope.AI Excel history importer M1")
+    parser = argparse.ArgumentParser(description="Quill of Calliope Excel history importer M1")
     parser.add_argument("input_file", type=Path, help="Path to .xlsx")
     parser.add_argument(
         "--output",
         type=Path,
-        default=Path("/home/nic/Scrivania/Calliope.AI"),
+        default=Path("/home/nic/Scrivania/Quill_of_Calliope"),
         help="Project root directory",
     )
     args = parser.parse_args()

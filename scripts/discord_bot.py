@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Calliope.AI M4 Discord bot — slash commands for scene gen + mascot control."""
+"""Quill of Calliope M4 Discord bot — slash commands for scene gen + mascot control."""
 from __future__ import annotations
 import argparse
 import asyncio

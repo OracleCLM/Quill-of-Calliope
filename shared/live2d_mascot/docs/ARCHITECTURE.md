@@ -1,14 +1,14 @@
 # Live2D Mascot Shared Infrastructure — Architecture
 
 **Package**: `shared/live2d_mascot/`
-**Version**: v1.0.0 (2026-05-18, extracted from Calliope.AI M3 Phase-2+3)
-**Owner**: Calliope.AI repo (primary), consumed by Vesta (secondary)
+**Version**: v1.0.0 (2026-05-18, extracted from Quill of Calliope M3 Phase-2+3)
+**Owner**: Quill of Calliope repo (primary), consumed by Vesta (secondary)
 
 ---
 
 ## Rationale: repo-agnostic vs repo-specific split
 
-The Live2D mascot stack was built in Calliope.AI M3 but its core infra is identity-neutral.
+The Live2D mascot stack was built in Quill of Calliope M3 but its core infra is identity-neutral.
 Any RP/VTuber project needs the same WebSocket broadcast, state machine, and emotion system.
 
 **Shared** = infrastructure logic with no project-specific data:
@@ -108,7 +108,7 @@ window.addEventListener('stateChanged', (e) => console.log(e.detail.state))
 └────────────────────────────────────────────────────────────────┘
          │                              │
          ▼                              ▼
-┌── Calliope.AI ──────────┐    ┌── Vesta ───────────────────┐
+┌── Quill of Calliope ──────────┐    ┌── Vesta ───────────────────┐
 │ scripts/mascot_ws_server│    │ [path]/mascot_ws_server     │
 │  .py (thin wrapper)     │    │  .py (thin wrapper)         │
 │ frontend/live2d/app.js  │    │ frontend/vesta/app.js       │
@@ -163,12 +163,12 @@ Both repos pin to a git ref or copy version. No npm/pip publish required (single
 
 ```bash
 # Symlink approach (preferred — single source of truth)
-ln -s /home/nic/Scrivania/Calliope.AI/shared/live2d_mascot \
+ln -s /home/nic/Scrivania/Quill_of_Calliope/shared/live2d_mascot \
       /home/nic/Scrivania/Vesta/shared_live2d_mascot
 
 # Python import in vesta thin wrapper
 import sys
-sys.path.insert(0, "/home/nic/Scrivania/Calliope.AI/shared")
+sys.path.insert(0, "/home/nic/Scrivania/Quill_of_Calliope/shared")
 from live2d_mascot.server.ws_server import app, main
 
 # Frontend JS (HTML)

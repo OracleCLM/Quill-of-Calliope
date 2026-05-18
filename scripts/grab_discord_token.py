@@ -64,7 +64,7 @@ def main():
         sys.exit(f"Chromium non trovato: {CHROMIUM}")
 
     print("=" * 60)
-    print("Calliope.AI — Discord token grabber")
+    print("Quill of Calliope — Discord token grabber")
     print("=" * 60)
     print("Apro Chromium. Login Discord (QR mobile o credentials).")
     print()

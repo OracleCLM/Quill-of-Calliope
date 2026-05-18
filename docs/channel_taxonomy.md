@@ -1,4 +1,4 @@
-# Channel Taxonomy — Calliope.AI Discord ingestion
+# Channel Taxonomy — Quill of Calliope Discord ingestion
 
 **Auto-decided 2026-05-17 (via father-NM)**. Heuristic classification rules. Operator override later via `channels_taxonomy.yaml` (empty OK for now).
 

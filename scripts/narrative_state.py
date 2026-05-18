@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Cross-scene narrative state tracking for Calliope.AI fantasy RP assistant."""
+"""Cross-scene narrative state tracking for Quill of Calliope fantasy RP assistant."""
 
 import argparse
 import json

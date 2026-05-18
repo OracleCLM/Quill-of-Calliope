@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Stop all Calliope.AI daemons gracefully
+# Stop all Quill of Calliope daemons gracefully
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -27,4 +27,4 @@ else
   _log "LLM gateway not running (no PID file)"
 fi
 
-_log "All Calliope.AI daemons stopped."
+_log "All Quill of Calliope daemons stopped."
