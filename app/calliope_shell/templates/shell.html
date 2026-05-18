@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quill of Calliope</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: sans-serif;
+            color: white;
+        }
+        header {
+            height: 60px;
+            background-color: #1a1a2e;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        header h1 {
+            margin: 0;
+            font-size: 1.2em;
+        }
+        nav a {
+            color: white;
+            margin-left: 20px;
+            text-decoration: none;
+        }
+        nav a:hover {
+            text-decoration: underline;
+        }
+        main {
+            display: flex;
+            height: calc(100vh - 60px);
+        }
+        iframe {
+            flex: 1;
+            height: calc(100vh - 60px);
+            border: 0;
+        }
+        aside {
+            width: 320px;
+            background-color: #16213e;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        #mascot {
+            margin-bottom: 10px;
+        }
+        aside p {
+            color: #aaa;
+            font-size: 0.9em;
+            text-align: center;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Quill of Calliope</h1>
+        <nav>
+            <a href="#">Home</a> |
+            <a href="#">Settings</a>
+        </nav>
+    </header>
+    <main>
+        <iframe
+            src="{{ ST_URL }}"
+            sandbox="allow-scripts allow-forms allow-same-origin allow-popups">
+        </iframe>
+        <aside>
+            <canvas id="mascot" width="320" height="600"></canvas>
+            <p>Aurora idle</p>
+        </aside>
+    </main>
+    <script src="/static/live2d.bundle.js"></script>
+    <script>
+        const ws = new WebSocket("{{ MASCOT_WS_URL }}");
+        ws.onmessage = e => console.log("[mascot]", e.data);
+        ws.onerror = e => console.warn("[mascot] WS not available yet");
+    </script>
+</body>
+</html>
