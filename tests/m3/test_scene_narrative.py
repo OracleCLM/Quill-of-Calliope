@@ -20,7 +20,7 @@ from scene_narrative import (  # noqa: E402
 _MOCK_ROUTING = {
     "tier": "cerebras_workhorse",
     "provider": "cerebras",
-    "model": "qwen-3-235b-a22b",
+    "model": "qwen-3-235b-a22b-instruct-2507",
     "rationale": "test",
 }
 

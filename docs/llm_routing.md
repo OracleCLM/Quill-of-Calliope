@@ -10,7 +10,7 @@ Calliope routing tiers, basato su use-case + privacy hard boundary. Sensitive co
 
 | Use case | Tier | Model | Note |
 |---|---|---|---|
-| **Scene draft generation normale** | Cerebras | `qwen-3-235b-a22b` | Workhorse, batch-friendly |
+| **Scene draft generation normale** | Cerebras | `qwen-3-235b-a22b-instruct-2507` | Workhorse, batch-friendly |
 | **Scene generation sensitive** (violence / sex / dark) | Ollama local | `dolphin-mistral-24b` (1st), `qwen-uncensored:32b` (fallback) | Privacy hard line, MAI cloud |
 | **Climax scene rare max-quality** | Claude API (Max plan) | `claude-opus-4-7` | **Off-load via subprocess CLI** (NO API key consume — usa `claude` CLI Max session) |
 | **Translation IT↔EN** (operator interface) | Groq | `llama-3.3-70b-versatile` | Fast, low latency |

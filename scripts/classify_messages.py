@@ -181,7 +181,7 @@ def main() -> None:
         choices=["cerebras", "groq", "local"],
         help="LLM provider",
     )
-    parser.add_argument("--model", type=str, default="qwen-3-235b-a22b", help="Model name to use")
+    parser.add_argument("--model", type=str, default="qwen-3-235b-a22b-instruct-2507", help="Model name to use")
     parser.add_argument("--dry-run", action="store_true", help="Don't write output, just print sample")
 
     args = parser.parse_args()

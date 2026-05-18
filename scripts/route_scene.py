@@ -19,15 +19,15 @@ import yaml
 
 DEFAULT_CONFIG: Dict = {
     "matrix": {
-        "action_combat":          {"tier": "cerebras_workhorse",   "provider": "cerebras",    "model": "qwen-3-235b-a22b"},
-        "character_death":        {"tier": "cerebras_workhorse",   "provider": "cerebras",    "model": "qwen-3-235b-a22b"},
+        "action_combat":          {"tier": "cerebras_workhorse",   "provider": "cerebras",    "model": "qwen-3-235b-a22b-instruct-2507"},
+        "character_death":        {"tier": "cerebras_workhorse",   "provider": "cerebras",    "model": "qwen-3-235b-a22b-instruct-2507"},
         "nsfw_explicit":          {"tier": "ollama_uncensored",    "provider": "ollama",      "model": "dolphin-mistral-24b"},
         "romantic_fade_to_black": {"tier": "groq_fast",            "provider": "groq",        "model": "llama-3.3-70b-versatile"},
         "ooc_meta":               {"tier": "groq_fast",            "provider": "groq",        "model": "llama-3.3-70b-versatile"},
         "system_command":         {"tier": "groq_fast",            "provider": "groq",        "model": "llama-3.3-70b-versatile"},
         "lore_exposition":        {"tier": "openrouter_reasoning", "provider": "openrouter",  "model": "deepseek-r1-0528"},
         "climax_rare":            {"tier": "claude_subprocess",    "provider": "claude",      "model": "claude-opus-4-7"},
-        "default":                {"tier": "cerebras_workhorse",   "provider": "cerebras",    "model": "qwen-3-235b-a22b"},
+        "default":                {"tier": "cerebras_workhorse",   "provider": "cerebras",    "model": "qwen-3-235b-a22b-instruct-2507"},
     },
     "nsfw_threshold": 2,
     "block_thresholds": {

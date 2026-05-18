@@ -1,6 +1,6 @@
 # Yokai RPG — Lore Extracted from NARRATOR Messages
 
-> Auto-extracted via MCP cerebras (qwen-3-235b-a22b) from 1743 NARRATOR messages (2021-11 → 2024-11).  
+> Auto-extracted via MCP cerebras (qwen-3-235b-a22b-instruct-2507) from 1743 NARRATOR messages (2021-11 → 2024-11).
 > Source: Horo (operator) GM voice. Status: **draft** — operator review required. No speculation.
 
 ---
@@ -103,5 +103,5 @@ Humans · Kitsune (fox-type) · Nine-tailed fox yokai · Elf · Alû · Hobbit �
 
 ---
 
-*Extraction date: 2026-05-16 · MCP cerebras · 4-batch analysis of 1516 filtered NARRATOR messages*  
+*Extraction date: 2026-05-16 · MCP cerebras · 4-batch analysis of 1516 filtered NARRATOR messages*
 *Operator review: PENDING — verify location names, confirm factions, expand missing lore*

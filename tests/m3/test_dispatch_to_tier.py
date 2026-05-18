@@ -23,7 +23,7 @@ class TestGatewayCerebrasSuccess(unittest.TestCase):
     """Scenario 1 — happy-path cerebras call returns content."""
 
     def test_gateway_cerebras_success(self):
-        mock_resp = _make_response({"content": "scene text", "provider": "cerebras", "model": "qwen-3-235b-a22b"})
+        mock_resp = _make_response({"content": "scene text", "provider": "cerebras", "model": "qwen-3-235b-a22b-instruct-2507"})
         with patch("urllib.request.urlopen", return_value=mock_resp) as mock_open:
             result = dispatch_to_tier(
                 "cerebras_workhorse",
@@ -40,7 +40,7 @@ class TestGatewayRetryThenSuccess(unittest.TestCase):
     """Scenario 2 — first attempt raises, second returns OK."""
 
     def test_gateway_retry_then_success(self):
-        ok_resp = _make_response({"content": "ok scene", "provider": "cerebras", "model": "qwen-3-235b-a22b"})
+        ok_resp = _make_response({"content": "ok scene", "provider": "cerebras", "model": "qwen-3-235b-a22b-instruct-2507"})
         side_effects = [Exception("connection refused"), ok_resp]
 
         with patch("urllib.request.urlopen", side_effect=side_effects) as mock_open, \

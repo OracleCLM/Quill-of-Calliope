@@ -4,11 +4,11 @@ matrix:
   action_combat:
     tier: cerebras_workhorse
     provider: cerebras
-    model: qwen-3-235b-a22b
+    model: qwen-3-235b-a22b-instruct-2507
   character_death:
     tier: cerebras_workhorse
     provider: cerebras
-    model: qwen-3-235b-a22b
+    model: qwen-3-235b-a22b-instruct-2507
   nsfw_explicit:
     tier: ollama_uncensored
     provider: ollama
@@ -37,7 +37,7 @@ matrix:
   action_aftermath:
     tier: cerebras_workhorse
     provider: cerebras
-    model: qwen-3-235b-a22b
+    model: qwen-3-235b-a22b-instruct-2507
   comedic_banter:
     tier: groq_fast
     provider: groq
@@ -49,7 +49,7 @@ matrix:
   exploration_landscape:
     tier: cerebras_workhorse
     provider: cerebras
-    model: qwen-3-235b-a22b
+    model: qwen-3-235b-a22b-instruct-2507
   intimate_dialogue:
     tier: groq_fast
     provider: groq
@@ -65,7 +65,7 @@ matrix:
   dream_surreal:
     tier: cerebras_workhorse
     provider: cerebras
-    model: qwen-3-235b-a22b
+    model: qwen-3-235b-a22b-instruct-2507
   ritual_ceremony:
     tier: openrouter_reasoning
     provider: openrouter
@@ -73,11 +73,11 @@ matrix:
   combat_chase:
     tier: cerebras_workhorse
     provider: cerebras
-    model: qwen-3-235b-a22b
+    model: qwen-3-235b-a22b-instruct-2507
   default:
     tier: cerebras_workhorse
     provider: cerebras
-    model: qwen-3-235b-a22b
+    model: qwen-3-235b-a22b-instruct-2507
 
 nsfw_threshold: 2   # any dim >= this → force Ollama local
 

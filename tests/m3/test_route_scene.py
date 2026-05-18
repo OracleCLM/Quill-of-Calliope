@@ -17,7 +17,7 @@ def test_action_combat_clean():
     r = route_scene("action_combat", CLEAN, config=DEFAULT_CONFIG)
     assert r["tier"] == "cerebras_workhorse"
     assert r["provider"] == "cerebras"
-    assert r["model"] == "qwen-3-235b-a22b"
+    assert r["model"] == "qwen-3-235b-a22b-instruct-2507"
     assert "action_combat" in r["rationale"]
 
 
@@ -67,7 +67,7 @@ def test_custom_config(tmp_path):
     custom = {
         "matrix": {
             "action_combat": {"tier": "groq_fast", "provider": "groq", "model": "llama-3.3-70b-versatile"},
-            "default":        {"tier": "cerebras_workhorse", "provider": "cerebras", "model": "qwen-3-235b-a22b"},
+            "default":        {"tier": "cerebras_workhorse", "provider": "cerebras", "model": "qwen-3-235b-a22b-instruct-2507"},
             "nsfw_explicit":  {"tier": "ollama_uncensored", "provider": "ollama", "model": "dolphin-mistral-24b"},
         },
         "nsfw_threshold": 2,

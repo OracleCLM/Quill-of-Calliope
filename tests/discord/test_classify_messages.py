@@ -86,7 +86,7 @@ def test_classify_batch_mock_cerebras(monkeypatch):
 
     with patch("classify_messages.requests.post") as mock_post:
         mock_post.return_value = _make_mock_response(expected_tags)
-        result = classify_batch(messages, provider="cerebras", model="qwen-3-235b-a22b")
+        result = classify_batch(messages, provider="cerebras", model="qwen-3-235b-a22b-instruct-2507")
 
     assert len(result) == len(messages)
     assert result == expected_tags
@@ -121,7 +121,7 @@ def test_classify_batch_fallback_on_api_error(monkeypatch):
     ]
 
     with patch("classify_messages.requests.post", side_effect=ConnectionError("network error")):
-        result = classify_batch(messages, provider="cerebras", model="qwen-3-235b-a22b")
+        result = classify_batch(messages, provider="cerebras", model="qwen-3-235b-a22b-instruct-2507")
 
     assert len(result) == 2
     assert result[0] == "OOC"
@@ -144,7 +144,7 @@ def test_classify_batch_line_separated_fallback(monkeypatch):
     }
 
     with patch("classify_messages.requests.post", return_value=mock_resp):
-        result = classify_batch(messages, provider="cerebras", model="qwen-3-235b-a22b")
+        result = classify_batch(messages, provider="cerebras", model="qwen-3-235b-a22b-instruct-2507")
 
     assert len(result) == 2
     assert result[0] == "IC"
@@ -166,7 +166,7 @@ def test_dry_run_argparse():
     parser.add_argument("--output", type=str, required=False, default="out.jsonl")
     parser.add_argument("--batch-size", type=int, default=50)
     parser.add_argument("--provider", type=str, default="cerebras", choices=["cerebras", "groq", "local"])
-    parser.add_argument("--model", type=str, default="qwen-3-235b-a22b")
+    parser.add_argument("--model", type=str, default="qwen-3-235b-a22b-instruct-2507")
     parser.add_argument("--dry-run", action="store_true")
 
     args = parser.parse_args(["--input", "x.jsonl", "--output", "y.jsonl", "--dry-run"])
@@ -182,7 +182,7 @@ def test_dry_run_argparse_default_false():
     parser.add_argument("--output", type=str, required=False, default="out.jsonl")
     parser.add_argument("--batch-size", type=int, default=50)
     parser.add_argument("--provider", type=str, default="cerebras", choices=["cerebras", "groq", "local"])
-    parser.add_argument("--model", type=str, default="qwen-3-235b-a22b")
+    parser.add_argument("--model", type=str, default="qwen-3-235b-a22b-instruct-2507")
     parser.add_argument("--dry-run", action="store_true")
 
     args = parser.parse_args([])
