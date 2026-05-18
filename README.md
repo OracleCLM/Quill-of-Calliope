@@ -15,17 +15,45 @@ Quill of Calliope aiuta a:
 
 Privacy-first, local-only, MCP-driven per token saving.
 
-## Quick start
+## Quick Start (zero-CLI)
 
-⚠️ MVP in costruzione. Quick start sarà disponibile post-M2 (skill core).
+Doppio click su `Quill_of_Calliope_QuickStart.desktop` sul Desktop.
 
-Pre-requisiti pianificati:
+Il browser si apre automaticamente su `http://localhost:5000` con:
+- SillyTavern (iframe) nella colonna principale
+- Aurora Live2D mascot nella sidebar destra
+
+Stop di tutti i daemon: `scripts/stop_all_calliope_daemons.sh`
+
+Pre-requisiti:
 - Linux (NM development) + WSL2 se servirà cross-platform
 - Python 3.13 (anaconda3)
 - Ollama (modelli locali)
 - Claude API key (uso minimal, scene critical)
 - Cerebras + Groq MCP gateway (via Claude-OPs `.mcp.json`)
 - libreoffice CLI (per Excel .xls → .xlsx conversion)
+
+## Architecture (Path C2)
+
+```
+Browser
+  └─▶ Flask shell :5000
+        ├─▶ iframe → SillyTavern :8001
+        └─▶ sidebar Live2D canvas
+                    ▲
+              WS :9876
+                    ▲
+            mascot_ws_server.py
+                    ▲
+            generate_scene hook
+```
+
+| Port | Service         |
+|------|-----------------|
+| 5000 | Flask shell     |
+| 8001 | SillyTavern     |
+| 8766 | LLM Gateway     |
+| 9876 | Mascot WS       |
 
 ## Vision
 

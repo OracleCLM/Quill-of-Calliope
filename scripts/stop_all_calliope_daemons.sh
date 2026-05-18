@@ -1,30 +1,20 @@
 #!/usr/bin/env bash
-# Stop all Quill of Calliope daemons gracefully
 set -euo pipefail
-
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-GW_PID="/tmp/calliope_llm_gateway.pid"
 
 _log() { echo "[calliope-stop] $*"; }
 
-# ── 1. Stop Mascot WS ─────────────────────────────────────────────────────────
-_log "Stopping Mascot WS server..."
-bash "$SCRIPT_DIR/start_mascot_ws.sh" --stop || true
+_log "Stopping all Quill of Calliope daemons..."
 
-# ── 2. Stop LLM Gateway ───────────────────────────────────────────────────────
-_log "Stopping LLM gateway..."
-if [[ -f "$GW_PID" ]]; then
-  PID=$(cat "$GW_PID")
-  if kill -0 "$PID" 2>/dev/null; then
-    kill "$PID"
-    rm -f "$GW_PID"
-    _log "LLM gateway stopped (pid=$PID)"
-  else
-    _log "LLM gateway PID $PID not running — cleaning up"
-    rm -f "$GW_PID"
-  fi
-else
-  _log "LLM gateway not running (no PID file)"
-fi
+pkill -f llm_gateway_http.py || true
+_log "LLM gateway stopped"
+
+pkill -f "external/sillytavern" || true
+_log "SillyTavern stopped"
+
+pkill -f mascot_ws_server.py || true
+_log "Mascot WS stopped"
+
+pkill -f "calliope_shell.server" || true
+_log "Flask shell stopped"
 
 _log "All Quill of Calliope daemons stopped."
