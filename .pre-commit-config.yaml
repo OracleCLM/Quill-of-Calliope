@@ -1,15 +1,74 @@
+# .pre-commit-config.yaml — Quill_of_Calliope git pre-commit hooks
+#
+# Install:
+#   pip install pre-commit
+#   pre-commit install
+#
+# Run manually:
+#   pre-commit run --all-files
+
+default_stages: [pre-commit]
+
 repos:
+  # ── MCP field enforcement: closure-ping HB JSON must have mcp_assisted/provider/tool ─
   - repo: local
     hooks:
       - id: mcp-field-check
-        name: "MCP closure-ping field check (5-layer policy)"
+        name: mcp-field-check (HB JSON MCP fields mandatory)
         entry: bash /home/nic/Scrivania/Claude-OPs/scripts/hooks/pre_commit_mcp_field_check.sh
         language: system
         pass_filenames: false
         stages: [pre-commit]
 
-      - id: ruff-check
-        name: Ruff check
+  # ── Similarity-check: AP2 Code Clone Explosion countermeasure ───────────────
+  - repo: local
+    hooks:
+      - id: similarity-check
+        name: similarity-check (AP2 clone detection — warn only)
+        entry: bash /home/nic/.claude/skills/similarity-check/check.sh
+        language: system
+        pass_filenames: false
+        stages: [pre-commit]
+
+  # ── Ruff: Python lint ────────────────────────────────────────────────────────
+  - repo: local
+    hooks:
+      - id: ruff
+        name: ruff (Python lint)
         entry: ruff check
         language: system
-        types: [python]
+        files: ^(src|scripts|tests)/.*\.py$
+        pass_filenames: true
+        stages: [pre-commit]
+
+  # ── Standard pre-commit-hooks ────────────────────────────────────────────────
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+        args: [--allow-multiple-documents]
+        exclude: \.(draft)\.(ya?ml)$
+      - id: check-added-large-files
+        args: [--maxkb=500]
+
+  # ── TODO: Secrets scanning ───────────────────────────────────────────────────
+  # Add after creating required baseline files:
+  #   .gitleaks.toml  (allowlist for test fixtures / env var refs)
+  #   .secrets.baseline  (detect-secrets scan --baseline .secrets.baseline)
+  # Then uncomment:
+  #
+  # - repo: https://github.com/gitleaks/gitleaks
+  #   rev: v8.21.2
+  #   hooks:
+  #     - id: gitleaks
+  #       entry: gitleaks protect --staged --config=.gitleaks.toml
+  #       language: golang
+  #       pass_filenames: false
+  #
+  # - repo: https://github.com/Yelp/detect-secrets
+  #   rev: v1.5.0
+  #   hooks:
+  #     - id: detect-secrets
+  #       args: ["--baseline", ".secrets.baseline"]
