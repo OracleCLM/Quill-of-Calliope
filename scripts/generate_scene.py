@@ -13,10 +13,12 @@ import sys
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import Dict
+from typing import Dict, Optional
 
 # Insert scripts/ directory so `from route_scene import ...` resolves correctly
 sys.path.insert(0, str(Path(__file__).parent))
+
+import requests  # noqa: E402
 
 from route_scene import (  # noqa: E402
     BlockedContentError,
@@ -25,6 +27,37 @@ from route_scene import (  # noqa: E402
     load_config,
     route_scene,
 )
+
+# scene_type → default emotion (fallback when no classifier)
+_SCENE_TYPE_EMOTION: Dict[str, str] = {
+    "action_combat": "determined",
+    "dialogue": "neutral",
+    "exploration": "contemplative",
+    "celebration": "joyful",
+    "tragedy": "sorrowful",
+    "confrontation": "defiant",
+    "victory": "triumphant",
+    "injury": "wounded",
+    "mystery": "contemplative",
+    "romance": "joyful",
+}
+
+
+def _publish_emotion(
+    emotion: str,
+    intensity: float,
+    scene_id: Optional[str],
+    mascot_url: str,
+) -> None:
+    """POST emotion state to Flask mascot endpoint — fail-graceful."""
+    try:
+        requests.post(
+            f"{mascot_url}/api/mascot/state",
+            json={"emotion": emotion, "intensity": intensity, "scene_id": scene_id},
+            timeout=2,
+        )
+    except Exception as exc:
+        logging.warning("mascot publish skipped (non-fatal): %s", exc)
 
 
 def main() -> None:
@@ -51,6 +84,13 @@ def main() -> None:
     )
     parser.add_argument(
         "--ollama-url", default="http://localhost:11434", help="Ollama base URL"
+    )
+    parser.add_argument(
+        "--emotion-test", metavar="EMOTION", default=None,
+        help="Override emotion published post-generation (testing/debug)"
+    )
+    parser.add_argument(
+        "--mascot-url", default="http://localhost:5000", help="Flask shell base URL for mascot state"
     )
     args = parser.parse_args()
 
@@ -125,6 +165,10 @@ def main() -> None:
     except Exception as exc:  # noqa: BLE001
         print(f"Error writing output file {args.output}: {exc}", file=sys.stderr)
         sys.exit(1)
+
+    # Publish emotion to mascot sidebar (fail-graceful)
+    emotion = args.emotion_test or _SCENE_TYPE_EMOTION.get(args.scene_type, "neutral")
+    _publish_emotion(emotion, 1.0, str(args.output), args.mascot_url)
 
     sys.exit(0)
 

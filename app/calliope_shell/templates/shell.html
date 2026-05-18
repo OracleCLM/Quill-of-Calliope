@@ -77,14 +77,14 @@
         </iframe>
         <aside>
             <canvas id="mascot" width="320" height="600"></canvas>
-            <p>Aurora idle</p>
+            <p>Aurora</p>
         </aside>
     </main>
-    <script src="/static/live2d.bundle.js"></script>
     <script>
-        const ws = new WebSocket("{{ MASCOT_WS_URL }}");
-        ws.onmessage = e => console.log("[mascot]", e.data);
-        ws.onerror = e => console.warn("[mascot] WS not available yet");
+        window.MASCOT_WS_URL = "{{ MASCOT_WS_URL }}";
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/pixi.js@7/dist/pixi.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pixi-live2d-display@0.4/dist/index.min.js"></script>
+    <script src="/static/js/mascot.js"></script>
 </body>
 </html>

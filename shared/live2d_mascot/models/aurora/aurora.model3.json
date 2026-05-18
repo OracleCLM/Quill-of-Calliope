@@ -1,0 +1,32 @@
+{
+  "Version": 3,
+  "FileReferences": {
+    "Moc": "aurora.moc3",
+    "Textures": ["textures/aurora.png"],
+    "Physics": "",
+    "Pose": "",
+    "DisplayInfo": "",
+    "Expressions": [
+      {"Name": "determined", "File": "expressions/determined.exp3.json"},
+      {"Name": "joyful", "File": "expressions/joyful.exp3.json"},
+      {"Name": "wounded", "File": "expressions/wounded.exp3.json"},
+      {"Name": "neutral", "File": "expressions/neutral.exp3.json"},
+      {"Name": "sorrowful", "File": "expressions/sorrowful.exp3.json"}
+    ],
+    "Motions": {
+      "idle": [{"File": "motions/idle.motion3.json"}],
+      "talking": [{"File": "motions/talking.motion3.json"}],
+      "celebrating": [{"File": "motions/celebrating.motion3.json"}],
+      "battle_cry": [{"File": "motions/battle_cry.motion3.json"}]
+    }
+  },
+  "Groups": [
+    {"Target": "Parameter", "Name": "LipSync", "Ids": []},
+    {"Target": "Parameter", "Name": "EyeBlink", "Ids": []}
+  ],
+  "HitAreas": [
+    {"Id": "HitAreaHead", "Name": "Head"},
+    {"Id": "HitAreaBody", "Name": "Body"}
+  ],
+  "_comment": "TODO: Aurora rigging WIP — Cubism sample placeholder. Replace aurora.moc3 + textures/ with real Cubism assets in Sprint 5."
+}

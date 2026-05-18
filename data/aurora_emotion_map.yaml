@@ -1,0 +1,47 @@
+# Aurora Live2D emotion → expression/motion mapping
+# Used by mascot.js (fetch /api/mascot/emotion_map) and generate_scene.py inference
+
+expressions:
+  determined: determined
+  joyful: joyful
+  celebratory: joyful
+  wounded: wounded
+  sorrowful: sorrowful
+  neutral: neutral
+  angry: determined
+  fearful: sorrowful
+  surprised: joyful
+  contemplative: neutral
+  triumphant: joyful
+  defiant: determined
+
+motions:
+  determined: battle_cry
+  joyful: celebrating
+  celebratory: celebrating
+  wounded: idle
+  sorrowful: idle
+  neutral: idle
+  angry: battle_cry
+  fearful: idle
+  surprised: talking
+  contemplative: idle
+  triumphant: celebrating
+  defiant: battle_cry
+
+# Mapping from generate_scene.py scene_type → default emotion
+scene_type_emotion:
+  action_combat: determined
+  dialogue: neutral
+  exploration: contemplative
+  celebration: joyful
+  tragedy: sorrowful
+  confrontation: defiant
+  victory: triumphant
+  injury: wounded
+  mystery: contemplative
+  romance: joyful
+
+# Default fallback
+default_expression: neutral
+default_motion: idle
