@@ -32,7 +32,7 @@ if [ -f scripts/mascot_ws_server.py ]; then
     echo "[ok] Mascot WS gia' attivo :9876"
   else
     echo "[>>] Avvio Mascot WS..."
-    nohup python3 scripts/mascot_ws_server.py >> "$LOG_DIR/mascot_ws.log" 2>&1 &
+    nohup python3 scripts/mascot_ws_server.py --port 9876 >> "$LOG_DIR/mascot_ws.log" 2>&1 &
     sleep 1
   fi
 else
