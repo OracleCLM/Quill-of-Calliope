@@ -1,0 +1,81 @@
+# Auto-generated draft via MCP cerebras — status: draft (operator review required)
+
+# --- IDENTITY ---
+id: arianna
+name: Arianna
+aliases: []
+type: pc
+player: unknown
+
+# --- BACKGROUND ---
+race: human
+class: warrior
+age: unknown
+gender: female
+origin: unknown
+
+backstory: |
+  Arianna is a seasoned warrior who leads the guards and teaches combat; she has a close bond with her sister Filomena and serves the queen with loyalty and strength.
+
+# --- PERSONALITY ---
+traits:
+  - confident
+  - disciplined
+  - protective
+quirks: []
+flaws: []
+
+# --- SPEECH ---
+speech_pattern:
+  formal: mixed
+  use_honorifics: false
+  vocabulary: plain
+  sentence_length: medium
+  emotional_range: controlled
+  pov: first_person
+  notes: "Direct and confident speaker; uses clear, action-oriented language with occasional teasing."
+  signature_phrases:
+  - "I don't have the whole day, but until my sister comes I can teach you something."
+  - "Yes, queen! *She raises her sword up in the air and it starts glowing orange*"
+  - "Packing a punch is all about the technique, if you're expert you don't need to be very strong."
+
+# --- BEHAVIOR ---
+behavior_pattern:
+  role: combat_instructor_guard_leader
+  decision_style: "assertive and decisive"
+  typical_actions:
+    - "takes charge in dangerous situations"
+    - "trains others in combat techniques"
+    - "responds to threats with authority"
+
+# --- SCENE TRACKING ---
+active_scenes: []
+last_active: null
+last_player_action: null
+
+# --- RELATIONSHIPS ---
+relationships: {}
+
+# --- MEMORY ---
+memory: []
+
+# --- SAMPLE QUOTES ---
+sample_quotes:
+  - "I don't have the whole day, but until my sister comes I can teach you something."
+  - "Yes, queen! *She raises her sword up in the air and it starts glowing orange*"
+  - "Packing a punch is all about the technique, if you're expert you don't need to be very strong."
+
+# --- TTS PROFILE ---
+tts:
+  voice_model: null
+  pitch_shift: 0
+  speed: 1.0
+  emotion_default: neutral
+
+# --- META ---
+canonicity: draft
+mcp_assisted: true
+last_updated: 2026-05-16
+operator_notes: |
+  Auto-extracted via MCP cerebras from Arianna message corpus.
+  Operator review required: verify race/class, add relationships, confirm backstory.

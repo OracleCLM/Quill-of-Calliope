@@ -1,0 +1,31 @@
+# Auto-generated draft — operator review required
+scene_id: scene_104
+title: "Scene 105: Alexis, Irigata +4"
+status: draft
+date_started: "2021-12-23"
+last_active: "2021-12-23"
+timestamp_start: "2021-12-23T03:07:06Z"
+timestamp_end: "2021-12-23T04:38:53Z"
+duration_real: "1h 31m"
+message_count: 41
+turn_count: 41
+participants:
+  - "Alexis"
+  - "Irigata"
+  - "Mato"
+  - "Mirko"
+  - "NARRATOR"
+  - "Sberla"
+players:
+  - "Horo"
+  - "Just frog"
+  - "YourGoblinBard"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  *he'd step outside of his room with a yawn and go to head to the front counter of the inn*
+last_msg_excerpt: |
+  “Sure thing.”
+related_scenes: []
+related_lore: []
+operator_notes: null

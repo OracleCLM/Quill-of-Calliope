@@ -1,0 +1,32 @@
+# Auto-generated draft — operator review required
+scene_id: scene_132
+title: "Scene 133: Filomena, Irigata +4"
+status: draft
+date_started: "2022-01-18"
+last_active: "2022-01-18"
+timestamp_start: "2022-01-18T08:09:56Z"
+timestamp_end: "2022-01-18T08:53:26Z"
+duration_real: "43m"
+message_count: 17
+turn_count: 17
+participants:
+  - "Filomena"
+  - "Irigata"
+  - "Keisuke Khean Baji"
+  - "Maksymilian"
+  - "NARRATOR"
+  - "Robert"
+players:
+  - "Horo"
+  - "Knight"
+  - "Neji/Hans"
+  - "YourGoblinBard"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  "Hm. If you don't mind me asking, what way were you both chosen?" *He'd make plans to visit the recruiters' office for a new line of work. Farming did
+last_msg_excerpt: |
+  Luckily for you there’s plenty of opportunities here at the capital.  If you lived in a smaller village you might’ve been bound to your job, but I thi
+related_scenes: []
+related_lore: []
+operator_notes: null

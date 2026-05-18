@@ -1,0 +1,27 @@
+# Auto-generated draft — operator review required
+scene_id: scene_682
+title: "Scene 683: William Kraimerson, Yan Qing +1"
+status: draft
+date_started: "2022-08-07"
+last_active: "2022-08-07"
+timestamp_start: "2022-08-07T15:41:55Z"
+timestamp_end: "2022-08-07T17:03:45Z"
+duration_real: "1h 21m"
+message_count: 11
+turn_count: 11
+participants:
+  - "William Kraimerson"
+  - "Yan Qing"
+  - "_Narrator / NPC"
+players:
+  - "Joshua Thudson"
+  - "Neji/Hans"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  People: "Yeah, he's from Asia. That's all I know. He was arrested once or twice but never executed."
+last_msg_excerpt: |
+  I got into the city today. Like you. Scaping from my past. But in my case the psycho killing brother is a legion of religious fanatics that won stop t
+related_scenes: []
+related_lore: []
+operator_notes: null

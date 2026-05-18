@@ -1,0 +1,33 @@
+# Auto-generated draft — operator review required
+scene_id: scene_377
+title: "Scene 378: Aurora, Lillim (Cat) +6"
+status: draft
+date_started: "2022-05-15"
+last_active: "2022-05-15"
+timestamp_start: "2022-05-15T22:15:00Z"
+timestamp_end: "2022-05-15T23:24:19Z"
+duration_real: "1h 9m"
+message_count: 12
+turn_count: 12
+participants:
+  - "Aurora"
+  - "Lillim (Cat)"
+  - "Peaches"
+  - "Poppy"
+  - "Ruby"
+  - "Snow"
+  - "Syvis"
+  - "Yan Qing"
+players:
+  - "Horo"
+  - "LittlePinkRin"
+  - "Neji/Hans"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  *she braces herself as he does some of the moved on her* you'll have to explain some of them to me I've never seen fighting like this.
+last_msg_excerpt: |
+  "To lock your opponent on place you can sit on them"
+related_scenes: []
+related_lore: []
+operator_notes: null

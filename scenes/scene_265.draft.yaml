@@ -1,0 +1,28 @@
+# Auto-generated draft — operator review required
+scene_id: scene_265
+title: "Scene 266: NARRATOR, NPC: Adventurer +2"
+status: draft
+date_started: "2022-04-04"
+last_active: "2022-04-04"
+timestamp_start: "2022-04-04T21:00:58Z"
+timestamp_end: "2022-04-04T21:46:39Z"
+duration_real: "45m"
+message_count: 11
+turn_count: 11
+participants:
+  - "NARRATOR"
+  - "NPC: Adventurer"
+  - "Philip Annabelle"
+  - "Syvis"
+players:
+  - "Horo"
+  - "RaphaelFurious"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  That wouldn’t be a problem at all. And thanks for offering your help. Much appreciated.  *she looked at him for a while, raising an eyebrow at such st
+last_msg_excerpt: |
+  *opens the window and flings himself out, falling on ground/grass somewhere nearby and moving the dirt where dirt should be. In garden/backyard. Then 
+related_scenes: []
+related_lore: []
+operator_notes: null

@@ -1,0 +1,28 @@
+# Auto-generated draft — operator review required
+scene_id: scene_874
+title: "Scene 875: Harmony, Mac and cheese vendor +2"
+status: draft
+date_started: "2022-10-04"
+last_active: "2022-10-04"
+timestamp_start: "2022-10-04T01:22:24Z"
+timestamp_end: "2022-10-04T01:38:32Z"
+duration_real: "16m"
+message_count: 10
+turn_count: 10
+participants:
+  - "Harmony"
+  - "Mac and cheese vendor"
+  - "NPC: Italian cook"
+  - "NPC: Italian ghost"
+players:
+  - "Horo"
+  - "LittlePinkRin"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  *puts up stall in middle of town*
+last_msg_excerpt: |
+  ~rp gets pushed back another month for the Mac and cheese plot line~
+related_scenes: []
+related_lore: []
+operator_notes: null

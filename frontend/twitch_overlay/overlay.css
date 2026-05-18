@@ -1,0 +1,76 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: transparent !important;
+  overflow: hidden;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+#scene-bubble {
+  position: fixed;
+  top: 40px;
+  left: 40px;
+  z-index: 10;
+  max-width: 520px;
+  background: rgba(10, 10, 30, 0.82);
+  color: #f0f0ff;
+  padding: 16px 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), 0 0 12px rgba(120, 100, 255, 0.2);
+  backdrop-filter: blur(6px);
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+#scene-bubble.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+#mascot-name {
+  font-size: 0.72rem;
+  color: #a0c4ff;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+#bubble-text {
+  font-size: 1rem;
+  line-height: 1.55;
+  white-space: pre-wrap;
+}
+
+#bubble-text.typing::after {
+  content: '|';
+  animation: blink 0.7s step-end infinite;
+  color: #a0c4ff;
+}
+
+@keyframes blink {
+  from, to { opacity: 0; }
+  50% { opacity: 1; }
+}
+
+#mascot-wrap {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  z-index: 1;
+  pointer-events: none;
+  animation: float 3s ease-in-out infinite;
+}
+
+#live2d-canvas {
+  width: 380px;
+  height: 380px;
+  display: block;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-8px); }
+}

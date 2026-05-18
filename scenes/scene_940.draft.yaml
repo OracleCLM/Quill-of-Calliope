@@ -1,0 +1,32 @@
+# Auto-generated draft — operator review required
+scene_id: scene_940
+title: "Scene 941: Arianna, Aurora +6"
+status: draft
+date_started: "2022-10-20"
+last_active: "2022-10-20"
+timestamp_start: "2022-10-20T11:42:54Z"
+timestamp_end: "2022-10-20T12:18:52Z"
+duration_real: "35m"
+message_count: 10
+turn_count: 10
+participants:
+  - "Arianna"
+  - "Aurora"
+  - "Clover"
+  - "Fede"
+  - "Filomena"
+  - "NARRATOR"
+  - "Nikita"
+  - "Peaches"
+players:
+  - "Horo"
+  - "LittlePinkRin"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  *she hugs the clock against her chest and smiles at both of them*  I love this one I think it's very nice. Thank you for showing me how to use it and 
+last_msg_excerpt: |
+  Yeah, you were good.  *She replied in a flat tone, still looking at Niki*
+related_scenes: []
+related_lore: []
+operator_notes: null

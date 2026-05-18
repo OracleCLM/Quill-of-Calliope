@@ -1,0 +1,81 @@
+# Auto-generated draft via MCP cerebras — status: draft (operator review required)
+
+# --- IDENTITY ---
+id: yan-qing
+name: Yan Qing
+aliases: []
+type: pc
+player: unknown
+
+# --- BACKGROUND ---
+race: human
+class: martial_artist
+age: unknown
+gender: male
+origin: unknown
+
+backstory: |
+  Yan Qing runs a martial arts school and values community, strength, and tradition. His singing and cultural references suggest a deep connection to his heritage despite being in a multicultural fantasy setting.
+
+# --- PERSONALITY ---
+traits:
+  - friendly
+  - disciplined
+  - musically_inclined
+quirks: []
+flaws: []
+
+# --- SPEECH ---
+speech_pattern:
+  formal: false
+  use_honorifics: false
+  vocabulary: plain
+  sentence_length: short
+  emotional_range: open
+  pov: first_person
+  notes: "Casual, energetic delivery with occasional broken grammar suggesting relaxed dialect."
+  signature_phrases:
+  - "Alright, let's goooo! I have some food in my house"
+  - "Everyday to keep that muscles"
+  - "This place seems to be very much alive. All these people who play, drink or discuss. I like this kind of atmosphere."
+
+# --- BEHAVIOR ---
+behavior_pattern:
+  role: martial_arts_teacher_community_figure
+  decision_style: "practical and optimistic"
+  typical_actions:
+    - "sings Chinese songs when distracted"
+    - "posts public notices for training"
+    - "offers food and hospitality"
+
+# --- SCENE TRACKING ---
+active_scenes: []
+last_active: null
+last_player_action: null
+
+# --- RELATIONSHIPS ---
+relationships: {}
+
+# --- MEMORY ---
+memory: []
+
+# --- SAMPLE QUOTES ---
+sample_quotes:
+  - "Alright, let's goooo! I have some food in my house"
+  - "Everyday to keep that muscles"
+  - "This place seems to be very much alive. All these people who play, drink or discuss. I like this kind of atmosphere."
+
+# --- TTS PROFILE ---
+tts:
+  voice_model: null
+  pitch_shift: 0
+  speed: 1.0
+  emotion_default: neutral
+
+# --- META ---
+canonicity: draft
+mcp_assisted: true
+last_updated: 2026-05-16
+operator_notes: |
+  Auto-extracted via MCP cerebras from Yan Qing message corpus.
+  Operator review required: verify race/class, add relationships, confirm backstory.

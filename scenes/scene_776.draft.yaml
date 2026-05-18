@@ -1,0 +1,35 @@
+# Auto-generated draft — operator review required
+scene_id: scene_776
+title: "Scene 777: Arianna, Aurora +9"
+status: draft
+date_started: "2022-09-12"
+last_active: "2022-09-12"
+timestamp_start: "2022-09-12T10:17:19Z"
+timestamp_end: "2022-09-12T11:33:40Z"
+duration_real: "1h 16m"
+message_count: 17
+turn_count: 17
+participants:
+  - "Arianna"
+  - "Aurora"
+  - "Clover"
+  - "Filomena"
+  - "NARRATOR"
+  - "NPC: Friaginleif"
+  - "Nikita"
+  - "Peaches"
+  - "Poppy"
+  - "Ruby"
+  - "Yuki"
+players:
+  - "Horo"
+  - "LittlePinkRin"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  *She grimaces, her hand became bluish and the water in the air started condensing around it, resulting in a steady flow of white steam that travels do
+last_msg_excerpt: |
+  *She left the room for three or four minutes. When she came back she had her usual relaxed and happy expression on her face. She helps Clover finish w
+related_scenes: []
+related_lore: []
+operator_notes: null

@@ -1,0 +1,30 @@
+# Auto-generated draft — operator review required
+scene_id: scene_275
+title: "Scene 276: Hans Blindesauge, Idref +3"
+status: draft
+date_started: "2022-04-12"
+last_active: "2022-04-12"
+timestamp_start: "2022-04-12T21:07:51Z"
+timestamp_end: "2022-04-12T22:14:51Z"
+duration_real: "1h 7m"
+message_count: 31
+turn_count: 31
+participants:
+  - "Hans Blindesauge"
+  - "Idref"
+  - "NARRATOR"
+  - "Runa"
+  - "Yan Qing"
+players:
+  - "Horo"
+  - "Neji/Hans"
+  - "𝕋𝕖𝕞𝕡𝕖𝕤𝕥"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  *she wandered out of the adventurers guild and headed east, a cold breath leaving her mouth as she tried to look inconspicuous*
+last_msg_excerpt: |
+  *Not him again...*
+related_scenes: []
+related_lore: []
+operator_notes: null

@@ -1,0 +1,33 @@
+# Auto-generated draft — operator review required
+scene_id: scene_800
+title: "Scene 801: Arianna, Filomena +6"
+status: draft
+date_started: "2022-09-19"
+last_active: "2022-09-19"
+timestamp_start: "2022-09-19T09:14:33Z"
+timestamp_end: "2022-09-19T10:25:23Z"
+duration_real: "1h 10m"
+message_count: 11
+turn_count: 11
+participants:
+  - "Arianna"
+  - "Filomena"
+  - "Geo changer"
+  - "Katya"
+  - "NARRATOR"
+  - "Nikita"
+  - "Peaches"
+  - "William Kraimerson"
+players:
+  - "Horo"
+  - "Joshua Thudson"
+  - "LittlePinkRin"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  Indeed miss peaches.  She said that she will wait for us in the entrance, so I would prefer we go there and wait for her arrival.   *watching peaches 
+last_msg_excerpt: |
+  On their way there, Peaches, Snow and William had the chance to peek into the various corridors and try and catch a glimpse of what is going on in the
+related_scenes: []
+related_lore: []
+operator_notes: null

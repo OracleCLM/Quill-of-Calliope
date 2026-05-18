@@ -1,0 +1,45 @@
+# Auto-generated draft — operator review required
+scene_id: scene_155
+title: "Scene 156: Alexis, Aurora +15"
+status: draft
+date_started: "2022-01-25"
+last_active: "2022-01-25"
+timestamp_start: "2022-01-25T00:36:42Z"
+timestamp_end: "2022-01-25T05:09:14Z"
+duration_real: "4h 32m"
+message_count: 225
+turn_count: 225
+participants:
+  - "Alexis"
+  - "Aurora"
+  - "Azu Blythe"
+  - "Cassandra Blythe"
+  - "Clover"
+  - "Koibo"
+  - "Maksymilian"
+  - "Minh (Deceased)"
+  - "NARRATOR"
+  - "NPC: Noble man"
+  - "NPC: Noblewoman"
+  - "Peaches"
+  - "Robert"
+  - "Sberla"
+  - "Snow"
+  - "Tork bloodhammer"
+  - "Viola"
+players:
+  - "Horo"
+  - "Just frog"
+  - "Katie"
+  - "Knight"
+  - "LittlePinkRin"
+  - "Neji/Hans"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  Your previous work? Is that were you learned to cook as a butler?  *She takes a seat at the table and grabs a brownie from the plate*
+last_msg_excerpt: |
+  *she stares down at both of them unable to move from the vines still tickling her on the sides and making her laugh even as she makes sure there ok*
+related_scenes: []
+related_lore: []
+operator_notes: null

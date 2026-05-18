@@ -1,0 +1,30 @@
+# Auto-generated draft — operator review required
+scene_id: scene_1436
+title: "Scene 1437: Ira, Jöhan +4"
+status: draft
+date_started: "2024-04-30"
+last_active: "2024-04-30"
+timestamp_start: "2024-04-30T21:18:35Z"
+timestamp_end: "2024-04-30T22:12:37Z"
+duration_real: "54m"
+message_count: 14
+turn_count: 14
+participants:
+  - "Ira"
+  - "Jöhan"
+  - "NARRATOR"
+  - "NPC: Halfling Child"
+  - "NPC: Lantern bringer"
+  - "Yuki"
+players:
+  - "Horo"
+  - "Ramen"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  *The lantern keeper's eyes gleamed with amusement as Johan reached out to grab its head. With a swift movement, it dodged Johan's grasp, its laughter 
+last_msg_excerpt: |
+  Well you woke me up I could have caught my death out here *I reach into my pocket and pull out a few nice coins that could buy a fitting shirt or some
+related_scenes: []
+related_lore: []
+operator_notes: null

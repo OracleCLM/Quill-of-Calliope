@@ -1,0 +1,31 @@
+# Auto-generated draft — operator review required
+scene_id: scene_385
+title: "Scene 386: Aurora, Lillim (Cat) +4"
+status: draft
+date_started: "2022-05-17"
+last_active: "2022-05-17"
+timestamp_start: "2022-05-17T05:43:06Z"
+timestamp_end: "2022-05-17T07:18:42Z"
+duration_real: "1h 35m"
+message_count: 28
+turn_count: 28
+participants:
+  - "Aurora"
+  - "Lillim (Cat)"
+  - "Peaches"
+  - "Poppy"
+  - "Vera"
+  - "Yan Qing"
+players:
+  - "Horo"
+  - "LittlePinkRin"
+  - "Neji/Hans"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  *the pendant is glowing very bright, but soon starts to fade. She looks up at ruby with what seems like an amused smirk*
+last_msg_excerpt: |
+  *He smiles*  "Then the more seeable ones are on the nose"
+related_scenes: []
+related_lore: []
+operator_notes: null

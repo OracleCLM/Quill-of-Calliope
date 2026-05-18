@@ -1,0 +1,30 @@
+# Auto-generated draft — operator review required
+scene_id: scene_219
+title: "Scene 220: Alex Xu, Hans Blindesauge +3"
+status: draft
+date_started: "2022-03-12"
+last_active: "2022-03-12"
+timestamp_start: "2022-03-12T19:33:25Z"
+timestamp_end: "2022-03-12T21:36:50Z"
+duration_real: "2h 3m"
+message_count: 60
+turn_count: 60
+participants:
+  - "Alex Xu"
+  - "Hans Blindesauge"
+  - "Kainan"
+  - "Kilian"
+  - "Wata"
+players:
+  - "Jin Ketsuki"
+  - "Neji/Hans"
+  - "psychout"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  *is sitting in a window watching people on the street pass by the tavern*
+last_msg_excerpt: |
+  "Only the less corrupted one can go there, the others are doomed to stay on Earth"
+related_scenes: []
+related_lore: []
+operator_notes: null

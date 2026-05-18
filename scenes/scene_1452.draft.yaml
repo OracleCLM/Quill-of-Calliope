@@ -1,0 +1,30 @@
+# Auto-generated draft — operator review required
+scene_id: scene_1452
+title: "Scene 1453: Arianna, Aurora +3"
+status: draft
+date_started: "2024-05-25"
+last_active: "2024-05-25"
+timestamp_start: "2024-05-25T03:17:53Z"
+timestamp_end: "2024-05-25T04:20:15Z"
+duration_real: "1h 2m"
+message_count: 11
+turn_count: 11
+participants:
+  - "Arianna"
+  - "Aurora"
+  - "Jöhan"
+  - "Katya"
+  - "NARRATOR"
+players:
+  - "Horo"
+  - "LittlePinkRin"
+  - "Ramen"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  … respectfully I would believe that the only one that should make that choice is the queen as war with the country that sent me could mean a war that 
+last_msg_excerpt: |
+  *She shook his hand delicately and slowly, and proceeded with the almost unnecessary introduction*  Glad to make your acquaintance, sir Jöhan.  I am A
+related_scenes: []
+related_lore: []
+operator_notes: null

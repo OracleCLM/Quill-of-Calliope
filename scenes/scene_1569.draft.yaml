@@ -1,0 +1,31 @@
+# Auto-generated draft — operator review required
+scene_id: scene_1569
+title: "Scene 1570: Arianna, Aurora +5"
+status: draft
+date_started: "2024-09-14"
+last_active: "2024-09-14"
+timestamp_start: "2024-09-14T01:54:48Z"
+timestamp_end: "2024-09-14T02:22:50Z"
+duration_real: "28m"
+message_count: 11
+turn_count: 11
+participants:
+  - "Arianna"
+  - "Aurora"
+  - "Filomena"
+  - "NARRATOR"
+  - "Revek"
+  - "Ryuzaki (Ryu)"
+  - "Yuki"
+players:
+  - "Horo"
+  - "𝕋𝕖𝕞𝕡𝕖𝕤𝕥"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  *His words were met with nothing but a cold, doubtful gaze. Filomena brought a hand to Katya's face, gently caressing her before pulling her close, al
+last_msg_excerpt: |
+  “Medium build I think, darker hair. Has a fondness for chess that I could never understand, don’t know why I remember that detail.”
+related_scenes: []
+related_lore: []
+operator_notes: null

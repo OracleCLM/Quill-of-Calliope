@@ -1,0 +1,28 @@
+# Auto-generated draft — operator review required
+scene_id: scene_1088
+title: "Scene 1089: Hadeseus, Samantha +1"
+status: draft
+date_started: "2022-12-01"
+last_active: "2022-12-01"
+timestamp_start: "2022-12-01T19:32:21Z"
+timestamp_end: "2022-12-01T20:32:54Z"
+duration_real: "1h 0m"
+message_count: 20
+turn_count: 20
+participants:
+  - "Hadeseus"
+  - "Samantha"
+  - "Shinmyoumaru"
+players:
+  - "Deleted"
+  - "Neji/Hans"
+  - "𝕋𝕖𝕞𝕡𝕖𝕤𝕥"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  *she chuckles yet again* “So what’s a little one like you doing in a big place like this? How long have you walked?”
+last_msg_excerpt: |
+  "True"
+related_scenes: []
+related_lore: []
+operator_notes: null

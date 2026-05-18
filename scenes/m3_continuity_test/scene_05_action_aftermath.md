@@ -1,0 +1,9 @@
+# Scene 5: action_aftermath
+**Tier**: cerebras_workhorse | **Provider**: cerebras | **Latency**: 1057ms | **Chars**: 1702
+
+The moon hung low over the palace gardens, its silver light fractured by the trembling leaves of ancient cherry trees. Aurora stood amidst the scattered petals, her breath steady despite the storm within. The air hummed with displaced yokai essence—twisting currents of fox-fire and shadow that shouldn’t have been there—twining like smoke between the stone lanterns. She gripped the hilt of her ancestral blade, Moonveil, half-drawn from its sheath. Before her, the assassin crouched low, cloaked in tattered midnight silk, eyes glowing with feral amber. He wasn’t human—no mortal moved with such sinuous, boneless grace—but neither was he like any yokai she had studied in the Moonveil archives. His presence warped the harmony of the garden, disturbing the balance that had held for centuries.
+
+“You know nothing of what you guard,” the assassin snarled, voice like gravel and wind through cracks. “The throne was never meant for bloodline—it belongs to those who *remember*.” He lunged, a blur of shadow and steel, but Aurora pivoted, Moonveil singing as it deflected the strike. Sparks flared, brief as dying stars, illuminating the pain beneath his rage. She saw it then—the faint, pulsing sigil beneath his collarbone, the same mark etched into the forbidden tablets beneath the temple: a sign of the Forgotten Clan, exiled for attempting to merge yokai essence with human ambition. This was no mere intruder. He was a ghost of history, a remnant of the old rebellion—and somehow, his fate was tangled with the throne’s succession. As the garden’s fox spirits began to whisper in alarm, Aurora knew the truth was no longer just hidden in scrolls. It was bleeding into the present, blade in hand.
+
+---
+_Calliope.AI M3 narrative chain — 2026-05-17T22:21:15_

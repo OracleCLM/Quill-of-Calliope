@@ -1,0 +1,48 @@
+# Auto-generated draft — operator review required
+scene_id: scene_131
+title: "Scene 132: Alexis, Arianna +19"
+status: draft
+date_started: "2022-01-17"
+last_active: "2022-01-17"
+timestamp_start: "2022-01-17T16:19:04Z"
+timestamp_end: "2022-01-17T19:49:39Z"
+duration_real: "3h 30m"
+message_count: 73
+turn_count: 73
+participants:
+  - "Alexis"
+  - "Arianna"
+  - "Aurora"
+  - "Azu Blythe"
+  - "Cassandra Blythe"
+  - "Filomena"
+  - "Hadeseus"
+  - "Ira"
+  - "Keisuke Khean Baji"
+  - "Koibo"
+  - "Maksymilian"
+  - "Mato"
+  - "Minh (Deceased)"
+  - "Mirko"
+  - "NARRATOR"
+  - "NPC: Peasant"
+  - "NPC: Town guard"
+  - "Pdor"
+  - "Quinn"
+  - "Sberla"
+  - "Syvis"
+players:
+  - "BaconStuffedPizza"
+  - "Horo"
+  - "Just frog"
+  - "Katie"
+  - "Neji/Hans"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  *nods* I will speak with the guards and we'll go from there...if you two are okay with it...we could go with the shadow warriors it was the name of my
+last_msg_excerpt: |
+  *
+related_scenes: []
+related_lore: []
+operator_notes: null

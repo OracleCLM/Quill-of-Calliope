@@ -1,0 +1,33 @@
+# Auto-generated draft — operator review required
+scene_id: scene_456
+title: "Scene 457: Damian, Lenny +5"
+status: draft
+date_started: "2022-06-20"
+last_active: "2022-06-20"
+timestamp_start: "2022-06-20T20:50:59Z"
+timestamp_end: "2022-06-20T23:56:18Z"
+duration_real: "3h 5m"
+message_count: 70
+turn_count: 70
+participants:
+  - "Damian"
+  - "Lenny"
+  - "NARRATOR"
+  - "NPC: Enek"
+  - "Pdor"
+  - "Silver"
+  - "Xuányǔ 玄羽"
+players:
+  - "BaconStuffedPizza"
+  - "Horo"
+  - "Neji/Hans"
+  - "𝕋𝕖𝕞𝕡𝕖𝕤𝕥"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  He'd nod, crouching down, and gently tugging away the floorboards-.
+last_msg_excerpt: |
+  "Nà shì yīzuò jùdà de chéngshì!" (那是一座巨大的城市！/That is a huge city!)
+related_scenes: []
+related_lore: []
+operator_notes: null

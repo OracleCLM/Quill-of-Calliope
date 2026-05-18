@@ -1,0 +1,81 @@
+# Auto-generated draft via MCP cerebras — status: draft (operator review required)
+
+# --- IDENTITY ---
+id: filomena
+name: Filomena
+aliases: []
+type: pc
+player: Horo
+
+# --- BACKGROUND ---
+race: human
+class: warrior_ice_mage
+age: unknown
+gender: female
+origin: unknown
+
+backstory: |
+  Filomena serves Queen Aurora with unwavering loyalty and has a sister, Arianna, also involved in court affairs. Her actions suggest a history of maintaining order amid political or supernatural threats.
+
+# --- PERSONALITY ---
+traits:
+  - disciplined
+  - loyal
+  - observant
+quirks: []
+flaws: []
+
+# --- SPEECH ---
+speech_pattern:
+  formal: true
+  use_honorifics: false
+  vocabulary: scholarly
+  sentence_length: medium
+  emotional_range: controlled
+  pov: first_person
+  notes: "Uses precise, authoritative language; minimal emotional expression in speech."
+  signature_phrases:
+  - "Therefore three of you should head for the prisons."
+  - "Andrew, you should probably take care of people in need instead of making fun of foreigners."
+  - "I told you you had seen one already."
+
+# --- BEHAVIOR ---
+behavior_pattern:
+  role: royal_captain
+  decision_style: "strategic and duty-bound"
+  typical_actions:
+    - "issues clear commands to subordinates"
+    - "uses ice knives as warnings"
+    - "maintains physical composure"
+
+# --- SCENE TRACKING ---
+active_scenes: []
+last_active: null
+last_player_action: null
+
+# --- RELATIONSHIPS ---
+relationships: {}
+
+# --- MEMORY ---
+memory: []
+
+# --- SAMPLE QUOTES ---
+sample_quotes:
+  - "Therefore three of you should head for the prisons."
+  - "Andrew, you should probably take care of people in need instead of making fun of foreigners."
+  - "I told you you had seen one already."
+
+# --- TTS PROFILE ---
+tts:
+  voice_model: null
+  pitch_shift: 0
+  speed: 1.0
+  emotion_default: neutral
+
+# --- META ---
+canonicity: draft
+mcp_assisted: true
+last_updated: 2026-05-16
+operator_notes: |
+  Auto-extracted via MCP cerebras from Filomena message corpus.
+  Operator review required: verify race/class, add relationships, confirm backstory.

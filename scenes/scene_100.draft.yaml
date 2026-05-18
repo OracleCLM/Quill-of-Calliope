@@ -1,0 +1,30 @@
+# Auto-generated draft — operator review required
+scene_id: scene_100
+title: "Scene 101: Hadeseus, Koibo +3"
+status: draft
+date_started: "2021-12-22"
+last_active: "2021-12-22"
+timestamp_start: "2021-12-22T12:01:56Z"
+timestamp_end: "2021-12-22T12:57:00Z"
+duration_real: "55m"
+message_count: 14
+turn_count: 14
+participants:
+  - "Hadeseus"
+  - "Koibo"
+  - "NARRATOR"
+  - "NPC: Roc"
+  - "NPC: Tyrannis"
+players:
+  - "Horo"
+  - "Just frog"
+  - "Neji/Hans"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  *he starts to take some elan before pounding on the ROC, hopping to at least rip a bit of it's feather* d20 → [2] → 2
+last_msg_excerpt: |
+  *he winces from the pain, a hand on his cut, looking at his blood pouring on the ground* "Ow...damn beast...it almost killed me..."
+related_scenes: []
+related_lore: []
+operator_notes: null

@@ -1,0 +1,31 @@
+# Auto-generated draft — operator review required
+scene_id: scene_520
+title: "Scene 521: Arianna, Aurora +4"
+status: draft
+date_started: "2022-07-05"
+last_active: "2022-07-05"
+timestamp_start: "2022-07-05T17:00:58Z"
+timestamp_end: "2022-07-05T17:39:50Z"
+duration_real: "38m"
+message_count: 22
+turn_count: 22
+participants:
+  - "Arianna"
+  - "Aurora"
+  - "Filomena"
+  - "NARRATOR"
+  - "Nikita"
+  - "Philip Annabelle"
+players:
+  - "Horo"
+  - "LittlePinkRin"
+  - "RaphaelFurious"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  - In this world there can't be more than one phylactery for each necromancer - An iron lantern well bound to solid ground, a fire that cannot be extin
+last_msg_excerpt: |
+  *of course he is able to. It was meant to be a way to gather intel while having a chance to travel and sell it to other armies. He once even joked to 
+related_scenes: []
+related_lore: []
+operator_notes: null

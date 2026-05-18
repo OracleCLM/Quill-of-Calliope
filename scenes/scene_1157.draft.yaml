@@ -1,0 +1,28 @@
+# Auto-generated draft — operator review required
+scene_id: scene_1157
+title: "Scene 1158: NARRATOR, NPC: Assassin +2"
+status: draft
+date_started: "2022-12-14"
+last_active: "2022-12-14"
+timestamp_start: "2022-12-14T03:34:49Z"
+timestamp_end: "2022-12-14T04:17:34Z"
+duration_real: "42m"
+message_count: 15
+turn_count: 15
+participants:
+  - "NARRATOR"
+  - "NPC: Assassin"
+  - "NPC: Town guard"
+  - "Oliver"
+players:
+  - "Horo"
+  - "𝕋𝕖𝕞𝕡𝕖𝕤𝕥"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  Oliver started his shift walking around aimlessly for a while in the pointed out area.  It was a little bit boring, if not for the occasional, polite 
+last_msg_excerpt: |
+  No!! Shush! I can’t, I don’t want to!! I-.. my patron… *The man’s voice is scared and broken as if he’s about to burst into tears* I don’t wanna die! 
+related_scenes: []
+related_lore: []
+operator_notes: null

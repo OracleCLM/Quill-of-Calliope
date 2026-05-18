@@ -1,0 +1,32 @@
+# Auto-generated draft — operator review required
+scene_id: scene_156
+title: "Scene 157: Azu Blythe, Cassandra Blythe +5"
+status: draft
+date_started: "2022-01-25"
+last_active: "2022-01-25"
+timestamp_start: "2022-01-25T19:48:15Z"
+timestamp_end: "2022-01-25T21:02:12Z"
+duration_real: "1h 13m"
+message_count: 25
+turn_count: 25
+participants:
+  - "Azu Blythe"
+  - "Cassandra Blythe"
+  - "Koibo"
+  - "Minh (Deceased)"
+  - "Mirko"
+  - "NARRATOR"
+  - "NPC: Ghoul"
+players:
+  - "Horo"
+  - "Just frog"
+  - "Katie"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  Koibo could see that one skeleton pushed Cassandra on the ground while more skeletons started to form from the piles of bones, dirt and debris.  The s
+last_msg_excerpt: |
+  *had watched the statue and once it went inside she blew out a sigh and was silent on the way back with a upset expression though inside she felt like
+related_scenes: []
+related_lore: []
+operator_notes: null

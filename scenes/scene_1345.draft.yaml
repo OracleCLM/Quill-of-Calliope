@@ -1,0 +1,36 @@
+# Auto-generated draft — operator review required
+scene_id: scene_1345
+title: "Scene 1346: Brea, Bree +9"
+status: draft
+date_started: "2023-12-22"
+last_active: "2023-12-22"
+timestamp_start: "2023-12-22T03:08:56Z"
+timestamp_end: "2023-12-22T04:35:30Z"
+duration_real: "1h 26m"
+message_count: 17
+turn_count: 17
+participants:
+  - "Brea"
+  - "Bree"
+  - "Clover"
+  - "Ira"
+  - "Kiro"
+  - "Luki"
+  - "NARRATOR"
+  - "NPC: Guard bee"
+  - "NPC: Worker bee"
+  - "Worker bee"
+  - "Yuki"
+players:
+  - "Dax"
+  - "Horo"
+  - "LittlePinkRin"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  Buzz buzz time to get the worker bees busy
+last_msg_excerpt: |
+  Hmm... what's with that look you don't want to go into the stew?  *She furrows her brow in a mock look of thought*  Your right i wouldn't want to shar
+related_scenes: []
+related_lore: []
+operator_notes: null

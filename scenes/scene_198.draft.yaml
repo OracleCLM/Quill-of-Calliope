@@ -1,0 +1,30 @@
+# Auto-generated draft — operator review required
+scene_id: scene_198
+title: "Scene 199: Koibo, Mirko +4"
+status: draft
+date_started: "2022-02-15"
+last_active: "2022-02-15"
+timestamp_start: "2022-02-15T20:53:18Z"
+timestamp_end: "2022-02-15T22:07:12Z"
+duration_real: "1h 13m"
+message_count: 10
+turn_count: 10
+participants:
+  - "Koibo"
+  - "Mirko"
+  - "NARRATOR"
+  - "NPC: Adventurer"
+  - "NPC: Captain"
+  - "NPC: Lucas"
+players:
+  - "Horo"
+  - "Just frog"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  After a long walk underground the party of adventurers find themselves in front of a bifurcation.  Lucas, who is holding a torch turned to look at her
+last_msg_excerpt: |
+  How about we wait to see which path is less chosen and we pick that? Id like the t... Three of us to stay together
+related_scenes: []
+related_lore: []
+operator_notes: null

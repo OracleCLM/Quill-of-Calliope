@@ -1,0 +1,31 @@
+# Auto-generated draft — operator review required
+scene_id: scene_183
+title: "Scene 184: Hadeseus, Hans Blindesauge +4"
+status: draft
+date_started: "2022-02-04"
+last_active: "2022-02-04"
+timestamp_start: "2022-02-04T21:56:45Z"
+timestamp_end: "2022-02-04T23:04:25Z"
+duration_real: "1h 7m"
+message_count: 24
+turn_count: 24
+participants:
+  - "Hadeseus"
+  - "Hans Blindesauge"
+  - "Miyoko"
+  - "NARRATOR"
+  - "Ryuzaki (Ryu)"
+  - "Yukawa"
+players:
+  - "Katie"
+  - "Neji/Hans"
+  - "𝕋𝕖𝕞𝕡𝕖𝕤𝕥"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  Grumpy? Isn’t it not very nice to call your brother something like that?
+last_msg_excerpt: |
+  A lifeform- I can’t tell what or where it is though. It might have gone out of range.
+related_scenes: []
+related_lore: []
+operator_notes: null

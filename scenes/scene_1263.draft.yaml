@@ -1,0 +1,30 @@
+# Auto-generated draft — operator review required
+scene_id: scene_1263
+title: "Scene 1264: Benimaru, Harmony +3"
+status: draft
+date_started: "2023-05-02"
+last_active: "2023-05-02"
+timestamp_start: "2023-05-02T21:38:21Z"
+timestamp_end: "2023-05-02T22:41:10Z"
+duration_real: "1h 2m"
+message_count: 14
+turn_count: 14
+participants:
+  - "Benimaru"
+  - "Harmony"
+  - "Kilian"
+  - "NARRATOR"
+  - "SCP-023"
+players:
+  - "Horo"
+  - "Nate"
+  - "Neji/Hans"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  *The creature lazily exhaled a single puff of warm air through its nose, moving a little bit of dust off the ground.* … *After an initial moment of si
+last_msg_excerpt: |
+  "I know I don't look very friendly but it's because of my side and my snake nature, I can't help it. Anyway thank you very much, I think I'll make it 
+related_scenes: []
+related_lore: []
+operator_notes: null

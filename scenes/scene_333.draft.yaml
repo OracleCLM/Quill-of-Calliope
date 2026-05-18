@@ -1,0 +1,31 @@
+# Auto-generated draft — operator review required
+scene_id: scene_333
+title: "Scene 334: Aurora, Clover +4"
+status: draft
+date_started: "2022-05-03"
+last_active: "2022-05-03"
+timestamp_start: "2022-05-03T10:21:46Z"
+timestamp_end: "2022-05-03T10:58:20Z"
+duration_real: "36m"
+message_count: 14
+turn_count: 14
+participants:
+  - "Aurora"
+  - "Clover"
+  - "Hans Blindesauge"
+  - "Luki"
+  - "Peaches"
+  - "Snow"
+players:
+  - "Horo"
+  - "LittlePinkRin"
+  - "Neji/Hans"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  *she helps Aurora set up the picnic placing her own basket down and taking out all the sweets she brought along with the hot chocolate.* It really is 
+last_msg_excerpt: |
+  *He takes the basket*  "Thanks, how much do I owe you?"
+related_scenes: []
+related_lore: []
+operator_notes: null

@@ -1,0 +1,28 @@
+# Auto-generated draft — operator review required
+scene_id: scene_530
+title: "Scene 531: Garaph "Gabby", Marko +1"
+status: draft
+date_started: "2022-07-12"
+last_active: "2022-07-12"
+timestamp_start: "2022-07-12T16:22:42Z"
+timestamp_end: "2022-07-12T18:17:11Z"
+duration_real: "1h 54m"
+message_count: 13
+turn_count: 13
+participants:
+  - "Garaph "Gabby""
+  - "Marko"
+  - "NARRATOR"
+players:
+  - "Horo"
+  - "KalmarZ"
+  - "RaphaelFurious"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  You are quite the judgemental guy, are you not?  I wonder.. what kind of words would you have spoken if you weren't a mercenary who doesn't judge. How
+last_msg_excerpt: |
+  Well, I am no slack, just not bothering with unprecedented and unnecessary fighting. Perhaps we could spar one day and we could see who has to respect
+related_scenes: []
+related_lore: []
+operator_notes: null

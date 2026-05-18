@@ -1,0 +1,81 @@
+# Auto-generated draft via MCP cerebras — status: draft (operator review required)
+
+# --- IDENTITY ---
+id: mirko
+name: Mirko
+aliases: []
+type: pc
+player: unknown
+
+# --- BACKGROUND ---
+race: human
+class: mage_runecaster
+age: unknown
+gender: male
+origin: unknown
+
+backstory: |
+  A young magic user trained in paper rune magic, Mirko is new to adventuring and seeks both purpose and acceptance, relying on ranged magic and careful planning to survive.
+
+# --- PERSONALITY ---
+traits:
+  - cautious
+  - earnest
+  - technically_creative
+quirks: []
+flaws: []
+
+# --- SPEECH ---
+speech_pattern:
+  formal: mixed
+  use_honorifics: false
+  vocabulary: plain
+  sentence_length: medium
+  emotional_range: restrained
+  pov: first_person
+  notes: "Speaks with hesitation and clarity; often seeks reassurance or guidance."
+  signature_phrases:
+  - "I promise I will try to help you from the distance with my magic."
+  - "I want to be an adventurer. I've been walking for days"
+  - "I'd like to play it safe. I like to be alive"
+
+# --- BEHAVIOR ---
+behavior_pattern:
+  role: support_mage_novice_adventurer
+  decision_style: "cautious and collaborative"
+  typical_actions:
+    - "casts spells from distance"
+    - "folds and deploys rune-imbued paper constructs"
+    - "asks for help or directions"
+
+# --- SCENE TRACKING ---
+active_scenes: []
+last_active: null
+last_player_action: null
+
+# --- RELATIONSHIPS ---
+relationships: {}
+
+# --- MEMORY ---
+memory: []
+
+# --- SAMPLE QUOTES ---
+sample_quotes:
+  - "I promise I will try to help you from the distance with my magic."
+  - "I want to be an adventurer. I've been walking for days"
+  - "I'd like to play it safe. I like to be alive"
+
+# --- TTS PROFILE ---
+tts:
+  voice_model: null
+  pitch_shift: 0
+  speed: 1.0
+  emotion_default: neutral
+
+# --- META ---
+canonicity: draft
+mcp_assisted: true
+last_updated: 2026-05-16
+operator_notes: |
+  Auto-extracted via MCP cerebras from Mirko message corpus.
+  Operator review required: verify race/class, add relationships, confirm backstory.

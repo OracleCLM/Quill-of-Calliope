@@ -1,0 +1,26 @@
+# Auto-generated draft — operator review required
+scene_id: scene_387
+title: "Scene 388: Dositheus, Jiang Li (将礼)"
+status: draft
+date_started: "2022-05-17"
+last_active: "2022-05-17"
+timestamp_start: "2022-05-17T20:43:13Z"
+timestamp_end: "2022-05-17T21:43:50Z"
+duration_real: "1h 0m"
+message_count: 35
+turn_count: 35
+participants:
+  - "Dositheus"
+  - "Jiang Li (将礼)"
+players:
+  - "Neji/Hans"
+  - "SerbianWeeb"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  *He is alone in library working on his new book. Every once in ahile he slowly lifts his hesd up to check if anyone enterted through large dark wooden
+last_msg_excerpt: |
+  "I see. I can't even tan"
+related_scenes: []
+related_lore: []
+operator_notes: null

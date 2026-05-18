@@ -1,0 +1,40 @@
+# Auto-generated draft — operator review required
+scene_id: scene_1312
+title: "Scene 1313: Aurora, Bliss +13"
+status: draft
+date_started: "2023-12-19"
+last_active: "2023-12-19"
+timestamp_start: "2023-12-19T00:00:34Z"
+timestamp_end: "2023-12-19T03:21:25Z"
+duration_real: "3h 20m"
+message_count: 33
+turn_count: 33
+participants:
+  - "Aurora"
+  - "Bliss"
+  - "Clover"
+  - "Dr. Left"
+  - "Fate"
+  - "Filomena"
+  - "General Mittens"
+  - "Huelite"
+  - "Ira"
+  - "Katya"
+  - "Maiden Karina"
+  - "NARRATOR"
+  - "NPC: Town guard"
+  - "Paladin Iona"
+  - "Sir Mathew Schatten"
+players:
+  - "Horo"
+  - "LittlePinkRin"
+  - "Ramen"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  You’re using a lot of weird words today. But yeah, it’s because of the communication thingies.  *Her nose wrinkled, more likely because of the unexpec
+last_msg_excerpt: |
+  *she gave a short nod*  Well your in front of an inn right now, and it's the same one we're staying in. We we're just about to go inside when iona spo
+related_scenes: []
+related_lore: []
+operator_notes: null

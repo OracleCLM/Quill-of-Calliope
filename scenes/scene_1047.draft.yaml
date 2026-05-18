@@ -1,0 +1,30 @@
+# Auto-generated draft — operator review required
+scene_id: scene_1047
+title: "Scene 1048: Alexander, Arianna +3"
+status: draft
+date_started: "2022-11-23"
+last_active: "2022-11-23"
+timestamp_start: "2022-11-23T00:58:55Z"
+timestamp_end: "2022-11-23T01:52:09Z"
+duration_real: "53m"
+message_count: 32
+turn_count: 32
+participants:
+  - "Alexander"
+  - "Arianna"
+  - "Benimaru"
+  - "NARRATOR"
+  - "NPC: Alfred"
+players:
+  - "Horo"
+  - "Nate"
+  - "𝕋𝕖𝕞𝕡𝕖𝕤𝕥"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  He nods no and signs for "water please. " he looked at alexander and then at Arianna  "Perhaps you can teach the boy to fight" he signed on again and 
+last_msg_excerpt: |
+  (If you two want to chat while I sleep, Arianna will translate things literally for Benimaru)
+related_scenes: []
+related_lore: []
+operator_notes: null

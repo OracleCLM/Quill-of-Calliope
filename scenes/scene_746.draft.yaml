@@ -1,0 +1,29 @@
+# Auto-generated draft — operator review required
+scene_id: scene_746
+title: "Scene 747: Damian, James +2"
+status: draft
+date_started: "2022-09-04"
+last_active: "2022-09-04"
+timestamp_start: "2022-09-04T15:11:41Z"
+timestamp_end: "2022-09-04T15:55:19Z"
+duration_real: "43m"
+message_count: 11
+turn_count: 11
+participants:
+  - "Damian"
+  - "James"
+  - "NPC: Friaginleif"
+  - "Yan Qing"
+players:
+  - "Horo"
+  - "Neji/Hans"
+  - "𝕋𝕖𝕞𝕡𝕖𝕤𝕥"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  * IMAGE *
+last_msg_excerpt: |
+  *Definitely ~not~ watching the proceedings of the Grimm Troupe from a respectable distance (floating as all self proclaimed gods should)*
+related_scenes: []
+related_lore: []
+operator_notes: null

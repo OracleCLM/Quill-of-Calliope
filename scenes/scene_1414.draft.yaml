@@ -1,0 +1,34 @@
+# Auto-generated draft — operator review required
+scene_id: scene_1414
+title: "Scene 1415: .Philly's House, Arianna +6"
+status: draft
+date_started: "2024-04-04"
+last_active: "2024-04-04"
+timestamp_start: "2024-04-04T04:43:33Z"
+timestamp_end: "2024-04-04T05:55:38Z"
+duration_real: "1h 12m"
+message_count: 11
+turn_count: 11
+participants:
+  - ".Philly's House"
+  - "Arianna"
+  - "Aurora"
+  - "Filomena"
+  - "Jöhan"
+  - "Katya"
+  - "NARRATOR"
+  - "Philip Annabelle"
+players:
+  - "Horo"
+  - "LittlePinkRin"
+  - "Ramen"
+  - "RaphaelFurious"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  The metallic hand removes the surface layer of moss with ease. The letters carved into the stone remain dirty, but are now legible. There was no need 
+last_msg_excerpt: |
+  *I say out towards the void of the winter sky rolling my sleeves down *
+related_scenes: []
+related_lore: []
+operator_notes: null

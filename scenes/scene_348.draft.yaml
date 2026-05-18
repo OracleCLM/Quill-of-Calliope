@@ -1,0 +1,32 @@
+# Auto-generated draft — operator review required
+scene_id: scene_348
+title: "Scene 349: Art, Aurora +5"
+status: draft
+date_started: "2022-05-08"
+last_active: "2022-05-08"
+timestamp_start: "2022-05-08T20:31:23Z"
+timestamp_end: "2022-05-08T21:33:23Z"
+duration_real: "1h 2m"
+message_count: 19
+turn_count: 19
+participants:
+  - "Art"
+  - "Aurora"
+  - "Cassandra Blythe"
+  - "Lucas"
+  - "Mirko"
+  - "NARRATOR"
+  - "NPC: Captain"
+players:
+  - "Horo"
+  - "Just frog"
+  - "Katie"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  I am not sure what Koibo is looking for exactly, but the necromancer seems to be very much dead and all the corpses around them are laying flat on the
+last_msg_excerpt: |
+  *having been released from the grasp of the necromancer she just falls face first and the one sword she still held in her hand hit the ground with a "
+related_scenes: []
+related_lore: []
+operator_notes: null

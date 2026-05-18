@@ -1,0 +1,29 @@
+# Auto-generated draft — operator review required
+scene_id: scene_074
+title: "Scene 75: Alexis, Irigata +2"
+status: draft
+date_started: "2021-12-12"
+last_active: "2021-12-12"
+timestamp_start: "2021-12-12T02:24:46Z"
+timestamp_end: "2021-12-12T04:17:34Z"
+duration_real: "1h 52m"
+message_count: 13
+turn_count: 13
+participants:
+  - "Alexis"
+  - "Irigata"
+  - "Saturn"
+  - "Tamura"
+players:
+  - "DragoBaggo"
+  - "Horo"
+  - "YourGoblinBard"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  (Sorry for not responding for a while!)
+last_msg_excerpt: |
+  (Yo, Moth!)
+related_scenes: []
+related_lore: []
+operator_notes: null

@@ -1,0 +1,35 @@
+# Auto-generated draft — operator review required
+scene_id: scene_105
+title: "Scene 106: Alexis, Hadeseus +7"
+status: draft
+date_started: "2021-12-23"
+last_active: "2021-12-23"
+timestamp_start: "2021-12-23T11:29:30Z"
+timestamp_end: "2021-12-23T14:22:53Z"
+duration_real: "2h 53m"
+message_count: 94
+turn_count: 94
+participants:
+  - "Alexis"
+  - "Hadeseus"
+  - "Irigata"
+  - "Koibo"
+  - "Mirko"
+  - "NARRATOR"
+  - "NPC: Town guard"
+  - "NPC: Tyrannis"
+  - "Pdor"
+players:
+  - "Horo"
+  - "Just frog"
+  - "Neji/Hans"
+  - "YourGoblinBard"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  The battlefield and the adventurers are all covered in blood.
+last_msg_excerpt: |
+  *he runs to the guild. When he reachs a corner he waits for the rest to follow him *
+related_scenes: []
+related_lore: []
+operator_notes: null

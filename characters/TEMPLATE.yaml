@@ -1,0 +1,95 @@
+# Character sheet template Calliope.AI
+# Copia in characters/<nome>.yaml e compila
+
+# --- IDENTITY ---
+id: kebab-case-id  # lowercase, hyphens, no spaces. Es: kazuki-takeda
+name: Full Name  # Display name
+aliases: []  # nicknames, titles, false identities
+type: pc  # pc | npc | player_of_other
+player: nic  # se pc operatore. Altro player username se "player_of_other". null se npc.
+
+# --- BACKGROUND ---
+race: human  # human | yokai | yokai_subtype | spirit | beast | other
+class: ronin  # warrior | mage | rogue | merchant | etc
+age: 28
+gender: male  # male | female | other | unspecified
+origin: village_yamato  # backstory hook
+
+backstory: |
+  Brief background (5-10 lines max). Eventi formativi, motivazioni profonde,
+  segreti, traumi, obiettivi. Operator può espandere per char propri,
+  conciso per NPC minori.
+
+# --- PERSONALITY ---
+traits:
+  - taciturno
+  - leale
+  - skilled_swordsman
+quirks:
+  - "porta sempre un nastro rosso al polso"
+  - "evita riflessi specchi (motivo segreto)"
+flaws:
+  - "incline a brooding"
+  - "diffidente verso magia"
+
+# --- SPEECH ---
+speech_pattern:
+  formal: true  # true | false | mixed
+  use_honorifics: true  # Sama/San/Kun/Chan etc se setting JP
+  vocabulary: archaic_inflected  # plain | poetic | archaic_inflected | scholarly | rustic
+  sentence_length: medium  # short | medium | long | variable
+  emotional_range: restrained  # restrained | open | volatile
+  signature_phrases:
+    - "The blade remembers what the heart forgets."
+    - "Honor is not given. It is forged."
+
+# --- SCENE TRACKING ---
+active_scenes:
+  - scene_001_yamato_temple
+  - scene_005_river_crossing
+last_active: 2026-05-15T22:00:00Z
+last_player_action: "Kazuki reflects on the merchant's question"
+
+# --- RELATIONSHIPS ---
+relationships:
+  emiko_yamashiro:
+    status: ally
+    nature: complicated_past
+    trust: 0.7  # 0-1
+  npc_merchant_old:
+    status: neutral
+    nature: business
+    trust: 0.3
+
+# --- MEMORY (selective high-importance events) ---
+memory:
+  - timestamp: 2026-03-15
+    scene_id: scene_001_yamato_temple
+    type: observation
+    content: "Witnessed the temple priest perform the forbidden rite. Did not intervene."
+    importance: 0.9
+  - timestamp: 2026-04-20
+    scene_id: scene_003_market
+    type: dialogue
+    content: "Promised Emiko he would find the artifact. Never went back on word."
+    importance: 0.8
+
+# --- SAMPLE QUOTES (for style replication) ---
+sample_quotes:
+  - "The river flows whether we wish it or not."
+  - "Honor demands silence. Truth demands voice. Which weighs more?"
+  - "*his hand rests on the hilt, but does not draw*"
+
+# --- TTS PROFILE (per M5 future) ---
+tts:
+  voice_model: en_GB-alan-medium
+  pitch_shift: -2
+  speed: 0.95
+  emotion_default: contemplative
+
+# --- META ---
+canonicity: established  # established | proposed | retconned | dead
+last_updated: 2026-05-16
+operator_notes: |
+  Personaggio principale operator. Backstory ispirato vagamente a [...].
+  Tone target: stoic, occasionally lyrical when emotion overflows.

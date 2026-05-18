@@ -1,0 +1,33 @@
+# Auto-generated draft — operator review required
+scene_id: scene_422
+title: "Scene 423: Akisha E'kantel, Katya +6"
+status: draft
+date_started: "2022-06-11"
+last_active: "2022-06-11"
+timestamp_start: "2022-06-11T10:43:42Z"
+timestamp_end: "2022-06-11T11:37:51Z"
+duration_real: "54m"
+message_count: 10
+turn_count: 10
+participants:
+  - "Akisha E'kantel"
+  - "Katya"
+  - "Kikyo"
+  - "NARRATOR"
+  - "NPC: Town guard"
+  - "Nikita"
+  - "Poppy"
+  - "Ruby"
+players:
+  - "Horo"
+  - "LittlePinkRin"
+  - "RaphaelFurious"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  We rush because we have news that should be reported to her as soon as we got them, plus, she has the habit of coming here in the evening.  *his breat
+last_msg_excerpt: |
+  "I am new to this city and as such I was betting that they have some intricate clothes different than others. Or hidden from public in hoods and gowns
+related_scenes: []
+related_lore: []
+operator_notes: null

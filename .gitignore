@@ -1,0 +1,110 @@
+# Calliope.AI — privacy-aggressive gitignore
+# Dati RP NON commitabili (sensibili + privacy + multi-player content)
+
+# === DATASETS (raw imports — NEVER commit) ===
+datasets/
+*.xls
+*.xlsx
+*.csv
+*.discord-export.json
+chatgpt-export*.json
+
+# === CHROMADB (binary local index) ===
+.chroma_calliope/
+*.chroma/
+chroma_data/
+
+# === CHARACTERS (privato per default, sensitive PII NPC) ===
+# Operator può whitelistare specifici char con git add -f <path>
+characters/private/
+characters/*.private.yaml
+
+# === SCENES (running narrative state, NO commit) ===
+scenes/*.md
+!scenes/.gitkeep
+!scenes/TEMPLATE.md
+
+# === SESSIONS (operator workflow private) ===
+sessions/
+*.session.json
+*.session.md
+
+# === IMPORTS TEMP ===
+/tmp/calliope_*
+*.parsed.jsonl
+*.draft.md
+
+# === SECRETS ===
+.env
+.env.local
+*.key
+*.token
+api_keys.yaml
+discord_token*
+
+# === PYTHON ===
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# === VENV ===
+venv/
+env/
+.venv/
+ENV/
+
+# === IDE ===
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# === OS ===
+.DS_Store
+Thumbs.db
+
+# === LOG + CACHE ===
+*.log
+logs/
+.cache/
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# === SILLYTAVERN local instance (se decidiamo embed) ===
+sillytavern/
+node_modules/
+
+# === PLANNING (sprint tracking ongoing, gitignored) ===
+.planning/
+
+# === DOCS draft (review before commit) ===
+docs/*.draft.md
+docs/sessions/
+
+# === TTS (audio output, large files) ===
+*.wav
+*.mp3
+*.ogg
+audio_output/
+.chroma_calliope_dryrun/

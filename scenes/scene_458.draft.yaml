@@ -1,0 +1,33 @@
+# Auto-generated draft — operator review required
+scene_id: scene_458
+title: "Scene 459: Arianna, Damian +5"
+status: draft
+date_started: "2022-06-21"
+last_active: "2022-06-21"
+timestamp_start: "2022-06-21T15:51:07Z"
+timestamp_end: "2022-06-21T16:51:22Z"
+duration_real: "1h 0m"
+message_count: 18
+turn_count: 18
+participants:
+  - "Arianna"
+  - "Damian"
+  - "NARRATOR"
+  - "NPC: Old lady"
+  - "Poppy"
+  - "Ruby"
+  - "Xuányǔ 玄羽"
+players:
+  - "Horo"
+  - "LittlePinkRin"
+  - "Neji/Hans"
+  - "𝕋𝕖𝕞𝕡𝕖𝕤𝕥"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  d13 → [1] → 1 (Brb)
+last_msg_excerpt: |
+  (My exploits are getting people riled up I see… good. All the wheels must still turn…)
+related_scenes: []
+related_lore: []
+operator_notes: null

@@ -1,0 +1,27 @@
+# Auto-generated draft — operator review required
+scene_id: scene_106
+title: "Scene 107: Koibo, Mirko +1"
+status: draft
+date_started: "2021-12-23"
+last_active: "2021-12-23"
+timestamp_start: "2021-12-23T15:05:21Z"
+timestamp_end: "2021-12-23T15:32:16Z"
+duration_real: "26m"
+message_count: 11
+turn_count: 11
+participants:
+  - "Koibo"
+  - "Mirko"
+  - "NPC: Tyrannis"
+players:
+  - "Horo"
+  - "Just frog"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  :|
+last_msg_excerpt: |
+  Give it to someone that would know how to take good care of it
+related_scenes: []
+related_lore: []
+operator_notes: null

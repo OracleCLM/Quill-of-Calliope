@@ -1,0 +1,33 @@
+# Auto-generated draft — operator review required
+scene_id: scene_025
+title: "Fisherman's Gratitude by the Hearth"
+status: draft
+date_started: "2021-11-24"
+last_active: "2021-11-24"
+timestamp_start: "2021-11-24T21:03:50Z"
+timestamp_end: "2021-11-24T21:57:01Z"
+duration_real: "53m"
+message_count: 32
+turn_count: 32
+participants:
+  - "Kikyo"
+  - "Koibo"
+  - "Mato"
+  - "NARRATOR"
+  - "NPC: John the fisherman"
+  - "Pdor"
+  - "Saturn"
+players:
+  - "DragoBaggo"
+  - "Horo"
+  - "Just frog"
+  - "Solriise (Hiatus)"
+mcp_assisted: true
+summary: "Kikyo and Koibo assist John the fisherman near a warm hearth. Mato offers quiet support as they help him and share stories, ending with sincere gratitude from the elderly man."
+first_msg_excerpt: |
+  (Okay, cool. Hope the fireplace is warm!)
+last_msg_excerpt: |
+  “ you’re very welcome, I’m sure you would be able to do fine without me here. I’m just glad to have been able to be useful, it’s been along time since
+related_scenes: []
+related_lore: []
+operator_notes: null

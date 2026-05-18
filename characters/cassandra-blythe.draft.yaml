@@ -1,0 +1,81 @@
+# Auto-generated draft via MCP cerebras — status: draft (operator review required)
+
+# --- IDENTITY ---
+id: cassandra-blythe
+name: Cassandra Blythe
+aliases: []
+type: pc
+player: unknown
+
+# --- BACKGROUND ---
+race: catgirl_wolf_hybrid
+class: warrior
+age: unknown
+gender: female
+origin: unknown
+
+backstory: |
+  A trained warrior of mixed animal heritage, Cassandra balances her duties as a mother with leadership in a military unit, navigating tensions between her race and humans.
+
+# --- PERSONALITY ---
+traits:
+  - confident
+  - protective
+  - dangerously_calm
+quirks: []
+flaws: []
+
+# --- SPEECH ---
+speech_pattern:
+  formal: mixed
+  use_honorifics: false
+  vocabulary: descriptive
+  sentence_length: variable
+  emotional_range: controlled
+  pov: third_person
+  notes: "Uses action asterisks frequently; dialogue blends casual tone with sharp confidence."
+  signature_phrases:
+  - "my group the second unit is ready for inspection"
+  - "Cassandra Blythe is my name"
+  - "...give?"
+
+# --- BEHAVIOR ---
+behavior_pattern:
+  role: combat_leader_and_protector
+  decision_style: "assertive and mission-focused"
+  typical_actions:
+    - "assumes command in group settings"
+    - "uses physical dominance in combat"
+    - "shows maternal care before missions"
+
+# --- SCENE TRACKING ---
+active_scenes: []
+last_active: null
+last_player_action: null
+
+# --- RELATIONSHIPS ---
+relationships: {}
+
+# --- MEMORY ---
+memory: []
+
+# --- SAMPLE QUOTES ---
+sample_quotes:
+  - "my group the second unit is ready for inspection"
+  - "Cassandra Blythe is my name"
+  - "...give?"
+
+# --- TTS PROFILE ---
+tts:
+  voice_model: null
+  pitch_shift: 0
+  speed: 1.0
+  emotion_default: neutral
+
+# --- META ---
+canonicity: draft
+mcp_assisted: true
+last_updated: 2026-05-16
+operator_notes: |
+  Auto-extracted via MCP cerebras from Cassandra Blythe message corpus.
+  Operator review required: verify race/class, add relationships, confirm backstory.

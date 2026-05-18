@@ -1,0 +1,5 @@
+# Canon override scaffold — Calliope.AI Q3
+# tier: CANON = locked authoritative | SOFT = tunable by inference
+slug: alexis-snyder
+canon_version: "1.0"
+overrides: []

@@ -1,0 +1,32 @@
+# Auto-generated draft — operator review required
+scene_id: scene_1413
+title: "Scene 1414: Aurora, Filomena +5"
+status: draft
+date_started: "2024-04-04"
+last_active: "2024-04-04"
+timestamp_start: "2024-04-04T02:10:13Z"
+timestamp_end: "2024-04-04T03:44:23Z"
+duration_real: "1h 34m"
+message_count: 11
+turn_count: 11
+participants:
+  - "Aurora"
+  - "Filomena"
+  - "Ira"
+  - "Jöhan"
+  - "Katya"
+  - "NARRATOR"
+  - "NPC: Nurse"
+players:
+  - "Horo"
+  - "LittlePinkRin"
+  - "Ramen"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  As Eirin steps through the doorway, she’s greeted by the sight of a bustling interior. Behind the counter, a nurse works on some papers, while the gen
+last_msg_excerpt: |
+  *he didn’t remove the moss yet *  *he seems angery as h pulls up his sleeves revealing his metallic arms he flicks away what moss there was before not
+related_scenes: []
+related_lore: []
+operator_notes: null

@@ -1,0 +1,30 @@
+# Auto-generated draft — operator review required
+scene_id: scene_174
+title: "Scene 175: Ivan, Peaches +2"
+status: draft
+date_started: "2022-01-29"
+last_active: "2022-01-30"
+timestamp_start: "2022-01-29T23:52:01Z"
+timestamp_end: "2022-01-30T00:51:09Z"
+duration_real: "59m"
+message_count: 12
+turn_count: 12
+participants:
+  - "Ivan"
+  - "Peaches"
+  - "Philip Annabelle"
+  - "Ryuzaki (Ryu)"
+players:
+  - "Horo"
+  - "LittlePinkRin"
+  - "RaphaelFurious"
+  - "𝕋𝕖𝕞𝕡𝕖𝕤𝕥"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  I see you found just the perfect place for your inn.  *he says while looking around* It’s really nice but.. *chuckles* may I ask you what the heck is 
+last_msg_excerpt: |
+  Oh I have no idea *shrugs again* I don’t know who you talked to but she can make ice out of thin air with her magic, and she’s definitely the only one
+related_scenes: []
+related_lore: []
+operator_notes: null

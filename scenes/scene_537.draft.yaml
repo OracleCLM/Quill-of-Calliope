@@ -1,0 +1,31 @@
+# Auto-generated draft — operator review required
+scene_id: scene_537
+title: "Scene 538: Aurora, Clover +5"
+status: draft
+date_started: "2022-07-13"
+last_active: "2022-07-13"
+timestamp_start: "2022-07-13T22:15:26Z"
+timestamp_end: "2022-07-13T22:52:03Z"
+duration_real: "36m"
+message_count: 12
+turn_count: 12
+participants:
+  - "Aurora"
+  - "Clover"
+  - "Luki"
+  - "NARRATOR"
+  - "NPC: Merchant"
+  - "Viola"
+  - "Yuki"
+players:
+  - "Horo"
+  - "LittlePinkRin"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  Bye~ *She walks to a nearby ally where she’s out of sight. There, she jumps from wall to wall until she reaches the rooftop.* *She starts walking and 
+last_msg_excerpt: |
+  There are a few tables nearby that people use to eat the meals they but at the stalls. Some are free, and with a little wipe the layer of snow comes o
+related_scenes: []
+related_lore: []
+operator_notes: null

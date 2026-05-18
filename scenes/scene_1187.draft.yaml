@@ -1,0 +1,35 @@
+# Auto-generated draft — operator review required
+scene_id: scene_1187
+title: "Scene 1188: Aurora, Cerise +8"
+status: draft
+date_started: "2023-01-07"
+last_active: "2023-01-07"
+timestamp_start: "2023-01-07T02:29:18Z"
+timestamp_end: "2023-01-07T06:23:03Z"
+duration_real: "3h 53m"
+message_count: 40
+turn_count: 40
+participants:
+  - "Aurora"
+  - "Cerise"
+  - "Fria"
+  - "Garaph "Gabby""
+  - "Maiden Karina"
+  - "Mato"
+  - "NARRATOR"
+  - "NPC: Town guard"
+  - "Paladin Iona"
+  - "Peaches"
+players:
+  - "Horo"
+  - "LittlePinkRin"
+  - "RaphaelFurious"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  In forest (at <diceIcon /><s /><dice>pick(“north”,“east”,“west”</dice> <b>→</b> <i><dice>pick("north", "east", "west")</dice></i> <b>→</b> <diceRes>ea
+last_msg_excerpt: |
+  *giggles*  I understand her enough, but her language is foreign to me. The man she speaks of is someone i met when i arrived.  *she didnt move as the 
+related_scenes: []
+related_lore: []
+operator_notes: null

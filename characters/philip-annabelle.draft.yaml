@@ -1,0 +1,82 @@
+# Auto-generated draft via MCP cerebras — status: draft (operator review required)
+
+# --- IDENTITY ---
+id: philip-annabelle
+name: Philip Annabelle
+aliases: []
+type: pc
+player: RaphaelFurious
+
+# --- BACKGROUND ---
+race: slime
+class: ancient_entity
+age: unknown
+gender: unspecified
+origin: unknown
+
+backstory: |
+  An ageless entity from beyond the known world, Philip Annabelle has existed for over a millennium, absorbing myths and moving through societies unnoticed. They arrived near a destroyed town where they first learned of the troupe.
+
+# --- PERSONALITY ---
+traits:
+  - ancient
+  - shapeshifter
+  - amoral
+  - hive_mind_aspect
+quirks: []
+flaws: []
+
+# --- SPEECH ---
+speech_pattern:
+  formal: mixed
+  use_honorifics: false
+  vocabulary: plain
+  sentence_length: variable
+  emotional_range: restrained
+  pov: first_person
+  notes: "Uses playful menace and understated horror; shifts tone between childlike curiosity and ancient detachment."
+  signature_phrases:
+  - "Someone that has heard of you and doesn't fear even death"
+  - "Just kidding, as long as you don't freak out I can melt them right of the floor"
+  - "Am just having fun with my body. And I am strange if you haven't noticed already."
+
+# --- BEHAVIOR ---
+behavior_pattern:
+  role: chaotic_neutral_trickster
+  decision_style: "self-amusement driven; acts on whims, often blurring care with manipulation"
+  typical_actions:
+    - "physically invades personal space using fluid form"
+    - "offers morally ambiguous solutions"
+    - "mimics others appearances to unsettle or comfort"
+
+# --- SCENE TRACKING ---
+active_scenes: []
+last_active: null
+last_player_action: null
+
+# --- RELATIONSHIPS ---
+relationships: {}
+
+# --- MEMORY ---
+memory: []
+
+# --- SAMPLE QUOTES ---
+sample_quotes:
+  - "Someone that has heard of you and doesn't fear even death"
+  - "Just kidding, as long as you don't freak out I can melt them right of the floor"
+  - "Am just having fun with my body. And I am strange if you haven't noticed already."
+
+# --- TTS PROFILE ---
+tts:
+  voice_model: null
+  pitch_shift: 0
+  speed: 1.0
+  emotion_default: neutral
+
+# --- META ---
+canonicity: draft
+mcp_assisted: true
+last_updated: 2026-05-16
+operator_notes: |
+  Auto-extracted via MCP cerebras from Philip Annabelle message corpus.
+  Operator review required: verify race/class, add relationships, confirm backstory.

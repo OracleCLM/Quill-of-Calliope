@@ -1,0 +1,30 @@
+# Auto-generated draft — operator review required
+scene_id: scene_1200
+title: "Scene 1201: Aurora, Fria +3"
+status: draft
+date_started: "2023-01-12"
+last_active: "2023-01-12"
+timestamp_start: "2023-01-12T16:43:21Z"
+timestamp_end: "2023-01-12T18:03:07Z"
+duration_real: "1h 19m"
+message_count: 48
+turn_count: 48
+participants:
+  - "Aurora"
+  - "Fria"
+  - "Hans Blindesauge"
+  - "Shinmyoumaru"
+  - "_Narrator / NPC"
+players:
+  - "Deleted"
+  - "Horo"
+  - "Neji/Hans"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  *Peaches could now feel much lighter, almost weightless as if she was submerged in water or something like that. Aurora walked around the bed to stand
+last_msg_excerpt: |
+  "Alright."  *Not having much to say now, he entered Kilian's inn and sat at a table there.*
+related_scenes: []
+related_lore: []
+operator_notes: null

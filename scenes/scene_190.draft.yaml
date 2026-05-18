@@ -1,0 +1,28 @@
+# Auto-generated draft — operator review required
+scene_id: scene_190
+title: "Scene 191: NARRATOR, NPC: Boy +2"
+status: draft
+date_started: "2022-02-09"
+last_active: "2022-02-10"
+timestamp_start: "2022-02-09T22:41:32Z"
+timestamp_end: "2022-02-10T01:09:29Z"
+duration_real: "2h 27m"
+message_count: 69
+turn_count: 69
+participants:
+  - "NARRATOR"
+  - "NPC: Boy"
+  - "NPC: Clay golem"
+  - "Philip Annabelle"
+players:
+  - "Horo"
+  - "RaphaelFurious"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  After a couple of hours of walk Philip gets to a very small village. The houses are few but well kept, they are probably not poor judging by the condi
+last_msg_excerpt: |
+  There are indeed bushes with some red, sour berries here and there in the gardens of the city.  Looks like there’s not much people around for some rea
+related_scenes: []
+related_lore: []
+operator_notes: null

@@ -1,0 +1,31 @@
+# Auto-generated draft — operator review required
+scene_id: scene_949
+title: "Scene 950: Luki, NARRATOR +4"
+status: draft
+date_started: "2022-10-21"
+last_active: "2022-10-21"
+timestamp_start: "2022-10-21T22:34:14Z"
+timestamp_end: "2022-10-21T23:14:28Z"
+duration_real: "40m"
+message_count: 10
+turn_count: 10
+participants:
+  - "Luki"
+  - "NARRATOR"
+  - "William Kraimerson"
+  - "Xuányǔ 玄羽"
+  - "Yan Qing"
+  - "Yuki"
+players:
+  - "Horo"
+  - "Joshua Thudson"
+  - "Neji/Hans"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  *when Clover picked her up, at first she let out a noise of disgruntlement, but as soon as she realised who did it she giggled through her nose, openi
+last_msg_excerpt: |
+  *Tired of having to do everything alone like an idiot, he decided to post a sign indicating that he was looking for people to work with him in front o
+related_scenes: []
+related_lore: []
+operator_notes: null

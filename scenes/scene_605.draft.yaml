@@ -1,0 +1,38 @@
+# Auto-generated draft — operator review required
+scene_id: scene_605
+title: "Scene 606: Arianna, Art +10"
+status: draft
+date_started: "2022-07-27"
+last_active: "2022-07-27"
+timestamp_start: "2022-07-27T07:04:45Z"
+timestamp_end: "2022-07-27T09:03:39Z"
+duration_real: "1h 58m"
+message_count: 28
+turn_count: 28
+participants:
+  - "Arianna"
+  - "Art"
+  - "Bubs"
+  - "Derrick"
+  - "Garaph "Gabby""
+  - "Katya"
+  - "Maiden Karina"
+  - "NARRATOR"
+  - "Nikita"
+  - "Paladin Iona"
+  - "Pdor"
+  - "Piper Pernauful"
+players:
+  - "Borderline Insanity"
+  - "Horo"
+  - "LittlePinkRin"
+  - "RaphaelFurious"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  *He frowned and for a moment he seemed to be on the verge of saying something* pick("yes", "no") → pick("yes", "no") → no 
+last_msg_excerpt: |
+  I think your patient is doing fine for now you can't be beside them through the entire recovery which could take days depending on the seriousness. Yo
+related_scenes: []
+related_lore: []
+operator_notes: null

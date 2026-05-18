@@ -1,0 +1,33 @@
+# Auto-generated draft — operator review required
+scene_id: scene_1231
+title: "Scene 1232: Bubs, Derrick +6"
+status: draft
+date_started: "2023-01-29"
+last_active: "2023-01-29"
+timestamp_start: "2023-01-29T03:47:28Z"
+timestamp_end: "2023-01-29T04:43:16Z"
+duration_real: "55m"
+message_count: 13
+turn_count: 13
+participants:
+  - "Bubs"
+  - "Derrick"
+  - "Fria"
+  - "Garaph "Gabby""
+  - "Idref"
+  - "Kiro"
+  - "NARRATOR"
+  - "Syvis"
+players:
+  - "Dax"
+  - "Horo"
+  - "RaphaelFurious"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  I will catch that damn wolf! *He shouts so big is his excitement about proving his value as an adventurer by succeeding on a quest that many have fail
+last_msg_excerpt: |
+  *He sighs* I guess this wasn’t exactly a lucky charm. We need to remove all of the debris with a chisel. At least we don’t need to reforge the weapon…
+related_scenes: []
+related_lore: []
+operator_notes: null

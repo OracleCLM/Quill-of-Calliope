@@ -1,0 +1,28 @@
+# Auto-generated draft — operator review required
+scene_id: scene_067
+title: "Azu's First Encounter with Gold"
+status: draft
+date_started: "2021-12-09"
+last_active: "2021-12-09"
+timestamp_start: "2021-12-09T18:58:48Z"
+timestamp_end: "2021-12-09T19:33:31Z"
+duration_real: "34m"
+message_count: 10
+turn_count: 10
+participants:
+  - "Alexis"
+  - "Mato"
+  - "NARRATOR"
+  - "Saturn"
+players:
+  - "DragoBaggo"
+  - "Horo"
+mcp_assisted: true
+summary: "Azu Blythe, awestruck by her first sight of gold, stammers her name to Syvis. A simple exchange becomes a poignant step in Azu's journey of discovery, as she recalls her mother's stories."
+first_msg_excerpt: |
+  ["I did not know he has a room here."]  *He blinks for a few moments as she mentions the cat.* ["The samurai?"] 
+last_msg_excerpt: |
+  Paws to reach it. *
+related_scenes: []
+related_lore: []
+operator_notes: null

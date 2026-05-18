@@ -1,0 +1,35 @@
+# Auto-generated draft — operator review required
+scene_id: scene_1159
+title: "Scene 1160: Aurora, Bubs +8"
+status: draft
+date_started: "2022-12-15"
+last_active: "2022-12-15"
+timestamp_start: "2022-12-15T01:06:42Z"
+timestamp_end: "2022-12-15T02:24:21Z"
+duration_real: "1h 17m"
+message_count: 31
+turn_count: 31
+participants:
+  - "Aurora"
+  - "Bubs"
+  - "Derrick"
+  - "Idref"
+  - "Jaxon"
+  - "NARRATOR"
+  - "NPC: Assassin"
+  - "NPC: Town guard"
+  - "Oliver"
+  - "Syvis"
+players:
+  - "Horo"
+  - "Slump"
+  - "𝕋𝕖𝕞𝕡𝕖𝕤𝕥"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  *The man pushed the knife into the girl’s neck. The face of the miserable genasi contracted in a pained, silent scream.* Apophis, I beg you! *He viole
+last_msg_excerpt: |
+  (I’ll continue tomorrow with the description of the outcome, g’night!)
+related_scenes: []
+related_lore: []
+operator_notes: null

@@ -1,0 +1,81 @@
+# Auto-generated draft via MCP cerebras — status: draft (operator review required)
+
+# --- IDENTITY ---
+id: azu-blythe
+name: Azu Blythe
+aliases: []
+type: pc
+player: unknown
+
+# --- BACKGROUND ---
+race: human
+class: novice_cleric
+age: unknown
+gender: female
+origin: unknown
+
+backstory: |
+  A young girl training under the Huntress church, raised by her mother (Cassandra Blythe); lives alone part-time and seeks meaningful connection through service and exploration.
+
+# --- PERSONALITY ---
+traits:
+  - innocent
+  - compassionate
+  - eager_to_prove_herself
+quirks: []
+flaws: []
+
+# --- SPEECH ---
+speech_pattern:
+  formal: mixed
+  use_honorifics: false
+  vocabulary: plain
+  sentence_length: medium
+  emotional_range: open
+  pov: first_person
+  notes: "Speaks with gentle humility; expressions often include blushing or wide-eyed wonder."
+  signature_phrases:
+  - "My...my name is...Azu...Azu Blythe good sir...are you sure I may take that from you?"
+  - "aside from helping others out I try to practice my magic usually out by a secluded stream"
+  - "yes? How can a nun of the huntress be of assistance miss?"
+
+# --- BEHAVIOR ---
+behavior_pattern:
+  role: trainee_nun_curious_explorer
+  decision_style: "guided by kindness and a desire to learn; seeks approval and safety"
+  typical_actions:
+    - "offers assistance in the name of her church"
+    - "expresses awe at new experiences"
+    - "invites others to explore"
+
+# --- SCENE TRACKING ---
+active_scenes: []
+last_active: null
+last_player_action: null
+
+# --- RELATIONSHIPS ---
+relationships: {}
+
+# --- MEMORY ---
+memory: []
+
+# --- SAMPLE QUOTES ---
+sample_quotes:
+  - "My...my name is...Azu...Azu Blythe good sir...are you sure I may take that from you?"
+  - "aside from helping others out I try to practice my magic usually out by a secluded stream"
+  - "yes? How can a nun of the huntress be of assistance miss?"
+
+# --- TTS PROFILE ---
+tts:
+  voice_model: null
+  pitch_shift: 0
+  speed: 1.0
+  emotion_default: neutral
+
+# --- META ---
+canonicity: draft
+mcp_assisted: true
+last_updated: 2026-05-16
+operator_notes: |
+  Auto-extracted via MCP cerebras from Azu Blythe message corpus.
+  Operator review required: verify race/class, add relationships, confirm backstory.

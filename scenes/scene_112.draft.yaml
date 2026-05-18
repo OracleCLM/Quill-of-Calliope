@@ -1,0 +1,31 @@
+# Auto-generated draft — operator review required
+scene_id: scene_112
+title: "Scene 113: Derrick, Irigata +4"
+status: draft
+date_started: "2022-01-13"
+last_active: "2022-01-13"
+timestamp_start: "2022-01-13T21:54:22Z"
+timestamp_end: "2022-01-13T22:15:02Z"
+duration_real: "20m"
+message_count: 10
+turn_count: 10
+participants:
+  - "Derrick"
+  - "Irigata"
+  - "Koibo"
+  - "Mirko"
+  - "NARRATOR"
+  - "NPC: Adventurer"
+players:
+  - "Horo"
+  - "Just frog"
+  - "YourGoblinBard"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  *can he arive because he was following Tyrannis but he got distracted and lost? *
+last_msg_excerpt: |
+  *he hides and turns into Tobi again. Then shows himself to Pdor*  Are you Ok? 
+related_scenes: []
+related_lore: []
+operator_notes: null

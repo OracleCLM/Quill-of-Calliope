@@ -1,0 +1,36 @@
+# Auto-generated draft — operator review required
+scene_id: scene_461
+title: "Scene 462: Lenny, Luki +8"
+status: draft
+date_started: "2022-06-22"
+last_active: "2022-06-22"
+timestamp_start: "2022-06-22T06:27:12Z"
+timestamp_end: "2022-06-22T08:27:12Z"
+duration_real: "2h 0m"
+message_count: 22
+turn_count: 22
+participants:
+  - "Lenny"
+  - "Luki"
+  - "NARRATOR"
+  - "NPC: Enek"
+  - "NPC: Town guard"
+  - "Pdor"
+  - "Poppy"
+  - "Ruby"
+  - "Viola"
+  - "Xuányǔ 玄羽"
+players:
+  - "BaconStuffedPizza"
+  - "Horo"
+  - "LittlePinkRin"
+  - "Neji/Hans"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  There’s noticeably less people than before in the streets, and it’s getting darker as the sun sets.  There’s one guard by the entrance of the guild
+last_msg_excerpt: |
+  *Seeing people leaving, he starts to leave as well, becoming lonely again*
+related_scenes: []
+related_lore: []
+operator_notes: null

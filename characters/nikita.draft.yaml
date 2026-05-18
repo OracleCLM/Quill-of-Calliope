@@ -1,0 +1,81 @@
+# Auto-generated draft via MCP cerebras — status: draft (operator review required)
+
+# --- IDENTITY ---
+id: nikita
+name: Nikita
+aliases: []
+type: pc
+player: unknown
+
+# --- BACKGROUND ---
+race: human
+class: guard_protector
+age: unknown
+gender: female
+origin: unknown
+
+backstory: |
+  A sister devoted to Katya's safety, adjusting to urban life after likely rural or isolated upbringing; seeks stability through service and personal discipline.
+
+# --- PERSONALITY ---
+traits:
+  - loyal
+  - vigilant
+  - slowly_trusting
+quirks: []
+flaws: []
+
+# --- SPEECH ---
+speech_pattern:
+  formal: mixed
+  use_honorifics: false
+  vocabulary: plain
+  sentence_length: medium
+  emotional_range: controlled
+  pov: first_person
+  notes: "Speaks with practical concern; emotional depth shown more through actions than words."
+  signature_phrases:
+  - "That sounds like a good deal. We'll pay you back the 5 silver after we get a place to work."
+  - "Being a guard sounds like it could be interesting. I could stay in the city and help protect it."
+  - "*she jumped when he lunged ready to tackle him away from Katya*"
+
+# --- BEHAVIOR ---
+behavior_pattern:
+  role: protective_older_sister_city_guard
+  decision_style: "cautious and risk-averse, prioritizes sister's safety above all"
+  typical_actions:
+    - "stays physically close to her sister in public"
+    - "readies for combat when threats arise"
+    - "practices breathing to manage stress"
+
+# --- SCENE TRACKING ---
+active_scenes: []
+last_active: null
+last_player_action: null
+
+# --- RELATIONSHIPS ---
+relationships: {}
+
+# --- MEMORY ---
+memory: []
+
+# --- SAMPLE QUOTES ---
+sample_quotes:
+  - "That sounds like a good deal. We'll pay you back the 5 silver after we get a place to work."
+  - "Being a guard sounds like it could be interesting. I could stay in the city and help protect it."
+  - "*she jumped when he lunged ready to tackle him away from Katya*"
+
+# --- TTS PROFILE ---
+tts:
+  voice_model: null
+  pitch_shift: 0
+  speed: 1.0
+  emotion_default: neutral
+
+# --- META ---
+canonicity: draft
+mcp_assisted: true
+last_updated: 2026-05-16
+operator_notes: |
+  Auto-extracted via MCP cerebras from Nikita message corpus.
+  Operator review required: verify race/class, add relationships, confirm backstory.

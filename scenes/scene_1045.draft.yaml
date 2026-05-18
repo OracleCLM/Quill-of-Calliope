@@ -1,0 +1,38 @@
+# Auto-generated draft — operator review required
+scene_id: scene_1045
+title: "Scene 1046: Alexander, Arianna +9"
+status: draft
+date_started: "2022-11-22"
+last_active: "2022-11-22"
+timestamp_start: "2022-11-22T19:39:23Z"
+timestamp_end: "2022-11-22T23:18:05Z"
+duration_real: "3h 38m"
+message_count: 67
+turn_count: 67
+participants:
+  - "Alexander"
+  - "Arianna"
+  - "Beck"
+  - "Benimaru"
+  - "NARRATOR"
+  - "NPC: Alfred"
+  - "Pdor"
+  - "Philip Annabelle"
+  - "Ryuzaki (Ryu)"
+  - "Silver"
+  - "Syvis"
+players:
+  - "Blind Man"
+  - "Horo"
+  - "Nate"
+  - "RaphaelFurious"
+  - "𝕋𝕖𝕞𝕡𝕖𝕤𝕥"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  “That… strange ability… could it be the reason I have this strange glow around… my hands?” *he looks down at them and almost on cue the gold aura star
+last_msg_excerpt: |
+  “Hmph. I may or may not have. Take a wild guess!”
+related_scenes: []
+related_lore: []
+operator_notes: null

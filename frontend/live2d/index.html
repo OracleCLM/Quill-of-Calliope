@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calliope.AI — Mascot Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="ui-overlay">
+    <div id="status-bar">
+      <span id="state-label">idle</span>
+      <span id="engine-label">pyttsx3/espeak-ng</span>
+    </div>
+    <div id="controls">
+      <button onclick="setMascotState('idle')">Idle</button>
+      <button onclick="setMascotState('talking')">Talk</button>
+      <button onclick="setMascotState('listening')">Listen</button>
+      <button onclick="setMascotState('thinking')">Think</button>
+    </div>
+    <div id="tts-controls">
+      <textarea id="tts-input" placeholder="Type scene text and press Speak..."></textarea>
+      <button id="speak-btn" onclick="handleSpeak()">▶ Speak</button>
+    </div>
+  </div>
+
+  <div id="error-banner" style="display:none"></div>
+
+  <canvas id="live2d-canvas"></canvas>
+
+  <!-- Live2D Cubism 4 Core (required for .model3.json) -->
+  <script src="https://cubism.live2d.com/sdk-web/cubismcore/live2dcubismcore.min.js"></script>
+  <!-- PIXI.js v7 -->
+  <script src="https://cdn.jsdelivr.net/npm/pixi.js@7/dist/pixi.min.js"></script>
+  <!-- pixi-live2d-display (Cubism 4 bundle) -->
+  <script src="https://cdn.jsdelivr.net/npm/pixi-live2d-display/dist/cubism4.min.js"></script>
+
+  <!-- Calliope scripts -->
+  <script src="state_machine.js"></script>
+  <script src="tts_sync.js"></script>
+  <script src="app.js"></script>
+
+  <script>
+    // Update status label on state change
+    window.addEventListener('stateChanged', (e) => {
+      document.getElementById('state-label').textContent = e.detail.state;
+    });
+
+    // Speak button: calls Python TTS via fetch (Phase-2 wires real backend)
+    async function handleSpeak() {
+      const text = document.getElementById('tts-input').value.trim();
+      if (!text) return;
+      setMascotState('talking');
+      // Phase-2: POST to localhost:8767/speak
+      console.log('[UI] Would speak:', text.substring(0, 60));
+      setTimeout(() => setMascotState('idle'), 3000); // stub: 3s demo
+    }
+  </script>
+</body>
+</html>

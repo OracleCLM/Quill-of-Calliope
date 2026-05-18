@@ -1,0 +1,81 @@
+# Auto-generated draft via MCP cerebras — status: draft (operator review required)
+
+# --- IDENTITY ---
+id: peaches
+name: Peaches
+aliases: []
+type: pc
+player: unknown
+
+# --- BACKGROUND ---
+race: human
+class: artisan
+age: unknown
+gender: female
+origin: unknown
+
+backstory: |
+  Peaches grew up on a farm and now works in a sweet shop; her quiet demeanor masks a deep affection for Queen Aurora, whom she admires both personally and royally.
+
+# --- PERSONALITY ---
+traits:
+  - shy
+  - gentle
+  - affectionate
+quirks: []
+flaws: []
+
+# --- SPEECH ---
+speech_pattern:
+  formal: mixed
+  use_honorifics: false
+  vocabulary: plain
+  sentence_length: short
+  emotional_range: open
+  pov: first_person
+  notes: "Speaks gently with frequent shyness; uses simple language and expresses warmth."
+  signature_phrases:
+  - "*she brushes one of her pigtails and blushes shyly* O-oh thank you you're too kind."
+  - "I've never been in one before it's really exciting! *Holds onto Aurora*"
+  - "*giggles* I'm not sure actually we ordered some Ice and they brought the giant statue."
+
+# --- BEHAVIOR ---
+behavior_pattern:
+  role: sweet_shop_worker
+  decision_style: "cooperative and considerate"
+  typical_actions:
+    - "blushes and plays with pigtails when flustered"
+    - "expresses admiration for Aurora through subtle gestures"
+    - "offers practical solutions"
+
+# --- SCENE TRACKING ---
+active_scenes: []
+last_active: null
+last_player_action: null
+
+# --- RELATIONSHIPS ---
+relationships: {}
+
+# --- MEMORY ---
+memory: []
+
+# --- SAMPLE QUOTES ---
+sample_quotes:
+  - "*she brushes one of her pigtails and blushes shyly* O-oh thank you you're too kind."
+  - "I've never been in one before it's really exciting! *Holds onto Aurora*"
+  - "*giggles* I'm not sure actually we ordered some Ice and they brought the giant statue."
+
+# --- TTS PROFILE ---
+tts:
+  voice_model: null
+  pitch_shift: 0
+  speed: 1.0
+  emotion_default: neutral
+
+# --- META ---
+canonicity: draft
+mcp_assisted: true
+last_updated: 2026-05-16
+operator_notes: |
+  Auto-extracted via MCP cerebras from Peaches message corpus.
+  Operator review required: verify race/class, add relationships, confirm backstory.

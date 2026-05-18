@@ -1,0 +1,122 @@
+[
+  {
+    "scene_num": 1,
+    "scene_type": "action_combat",
+    "tier": "cerebras_workhorse",
+    "latency_sec": 0.1,
+    "chars": 32,
+    "wav_kb": 0
+  },
+  {
+    "scene_num": 2,
+    "scene_type": "character_death",
+    "tier": "cerebras_workhorse",
+    "latency_sec": 0.1,
+    "chars": 34,
+    "wav_kb": 0
+  },
+  {
+    "scene_num": 3,
+    "scene_type": "romantic_fade_to_black",
+    "tier": "groq_fast",
+    "latency_sec": 0.1,
+    "chars": 41,
+    "wav_kb": 0
+  },
+  {
+    "scene_num": 4,
+    "scene_type": "lore_exposition",
+    "tier": "openrouter_reasoning",
+    "latency_sec": 0.1,
+    "chars": 34,
+    "wav_kb": 0
+  },
+  {
+    "scene_num": 5,
+    "scene_type": "action_aftermath",
+    "tier": "cerebras_workhorse",
+    "latency_sec": 0.1,
+    "chars": 35,
+    "wav_kb": 0
+  },
+  {
+    "scene_num": 6,
+    "scene_type": "comedic_banter",
+    "tier": "groq_fast",
+    "latency_sec": 0.1,
+    "chars": 33,
+    "wav_kb": 0
+  },
+  {
+    "scene_num": 7,
+    "scene_type": "mystery_investigation",
+    "tier": "openrouter_reasoning",
+    "latency_sec": 0.1,
+    "chars": 40,
+    "wav_kb": 0
+  },
+  {
+    "scene_num": 8,
+    "scene_type": "exploration_landscape",
+    "tier": "cerebras_workhorse",
+    "latency_sec": 0.1,
+    "chars": 40,
+    "wav_kb": 0
+  },
+  {
+    "scene_num": 9,
+    "scene_type": "intimate_dialogue",
+    "tier": "groq_fast",
+    "latency_sec": 0.1,
+    "chars": 36,
+    "wav_kb": 0
+  },
+  {
+    "scene_num": 10,
+    "scene_type": "transition_temporal",
+    "tier": "groq_fast",
+    "latency_sec": 0.1,
+    "chars": 39,
+    "wav_kb": 0
+  },
+  {
+    "scene_num": 11,
+    "scene_type": "flashback_memory",
+    "tier": "openrouter_reasoning",
+    "latency_sec": 0.1,
+    "chars": 36,
+    "wav_kb": 0
+  },
+  {
+    "scene_num": 12,
+    "scene_type": "dream_surreal",
+    "tier": "cerebras_workhorse",
+    "latency_sec": 0.1,
+    "chars": 33,
+    "wav_kb": 0
+  },
+  {
+    "scene_num": 13,
+    "scene_type": "ritual_ceremony",
+    "tier": "openrouter_reasoning",
+    "latency_sec": 0.1,
+    "chars": 35,
+    "wav_kb": 0
+  },
+  {
+    "scene_num": 14,
+    "scene_type": "combat_chase",
+    "tier": "cerebras_workhorse",
+    "latency_sec": 0.1,
+    "chars": 32,
+    "wav_kb": 0
+  },
+  {
+    "scene_num": 15,
+    "scene_type": "ooc_meta",
+    "tier": "groq_fast",
+    "latency_sec": 0.1,
+    "chars": 28,
+    "wav_kb": 0
+  }
+]

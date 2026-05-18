@@ -1,0 +1,81 @@
+# Auto-generated draft via MCP cerebras — status: draft (operator review required)
+
+# --- IDENTITY ---
+id: syvis
+name: Syvis
+aliases: []
+type: pc
+player: unknown
+
+# --- BACKGROUND ---
+race: elf
+class: guild_administrator
+age: unknown
+gender: female
+origin: unknown
+
+backstory: |
+  An elf with administrative duties at the adventurer's guild; trusted figure who balances rules with empathy, managing chaos with quiet competence.
+
+# --- PERSONALITY ---
+traits:
+  - efficient
+  - calm_under_pressure
+  - subtly_caring
+quirks: []
+flaws: []
+
+# --- SPEECH ---
+speech_pattern:
+  formal: true
+  use_honorifics: false
+  vocabulary: descriptive
+  sentence_length: medium
+  emotional_range: restrained
+  pov: first_person
+  notes: "Maintains professional tone even under stress; uses dry wit sparingly."
+  signature_phrases:
+  - "Good evening sir, welcome to the Yōkai's adventurers and rescue teams guild."
+  - "If you're a shapeshifter then shift into an adult. I can't take the risk."
+  - "Just get out of my sight already and go back to your duties, Ira."
+
+# --- BEHAVIOR ---
+behavior_pattern:
+  role: guild_receptionist_logistical_coordinator
+  decision_style: "procedural and pragmatic, with underlying concern for safety"
+  typical_actions:
+    - "registers adventurers with calm authority"
+    - "intervenes in crises with composed directives"
+    - "manages staff with mild exasperation"
+
+# --- SCENE TRACKING ---
+active_scenes: []
+last_active: null
+last_player_action: null
+
+# --- RELATIONSHIPS ---
+relationships: {}
+
+# --- MEMORY ---
+memory: []
+
+# --- SAMPLE QUOTES ---
+sample_quotes:
+  - "Good evening sir, welcome to the Yōkai's adventurers and rescue teams guild."
+  - "If you're a shapeshifter then shift into an adult. I can't take the risk."
+  - "Just get out of my sight already and go back to your duties, Ira."
+
+# --- TTS PROFILE ---
+tts:
+  voice_model: null
+  pitch_shift: 0
+  speed: 1.0
+  emotion_default: neutral
+
+# --- META ---
+canonicity: draft
+mcp_assisted: true
+last_updated: 2026-05-16
+operator_notes: |
+  Auto-extracted via MCP cerebras from Syvis message corpus.
+  Operator review required: verify race/class, add relationships, confirm backstory.

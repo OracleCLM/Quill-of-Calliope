@@ -1,0 +1,32 @@
+# Auto-generated draft — operator review required
+scene_id: scene_096
+title: "Scene 97: Hadeseus, Koibo +5"
+status: draft
+date_started: "2021-12-20"
+last_active: "2021-12-20"
+timestamp_start: "2021-12-20T20:12:59Z"
+timestamp_end: "2021-12-20T22:55:48Z"
+duration_real: "2h 42m"
+message_count: 67
+turn_count: 67
+participants:
+  - "Hadeseus"
+  - "Koibo"
+  - "Mirko"
+  - "NARRATOR"
+  - "NPC: Roc"
+  - "NPC: Tyrannis"
+  - "Pdor"
+players:
+  - "Horo"
+  - "Just frog"
+  - "Neji/Hans"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  1d20 → [9] → 9
+last_msg_excerpt: |
+  (Gonna head to bed)
+related_scenes: []
+related_lore: []
+operator_notes: null

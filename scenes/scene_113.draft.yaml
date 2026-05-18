@@ -1,0 +1,40 @@
+# Auto-generated draft — operator review required
+scene_id: scene_113
+title: "Scene 114: Alexis, Aurora +12"
+status: draft
+date_started: "2022-01-13"
+last_active: "2022-01-14"
+timestamp_start: "2022-01-13T22:46:01Z"
+timestamp_end: "2022-01-14T01:48:15Z"
+duration_real: "3h 2m"
+message_count: 88
+turn_count: 88
+participants:
+  - "Alexis"
+  - "Aurora"
+  - "Azu Blythe"
+  - "Cassandra Blythe"
+  - "Derrick"
+  - "Irigata"
+  - "Koibo"
+  - "Mirko"
+  - "NARRATOR"
+  - "NPC: Adventurer"
+  - "NPC: Tyrannis"
+  - "Pdor"
+  - "Sberla"
+  - "Syvis"
+players:
+  - "Horo"
+  - "Just frog"
+  - "Katie"
+  - "YourGoblinBard"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  *he bends slightly forward to take a closer look* “Oh that’s very interesting. This might come in handy when we will have to hammer the metal in order
+last_msg_excerpt: |
+  Yes for mother and me please I thought it might be expensive but I wanted to make her happy you know? *she looks surprised to learn that their favorit
+related_scenes: []
+related_lore: []
+operator_notes: null

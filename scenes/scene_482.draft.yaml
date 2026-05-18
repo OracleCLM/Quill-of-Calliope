@@ -1,0 +1,39 @@
+# Auto-generated draft — operator review required
+scene_id: scene_482
+title: "Scene 483: Aurora, Azrael +10"
+status: draft
+date_started: "2022-06-25"
+last_active: "2022-06-25"
+timestamp_start: "2022-06-25T10:09:08Z"
+timestamp_end: "2022-06-25T14:11:09Z"
+duration_real: "4h 2m"
+message_count: 68
+turn_count: 68
+participants:
+  - "Aurora"
+  - "Azrael"
+  - "Dante"
+  - "Filomena"
+  - "Kikyo"
+  - "Lenny"
+  - "Maksymilian"
+  - "Marko"
+  - "NARRATOR"
+  - "Peaches"
+  - "Viola"
+  - "Yan Qing"
+players:
+  - "BaconStuffedPizza"
+  - "Horo"
+  - "KalmarZ"
+  - "LittlePinkRin"
+  - "Neji/Hans"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  *Feeling she left something, she went back where she was before*
+last_msg_excerpt: |
+  Ehr.  *He would dodge the pat*  I thank you but I don't think I know you very well. Who would you be?
+related_scenes: []
+related_lore: []
+operator_notes: null

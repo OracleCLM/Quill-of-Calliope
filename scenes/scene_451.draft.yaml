@@ -1,0 +1,35 @@
+# Auto-generated draft — operator review required
+scene_id: scene_451
+title: "Scene 452: Lenny, Mato +8"
+status: draft
+date_started: "2022-06-19"
+last_active: "2022-06-19"
+timestamp_start: "2022-06-19T18:45:52Z"
+timestamp_end: "2022-06-19T21:41:31Z"
+duration_real: "2h 55m"
+message_count: 105
+turn_count: 105
+participants:
+  - "Lenny"
+  - "Mato"
+  - "NARRATOR"
+  - "NPC: ?"
+  - "NPC: Door"
+  - "NPC: Enek"
+  - "NPC: Town guard"
+  - "NPC: Wooden box"
+  - "Pdor"
+  - "Silver"
+players:
+  - "BaconStuffedPizza"
+  - "Horo"
+  - "𝕋𝕖𝕞𝕡𝕖𝕤𝕥"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  Come, follow me and don't talk to the other prisoners as we walk by, please. It will be easier this way for both of us. *The guard starts walking, the
+last_msg_excerpt: |
+  [I don’t need any] It’s okay. I believe in the laws of this kingdom. I’m ready.  Have a good night, mister Sawatari.  *turns to look at a corner of hi
+related_scenes: []
+related_lore: []
+operator_notes: null

@@ -1,0 +1,81 @@
+# Auto-generated draft via MCP cerebras — status: draft (operator review required)
+
+# --- IDENTITY ---
+id: clover
+name: Clover
+aliases: []
+type: pc
+player: unknown
+
+# --- BACKGROUND ---
+race: human
+class: artisan
+age: unknown
+gender: female
+origin: unknown
+
+backstory: |
+  Clover works at the sweet shop with Peaches and Viola, providing balance with her calm presence; she cares deeply for others and shares a quiet bond with her small companion, Luki.
+
+# --- PERSONALITY ---
+traits:
+  - gentle
+  - nurturing
+  - observant
+quirks: []
+flaws: []
+
+# --- SPEECH ---
+speech_pattern:
+  formal: mixed
+  use_honorifics: false
+  vocabulary: plain
+  sentence_length: medium
+  emotional_range: restrained
+  pov: first_person
+  notes: "Calm and nurturing tone; speaks with gentle authority and quiet empathy."
+  signature_phrases:
+  - "*pats azu on the head gently* It's ok, you can come by whenever you want to help out."
+  - "*comes into the kitchen* What are you two doing? Why is she in hot chocolate?!"
+  - "*she gave a pleased hum and took another sip*"
+
+# --- BEHAVIOR ---
+behavior_pattern:
+  role: sweet_shop_worker_caretaker
+  decision_style: "thoughtful and nurturing"
+  typical_actions:
+    - "comforts others with physical gestures"
+    - "checks in on others well-being"
+    - "manages small companions with tenderness"
+
+# --- SCENE TRACKING ---
+active_scenes: []
+last_active: null
+last_player_action: null
+
+# --- RELATIONSHIPS ---
+relationships: {}
+
+# --- MEMORY ---
+memory: []
+
+# --- SAMPLE QUOTES ---
+sample_quotes:
+  - "*pats azu on the head gently* It's ok, you can come by whenever you want to help out."
+  - "*comes into the kitchen* What are you two doing? Why is she in hot chocolate?!"
+  - "*she gave a pleased hum and took another sip*"
+
+# --- TTS PROFILE ---
+tts:
+  voice_model: null
+  pitch_shift: 0
+  speed: 1.0
+  emotion_default: neutral
+
+# --- META ---
+canonicity: draft
+mcp_assisted: true
+last_updated: 2026-05-16
+operator_notes: |
+  Auto-extracted via MCP cerebras from Clover message corpus.
+  Operator review required: verify race/class, add relationships, confirm backstory.

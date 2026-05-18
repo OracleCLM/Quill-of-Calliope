@@ -1,0 +1,39 @@
+# Auto-generated draft — operator review required
+scene_id: scene_783
+title: "Scene 784: Arianna, Dr. Left +11"
+status: draft
+date_started: "2022-09-13"
+last_active: "2022-09-13"
+timestamp_start: "2022-09-13T07:19:53Z"
+timestamp_end: "2022-09-13T11:59:12Z"
+duration_real: "4h 39m"
+message_count: 83
+turn_count: 83
+participants:
+  - "Arianna"
+  - "Dr. Left"
+  - "Filomena"
+  - "Frank"
+  - "Katya"
+  - "Keisuke Khean Baji"
+  - "Lillim (Cat)"
+  - "Maksymilian"
+  - "NARRATOR"
+  - "Nikita"
+  - "Savannah"
+  - "Vera"
+  - "Xuányǔ 玄羽"
+players:
+  - "Horo"
+  - "LittlePinkRin"
+  - "Neji/Hans"
+  - "Pip"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  *she looks down at her feet and scratches her wrist* "No I-I'm sorry I just, you bought one of my music boxes" 
+last_msg_excerpt: |
+  "Hey I just realized I haven't introduced myself I'm Savannah it's nice to meet you" *she sweetly smiles at vera while pulling down her hood*
+related_scenes: []
+related_lore: []
+operator_notes: null

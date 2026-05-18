@@ -1,0 +1,41 @@
+# Auto-generated draft — operator review required
+scene_id: scene_1311
+title: "Scene 1312: .Philly's House, Bliss +12"
+status: draft
+date_started: "2023-12-18"
+last_active: "2023-12-18"
+timestamp_start: "2023-12-18T15:14:32Z"
+timestamp_end: "2023-12-18T21:36:09Z"
+duration_real: "6h 21m"
+message_count: 68
+turn_count: 68
+participants:
+  - ".Philly's House"
+  - "Bliss"
+  - "Fate"
+  - "Filomena"
+  - "General Mittens"
+  - "Huelite"
+  - "Ira"
+  - "Katya"
+  - "NARRATOR"
+  - "NPC: Syvis' helper"
+  - "NPC: Town guard"
+  - "Philip Annabelle"
+  - "Rinta"
+  - "Sachi"
+players:
+  - "Horo"
+  - "Kise 🍓"
+  - "LittlePinkRin"
+  - "Ramen"
+  - "RaphaelFurious"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  *she blushed when filo took her hand, but smiled happy that she had understood despite her not saying anything. It then took a bit of effort, but she 
+last_msg_excerpt: |
+  My name is Huelite Tlazolteotl I’ve come to look for help
+related_scenes: []
+related_lore: []
+operator_notes: null

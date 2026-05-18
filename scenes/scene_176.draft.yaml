@@ -1,0 +1,27 @@
+# Auto-generated draft — operator review required
+scene_id: scene_176
+title: "Scene 177: Aurora, Hadeseus +1"
+status: draft
+date_started: "2022-02-01"
+last_active: "2022-02-01"
+timestamp_start: "2022-02-01T17:38:54Z"
+timestamp_end: "2022-02-01T18:51:23Z"
+duration_real: "1h 12m"
+message_count: 23
+turn_count: 23
+participants:
+  - "Aurora"
+  - "Hadeseus"
+  - "NARRATOR"
+players:
+  - "Horo"
+  - "Neji/Hans"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  *Onizuka was simply walking in the street, looking around*
+last_msg_excerpt: |
+  A pair of nobles stared at Aurora and Onizuka in awe as they walked past them
+related_scenes: []
+related_lore: []
+operator_notes: null

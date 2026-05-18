@@ -1,0 +1,31 @@
+# Auto-generated draft — operator review required
+scene_id: scene_627
+title: "Scene 628: Clover, NARRATOR +4"
+status: draft
+date_started: "2022-07-29"
+last_active: "2022-07-29"
+timestamp_start: "2022-07-29T13:43:24Z"
+timestamp_end: "2022-07-29T15:11:09Z"
+duration_real: "1h 27m"
+message_count: 16
+turn_count: 16
+participants:
+  - "Clover"
+  - "NARRATOR"
+  - "NPC: Lantern bringer"
+  - "Skeleton"
+  - "Wata"
+  - "Yuki"
+players:
+  - "Greg"
+  - "Horo"
+  - "LittlePinkRin"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  That skeleton’s hallucination was way to vivid to be called a dream, but appeared to be one when he woke up.  He found himself in a desolated dark moo
+last_msg_excerpt: |
+  A lizardfolk who was walking by tossed a copper coin to the Skeleton.  Perhaps he had mistaken him for a homeless person with his dog.
+related_scenes: []
+related_lore: []
+operator_notes: null

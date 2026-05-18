@@ -1,0 +1,42 @@
+# Auto-generated draft — operator review required
+scene_id: scene_239
+title: "Scene 240: Art, Cassandra Blythe +12"
+status: draft
+date_started: "2022-03-23"
+last_active: "2022-03-23"
+timestamp_start: "2022-03-23T19:57:27Z"
+timestamp_end: "2022-03-23T23:00:28Z"
+duration_real: "3h 3m"
+message_count: 129
+turn_count: 129
+participants:
+  - "Art"
+  - "Cassandra Blythe"
+  - "Hans Blindesauge"
+  - "Ira"
+  - "Koibo"
+  - "Lucas"
+  - "Minh (Deceased)"
+  - "Mirko"
+  - "NARRATOR"
+  - "NPC: Captain"
+  - "Philip Annabelle"
+  - "Runa"
+  - "Syvis"
+  - "Tork bloodhammer"
+players:
+  - "Horo"
+  - "Just frog"
+  - "Katie"
+  - "Neji/Hans"
+  - "RaphaelFurious"
+  - "𝕋𝕖𝕞𝕡𝕖𝕤𝕥"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  (Where is Mirko?)
+last_msg_excerpt: |
+  (Goodnight Horo)
+related_scenes: []
+related_lore: []
+operator_notes: null

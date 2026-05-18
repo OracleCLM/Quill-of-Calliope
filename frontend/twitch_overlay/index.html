@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calliope.AI — Twitch Overlay</title>
+  <!-- OBS Browser Source: 1920x1080, transparent background -->
+  <link rel="stylesheet" href="overlay.css" />
+</head>
+<body style="background: transparent !important; overflow: hidden; margin: 0;">
+
+  <div id="scene-bubble">
+    <div id="mascot-name"></div>
+    <div id="bubble-text"></div>
+  </div>
+
+  <div id="mascot-wrap">
+    <canvas id="live2d-canvas"></canvas>
+  </div>
+
+  <!-- Same CDN stack as frontend/live2d/ -->
+  <script src="https://cubism.live2d.com/sdk-web/cubismcore/live2dcubismcore.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/pixi.js@7/dist/pixi.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/pixi-live2d-display/dist/cubism4.min.js"></script>
+
+  <script src="overlay.js"></script>
+</body>
+</html>

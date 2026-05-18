@@ -1,0 +1,29 @@
+# Auto-generated draft — operator review required
+scene_id: scene_094
+title: "Aurora's Sunrise Apple Juice Stand"
+status: draft
+date_started: "2021-12-14"
+last_active: "2021-12-14"
+timestamp_start: "2021-12-14T02:09:18Z"
+timestamp_end: "2021-12-14T06:41:11Z"
+duration_real: "4h 31m"
+message_count: 61
+turn_count: 61
+participants:
+  - "Aurora"
+  - "Aíne"
+  - "NARRATOR"
+  - "Robert"
+players:
+  - "DragoBaggo"
+  - "Horo"
+  - "Knight"
+mcp_assisted: true
+summary: "Aurora cheerfully sells wild apple juice by a tranquil lake. Aíne approaches, noting the magical glow around her. Aurora wonders aloud if the sunrise itself isn't blessing enough—nature and spirit blend in a moment of simple, sacred joy."
+first_msg_excerpt: |
+  *Selling wild apple juice.* "Juice for sale! Wild Apple!" *Settled behind a homemade stand.* "Angry Orchards for sale."
+last_msg_excerpt: |
+  "Got it, see you." *She waves goodbye in return and picks up her fish, starting to eat once she was away/out of sight.*
+related_scenes: []
+related_lore: []
+operator_notes: null

@@ -1,0 +1,28 @@
+# Auto-generated draft — operator review required
+scene_id: scene_749
+title: "Scene 750: Jothunvar, Matrika Fianopolus +2"
+status: draft
+date_started: "2022-09-04"
+last_active: "2022-09-04"
+timestamp_start: "2022-09-04T21:17:49Z"
+timestamp_end: "2022-09-04T22:40:59Z"
+duration_real: "1h 23m"
+message_count: 23
+turn_count: 23
+participants:
+  - "Jothunvar"
+  - "Matrika Fianopolus"
+  - "NARRATOR"
+  - "NPC: Friaginleif"
+players:
+  - "Horo"
+  - "Joshua Thudson"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  *jothunvar was actually waiting for the flying. The adrenaline for starting the battle against that legendary kicked in as he parry her first attack* 
+last_msg_excerpt: |
+  *She repeats the same attack for the fourth time. Her speed is so great that the grass behind her is ripped from the ground as she flies*
+related_scenes: []
+related_lore: []
+operator_notes: null

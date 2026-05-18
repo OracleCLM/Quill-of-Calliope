@@ -1,0 +1,30 @@
+# Auto-generated draft — operator review required
+scene_id: scene_420
+title: "Scene 421: Katya, Lenny +3"
+status: draft
+date_started: "2022-06-10"
+last_active: "2022-06-10"
+timestamp_start: "2022-06-10T00:09:15Z"
+timestamp_end: "2022-06-10T00:52:09Z"
+duration_real: "42m"
+message_count: 13
+turn_count: 13
+participants:
+  - "Katya"
+  - "Lenny"
+  - "Nikita"
+  - "Poppy"
+  - "Silver"
+players:
+  - "BaconStuffedPizza"
+  - "LittlePinkRin"
+  - "𝕋𝕖𝕞𝕡𝕖𝕤𝕥"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  *the adventurers of glitchy boi*
+last_msg_excerpt: |
+  He'd nod quickly, "Can't say no to free assistance! I'm not really... warrior type, so it helps." He'd shrug, noticing the mans annoyance but not comm
+related_scenes: []
+related_lore: []
+operator_notes: null

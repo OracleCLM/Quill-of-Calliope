@@ -1,0 +1,30 @@
+# Auto-generated draft — operator review required
+scene_id: scene_200
+title: "Scene 201: Keisuke Khean Baji, Mirko +3"
+status: draft
+date_started: "2022-02-22"
+last_active: "2022-02-22"
+timestamp_start: "2022-02-22T17:25:06Z"
+timestamp_end: "2022-02-22T19:53:43Z"
+duration_real: "2h 28m"
+message_count: 54
+turn_count: 54
+participants:
+  - "Keisuke Khean Baji"
+  - "Mirko"
+  - "NARRATOR"
+  - "NPC: Adventurer"
+  - "NPC: Lucas"
+players:
+  - "Horo"
+  - "Just frog"
+  - "Neji/Hans"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  Why the hesitation? *she turned to look at Mirko. Her eyes are not visible behind the helmet, but he could feel a penetrating gaze*
+last_msg_excerpt: |
+  Lucas!  *he aproaches him to see what happened and help him if he got injured *  Did it get to you or just your armor? 
+related_scenes: []
+related_lore: []
+operator_notes: null

@@ -1,0 +1,29 @@
+# Auto-generated draft — operator review required
+scene_id: scene_114
+title: "Scene 115: Alexis, Azu Blythe +3"
+status: draft
+date_started: "2022-01-14"
+last_active: "2022-01-14"
+timestamp_start: "2022-01-14T02:46:40Z"
+timestamp_end: "2022-01-14T04:00:24Z"
+duration_real: "1h 13m"
+message_count: 38
+turn_count: 38
+participants:
+  - "Alexis"
+  - "Azu Blythe"
+  - "NARRATOR"
+  - "NPC: Adventurer"
+  - "Sberla"
+players:
+  - "Horo"
+  - "Katie"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  While fresh meat and fish are expensive almost everywhere -or at least more expensive that other usual foods-, since Yōkai is located near a big river
+last_msg_excerpt: |
+  *was going in the direction of her house but paused to look at her* a girl you met at a guild told you that? I see...well I'll drop this at home then 
+related_scenes: []
+related_lore: []
+operator_notes: null

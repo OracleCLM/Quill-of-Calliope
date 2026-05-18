@@ -1,0 +1,31 @@
+# Auto-generated draft — operator review required
+scene_id: scene_1147
+title: "Scene 1148: Ira, Jaxon +4"
+status: draft
+date_started: "2022-12-12"
+last_active: "2022-12-13"
+timestamp_start: "2022-12-12T23:57:23Z"
+timestamp_end: "2022-12-13T03:21:28Z"
+duration_real: "3h 24m"
+message_count: 35
+turn_count: 35
+participants:
+  - "Ira"
+  - "Jaxon"
+  - "NARRATOR"
+  - "NPC: Town guard"
+  - "Oliver"
+  - "Syvis"
+players:
+  - "Horo"
+  - "Slump"
+  - "𝕋𝕖𝕞𝕡𝕖𝕤𝕥"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  It’s a cold morning outside but the sun is shining and many people are roaming the streets of the town, especially the alley where the adventurers gui
+last_msg_excerpt: |
+  “I might need a place to crash, but I’m just trying to join up with the guard like I said. Maybe it’s… curiosity? Dunno. Wanna stretch my legs.”
+related_scenes: []
+related_lore: []
+operator_notes: null

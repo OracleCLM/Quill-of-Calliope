@@ -1,0 +1,81 @@
+# Auto-generated draft via MCP cerebras — status: draft (operator review required)
+
+# --- IDENTITY ---
+id: silver
+name: Silver
+aliases: []
+type: pc
+player: unknown
+
+# --- BACKGROUND ---
+race: interdimensional_being
+class: anomaly_mage
+age: unknown
+gender: male
+origin: unknown
+
+backstory: |
+  Silver is a displaced being from another dimension, struggling to control his glitch-like powers and integrate into a world unfamiliar to him. His presence is marked by instability and a desire to belong.
+
+# --- PERSONALITY ---
+traits:
+  - anxious
+  - observant
+  - otherworldly
+quirks: []
+flaws: []
+
+# --- SPEECH ---
+speech_pattern:
+  formal: mixed
+  use_honorifics: false
+  vocabulary: descriptive
+  sentence_length: variable
+  emotional_range: volatile
+  pov: first_person
+  notes: "Speaks with hesitation and self-awareness; uses air quotes and qualifiers to distance from discomfort."
+  signature_phrases:
+  - "Oh geez… please don't chase me out, I swear I can explain…"
+  - "The truth is… I'm definitely not calm at all."
+  - "So… do we want to meet somewhere after the trial and… *heavy air quotes* "Execution"?"
+
+# --- BEHAVIOR ---
+behavior_pattern:
+  role: anxious_outsider_unstable_abilities
+  decision_style: "cautious, observant, reactive"
+  typical_actions:
+    - "vomits or glitches under stress"
+    - "observes silently before engaging"
+    - "seeks reassurance"
+
+# --- SCENE TRACKING ---
+active_scenes: []
+last_active: null
+last_player_action: null
+
+# --- RELATIONSHIPS ---
+relationships: {}
+
+# --- MEMORY ---
+memory: []
+
+# --- SAMPLE QUOTES ---
+sample_quotes:
+  - "Oh geez… please don't chase me out, I swear I can explain…"
+  - "The truth is… I'm definitely not calm at all."
+  - "So… do we want to meet somewhere after the trial and… *heavy air quotes* "Execution"?"
+
+# --- TTS PROFILE ---
+tts:
+  voice_model: null
+  pitch_shift: 0
+  speed: 1.0
+  emotion_default: neutral
+
+# --- META ---
+canonicity: draft
+mcp_assisted: true
+last_updated: 2026-05-16
+operator_notes: |
+  Auto-extracted via MCP cerebras from Silver message corpus.
+  Operator review required: verify race/class, add relationships, confirm backstory.

@@ -1,0 +1,81 @@
+# Auto-generated draft via MCP cerebras — status: draft (operator review required)
+
+# --- IDENTITY ---
+id: aurora
+name: Aurora
+aliases: []
+type: pc
+player: Horo
+
+# --- BACKGROUND ---
+race: yokai
+class: queen
+age: unknown
+gender: female
+origin: unknown
+
+backstory: |
+  A centuries-old yokai who has taken the mantle of queenship, Aurora balances her immortal wisdom with deep emotional connection to those around her. She bears the weight of rule not as a burden, but as a promise kept.
+
+# --- PERSONALITY ---
+traits:
+  - compassionate
+  - perceptive
+  - regal
+quirks: []
+flaws: []
+
+# --- SPEECH ---
+speech_pattern:
+  formal: mixed
+  use_honorifics: false
+  vocabulary: poetic
+  sentence_length: variable
+  emotional_range: open
+  pov: first_person
+  notes: "Blends warmth and regal poise; uses endearing terms and physical gestures (ear/tail movements). Speech shifts between playful intimacy and solemn reflection."
+  signature_phrases:
+  - "The crown is heavy. But I chose this."
+  - "You came back. I wasn't sure you would."
+  - "There must be another way. Violence is the last answer, not the first."
+
+# --- BEHAVIOR ---
+behavior_pattern:
+  role: leader_and_protector
+  decision_style: "empathetic deliberation"
+  typical_actions:
+    - "expresses emotional vulnerability"
+    - "engages in nurturing dialogue"
+    - "considers nonviolent solutions"
+
+# --- SCENE TRACKING ---
+active_scenes: []
+last_active: null
+last_player_action: null
+
+# --- RELATIONSHIPS ---
+relationships: {}
+
+# --- MEMORY ---
+memory: []
+
+# --- SAMPLE QUOTES ---
+sample_quotes:
+  - "The crown is heavy. But I chose this."
+  - "You came back. I wasn't sure you would."
+  - "There must be another way. Violence is the last answer, not the first."
+
+# --- TTS PROFILE ---
+tts:
+  voice_model: null
+  pitch_shift: 0
+  speed: 1.0
+  emotion_default: neutral
+
+# --- META ---
+canonicity: draft
+mcp_assisted: true
+last_updated: 2026-05-16
+operator_notes: |
+  Auto-extracted via MCP cerebras from Aurora message corpus.
+  Operator review required: verify race/class, add relationships, confirm backstory.

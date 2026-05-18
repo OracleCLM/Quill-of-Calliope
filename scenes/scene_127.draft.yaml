@@ -1,0 +1,38 @@
+# Auto-generated draft — operator review required
+scene_id: scene_127
+title: "Underground Fork — Which Path?"
+status: draft
+date_started: "2022-01-16"
+last_active: "2022-01-16"
+timestamp_start: "2022-01-16T13:02:33Z"
+timestamp_end: "2022-01-16T15:40:54Z"
+duration_real: "2h 38m"
+message_count: 58
+turn_count: 58
+participants:
+  - "Alexis"
+  - "Aurora"
+  - "Cassandra Blythe"
+  - "Derrick"
+  - "Filomena"
+  - "Irigata"
+  - "Koibo"
+  - "Mirko"
+  - "NARRATOR"
+  - "NPC: Adventurer"
+  - "NPC: Peasant"
+  - "Sberla"
+players:
+  - "Horo"
+  - "Just frog"
+  - "Katie"
+  - "YourGoblinBard"
+mcp_assisted: true
+summary: "After a long underground trek, the adventurers reach a subterranean fork. Lucas holds up a torch illuminating dark paths ahead. The group debates direction, one member wanting to stay near a trusted companion."
+first_msg_excerpt: |
+  (I’ll probably make a character sheet for the gnome later) *after a while she’s back at the guild and is looking for Cassandra. She approaches her and
+last_msg_excerpt: |
+  I think I’ll call you Shadow when I need to shorten your name then.  *smiles* Whenever you’re ready I’m ready. I’ll wait here. 
+related_scenes: []
+related_lore: []
+operator_notes: null

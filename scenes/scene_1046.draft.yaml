@@ -1,0 +1,30 @@
+# Auto-generated draft — operator review required
+scene_id: scene_1046
+title: "Scene 1047: Alexander, Arianna +3"
+status: draft
+date_started: "2022-11-22"
+last_active: "2022-11-23"
+timestamp_start: "2022-11-22T23:53:37Z"
+timestamp_end: "2022-11-23T00:24:05Z"
+duration_real: "30m"
+message_count: 10
+turn_count: 10
+participants:
+  - "Alexander"
+  - "Arianna"
+  - "Benimaru"
+  - "NPC: Alfred"
+  - "Pdor"
+players:
+  - "Horo"
+  - "Nate"
+  - "𝕋𝕖𝕞𝕡𝕖𝕤𝕥"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  He looked at alexander and then to Arianna. He contemplated the options and nodded at Alexander.   He sat still, trapped in thought as if hatching a p
+last_msg_excerpt: |
+  “If… if I can… I want to learn how to use this power… I wanna learn how to fight, how to protect… so I don’t have to lose anything again…” *his voice 
+related_scenes: []
+related_lore: []
+operator_notes: null

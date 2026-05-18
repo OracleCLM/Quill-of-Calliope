@@ -1,0 +1,171 @@
+{
+  "text": "Aurora steps forward, her crimson eyes gleaming.",
+  "phonemes": [
+    {
+      "phoneme": "ɐ",
+      "start_ms": 0,
+      "end_ms": 100
+    },
+    {
+      "phoneme": "default",
+      "start_ms": 100,
+      "end_ms": 160
+    },
+    {
+      "phoneme": "ɔ",
+      "start_ms": 160,
+      "end_ms": 270
+    },
+    {
+      "phoneme": "default",
+      "start_ms": 270,
+      "end_ms": 330
+    },
+    {
+      "phoneme": "ə",
+      "start_ms": 330,
+      "end_ms": 410
+    },
+    {
+      "phoneme": "default",
+      "start_ms": 410,
+      "end_ms": 470
+    },
+    {
+      "phoneme": "default",
+      "start_ms": 470,
+      "end_ms": 530
+    },
+    {
+      "phoneme": "ɛ",
+      "start_ms": 530,
+      "end_ms": 630
+    },
+    {
+      "phoneme": "default",
+      "start_ms": 630,
+      "end_ms": 690
+    },
+    {
+      "phoneme": "default",
+      "start_ms": 690,
+      "end_ms": 750
+    },
+    {
+      "phoneme": "default",
+      "start_ms": 750,
+      "end_ms": 810
+    },
+    {
+      "phoneme": "ɔ",
+      "start_ms": 810,
+      "end_ms": 920
+    },
+    {
+      "phoneme": "default",
+      "start_ms": 920,
+      "end_ms": 980
+    },
+    {
+      "phoneme": "ə",
+      "start_ms": 980,
+      "end_ms": 1060
+    },
+    {
+      "phoneme": "default",
+      "start_ms": 1060,
+      "end_ms": 1120
+    },
+    {
+      "phoneme": "default",
+      "start_ms": 1120,
+      "end_ms": 1180
+    },
+    {
+      "phoneme": "ɜ",
+      "start_ms": 1180,
+      "end_ms": 1280
+    },
+    {
+      "phoneme": "default",
+      "start_ms": 1280,
+      "end_ms": 1340
+    },
+    {
+      "phoneme": "default",
+      "start_ms": 1340,
+      "end_ms": 1400
+    },
+    {
+      "phoneme": "ɪ",
+      "start_ms": 1400,
+      "end_ms": 1490
+    },
+    {
+      "phoneme": "default",
+      "start_ms": 1490,
+      "end_ms": 1550
+    },
+    {
+      "phoneme": "default",
+      "start_ms": 1550,
+      "end_ms": 1610
+    },
+    {
+      "phoneme": "ə",
+      "start_ms": 1610,
+      "end_ms": 1690
+    },
+    {
+      "phoneme": "default",
+      "start_ms": 1690,
+      "end_ms": 1750
+    },
+    {
+      "phoneme": "a",
+      "start_ms": 1750,
+      "end_ms": 1870
+    },
+    {
+      "phoneme": "ɪ",
+      "start_ms": 1870,
+      "end_ms": 1960
+    },
+    {
+      "phoneme": "default",
+      "start_ms": 1960,
+      "end_ms": 2020
+    },
+    {
+      "phoneme": "default",
+      "start_ms": 2020,
+      "end_ms": 2080
+    },
+    {
+      "phoneme": "default",
+      "start_ms": 2080,
+      "end_ms": 2140
+    },
+    {
+      "phoneme": "i",
+      "start_ms": 2140,
+      "end_ms": 2230
+    },
+    {
+      "phoneme": "default",
+      "start_ms": 2230,
+      "end_ms": 2290
+    },
+    {
+      "phoneme": "ɪ",
+      "start_ms": 2290,
+      "end_ms": 2380
+    },
+    {
+      "phoneme": "default",
+      "start_ms": 2380,
+      "end_ms": 2440
+    }
+  ],
+  "wav_b64": null
+}

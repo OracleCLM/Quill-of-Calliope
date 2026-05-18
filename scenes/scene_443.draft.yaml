@@ -1,0 +1,29 @@
+# Auto-generated draft — operator review required
+scene_id: scene_443
+title: "Scene 444: Arianna, Lenny +2"
+status: draft
+date_started: "2022-06-16"
+last_active: "2022-06-16"
+timestamp_start: "2022-06-16T16:53:22Z"
+timestamp_end: "2022-06-16T17:54:49Z"
+duration_real: "1h 1m"
+message_count: 19
+turn_count: 19
+participants:
+  - "Arianna"
+  - "Lenny"
+  - "Silver"
+  - "Syvis"
+players:
+  - "BaconStuffedPizza"
+  - "Horo"
+  - "𝕋𝕖𝕞𝕡𝕖𝕤𝕥"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  How often does that happen? Have you ever sought for help with that before?  Give me as much details as you can and I’ll see what I can do for you.. *
+last_msg_excerpt: |
+  He'd be a bit off-guard but he'd obey her commands, jabbing with the left, before throwing a hook with the right, each hit was solid but loose, presum
+related_scenes: []
+related_lore: []
+operator_notes: null

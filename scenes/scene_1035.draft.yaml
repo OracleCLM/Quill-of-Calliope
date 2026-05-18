@@ -1,0 +1,31 @@
+# Auto-generated draft — operator review required
+scene_id: scene_1035
+title: "Scene 1036: Arianna, Dante +4"
+status: draft
+date_started: "2022-11-21"
+last_active: "2022-11-21"
+timestamp_start: "2022-11-21T18:09:44Z"
+timestamp_end: "2022-11-21T19:02:26Z"
+duration_real: "52m"
+message_count: 18
+turn_count: 18
+participants:
+  - "Arianna"
+  - "Dante"
+  - "Filomena"
+  - "Justin Reeves"
+  - "Kilian"
+  - "NARRATOR"
+players:
+  - "Horo"
+  - "Nate"
+  - "Neji/Hans"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  Standing behind a closed door)
+last_msg_excerpt: |
+  Someone giggled behind the door, probably that was Arianna.
+related_scenes: []
+related_lore: []
+operator_notes: null

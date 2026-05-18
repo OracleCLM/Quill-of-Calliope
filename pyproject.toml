@@ -1,0 +1,5 @@
+[tool.pytest.ini_options]
+markers = [
+    "unit: fast unit tests (no external deps)",
+    "integration: requires live services (gateway, APIs)",
+]

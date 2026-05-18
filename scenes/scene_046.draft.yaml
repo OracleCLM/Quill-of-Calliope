@@ -1,0 +1,32 @@
+# Auto-generated draft — operator review required
+scene_id: scene_046
+title: "Arianna and Filomena Disagree"
+status: draft
+date_started: "2021-12-06"
+last_active: "2021-12-06"
+timestamp_start: "2021-12-06T11:47:44Z"
+timestamp_end: "2021-12-06T12:46:51Z"
+duration_real: "59m"
+message_count: 23
+turn_count: 23
+participants:
+  - "Arianna"
+  - "Filomena"
+  - "Irigata"
+  - "Koibo"
+  - "Mato"
+  - "NARRATOR"
+  - "NPC: Green Lady"
+players:
+  - "Horo"
+  - "Just frog"
+  - "YourGoblinBard"
+mcp_assisted: true
+summary: "Arianna and Filomena give opposing answers to a simple question, creating immediate tension. Irigata and Koibo watch while the group's dynamics are tested before shifting focus to finding shelter."
+first_msg_excerpt: |
+  *Arianna and Filomena answer at the unison* Filomena:”yes.” Arianna:”no.” *Filo simply stares at her* Ari:”we gotta go back to work I guess.”  Meanwhi
+last_msg_excerpt: |
+  "I am looking for an inn. Some place that I may be able to rest"
+related_scenes: []
+related_lore: []
+operator_notes: null

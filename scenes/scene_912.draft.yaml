@@ -1,0 +1,33 @@
+# Auto-generated draft — operator review required
+scene_id: scene_912
+title: "Scene 913: Arianna, Clover +7"
+status: draft
+date_started: "2022-10-12"
+last_active: "2022-10-12"
+timestamp_start: "2022-10-12T11:54:55Z"
+timestamp_end: "2022-10-12T12:24:47Z"
+duration_real: "29m"
+message_count: 11
+turn_count: 11
+participants:
+  - "Arianna"
+  - "Clover"
+  - "Fede"
+  - "Luki"
+  - "NARRATOR"
+  - "Nikita"
+  - "Poppy"
+  - "Ruby"
+  - "Yuki"
+players:
+  - "Horo"
+  - "LittlePinkRin"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  *having finished cleaning and cooking clover, Viola, yuki, and luki all sat in the front room at a table eating what they had prepared.*
+last_msg_excerpt: |
+  *She returned the kiss. When Poppy whispers she smirks and replies* Oooh… well well, good for her.  What do you want to do now? Should we go back to o
+related_scenes: []
+related_lore: []
+operator_notes: null

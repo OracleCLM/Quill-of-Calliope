@@ -1,0 +1,41 @@
+# Auto-generated draft — operator review required
+scene_id: scene_060
+title: "A Hero's Humble Offer at the Guild"
+status: draft
+date_started: "2021-12-08"
+last_active: "2021-12-09"
+timestamp_start: "2021-12-08T15:41:21Z"
+timestamp_end: "2021-12-09T01:21:19Z"
+duration_real: "9h 39m"
+message_count: 190
+turn_count: 190
+participants:
+  - "Alexis"
+  - "Hadeseus"
+  - "Irigata"
+  - "Kikyo"
+  - "Koibo"
+  - "Mirko"
+  - "NARRATOR"
+  - "Pdor"
+  - "Saturn"
+  - "Spell Sword Tyrannis"
+  - "Syvis"
+  - "Voice of Necromancy"
+players:
+  - "Abyss Lord"
+  - "DragoBaggo"
+  - "Horo"
+  - "Just frog"
+  - "Neji/Hans"
+  - "Solriise (Hiatus)"
+  - "YourGoblinBard"
+mcp_assisted: true
+summary: "Tyrannis introduces himself boldly, offering his services as a Spell Sword. Amid wary glances from Alexis, Hadeseus, and others, he remains earnest. Syvis and Mirko exchange looks as the innkeeper bows slightly, signaling cautious acceptance."
+first_msg_excerpt: |
+  "Greetings! I am Spell Sword Tyrannis! I would like offer my services in exchange for money and an opportunity to commit epic deeds of heroism!"  *He 
+last_msg_excerpt: |
+  (Cya, Abelita!) 
+related_scenes: []
+related_lore: []
+operator_notes: null

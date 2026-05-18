@@ -1,0 +1,39 @@
+# Auto-generated draft — operator review required
+scene_id: scene_021
+title: "Impatient Visitor and Guild Business"
+status: draft
+date_started: "2021-11-23"
+last_active: "2021-11-24"
+timestamp_start: "2021-11-23T22:21:47Z"
+timestamp_end: "2021-11-24T03:59:57Z"
+duration_real: "5h 38m"
+message_count: 272
+turn_count: 272
+participants:
+  - "Azu Blythe"
+  - "Cassandra Blythe"
+  - "Kikyo"
+  - "Koibo"
+  - "Mato"
+  - "NARRATOR"
+  - "NPC: Green Lady"
+  - "NPC: Henchman"
+  - "NPC: John the fisherman"
+  - "Pdor"
+  - "Rascal"
+  - "Saturn"
+players:
+  - "DragoBaggo"
+  - "Horo"
+  - "Just frog"
+  - "Katie"
+  - "Solriise (Hiatus)"
+mcp_assisted: true
+summary: "Azu's restless energy disrupts the calm as Cassandra, Kikyo, and Koibo navigate her demands. Mato arrives with quiet purpose, exchanging formal bows before departing, leaving unresolved anticipation."
+first_msg_excerpt: |
+  *makes impatient kid noises*
+last_msg_excerpt: |
+  (Sleep well, Holo!) *He bows in return again, this time properly leaving the building. He relaxes a bit once out, and takes a look around before wande
+related_scenes: []
+related_lore: []
+operator_notes: null

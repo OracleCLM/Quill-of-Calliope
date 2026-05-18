@@ -1,0 +1,6 @@
+# Operator alias map — explicit name overrides for merge_char_sources.py
+# Format: "corpus/sheet name (lowercase)": "Tupperbox canonical name"
+# Used as first-priority before prefix-word match and SequenceMatcher ratio.
+# Example:
+# "aurora": "Aurora of Winter"
+# "filomena": "Filomena Exilio \"Cold  Wind\""

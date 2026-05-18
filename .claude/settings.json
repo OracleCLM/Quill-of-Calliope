@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'if [ -f $CLAUDE_PROJECT_DIR/VISION.md ]; then echo \"<system-reminder>Calliope.AI scope — narrative RP assistance, privacy local-only, MCP-first. Vedi VISION.md per milestone M0-M6. Workflow: char sheets YAML + lore Markdown + scene running + ChromaDB index + CLI custom skills. LLM tiers: Cerebras (drafts) | Groq (translate) | OpenRouter (reasoning) | Ollama uncensored (sensibili) | Claude API (climax raro). NO cloud upload dati RP. NO pod (NM-only). Operator: nic (single user).</system-reminder>\"; fi'",
+            "statusMessage": "Injecting Calliope.AI scope reminder..."
+          }
+        ]
+      }
+    ]
+  }
+}

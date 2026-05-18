@@ -1,0 +1,31 @@
+# Auto-generated draft — operator review required
+scene_id: scene_531
+title: "Scene 532: Arianna, Clover +5"
+status: draft
+date_started: "2022-07-13"
+last_active: "2022-07-13"
+timestamp_start: "2022-07-13T02:29:50Z"
+timestamp_end: "2022-07-13T03:12:05Z"
+duration_real: "42m"
+message_count: 19
+turn_count: 19
+participants:
+  - "Arianna"
+  - "Clover"
+  - "Filomena"
+  - "Katya"
+  - "Luki"
+  - "NARRATOR"
+  - "Nikita"
+players:
+  - "Horo"
+  - "LittlePinkRin"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  That should give us enough time to look around. I'll met you there then. *Gives both of them a friendly smile* Thank you for coming here with us it's 
+last_msg_excerpt: |
+  *She indulged in the hug a few more moments, then politely says goodbye to both and leaves as well, following Arianna*
+related_scenes: []
+related_lore: []
+operator_notes: null

@@ -1,0 +1,10 @@
+description: "Calliope.AI vault KB manifest — RP narrative assistance, MCP-first, privacy local-only"
+
+vault_paths:
+  - ~/Documenti/ObsidianVault/060_PROJECTS/Calliope.AI/MOCs/MOC_Architecture.md
+  - ~/Documenti/ObsidianVault/060_PROJECTS/Calliope.AI/MOCs/MOC_Lore.md
+  - ~/Documenti/ObsidianVault/060_PROJECTS/Calliope.AI/MOCs/MOC_Characters.md
+  - ~/Documenti/ObsidianVault/040_RUNBOOKS/calliope_workflow.md
+
+# Note: paths above are CANDIDATE, da creare con M1+M2 milestones.
+# Hook SessionStart legge questo manifest se esiste file, skip silenzioso altrimenti.

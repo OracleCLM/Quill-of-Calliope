@@ -1,0 +1,41 @@
+# Auto-generated draft — operator review required
+scene_id: scene_133
+title: "Scene 134: Aurora, Azu Blythe +12"
+status: draft
+date_started: "2022-01-19"
+last_active: "2022-01-20"
+timestamp_start: "2022-01-19T21:51:13Z"
+timestamp_end: "2022-01-20T00:11:52Z"
+duration_real: "2h 20m"
+message_count: 146
+turn_count: 146
+participants:
+  - "Aurora"
+  - "Azu Blythe"
+  - "Cassandra Blythe"
+  - "Idref"
+  - "Ira"
+  - "Keisuke Khean Baji"
+  - "Koibo"
+  - "Maksymilian"
+  - "Minh (Deceased)"
+  - "Mirko"
+  - "NARRATOR"
+  - "NPC: Adventurer"
+  - "NPC: Town guard"
+  - "Quinn"
+players:
+  - "BaconStuffedPizza"
+  - "Horo"
+  - "Just frog"
+  - "Katie"
+  - "Neji/Hans"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  (Btw to make things simpler and keep the game going I’d say that if the people you were interacting with are not responding for a some time you’re fre
+last_msg_excerpt: |
+  I've been practicing a lot... But it's easy. You will quickly improve 
+related_scenes: []
+related_lore: []
+operator_notes: null

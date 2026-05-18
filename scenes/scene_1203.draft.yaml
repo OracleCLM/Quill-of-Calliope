@@ -1,0 +1,26 @@
+# Auto-generated draft — operator review required
+scene_id: scene_1203
+title: "Scene 1204: Dr. Forrest, Dr. Left"
+status: draft
+date_started: "2023-01-16"
+last_active: "2023-01-16"
+timestamp_start: "2023-01-16T02:45:59Z"
+timestamp_end: "2023-01-16T03:52:19Z"
+duration_real: "1h 6m"
+message_count: 12
+turn_count: 12
+participants:
+  - "Dr. Forrest"
+  - "Dr. Left"
+players:
+  - "Horo"
+  - "𝕋𝕖𝕞𝕡𝕖𝕤𝕥"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  Dude... dude. *The voice of Dr. Left, along with a gentle shake on his shoulder, woke up Forrest. There's a lot of light in the room* Wake up already.
+last_msg_excerpt: |
+  If you did it with your set of tools, I should be able to do the same under your guidance, no? I tweaked the software _just a little tiny bit_ before 
+related_scenes: []
+related_lore: []
+operator_notes: null

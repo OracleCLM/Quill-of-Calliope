@@ -1,0 +1,39 @@
+# Auto-generated draft — operator review required
+scene_id: scene_107
+title: "Scene 108: Aurora, Azu Blythe +11"
+status: draft
+date_started: "2022-01-09"
+last_active: "2022-01-09"
+timestamp_start: "2022-01-09T02:31:00Z"
+timestamp_end: "2022-01-09T05:34:39Z"
+duration_real: "3h 3m"
+message_count: 110
+turn_count: 110
+participants:
+  - "Aurora"
+  - "Azu Blythe"
+  - "Cassandra Blythe"
+  - "Koibo"
+  - "NARRATOR"
+  - "NPC: Halfling"
+  - "NPC: Lizardfolk"
+  - "NPC: Old woman"
+  - "NPC: Priest"
+  - "NPC: Tyrannis"
+  - "Pdor"
+  - "Robert"
+  - "Syvis"
+players:
+  - "Horo"
+  - "Just frog"
+  - "Katie"
+  - "Knight"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  *Doing manual labor chopping wood in a field. He wanted to earn coin the old fashioned way.*
+last_msg_excerpt: |
+  (Lol ikr) *goodbye my queen...*watches as she leapt away then she looks down where the guards and Pdor went and sighed and then she starts to think a 
+related_scenes: []
+related_lore: []
+operator_notes: null

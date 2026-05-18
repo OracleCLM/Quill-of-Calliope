@@ -1,0 +1,29 @@
+{
+  "mcpServers": {
+    "llm-gateway": {
+      "type": "stdio",
+      "command": "/home/nic/anaconda3/envs/tradingai/bin/python",
+      "args": ["/home/nic/Scrivania/Workspace/mcp_servers/llm_gateway/server.py"],
+      "env": {}
+    },
+    "ollama-tools": {
+      "type": "stdio",
+      "command": "/home/nic/anaconda3/envs/tradingai/bin/python3",
+      "args": ["/home/nic/.claude/mcp-servers/ollama-tools/server.py"],
+      "env": {
+        "OLLAMA_DEFAULT_MODEL": "qwen2.5-coder:7b",
+        "OLLAMA_HOST": "http://localhost:11434"
+      }
+    },
+    "codex-orchestrator": {
+      "type": "stdio",
+      "command": "/home/nic/anaconda3/envs/tradingai/bin/python3",
+      "args": ["/home/nic/.claude/mcp-servers/codex-orchestrator/server.py"],
+      "env": {
+        "CODEX_TIMEOUT": "600",
+        "CODEX_MAX_PARALLEL": "5",
+        "CODEX_NO_TEST_GUARD": "false"
+      }
+    }
+  }
+}

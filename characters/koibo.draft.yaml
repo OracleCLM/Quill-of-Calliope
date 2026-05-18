@@ -1,0 +1,82 @@
+# Auto-generated draft via MCP cerebras — status: draft (operator review required)
+
+# --- IDENTITY ---
+id: koibo
+name: Koibo
+aliases: []
+type: pc
+player: unknown
+
+# --- BACKGROUND ---
+race: shapeshifter
+class: child_companion
+age: unknown
+gender: male
+origin: unknown
+
+backstory: |
+  A young shapeshifter from a rural farming family devastated by floods, Koibo works hard to support their parents and help friends. They use their powers to assist others, often placing themselves in danger.
+
+# --- PERSONALITY ---
+traits:
+  - childlike
+  - shapeshifter
+  - empathetic
+  - survival_oriented
+quirks: []
+flaws: []
+
+# --- SPEECH ---
+speech_pattern:
+  formal: false
+  use_honorifics: false
+  vocabulary: simple
+  sentence_length: short
+  emotional_range: high
+  pov: first_person
+  notes: "Speaks with vulnerability and urgency; often expresses fear, hunger, or hope."
+  signature_phrases:
+  - "Thank you... Do you know where she is?"
+  - "Cruvc... I'm hungry... Can you buy me some food?"
+  - "Please your highness, have mercy. I beg you"
+
+# --- BEHAVIOR ---
+behavior_pattern:
+  role: innocent_helper
+  decision_style: "emotion-driven; acts based on immediate needs or loyalty to friends"
+  typical_actions:
+    - "offers help without hesitation"
+    - "transforms into animals to scout"
+    - "seeks protection or food when distressed"
+
+# --- SCENE TRACKING ---
+active_scenes: []
+last_active: null
+last_player_action: null
+
+# --- RELATIONSHIPS ---
+relationships: {}
+
+# --- MEMORY ---
+memory: []
+
+# --- SAMPLE QUOTES ---
+sample_quotes:
+  - "Thank you... Do you know where she is?"
+  - "Cruvc... I'm hungry... Can you buy me some food?"
+  - "Please your highness, have mercy. I beg you"
+
+# --- TTS PROFILE ---
+tts:
+  voice_model: null
+  pitch_shift: 0
+  speed: 1.0
+  emotion_default: neutral
+
+# --- META ---
+canonicity: draft
+mcp_assisted: true
+last_updated: 2026-05-16
+operator_notes: |
+  Auto-extracted via MCP cerebras from Koibo message corpus.
+  Operator review required: verify race/class, add relationships, confirm backstory.

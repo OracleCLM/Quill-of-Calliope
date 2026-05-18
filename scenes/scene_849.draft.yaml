@@ -1,0 +1,32 @@
+# Auto-generated draft — operator review required
+scene_id: scene_849
+title: "Scene 850: Matrika Fianopolus, NARRATOR +4"
+status: draft
+date_started: "2022-09-26"
+last_active: "2022-09-26"
+timestamp_start: "2022-09-26T16:11:56Z"
+timestamp_end: "2022-09-26T17:34:56Z"
+duration_real: "1h 23m"
+message_count: 16
+turn_count: 16
+participants:
+  - "Matrika Fianopolus"
+  - "NARRATOR"
+  - "Runa"
+  - "Savannah"
+  - "Ticket seller"
+  - "William Kraimerson"
+players:
+  - "Horo"
+  - "Joshua Thudson"
+  - "Pip"
+  - "𝕋𝕖𝕞𝕡𝕖𝕤𝕥"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  *William follows snow wondering about the singer of such a beautifull music not before asking peaches to come along so everyone would be together *
+last_msg_excerpt: |
+  *she nods slightly and looks away sheepishly. She gives her a soft squeeze and nuzzles her head into her neck again*
+related_scenes: []
+related_lore: []
+operator_notes: null

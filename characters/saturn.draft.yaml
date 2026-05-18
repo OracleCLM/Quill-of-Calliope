@@ -1,0 +1,81 @@
+# Auto-generated draft via MCP cerebras — status: draft (operator review required)
+
+# --- IDENTITY ---
+id: saturn
+name: Saturn
+aliases: []
+type: pc
+player: unknown
+
+# --- BACKGROUND ---
+race: demon
+class: outsider_stealth_support
+age: unknown
+gender: male
+origin: unknown
+
+backstory: |
+  A sleep-feeding demon who avoids attention, Saturn communicates only through sign language and appears to be adapting to life among mortals while maintaining emotional and physical distance.
+
+# --- PERSONALITY ---
+traits:
+  - silent
+  - watchful
+  - otherworldly
+quirks: []
+flaws: []
+
+# --- SPEECH ---
+speech_pattern:
+  formal: true
+  use_honorifics: false
+  vocabulary: descriptive
+  sentence_length: short
+  emotional_range: restrained
+  pov: third_person
+  notes: "Communicates exclusively through sign language in brackets ["..."]; minimal physical expression."
+  signature_phrases:
+  - "["It is not a spell..."]"
+  - "["My kind feed on sleep, I did not mean to say it like that."]"
+  - "["I am used to open spaces."]"
+
+# --- BEHAVIOR ---
+behavior_pattern:
+  role: silent_observer_stealth_ally
+  decision_style: "reactive and non-confrontational"
+  typical_actions:
+    - "follows silently"
+    - "uses non-verbal cues (nodding, bowing, tapping)"
+    - "signs brief precise messages"
+
+# --- SCENE TRACKING ---
+active_scenes: []
+last_active: null
+last_player_action: null
+
+# --- RELATIONSHIPS ---
+relationships: {}
+
+# --- MEMORY ---
+memory: []
+
+# --- SAMPLE QUOTES ---
+sample_quotes:
+  - "["It is not a spell..."]"
+  - "["My kind feed on sleep, I did not mean to say it like that."]"
+  - "["I am used to open spaces."]"
+
+# --- TTS PROFILE ---
+tts:
+  voice_model: null
+  pitch_shift: 0
+  speed: 1.0
+  emotion_default: neutral
+
+# --- META ---
+canonicity: draft
+mcp_assisted: true
+last_updated: 2026-05-16
+operator_notes: |
+  Auto-extracted via MCP cerebras from Saturn message corpus.
+  Operator review required: verify race/class, add relationships, confirm backstory.

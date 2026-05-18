@@ -1,0 +1,43 @@
+# Auto-generated draft — operator review required
+scene_id: scene_157
+title: "Scene 158: Alexis, Aurora +15"
+status: draft
+date_started: "2022-01-25"
+last_active: "2022-01-26"
+timestamp_start: "2022-01-25T21:37:17Z"
+timestamp_end: "2022-01-26T03:23:50Z"
+duration_real: "5h 46m"
+message_count: 205
+turn_count: 205
+participants:
+  - "Alexis"
+  - "Aurora"
+  - "Azu Blythe"
+  - "Cassandra Blythe"
+  - "Clover"
+  - "Harmony"
+  - "Idref"
+  - "Koibo"
+  - "Mato"
+  - "Minh (Deceased)"
+  - "Mirko"
+  - "NARRATOR"
+  - "NPC: Adventurer"
+  - "NPC: Captain"
+  - "NPC: Town guard"
+  - "Tork bloodhammer"
+  - "Viola"
+players:
+  - "Horo"
+  - "Just frog"
+  - "Katie"
+  - "LittlePinkRin"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  1d20 → [10] → 10
+last_msg_excerpt: |
+  *had been helping out with her vine spell* thanks for the help I see I have much more to learn *wipes her brow as she finishes* (same here goodnight y
+related_scenes: []
+related_lore: []
+operator_notes: null

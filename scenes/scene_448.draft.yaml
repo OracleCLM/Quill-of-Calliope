@@ -1,0 +1,27 @@
+# Auto-generated draft — operator review required
+scene_id: scene_448
+title: "Scene 449: NPC: Town guard, Ruby +1"
+status: draft
+date_started: "2022-06-19"
+last_active: "2022-06-19"
+timestamp_start: "2022-06-19T14:49:09Z"
+timestamp_end: "2022-06-19T15:23:40Z"
+duration_real: "34m"
+message_count: 14
+turn_count: 14
+participants:
+  - "NPC: Town guard"
+  - "Ruby"
+  - "Silver"
+players:
+  - "Horo"
+  - "𝕋𝕖𝕞𝕡𝕖𝕤𝕥"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  Can't really say that they're lively people. *She commented while walking towards the guards* Luckily you have enough energy for everyone, Poppy. *She
+last_msg_excerpt: |
+  *he crouched down slightly like he was going to tie his shoe, but vanished and appeared behind the two guards with the pouch of coins and his medicati
+related_scenes: []
+related_lore: []
+operator_notes: null

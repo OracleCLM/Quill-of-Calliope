@@ -1,0 +1,29 @@
+# Auto-generated draft — operator review required
+scene_id: scene_012
+title: "Strange Banter Over Eating Habits"
+status: draft
+date_started: "2021-11-21"
+last_active: "2021-11-21"
+timestamp_start: "2021-11-21T13:47:00Z"
+timestamp_end: "2021-11-21T15:10:11Z"
+duration_real: "1h 23m"
+message_count: 13
+turn_count: 13
+participants:
+  - "Kikyo"
+  - "Koibo"
+  - "Mato"
+  - "Pdor"
+players:
+  - "Horo"
+  - "Just frog"
+  - "Solriise (Hiatus)"
+mcp_assisted: true
+summary: "Koibo and Mato exchange cryptic remarks about diet and secrets. When questioned about a mission, Kikyo deflects with humor, hinting at deeper mysteries beneath the surface."
+first_msg_excerpt: |
+  *he chuckles while gesturing* [“what do you mean with _anyone_? I thought you ate things, not people.”]
+last_msg_excerpt: |
+  Do you have a secret and honorable mission? 
+related_scenes: []
+related_lore: []
+operator_notes: null

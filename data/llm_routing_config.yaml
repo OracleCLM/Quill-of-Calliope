@@ -1,0 +1,86 @@
+# Calliope.AI LLM routing config — operator-editable
+# docs/llm_routing.md v1 (2026-05-17)
+matrix:
+  action_combat:
+    tier: cerebras_workhorse
+    provider: cerebras
+    model: qwen-3-235b-a22b
+  character_death:
+    tier: cerebras_workhorse
+    provider: cerebras
+    model: qwen-3-235b-a22b
+  nsfw_explicit:
+    tier: ollama_uncensored
+    provider: ollama
+    model: dolphin-mistral-24b
+  romantic_fade_to_black:
+    tier: groq_fast
+    provider: groq
+    model: llama-3.3-70b-versatile
+  ooc_meta:
+    tier: groq_fast
+    provider: groq
+    model: llama-3.3-70b-versatile
+  system_command:
+    tier: groq_fast
+    provider: groq
+    model: llama-3.3-70b-versatile
+  lore_exposition:
+    tier: openrouter_reasoning
+    provider: openrouter
+    model: deepseek-r1-0528
+  climax_rare:
+    tier: claude_subprocess
+    provider: claude
+    model: claude-opus-4-7
+  # --- M3 expansion (sprint R-CALLIOPE-SCENE-LIBRARY-EXPANSION 2026-05-17) ---
+  action_aftermath:
+    tier: cerebras_workhorse
+    provider: cerebras
+    model: qwen-3-235b-a22b
+  comedic_banter:
+    tier: groq_fast
+    provider: groq
+    model: llama-3.3-70b-versatile
+  mystery_investigation:
+    tier: openrouter_reasoning
+    provider: openrouter
+    model: deepseek-r1-0528
+  exploration_landscape:
+    tier: cerebras_workhorse
+    provider: cerebras
+    model: qwen-3-235b-a22b
+  intimate_dialogue:
+    tier: groq_fast
+    provider: groq
+    model: llama-3.3-70b-versatile
+  transition_temporal:
+    tier: groq_fast
+    provider: groq
+    model: llama-3.3-70b-versatile
+  flashback_memory:
+    tier: openrouter_reasoning
+    provider: openrouter
+    model: deepseek-r1-0528
+  dream_surreal:
+    tier: cerebras_workhorse
+    provider: cerebras
+    model: qwen-3-235b-a22b
+  ritual_ceremony:
+    tier: openrouter_reasoning
+    provider: openrouter
+    model: deepseek-r1-0528
+  combat_chase:
+    tier: cerebras_workhorse
+    provider: cerebras
+    model: qwen-3-235b-a22b
+  default:
+    tier: cerebras_workhorse
+    provider: cerebras
+    model: qwen-3-235b-a22b
+
+nsfw_threshold: 2   # any dim >= this → force Ollama local
+
+block_thresholds:
+  non_consent: 3      # 3=depicted → block + log
+  minors_adjacent: 3  # 3=involved → block + log

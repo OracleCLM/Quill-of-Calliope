@@ -1,0 +1,32 @@
+# Auto-generated draft — operator review required
+scene_id: scene_359
+title: "Scene 360: Aurora, NARRATOR +5"
+status: draft
+date_started: "2022-05-11"
+last_active: "2022-05-11"
+timestamp_start: "2022-05-11T07:07:35Z"
+timestamp_end: "2022-05-11T11:32:36Z"
+duration_real: "4h 25m"
+message_count: 76
+turn_count: 76
+participants:
+  - "Aurora"
+  - "NARRATOR"
+  - "NPC: ?"
+  - "Peaches"
+  - "Poppy"
+  - "Vera"
+  - "Yan Qing"
+players:
+  - "Horo"
+  - "LittlePinkRin"
+  - "Neji/Hans"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  **as she rushes ahead and does another spin she loses control on the snow and falls into yan** ahh!
+last_msg_excerpt: |
+  Why are you volunteering me to travel all the way here for training...
+related_scenes: []
+related_lore: []
+operator_notes: null

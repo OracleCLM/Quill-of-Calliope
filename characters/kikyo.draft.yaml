@@ -1,0 +1,81 @@
+# Auto-generated draft via MCP cerebras — status: draft (operator review required)
+
+# --- IDENTITY ---
+id: kikyo
+name: Kikyo
+aliases: []
+type: pc
+player: unknown
+
+# --- BACKGROUND ---
+race: fox_yokai
+class: spiritual_mage
+age: unknown
+gender: female
+origin: unknown
+
+backstory: |
+  A two-tailed fox yokai with nature-based spiritual powers, likely isolated early in life but seeking connection; acts as a guardian figure despite personal hesitance.
+
+# --- PERSONALITY ---
+traits:
+  - perceptive
+  - warm_hearted
+  - cautious_with_trust
+quirks: []
+flaws: []
+
+# --- SPEECH ---
+speech_pattern:
+  formal: mixed
+  use_honorifics: false
+  vocabulary: descriptive
+  sentence_length: variable
+  emotional_range: open
+  pov: first_person
+  notes: "Expressive with emotional warmth; uses action asterisks frequently to convey movement and feeling."
+  signature_phrases:
+  - "I'm going to check out what is going on..."
+  - "I am a fox so I am pretty much the queen of kitty eyes, no more pickpocketing okay?"
+  - "Hehe thank you guys, I do my best"
+
+# --- BEHAVIOR ---
+behavior_pattern:
+  role: spiritual_protector_perceptive_ally
+  decision_style: "reactive and intuitive, guided by empathy and immediate threats"
+  typical_actions:
+    - "leaps into action using spiritual plant powers"
+    - "shows concern with soft gestures"
+    - "uses humor to ease tension"
+
+# --- SCENE TRACKING ---
+active_scenes: []
+last_active: null
+last_player_action: null
+
+# --- RELATIONSHIPS ---
+relationships: {}
+
+# --- MEMORY ---
+memory: []
+
+# --- SAMPLE QUOTES ---
+sample_quotes:
+  - "I'm going to check out what is going on..."
+  - "I am a fox so I am pretty much the queen of kitty eyes, no more pickpocketing okay?"
+  - "Hehe thank you guys, I do my best"
+
+# --- TTS PROFILE ---
+tts:
+  voice_model: null
+  pitch_shift: 0
+  speed: 1.0
+  emotion_default: neutral
+
+# --- META ---
+canonicity: draft
+mcp_assisted: true
+last_updated: 2026-05-16
+operator_notes: |
+  Auto-extracted via MCP cerebras from Kikyo message corpus.
+  Operator review required: verify race/class, add relationships, confirm backstory.

@@ -1,0 +1,27 @@
+# Auto-generated draft — operator review required
+scene_id: scene_1210
+title: "Scene 1211: .SCP-5000, Dr. Forrest +1"
+status: draft
+date_started: "2023-01-17"
+last_active: "2023-01-17"
+timestamp_start: "2023-01-17T02:03:43Z"
+timestamp_end: "2023-01-17T02:32:30Z"
+duration_real: "28m"
+message_count: 15
+turn_count: 15
+participants:
+  - ".SCP-5000"
+  - "Dr. Forrest"
+  - "Dr. Left"
+players:
+  - "Horo"
+  - "𝕋𝕖𝕞𝕡𝕖𝕤𝕥"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  "Your welcome, I suppose, and that will be enough for now. I just wanted a refresher, and I hate to say that I'd like to get this over with so Left ca
+last_msg_excerpt: |
+  It didn’t seem like it was doing you any good last night honestly… If I were in your shoes I’d go out for some fresh air. *Smirks* and maybe _touch so
+related_scenes: []
+related_lore: []
+operator_notes: null

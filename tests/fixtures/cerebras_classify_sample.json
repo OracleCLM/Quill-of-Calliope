@@ -1,0 +1,25 @@
+{
+  "_meta": {
+    "captured_at": "2026-05-18",
+    "gateway_url": "http://localhost:8766/llm_code",
+    "provider": "cerebras",
+    "latency_sec": 0.57,
+    "prompt_tokens_approx": 50,
+    "note": "real capture via llm_gateway_http.py \u2014 response_schema validation reference"
+  },
+  "request": {
+    "provider": "cerebras",
+    "prompt": "Classify this RP message as IC or OOC..."
+  },
+  "response": {
+    "content": "[\"IC\"]",
+    "provider": "cerebras",
+    "model": "qwen-3-235b-a22b-instruct-2507"
+  },
+  "response_status": 200,
+  "expected_schema": {
+    "content": "non-empty string (JSON array like [\"IC\"] or [\"OOC\"])",
+    "provider": "str matching requested provider",
+    "model": "str non-empty"
+  }
+}

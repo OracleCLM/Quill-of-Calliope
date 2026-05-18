@@ -1,0 +1,32 @@
+# Auto-generated draft — operator review required
+scene_id: scene_632
+title: "Scene 633: Alexis, Mato +5"
+status: draft
+date_started: "2022-07-29"
+last_active: "2022-07-29"
+timestamp_start: "2022-07-29T19:48:50Z"
+timestamp_end: "2022-07-29T20:41:27Z"
+duration_real: "52m"
+message_count: 14
+turn_count: 14
+participants:
+  - "Alexis"
+  - "Mato"
+  - "Matrika Fianopolus"
+  - "NARRATOR"
+  - "Sberla"
+  - "Sir Bernard"
+  - "_Narrator / NPC"
+players:
+  - "Charlesworth III"
+  - "Horo"
+  - "Joshua Thudson"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  A boat arrives from the port, bringing a little more breeze to the city. from the low a person who is soon noticed by the sailors and by the townspeop
+last_msg_excerpt: |
+  He seemed more curious than shocked at the speaking feline, though Bernard realises that such is not far from 'normal' in this world, if there even is
+related_scenes: []
+related_lore: []
+operator_notes: null

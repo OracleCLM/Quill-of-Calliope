@@ -1,0 +1,27 @@
+# Auto-generated draft — operator review required
+scene_id: scene_875
+title: "Scene 876: Arianna, NARRATOR +1"
+status: draft
+date_started: "2022-10-04"
+last_active: "2022-10-04"
+timestamp_start: "2022-10-04T02:55:37Z"
+timestamp_end: "2022-10-04T04:25:01Z"
+duration_real: "1h 29m"
+message_count: 11
+turn_count: 11
+participants:
+  - "Arianna"
+  - "NARRATOR"
+  - "Nikita"
+players:
+  - "Horo"
+  - "LittlePinkRin"
+mcp_assisted: false
+summary: null  # to be filled by MCP cerebras
+first_msg_excerpt: |
+  I'll need something light for moving around and a nice bow. Probably not a crossbow for now since I still haven't had much training on it.
+last_msg_excerpt: |
+  A hook? Is that for a quiver or something?  *As Ari walks away she looks down and inspects her new armor tugging on it making sure it all fit properly
+related_scenes: []
+related_lore: []
+operator_notes: null
