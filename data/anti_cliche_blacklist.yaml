@@ -1,0 +1,32 @@
+# Quill of Calliope — Anti-GPT-cliché blacklist
+# Empirical source: operator-flagged phrases in GPT-RPG corpus 2024-2026
+#                   + groq llama-3.3-70b candidate expansion 2026-05-19
+# Severity: HIGH (always strip), MED (warn + suggest alt), LOW (note only)
+
+phrases:
+  # ── HIGH: operator-flagged grandiloquent ──────────────────────────────────
+  - { pattern: "exuded silent menace", severity: HIGH, reason: "GPT-cliché grandiloquent" }
+  - { pattern: "intimidating masterpiece", severity: HIGH, reason: "GPT-cliché grandiloquent" }
+  - { pattern: "a testament to", severity: HIGH, reason: "GPT meta-narrative cliché" }
+  - { pattern: "a tribute to", severity: HIGH, reason: "GPT meta-narrative cliché" }
+  - { pattern: "the fate of (?:the world|the realm|the kingdom) hung in the balance", severity: HIGH, reason: "GPT grandiose stakes boilerplate" }
+
+  # ── MED: atmosphere / eye / presence clichés ─────────────────────────────
+  - { pattern: "an air of (?:mystery|danger|elegance|menace)", severity: MED, reason: "GPT formulaic 'an air of X'" }
+  - { pattern: "(?:eyes|gaze) (?:that|which) (?:could|seemed to) (?:pierce|cut|burn)", severity: MED, reason: "GPT eye-cliché" }
+  - { pattern: "piercing (?:eyes|gaze)", severity: MED, reason: "GPT eye-cliché overused" }
+  - { pattern: "(?:his|her|their) (?:gaze|eyes) bore into", severity: MED, reason: "GPT eye-cliché" }
+  - { pattern: "intricate(?:ly)? (?:carved|woven|designed)", severity: MED, reason: "GPT crafted-cliché" }
+  - { pattern: "whispered tales", severity: MED, reason: "GPT fantasy boilerplate" }
+  - { pattern: "the air was thick with (?:tension|anticipation|foreboding)", severity: MED, reason: "GPT atmosphere-cliché" }
+  - { pattern: "the (?:silence|stillness) was (?:deafening|oppressive|palpable)", severity: MED, reason: "GPT atmosphere-cliché" }
+  - { pattern: "the shadows (?:danced|swirled|seethed) around", severity: MED, reason: "GPT atmosphere-cliché" }
+  - { pattern: "(?:his|her|their) (?:presence|aura) was (?:commanding|intimidating|mesmerizing)", severity: MED, reason: "GPT presence-cliché" }
+  - { pattern: "a beacon of (?:hope|light|strength) in the darkness", severity: MED, reason: "GPT grandiose-cliché" }
+  - { pattern: "with (?:unwavering|unshakeable|unrelenting) (?:determination|resolve|ferocity)", severity: MED, reason: "GPT resolve-cliché" }
+  - { pattern: "the (?:moon|sun) cast an? (?:eerie|ominous|ethereal) glow", severity: MED, reason: "GPT light-atmosphere-cliché" }
+
+  # ── LOW: generic but tolerable ────────────────────────────────────────────
+  - { pattern: "the (?:ancient|forgotten|whispered) (?:lore|secrets|magic)", severity: LOW, reason: "Generic but tolerable" }
+  - { pattern: "as if (?:he|she|they) (?:had|knew)", severity: LOW, reason: "GPT formulaic comparison" }
+  - { pattern: "a (?:majestic|ancient|forgotten) (?:city|ruin|land)", severity: LOW, reason: "GPT grandiose setting" }

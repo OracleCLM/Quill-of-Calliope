@@ -27,6 +27,7 @@ from route_scene import (  # noqa: E402
     load_config,
     route_scene,
 )
+from style_filter import filter_response  # noqa: E402
 
 # scene_type → default emotion (fallback when no classifier)
 _SCENE_TYPE_EMOTION: Dict[str, str] = {
@@ -146,6 +147,15 @@ def main() -> None:
     latency_ms = round((time.perf_counter() - t0) * 1000)
 
     logging.info("Tier %s selected — latency: %dms", tier_name, latency_ms)
+
+    # Anti-cliché filter (HIGH severity stripped by default)
+    scene_text, cliche_findings = filter_response(scene_text, severity_threshold="HIGH")
+    if cliche_findings:
+        logging.info("Cliché filter applied: %d findings", len(cliche_findings))
+        for f in cliche_findings:
+            logging.info(
+                "  [%s] %s (%dx) — %s", f["severity"], f["pattern"], f["count"], f["action"]
+            )
 
     # Write Markdown output
     timestamp = datetime.now().isoformat(timespec="seconds")
