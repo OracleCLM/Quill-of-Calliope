@@ -1,0 +1,46 @@
+# Quill of Calliope — Extended Anti-GPT Lexicon
+# Sources: operator-flagged corpus (WAVE1-B) + groq llama-3.3-70b expansion 2026-05-19
+# Used by: app/calliope_shell/style_coach.py (lint_scene_output)
+# Severity: HIGH (always flag), MED (flag at MED+ threshold), LOW (note only)
+# Category: overwrought-emotion | purple-prose-action | redundant-intensifier |
+#           melodramatic-monologue | atmosphere-cliche | eye-cliche | grandiose | crafted-cliche
+
+phrases:
+  # ── HIGH: operator-flagged grandiloquent ──────────────────────────────────
+  - { pattern: "exuded silent menace", severity: HIGH, category: grandiose, reason: "Operator-flagged GPT-cliché" }
+  - { pattern: "intimidating masterpiece", severity: HIGH, category: grandiose, reason: "Operator-flagged GPT-cliché" }
+  - { pattern: "a testament to", severity: HIGH, category: grandiose, reason: "GPT meta-narrative" }
+  - { pattern: "the fate of (?:the world|the realm|the kingdom) hung in the balance", severity: HIGH, category: grandiose, reason: "Grandiose stakes boilerplate" }
+  - { pattern: "every (?:fiber|cell|inch) of (?:his|her|their) being (?:yearned|longed|ached)", severity: HIGH, category: redundant-intensifier, reason: "Hyperbolic body-as-soul cliché" }
+  - { pattern: "(?:his|her|their) (?:soul|heart|spirit) was (?:torn|ripped|shredded) asunder", severity: HIGH, category: overwrought-emotion, reason: "Melodramatic destruction-of-self cliché" }
+
+  # ── MED: atmosphere / eye / presence / action clichés ────────────────────
+  - { pattern: "an air of (?:mystery|danger|elegance|menace)", severity: MED, category: atmosphere-cliche, reason: "GPT formulaic 'an air of X'" }
+  - { pattern: "piercing (?:eyes|gaze)", severity: MED, category: eye-cliche, reason: "Overused eye descriptor" }
+  - { pattern: "(?:his|her|their) (?:gaze|eyes) bore into", severity: MED, category: eye-cliche, reason: "GPT eye-cliché" }
+  - { pattern: "(?:eyes|gaze) (?:that|which) (?:could|seemed to) (?:pierce|cut|burn)", severity: MED, category: eye-cliche, reason: "GPT eye-cliché variant" }
+  - { pattern: "(?:his|her|their) (?:eyes|gaze|stare) (?:bored|pierced|drilled) into (?:her|his|their) (?:soul|heart|very being)", severity: MED, category: eye-cliche, reason: "Compound eye+soul cliché" }
+  - { pattern: "intricate(?:ly)? (?:carved|woven|designed)", severity: MED, category: crafted-cliche, reason: "GPT craftsmanship boilerplate" }
+  - { pattern: "whispered tales", severity: MED, category: atmosphere-cliche, reason: "Fantasy boilerplate" }
+  - { pattern: "the air was (?:thick|heavy|palpable) with (?:tension|anticipation|foreboding|expectation)", severity: MED, category: atmosphere-cliche, reason: "Atmosphere-as-substance cliché" }
+  - { pattern: "the (?:silence|stillness) was (?:deafening|oppressive|palpable|earsplitting)", severity: MED, category: atmosphere-cliche, reason: "Contradiction-atmosphere cliché" }
+  - { pattern: "the shadows (?:danced|swirled|seethed) around", severity: MED, category: atmosphere-cliche, reason: "Animistic shadow cliché" }
+  - { pattern: "(?:his|her|their) (?:presence|aura) was (?:commanding|intimidating|mesmerizing)", severity: MED, category: crafted-cliche, reason: "Presence-as-force cliché" }
+  - { pattern: "a beacon of (?:hope|light|strength) in the darkness", severity: MED, category: grandiose, reason: "Redemption-arc boilerplate" }
+  - { pattern: "with (?:unwavering|unshakeable|unrelenting) (?:determination|resolve|ferocity)", severity: MED, category: redundant-intensifier, reason: "Resolve-intensifier cliché" }
+  - { pattern: "the (?:moon|sun) cast an? (?:eerie|ominous|ethereal) glow", severity: MED, category: atmosphere-cliche, reason: "Light-atmosphere-cliché" }
+  - { pattern: "couldn't help but (?:feel|notice|wonder)", severity: MED, category: redundant-intensifier, reason: "Hedged-action filler" }
+  - { pattern: "(?:his|her|their) (?:mind|thoughts|brain) was a (?:maelstrom|whirlwind|torrent) of", severity: MED, category: melodramatic-monologue, reason: "Mind-as-storm cliché" }
+  - { pattern: "was consumed by a? (?:dark|deep|abysmal)? (?:rage|anger|fury)", severity: MED, category: overwrought-emotion, reason: "Consumption-by-emotion cliché" }
+  - { pattern: "felt an overwhelming sense of (?:despair|sorrow|grief)", severity: MED, category: overwrought-emotion, reason: "Overwrought emotion descriptor" }
+  - { pattern: "with a (?:swiftness|speed|quickness) that belied (?:his|her|their)", severity: MED, category: purple-prose-action, reason: "Contradiction-of-expectation action beat" }
+  - { pattern: "(?:his|her|their) (?:heart|soul|spirit) (?:sank|was heavy|weighed) with (?:foreboding|dread|apprehension)", severity: MED, category: melodramatic-monologue, reason: "Heart-as-weight cliché" }
+  - { pattern: "with a (?:cry|shout|scream) that (?:shattered|splintered|rent) the (?:air|silence|stillness)", severity: MED, category: purple-prose-action, reason: "Sound-as-destruction cliché" }
+  - { pattern: "he (?:knew|felt|sensed) it in his (?:bones|gut|heart) that", severity: MED, category: melodramatic-monologue, reason: "Premonition-via-body cliché" }
+  - { pattern: "the (?:fate|destiny|future) that (?:awaited|loomed|threatened) (?:him|her|them) was (?:dark|grim|foreboding)", severity: MED, category: grandiose, reason: "Doom-destiny boilerplate" }
+
+  # ── LOW: generic but tolerable ────────────────────────────────────────────
+  - { pattern: "the (?:ancient|forgotten|whispered) (?:lore|secrets|magic)", severity: LOW, category: atmosphere-cliche, reason: "Generic setting descriptor" }
+  - { pattern: "as if (?:he|she|they) (?:had|knew)", severity: LOW, category: atmosphere-cliche, reason: "Formulaic comparison" }
+  - { pattern: "a (?:majestic|ancient|forgotten) (?:city|ruin|land)", severity: LOW, category: grandiose, reason: "Generic grandiose setting" }
+  - { pattern: "every (?:step|move|breath) (?:he|she|they) took was (?:filled|laden|weighted) with (?:purpose|intent|resolve)", severity: LOW, category: redundant-intensifier, reason: "Action-as-metaphor filler" }
