@@ -23,9 +23,9 @@ def test_root_renders_iframe(client):
     assert b"localhost:8001" in response.data
 
 
-def test_mascot_state_placeholder(client):
+def test_mascot_state_get(client):
     response = client.get("/api/mascot/state")
     assert response.is_json
     data = response.get_json()
-    assert data["state"] == "idle"
-    assert data["expression"] == "neutral"
+    assert "emotion" in data
+    assert "ws_url" in data

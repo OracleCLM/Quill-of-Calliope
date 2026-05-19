@@ -5,87 +5,162 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quill of Calliope</title>
     <style>
-        body, html {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-            font-family: sans-serif;
-            color: white;
-        }
-        header {
-            height: 60px;
-            background-color: #1a1a2e;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        header h1 {
-            margin: 0;
-            font-size: 1.2em;
-        }
-        nav a {
-            color: white;
-            margin-left: 20px;
-            text-decoration: none;
-        }
-        nav a:hover {
-            text-decoration: underline;
-        }
-        main {
-            display: flex;
-            height: calc(100vh - 60px);
-        }
-        iframe {
-            flex: 1;
-            height: calc(100vh - 60px);
-            border: 0;
-        }
-        aside {
-            width: 320px;
-            background-color: #16213e;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-            box-sizing: border-box;
-        }
-        #mascot {
-            margin-bottom: 10px;
-        }
-        aside p {
-            color: #aaa;
-            font-size: 0.9em;
-            text-align: center;
-            margin: 0;
-        }
+        body, html { margin:0; padding:0; height:100%; font-family:sans-serif; color:white; background:#0f0f1a; }
+        header { height:60px; background:#1a1a2e; display:flex; justify-content:space-between; align-items:center; padding:0 20px; box-shadow:0 2px 4px rgba(0,0,0,.3); }
+        header h1 { margin:0; font-size:1.2em; }
+        nav a { color:#aac; margin-left:16px; text-decoration:none; cursor:pointer; font-size:.95em; }
+        nav a:hover, nav a.active { color:#fff; text-decoration:underline; }
+
+        /* ── Main view (ST iframe + sidebar) ── */
+        #main-view { display:flex; height:calc(100vh - 60px); }
+        iframe { flex:1; height:100%; border:0; }
+        aside { width:320px; background:#16213e; display:flex; flex-direction:column; align-items:center; padding:12px 16px; box-sizing:border-box; overflow-y:auto; }
+
+        /* char list */
+        #char-list-panel { width:100%; margin-bottom:12px; }
+        #char-list-panel h3 { margin:0 0 6px; font-size:.85em; color:#8899cc; text-transform:uppercase; letter-spacing:.05em; }
+        #char-list { list-style:none; margin:0; padding:0; width:100%; }
+        #char-list li { padding:5px 8px; border-radius:4px; cursor:pointer; font-size:.85em; color:#ccd; }
+        #char-list li:hover { background:#1e2f5a; }
+        #char-memory-details { display:none; background:#111827; border-radius:6px; padding:10px; margin-top:8px; width:100%; font-size:.78em; color:#aab; }
+        #char-memory-details h4 { margin:0 0 6px; color:#8af; }
+        #char-memory-details .snippet { border-left:2px solid #334; padding-left:6px; margin-bottom:6px; }
+
+        /* mascot */
+        #mascot { margin-bottom:8px; }
+        aside p.mascot-label { color:#666; font-size:.8em; text-align:center; margin:0; }
+
+        /* ── Translate panel ── */
+        #translate-panel { display:none; flex-direction:column; padding:24px; max-width:700px; margin:0 auto; width:100%; height:calc(100vh - 60px); box-sizing:border-box; }
+        #translate-panel h2 { margin:0 0 16px; color:#aac; }
+        .translate-row { display:flex; gap:16px; flex:1; }
+        .translate-col { display:flex; flex-direction:column; flex:1; gap:8px; }
+        .translate-col label { font-size:.85em; color:#889; }
+        textarea.translate-box { flex:1; background:#111827; color:#eee; border:1px solid #2a3a5a; border-radius:6px; padding:10px; resize:none; font-size:.9em; font-family:inherit; }
+        .translate-controls { display:flex; align-items:center; gap:16px; margin:12px 0; }
+        .translate-controls label { font-size:.85em; color:#aab; display:flex; align-items:center; gap:4px; cursor:pointer; }
+        #btn-translate { background:#1e3a6e; color:#fff; border:none; border-radius:6px; padding:10px 24px; cursor:pointer; font-size:.95em; }
+        #btn-translate:hover { background:#2a4f9e; }
+        #btn-translate:disabled { opacity:.5; cursor:not-allowed; }
+        .translate-status { font-size:.82em; margin-top:6px; min-height:1.2em; }
+        .translate-status.loading { color:#88aaff; }
+        .translate-status.done { color:#66dd88; }
+        .translate-status.error { color:#ff6666; }
     </style>
 </head>
 <body>
     <header>
         <h1>Quill of Calliope</h1>
         <nav>
-            <a href="#">Home</a> |
+            <a id="nav-home" class="active" onclick="showView('main')">Home</a> |
+            <a id="nav-translate" onclick="showView('translate')">Translate</a> |
             <a href="#">Settings</a>
         </nav>
     </header>
-    <main>
+
+    <!-- ── MAIN VIEW ── -->
+    <div id="main-view">
         <iframe
             src="{{ ST_URL }}"
             sandbox="allow-scripts allow-forms allow-same-origin allow-popups">
         </iframe>
         <aside>
-            <canvas id="mascot" width="320" height="600"></canvas>
-            <p>Aurora</p>
+            <div id="char-list-panel">
+                <h3>Personaggi</h3>
+                <ul id="char-list"><li style="color:#555">Caricamento...</li></ul>
+                <div id="char-memory-details"></div>
+            </div>
+            <canvas id="mascot" width="320" height="440"></canvas>
+            <p class="mascot-label">Aurora</p>
         </aside>
-    </main>
+    </div>
+
+    <!-- ── TRANSLATE PANEL ── -->
+    <section id="translate-panel">
+        <h2>Traduzione Bilingual IT ↔ EN</h2>
+        <div class="translate-controls">
+            <label><input type="radio" name="translate-direction" value="IT_to_EN" checked> 🇮🇹 → 🇬🇧 IT→EN</label>
+            <label><input type="radio" name="translate-direction" value="EN_to_IT"> 🇬🇧 → 🇮🇹 EN→IT</label>
+            <button id="btn-translate">→ Traduci</button>
+        </div>
+        <div class="translate-row">
+            <div class="translate-col">
+                <label for="translate-input">Testo originale</label>
+                <textarea id="translate-input" class="translate-box" placeholder="Inserisci testo IT o EN da tradurre..."></textarea>
+            </div>
+            <div class="translate-col">
+                <label for="translate-output">Traduzione</label>
+                <textarea id="translate-output" class="translate-box" readonly placeholder="La traduzione apparirà qui..."></textarea>
+            </div>
+        </div>
+        <div id="translate-status" class="translate-status"></div>
+    </section>
+
     <script>
         window.MASCOT_WS_URL = "{{ MASCOT_WS_URL }}";
+
+        // ── View routing ──
+        function showView(view) {
+            const mainView = document.getElementById('main-view');
+            const translatePanel = document.getElementById('translate-panel');
+            document.getElementById('nav-home').classList.toggle('active', view === 'main');
+            document.getElementById('nav-translate').classList.toggle('active', view === 'translate');
+            if (view === 'translate') {
+                mainView.style.display = 'none';
+                translatePanel.style.display = 'flex';
+            } else {
+                mainView.style.display = 'flex';
+                translatePanel.style.display = 'none';
+            }
+        }
+
+        // ── Char list ──
+        async function loadCharList() {
+            try {
+                const resp = await fetch('/api/chars');
+                const chars = await resp.json();
+                const ul = document.getElementById('char-list');
+                if (!chars.length) {
+                    ul.innerHTML = '<li style="color:#555">Nessun personaggio in DB</li>';
+                    return;
+                }
+                ul.innerHTML = chars.map(c =>
+                    `<li data-char="${c.name}" onclick="loadCharMemory('${c.name}')" title="${c.traits_summary}">${c.name}</li>`
+                ).join('');
+            } catch (e) {
+                document.getElementById('char-list').innerHTML = '<li style="color:#664">Errore caricamento</li>';
+            }
+        }
+
+        async function loadCharMemory(name) {
+            const details = document.getElementById('char-memory-details');
+            details.style.display = 'block';
+            details.innerHTML = `<h4>${name}</h4><p style="color:#666">Caricamento...</p>`;
+            try {
+                const resp = await fetch(`/api/chars/${encodeURIComponent(name)}/memory`);
+                const data = await resp.json();
+                const state = data.char_state || {};
+                const traits = state.traits || {};
+                const personality = (traits.personality || []).join(', ') || '—';
+                const snippets = (data.snippets || []).map(s =>
+                    `<div class="snippet">${s.text.replace(/</g, '&lt;')}</div>`
+                ).join('') || '<p style="color:#555">Nessun messaggio correlato.</p>';
+                details.innerHTML = `
+                    <h4>${name}</h4>
+                    <p><b>Traits:</b> ${personality}</p>
+                    ${state.last_action ? `<p><b>Last action:</b> ${state.last_action}</p>` : ''}
+                    <p><b>Memoria top-5:</b></p>${snippets}`;
+            } catch (e) {
+                details.innerHTML = `<h4>${name}</h4><p style="color:#f66">Errore: ${e.message}</p>`;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadCharList);
     </script>
     <script src="https://cubism.live2d.com/sdk-web/cubismcore/live2dcubismcore.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/pixi.js@7/dist/pixi.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/pixi-live2d-display@0.4/dist/cubism4.min.js"></script>
     <script src="/static/js/mascot.js"></script>
+    <script src="/static/js/translate.js"></script>
 </body>
 </html>
