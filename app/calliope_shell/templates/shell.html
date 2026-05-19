@@ -35,6 +35,28 @@
 
         /* ── Refine panel ── */
         #refine-panel { display:none; flex-direction:column; padding:24px; max-width:800px; margin:0 auto; width:100%; height:calc(100vh - 60px); box-sizing:border-box; overflow-y:auto; }
+
+        /* ── Arc panel ── */
+        #arc-panel { display:none; flex-direction:row; height:calc(100vh - 60px); overflow:hidden; }
+        #arc-list-col { width:280px; background:#111827; border-right:1px solid #223; overflow-y:auto; padding:12px; flex-shrink:0; }
+        #arc-list-col h3 { margin:0 0 10px; color:#8899cc; font-size:.85em; text-transform:uppercase; }
+        #arc-list-col ul { list-style:none; margin:0; padding:0; }
+        #arc-list-col li { padding:8px 10px; border-radius:4px; cursor:pointer; font-size:.85em; color:#ccd; border-bottom:1px solid #1a2440; }
+        #arc-list-col li:hover { background:#1e2f5a; }
+        #arc-detail-col { flex:1; padding:20px; overflow-y:auto; }
+        #arc-detail-col h2 { margin:0 0 8px; color:#aac; }
+        .arc-meta { font-size:.8em; color:#667; margin-bottom:12px; }
+        .arc-scenes { margin:12px 0; }
+        .arc-scene-item { background:#111827; border-radius:4px; padding:8px 12px; margin-bottom:6px; font-size:.83em; color:#aab; }
+        .arc-summary-box { background:#0d1117; border:1px solid #334; border-radius:6px; padding:12px; font-size:.88em; color:#cde; white-space:pre-wrap; margin:10px 0; min-height:60px; }
+        .arc-threads { margin:8px 0; }
+        .arc-thread-item { font-size:.8em; color:#f9a825; padding:3px 0; }
+        #arc-continue-result { background:#0d1117; border:1px solid #2a4; border-radius:6px; padding:12px; display:none; margin-top:12px; }
+        #arc-continue-result h4 { margin:0 0 6px; color:#6f6; }
+        .arc-btn { background:#1e3a6e; color:#fff; border:none; border-radius:6px; padding:8px 18px; cursor:pointer; font-size:.88em; margin-right:8px; margin-top:8px; }
+        .arc-btn:hover { background:#2a4f9e; }
+        .arc-hint-input { background:#111827; color:#eee; border:1px solid #2a3a5a; border-radius:6px; padding:6px 10px; font-size:.88em; width:280px; margin-top:6px; }
+        #arc-status { font-size:.8em; color:#88aaff; margin-top:6px; min-height:1em; }
         #refine-panel h2 { margin:0 0 16px; color:#aac; }
         .refine-row { display:flex; flex-direction:column; gap:10px; margin-bottom:14px; }
         .refine-row label { font-size:.85em; color:#889; }
@@ -75,6 +97,7 @@
             <a id="nav-translate" onclick="showView('translate')">Translate</a> |
             <a id="nav-draft" onclick="showView('draft')">✦ Draft</a> |
             <a id="nav-refine" onclick="showView('refine')">✎ Refine</a> |
+            <a id="nav-arc" onclick="showView('arc')">◈ Arc</a> |
             <a href="#">Settings</a>
         </nav>
     </header>
@@ -187,6 +210,38 @@
         </div>
     </section>
 
+    <!-- ── ARC PANEL ── -->
+    <div id="arc-panel">
+        <div id="arc-list-col">
+            <h3>◈ Plot Arcs</h3>
+            <ul id="arc-ul"><li style="color:#555">Caricamento...</li></ul>
+        </div>
+        <div id="arc-detail-col">
+            <div id="arc-detail-empty" style="color:#445;margin-top:40px">Seleziona un arc dalla lista.</div>
+            <div id="arc-detail-content" style="display:none">
+                <h2 id="arc-detail-title"></h2>
+                <div class="arc-meta" id="arc-detail-meta"></div>
+                <div class="arc-scenes" id="arc-detail-scenes"></div>
+                <div>
+                    <button class="arc-btn" id="arc-btn-summary">↻ Regenerate Summary</button>
+                    <button class="arc-btn" id="arc-btn-threads">⊞ Detect Threads</button>
+                </div>
+                <div class="arc-summary-box" id="arc-summary-box" style="display:none"></div>
+                <div class="arc-threads" id="arc-threads-list"></div>
+                <div style="margin-top:12px">
+                    <input class="arc-hint-input" id="arc-hint-input" placeholder="Hint for next scene (optional)...">
+                    <button class="arc-btn" id="arc-btn-continue">▶ Continue Arc</button>
+                </div>
+                <div id="arc-continue-result">
+                    <h4>Proposed Next Scene</h4>
+                    <div id="arc-continue-type" style="font-size:.82em;color:#8af;margin-bottom:6px"></div>
+                    <div id="arc-continue-seed" style="font-size:.88em;color:#cde;white-space:pre-wrap"></div>
+                </div>
+                <div id="arc-status"></div>
+            </div>
+        </div>
+    </div>
+
     <script>
         window.MASCOT_WS_URL = "{{ MASCOT_WS_URL }}";
 
@@ -196,6 +251,11 @@
             const translatePanel = document.getElementById('translate-panel');
             const draftPanel = document.getElementById('draft-panel');
             const refinePanel = document.getElementById('refine-panel');
+            const arcPanel = document.getElementById('arc-panel');
+            document.getElementById('nav-home').classList.toggle('active', view === 'main');
+            document.getElementById('nav-arc').classList.toggle('active', view === 'arc');
+            if (arcPanel) arcPanel.style.display = view === 'arc' ? 'flex' : 'none';
+            if (view === 'arc') loadArcList();
             document.getElementById('nav-home').classList.toggle('active', view === 'main');
             document.getElementById('nav-translate').classList.toggle('active', view === 'translate');
             document.getElementById('nav-draft').classList.toggle('active', view === 'draft');
@@ -378,6 +438,97 @@
         }
 
         document.addEventListener('DOMContentLoaded', loadCharList);
+
+        // ── Arc panel logic ──
+        let _currentArcId = null;
+
+        async function loadArcList() {
+            const ul = document.getElementById('arc-ul');
+            if (!ul) return;
+            try {
+                const resp = await fetch('/api/arc');
+                const arcs = await resp.json();
+                if (!arcs.length) { ul.innerHTML = '<li style="color:#555">Nessun arc.</li>'; return; }
+                ul.innerHTML = arcs.map(a =>
+                    `<li onclick="loadArcDetail('${a.arc_id}')" title="${a.title}">`+
+                    `<b>${a.arc_id}</b><br><span style="color:#778;font-size:.78em">${a.title}</span></li>`
+                ).join('');
+            } catch (e) { ul.innerHTML = '<li style="color:#664">Errore</li>'; }
+        }
+
+        async function loadArcDetail(arcId) {
+            _currentArcId = arcId;
+            const detail = document.getElementById('arc-detail-content');
+            const empty = document.getElementById('arc-detail-empty');
+            document.getElementById('arc-status').textContent = '';
+            document.getElementById('arc-continue-result').style.display = 'none';
+            document.getElementById('arc-summary-box').style.display = 'none';
+            document.getElementById('arc-threads-list').innerHTML = '';
+            try {
+                const resp = await fetch(`/api/arc/${arcId}`);
+                if (!resp.ok) throw new Error(resp.statusText);
+                const arc = await resp.json();
+                empty.style.display = 'none';
+                detail.style.display = 'block';
+                document.getElementById('arc-detail-title').textContent = arc.title;
+                document.getElementById('arc-detail-meta').textContent =
+                    `ID: ${arc.arc_id} | Status: ${arc.status} | Chars: ${(arc.chars||[]).join(', ')} | Scenes: ${(arc.scenes||[]).length}`;
+                const scenesDiv = document.getElementById('arc-detail-scenes');
+                scenesDiv.innerHTML = (arc.scenes||[]).map(s =>
+                    `<div class="arc-scene-item">[${s.scene_order}] ${(s.scene_summary||'').slice(0,120)}</div>`
+                ).join('') || '<div style="color:#445">No scenes yet.</div>';
+                if (arc.summary) {
+                    const sb = document.getElementById('arc-summary-box');
+                    sb.textContent = arc.summary;
+                    sb.style.display = 'block';
+                }
+            } catch (e) { empty.textContent = 'Error: ' + e.message; }
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const btnSummary = document.getElementById('arc-btn-summary');
+            if (btnSummary) btnSummary.addEventListener('click', async function () {
+                if (!_currentArcId) return;
+                document.getElementById('arc-status').textContent = 'Generating summary...';
+                const resp = await fetch(`/api/arc/${_currentArcId}/summary`, {method:'POST'});
+                const data = await resp.json();
+                const sb = document.getElementById('arc-summary-box');
+                sb.textContent = data.summary || 'No summary.';
+                sb.style.display = 'block';
+                document.getElementById('arc-status').textContent = '';
+            });
+
+            const btnThreads = document.getElementById('arc-btn-threads');
+            if (btnThreads) btnThreads.addEventListener('click', async function () {
+                if (!_currentArcId) return;
+                document.getElementById('arc-status').textContent = 'Detecting threads...';
+                const resp = await fetch(`/api/arc/${_currentArcId}/threads`);
+                const data = await resp.json();
+                const tl = document.getElementById('arc-threads-list');
+                tl.innerHTML = (data.threads||[]).length
+                    ? (data.threads||[]).map(t => `<div class="arc-thread-item">⊞ [${t.type}] ${t.thread}</div>`).join('')
+                    : '<div style="color:#445;font-size:.8em">No threads detected.</div>';
+                document.getElementById('arc-status').textContent = '';
+            });
+
+            const btnContinue = document.getElementById('arc-btn-continue');
+            if (btnContinue) btnContinue.addEventListener('click', async function () {
+                if (!_currentArcId) return;
+                const hint = document.getElementById('arc-hint-input').value.trim() || null;
+                document.getElementById('arc-status').textContent = 'Proposing next scene...';
+                const resp = await fetch(`/api/arc/${_currentArcId}/continue`, {
+                    method:'POST', headers:{'Content-Type':'application/json'},
+                    body: JSON.stringify({hint}),
+                });
+                const data = await resp.json();
+                if (data.scene_type) {
+                    document.getElementById('arc-continue-type').textContent = 'scene_type: ' + data.scene_type;
+                    document.getElementById('arc-continue-seed').textContent = data.prompt_seed || '';
+                    document.getElementById('arc-continue-result').style.display = 'block';
+                }
+                document.getElementById('arc-status').textContent = '';
+            });
+        });
     </script>
     <script src="https://cubism.live2d.com/sdk-web/cubismcore/live2dcubismcore.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/pixi.js@7/dist/pixi.min.js"></script>

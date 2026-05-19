@@ -290,6 +290,10 @@ def main() -> None:
         help="Per-variant style hints (e.g. descriptive action-fast lyrical). "
              "Defaults: descriptive action-fast lyrical for N=3.",
     )
+    parser.add_argument(
+        "--arc", default=None, metavar="ARC_ID",
+        help="Plot arc ID: inject arc context into prompt + auto-append scene to arc post-gen",
+    )
     args = parser.parse_args()
 
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
@@ -352,6 +356,31 @@ def main() -> None:
         _publish_emotion(emotion, 1.0, str(variants_path), args.mascot_url)
         sys.exit(0)
 
+    # ── Arc context injection ────────────────────────────────────────────────
+    arc_context_prefix = ""
+    if args.arc:
+        try:
+            sys.path.insert(0, str(Path(__file__).parent.parent))
+            from app.calliope_shell.plot_arc import get_arc as _get_arc  # noqa: PLC0415
+            arc_data = _get_arc(args.arc)
+            if arc_data:
+                summary = arc_data.get("summary") or ""
+                chars = ", ".join(arc_data.get("chars") or [])
+                threads = "; ".join(
+                    t["thread"] for t in (arc_data.get("open_threads") or [])
+                ) or "none"
+                arc_context_prefix = (
+                    f"[Arc context: {arc_data['title']}]\n"
+                    f"Characters: {chars}\n"
+                    f"Summary: {summary}\n"
+                    f"Open threads: {threads}\n\n"
+                )
+                logging.info("Arc context injected for arc '%s'", args.arc)
+            else:
+                logging.warning("Arc '%s' not found — generating without arc context", args.arc)
+        except Exception as exc:  # noqa: BLE001
+            logging.warning("Arc context fetch failed (%s) — continuing without", exc)
+
     # ── Build prompt ─────────────────────────────────────────────────────────
     if args.refine:
         if not args.refine.exists():
@@ -371,6 +400,7 @@ def main() -> None:
         logging.info("Refine mode — feedback: %s", feedback[:80])
     else:
         full_prompt = (
+            f"{arc_context_prefix}"
             f"Write a {args.scene_type} scene for a fantasy RP server.\n\n"
             f"{args.prompt}\n\n"
             "Write 2-3 paragraphs in third person."
@@ -430,6 +460,18 @@ def main() -> None:
         sys.exit(1)
 
     logging.info("Output written to %s", args.output)
+
+    # ── Auto-append to arc (if --arc specified) ──────────────────────────────
+    if args.arc and not args.refine:
+        try:
+            from app.calliope_shell.plot_arc import append_scene as _append_scene  # noqa: PLC0415
+            result = _append_scene(args.arc, str(args.output))
+            if result:
+                logging.info("Scene appended to arc '%s' (order %s)", args.arc, result.get("scene_order"))
+            else:
+                logging.warning("append_scene to arc '%s' returned empty — arc may not exist", args.arc)
+        except Exception as exc:  # noqa: BLE001
+            logging.warning("Arc append failed (non-fatal): %s", exc)
 
     # ── Publish emotion ──────────────────────────────────────────────────────
     emotion = args.emotion_test or _SCENE_TYPE_EMOTION.get(args.scene_type, "neutral")

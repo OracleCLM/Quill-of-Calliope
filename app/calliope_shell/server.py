@@ -424,6 +424,74 @@ def create_app():
             "blend_indices": indices,
         })
 
+    # ── Plot Arc routes ───────────────────────────────────────────────────────
+
+    from app.calliope_shell import plot_arc as _pa  # noqa: PLC0415
+    _pa.init_db()
+
+    @app.route("/api/arc", methods=["GET"])
+    def arc_list():
+        status = request.args.get("status")
+        return jsonify(_pa.list_arcs(status=status))
+
+    @app.route("/api/arc/<arc_id>", methods=["GET"])
+    def arc_get(arc_id: str):
+        arc = _pa.get_arc(arc_id)
+        if arc is None:
+            return jsonify({"error": "arc not found"}), 404
+        return jsonify(arc)
+
+    @app.route("/api/arc", methods=["POST"])
+    def arc_create():
+        body = request.get_json(silent=True) or {}
+        arc_id = body.get("arc_id", "").strip()
+        title = body.get("title", "").strip()
+        chars = body.get("chars", [])
+        if not arc_id or not title:
+            return jsonify({"error": "arc_id and title are required"}), 400
+        arc = _pa.create_arc(arc_id, title, chars)
+        return jsonify(arc), 201
+
+    @app.route("/api/arc/<arc_id>/append", methods=["POST"])
+    def arc_append(arc_id: str):
+        body = request.get_json(silent=True) or {}
+        scene_md_path = body.get("scene_md_path", "").strip()
+        scene_summary = body.get("scene_summary")
+        if not scene_md_path:
+            return jsonify({"error": "scene_md_path is required"}), 400
+        result = _pa.append_scene(arc_id, scene_md_path, scene_summary)
+        if not result:
+            return jsonify({"error": "append_scene failed (file not found or arc missing)"}), 400
+        return jsonify(result)
+
+    @app.route("/api/arc/<arc_id>/summary", methods=["POST"])
+    def arc_summary(arc_id: str):
+        summary = _pa.regenerate_summary(arc_id)
+        return jsonify({"arc_id": arc_id, "summary": summary})
+
+    @app.route("/api/arc/<arc_id>/threads", methods=["GET"])
+    def arc_threads(arc_id: str):
+        threads = _pa.detect_open_threads(arc_id)
+        return jsonify({"arc_id": arc_id, "threads": threads})
+
+    @app.route("/api/arc/<arc_id>/continue", methods=["POST"])
+    def arc_continue(arc_id: str):
+        body = request.get_json(silent=True) or {}
+        hint = body.get("hint")
+        result = _pa.propose_next_scene(arc_id, hint=hint)
+        if not result:
+            return jsonify({"error": "propose_next_scene failed"}), 503
+        return jsonify(result)
+
+    @app.route("/api/arc/search", methods=["POST"])
+    def arc_search():
+        body = request.get_json(silent=True) or {}
+        query = body.get("query", "").strip()
+        if not query:
+            return jsonify({"error": "query is required"}), 400
+        results = _pa.search_arcs_by_topic(query)
+        return jsonify({"results": results})
+
     return app, FLASK_PORT
 
 
