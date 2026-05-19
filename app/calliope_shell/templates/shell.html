@@ -32,6 +32,25 @@
 
         /* ── Translate panel ── */
         #translate-panel { display:none; flex-direction:column; padding:24px; max-width:700px; margin:0 auto; width:100%; height:calc(100vh - 60px); box-sizing:border-box; }
+
+        /* ── Refine panel ── */
+        #refine-panel { display:none; flex-direction:column; padding:24px; max-width:800px; margin:0 auto; width:100%; height:calc(100vh - 60px); box-sizing:border-box; overflow-y:auto; }
+        #refine-panel h2 { margin:0 0 16px; color:#aac; }
+        .refine-row { display:flex; flex-direction:column; gap:10px; margin-bottom:14px; }
+        .refine-row label { font-size:.85em; color:#889; }
+        textarea.refine-box { background:#111827; color:#eee; border:1px solid #2a3a5a; border-radius:6px; padding:10px; resize:vertical; font-size:.88em; font-family:monospace; min-height:120px; }
+        #refine-feedback { background:#111827; color:#eee; border:1px solid #2a3a5a; border-radius:6px; padding:8px 12px; font-size:.9em; font-family:inherit; width:100%; box-sizing:border-box; }
+        .refine-controls { display:flex; align-items:center; gap:16px; margin:8px 0 14px; }
+        .refine-controls label { font-size:.85em; color:#aab; display:flex; align-items:center; gap:6px; cursor:pointer; }
+        #btn-refine { background:#1e3a6e; color:#fff; border:none; border-radius:6px; padding:10px 24px; cursor:pointer; font-size:.95em; }
+        #btn-refine:hover { background:#2a4f9e; }
+        #btn-refine:disabled { opacity:.5; cursor:not-allowed; }
+        #refine-output-box { background:#0d1117; border:1px solid #334; border-radius:6px; padding:14px; font-size:.88em; font-family:monospace; white-space:pre-wrap; color:#cde; min-height:80px; display:none; }
+        #refine-lint-badge { font-size:.78em; color:#f9a825; margin-top:6px; display:none; }
+        .refine-status { font-size:.82em; margin-top:6px; min-height:1.2em; }
+        .refine-status.loading { color:#88aaff; }
+        .refine-status.done { color:#66dd88; }
+        .refine-status.error { color:#ff6666; }
         #translate-panel h2 { margin:0 0 16px; color:#aac; }
         .translate-row { display:flex; gap:16px; flex:1; }
         .translate-col { display:flex; flex-direction:column; flex:1; gap:8px; }
@@ -54,6 +73,8 @@
         <nav>
             <a id="nav-home" class="active" onclick="showView('main')">Home</a> |
             <a id="nav-translate" onclick="showView('translate')">Translate</a> |
+            <a id="nav-draft" onclick="showView('draft')">✦ Draft</a> |
+            <a id="nav-refine" onclick="showView('refine')">✎ Refine</a> |
             <a href="#">Settings</a>
         </nav>
     </header>
@@ -96,6 +117,76 @@
         <div id="translate-status" class="translate-status"></div>
     </section>
 
+    <!-- ── DRAFT PANEL ── -->
+    <section id="draft-panel" style="display:none; flex-direction:column; padding:24px; max-width:800px; margin:0 auto; width:100%; height:calc(100vh - 60px); box-sizing:border-box; overflow-y:auto;">
+        <h2 style="margin:0 0 16px; color:#aac;">✦ Draft — Variant Generator</h2>
+        <div style="display:flex; gap:12px; margin-bottom:12px; flex-wrap:wrap;">
+            <div style="flex:2; min-width:280px;">
+                <label style="font-size:.85em; color:#889; display:block; margin-bottom:4px;">Prompt (IT/EN)</label>
+                <textarea id="draft-prompt" style="width:100%; background:#111827; color:#eee; border:1px solid #2a3a5a; border-radius:6px; padding:10px; resize:vertical; font-size:.9em; font-family:inherit; min-height:80px; box-sizing:border-box;" placeholder="Aurora draws her sword in the moonlight..."></textarea>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:8px; min-width:160px;">
+                <div>
+                    <label style="font-size:.85em; color:#889; display:block; margin-bottom:4px;">Scene type</label>
+                    <select id="draft-scene-type" style="background:#111827; color:#eee; border:1px solid #2a3a5a; border-radius:6px; padding:6px; width:100%;">
+                        <option value="action_combat">action_combat</option>
+                        <option value="dialogue">dialogue</option>
+                        <option value="exploration">exploration</option>
+                        <option value="lore_exposition">lore_exposition</option>
+                        <option value="intimate_dialogue">intimate_dialogue</option>
+                        <option value="mystery_investigation">mystery_investigation</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="font-size:.85em; color:#889; display:block; margin-bottom:4px;">Varianti N: <span id="draft-n-label">3</span></label>
+                    <input type="range" id="draft-n-variants" min="1" max="5" value="3" oninput="document.getElementById('draft-n-label').textContent=this.value" style="width:100%;">
+                </div>
+                <button id="btn-draft-generate" style="background:#1e3a6e; color:#fff; border:none; border-radius:6px; padding:10px 16px; cursor:pointer; font-size:.95em; margin-top:4px;">✦ Generate Variants</button>
+            </div>
+        </div>
+        <div id="draft-status" style="font-size:.82em; min-height:1.2em; margin-bottom:8px; color:#88aaff;"></div>
+        <div id="draft-variants-container" style="display:none;">
+            <h3 style="color:#8899cc; font-size:.9em; margin:0 0 8px;">Variants — select to blend</h3>
+            <div id="draft-variants-list" style="display:flex; flex-direction:column; gap:10px;"></div>
+            <div style="margin-top:12px; display:flex; align-items:center; gap:12px;">
+                <button id="btn-draft-blend" style="background:#2a4f2a; color:#fff; border:none; border-radius:6px; padding:8px 20px; cursor:pointer; font-size:.9em;" disabled>⊕ Blend selected</button>
+                <span style="font-size:.8em; color:#667;">seleziona 2+ varianti</span>
+            </div>
+        </div>
+        <div id="draft-blend-output" style="display:none; margin-top:16px;">
+            <h3 style="color:#8899cc; font-size:.9em; margin:0 0 8px;">Blended output</h3>
+            <div id="draft-blend-text" style="background:#111827; border:1px solid #2a3a5a; border-radius:6px; padding:12px; font-size:.88em; color:#dde; white-space:pre-wrap; line-height:1.55;"></div>
+        </div>
+    </section>
+
+    <!-- ── REFINE PANEL ── -->
+    <section id="refine-panel">
+        <h2>✎ Refine Scene — iterative feedback</h2>
+        <div class="refine-row">
+            <label for="refine-scene-input">Scena originale (incolla testo o path file):</label>
+            <textarea id="refine-scene-input" class="refine-box" rows="8"
+                placeholder="Incolla qui il testo della scena da rifinire..."></textarea>
+        </div>
+        <div class="refine-row">
+            <label for="refine-feedback">Feedback operator (IT/EN, natural language):</label>
+            <input id="refine-feedback" type="text"
+                placeholder="es. 'accorcia e rendi più tense' | 'rimuovi esuded silent menace'">
+        </div>
+        <div class="refine-controls">
+            <label>
+                <input id="refine-auto-lint" type="checkbox">
+                Auto-lint (strip HIGH clichés automaticamente)
+            </label>
+            <button id="btn-refine">→ Refine</button>
+        </div>
+        <div id="refine-status" class="refine-status"></div>
+        <div id="refine-lint-badge">⚠ Clichés rimossi automaticamente: <span id="refine-lint-list"></span></div>
+        <div class="refine-row" id="refine-output-row" style="display:none">
+            <label>Scena raffinata:</label>
+            <div id="refine-output-box"></div>
+        </div>
+    </section>
+
     <script>
         window.MASCOT_WS_URL = "{{ MASCOT_WS_URL }}";
 
@@ -103,16 +194,147 @@
         function showView(view) {
             const mainView = document.getElementById('main-view');
             const translatePanel = document.getElementById('translate-panel');
+            const draftPanel = document.getElementById('draft-panel');
+            const refinePanel = document.getElementById('refine-panel');
             document.getElementById('nav-home').classList.toggle('active', view === 'main');
             document.getElementById('nav-translate').classList.toggle('active', view === 'translate');
-            if (view === 'translate') {
-                mainView.style.display = 'none';
-                translatePanel.style.display = 'flex';
-            } else {
-                mainView.style.display = 'flex';
-                translatePanel.style.display = 'none';
-            }
+            document.getElementById('nav-draft').classList.toggle('active', view === 'draft');
+            document.getElementById('nav-refine').classList.toggle('active', view === 'refine');
+            mainView.style.display = view === 'main' ? 'flex' : 'none';
+            translatePanel.style.display = view === 'translate' ? 'flex' : 'none';
+            draftPanel.style.display = view === 'draft' ? 'flex' : 'none';
+            refinePanel.style.display = view === 'refine' ? 'flex' : 'none';
         }
+
+        // ── Draft / Variant handler ──
+        (function() {
+            let _variantsFilePath = null;
+
+            document.addEventListener('DOMContentLoaded', function() {
+                document.getElementById('btn-draft-generate').addEventListener('click', async function() {
+                    const prompt = document.getElementById('draft-prompt').value.trim();
+                    const sceneType = document.getElementById('draft-scene-type').value;
+                    const n = parseInt(document.getElementById('draft-n-variants').value, 10);
+                    const status = document.getElementById('draft-status');
+                    const btn = document.getElementById('btn-draft-generate');
+                    if (!prompt) { status.textContent = 'Inserisci un prompt.'; return; }
+                    btn.disabled = true;
+                    status.textContent = `Generando ${n} varianti... (sequenziale, ~${n*8}s)`;
+                    document.getElementById('draft-variants-container').style.display = 'none';
+                    document.getElementById('draft-blend-output').style.display = 'none';
+                    try {
+                        const resp = await fetch('/api/scene/variants', {
+                            method: 'POST',
+                            headers: {'Content-Type': 'application/json'},
+                            body: JSON.stringify({prompt, scene_type: sceneType, n_variants: n}),
+                        });
+                        const data = await resp.json();
+                        if (!resp.ok) { status.textContent = '✗ ' + (data.error || 'errore server'); return; }
+                        _variantsFilePath = data.variants_file_path;
+                        _renderVariants(data.variants);
+                        status.textContent = `✓ ${data.n} varianti generate`;
+                        document.getElementById('draft-variants-container').style.display = 'block';
+                    } catch(e) {
+                        status.textContent = '✗ ' + e.message;
+                    } finally { btn.disabled = false; }
+                });
+
+                document.getElementById('btn-draft-blend').addEventListener('click', async function() {
+                    const checked = [...document.querySelectorAll('.draft-variant-check:checked')];
+                    if (checked.length < 2) { return; }
+                    const indices = checked.map(c => parseInt(c.dataset.idx, 10));
+                    const status = document.getElementById('draft-status');
+                    const btn = document.getElementById('btn-draft-blend');
+                    btn.disabled = true;
+                    status.textContent = 'Blending varianti ' + indices.join('+') + '...';
+                    try {
+                        const resp = await fetch('/api/scene/blend', {
+                            method: 'POST',
+                            headers: {'Content-Type': 'application/json'},
+                            body: JSON.stringify({variants_file_path: _variantsFilePath, blend_indices: indices}),
+                        });
+                        const data = await resp.json();
+                        if (!resp.ok) { status.textContent = '✗ ' + (data.error || 'errore'); return; }
+                        document.getElementById('draft-blend-text').textContent = data.blended_text;
+                        document.getElementById('draft-blend-output').style.display = 'block';
+                        status.textContent = `✓ Blended (${data.latency_ms}ms)`;
+                    } catch(e) {
+                        status.textContent = '✗ ' + e.message;
+                    } finally { btn.disabled = false; }
+                });
+            });
+
+            function _renderVariants(variants) {
+                const list = document.getElementById('draft-variants-list');
+                list.innerHTML = '';
+                variants.forEach((v, i) => {
+                    const card = document.createElement('div');
+                    card.style.cssText = 'background:#111827; border:1px solid #2a3a5a; border-radius:6px; padding:10px;';
+                    card.innerHTML = `
+                        <label style="display:flex; align-items:center; gap:8px; margin-bottom:6px; cursor:pointer; font-size:.85em; color:#88aacc;">
+                            <input type="checkbox" class="draft-variant-check" data-idx="${i+1}"
+                                onchange="_updateBlendBtn()">
+                            <strong>[V${i+1}]</strong> style=<em>${v.style}</em>
+                            <span style="color:#555; font-size:.8em; margin-left:auto;">${v.latency_ms}ms</span>
+                        </label>
+                        <div style="font-size:.85em; color:#ccd; white-space:pre-wrap; line-height:1.5; max-height:120px; overflow:hidden;">${v.text.substring(0,350)}${v.text.length>350?'…':''}</div>`;
+                    list.appendChild(card);
+                });
+            }
+
+            window._updateBlendBtn = function() {
+                const checked = document.querySelectorAll('.draft-variant-check:checked').length;
+                document.getElementById('btn-draft-blend').disabled = checked < 2;
+            };
+        })();
+
+        // ── Refine handler ──
+        document.addEventListener('DOMContentLoaded', function () {
+            document.getElementById('btn-refine').addEventListener('click', async function () {
+                const sceneText = document.getElementById('refine-scene-input').value.trim();
+                const feedback = document.getElementById('refine-feedback').value.trim();
+                const autoLint = document.getElementById('refine-auto-lint').checked;
+                const status = document.getElementById('refine-status');
+                const outputBox = document.getElementById('refine-output-box');
+                const outputRow = document.getElementById('refine-output-row');
+                const lintBadge = document.getElementById('refine-lint-badge');
+                const btn = document.getElementById('btn-refine');
+
+                if (!sceneText) { status.textContent = '⚠ Incolla il testo della scena.'; status.className = 'refine-status error'; return; }
+                if (!feedback) { status.textContent = '⚠ Inserisci il feedback.'; status.className = 'refine-status error'; return; }
+
+                btn.disabled = true;
+                status.textContent = 'Raffinamento in corso...';
+                status.className = 'refine-status loading';
+                outputRow.style.display = 'none';
+                lintBadge.style.display = 'none';
+
+                try {
+                    const resp = await fetch('/api/scene/refine', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ scene_text: sceneText, feedback, auto_lint: autoLint }),
+                    });
+                    const data = await resp.json();
+                    if (!resp.ok) { throw new Error(data.error || resp.statusText); }
+
+                    outputBox.textContent = data.refined_text || '(vuoto)';
+                    outputRow.style.display = 'flex';
+                    status.textContent = '✓ Raffinamento completato.';
+                    status.className = 'refine-status done';
+
+                    if (data.lint_findings && data.lint_findings.length > 0) {
+                        document.getElementById('refine-lint-list').textContent = data.lint_findings.join(', ');
+                        lintBadge.style.display = 'block';
+                    }
+                } catch (err) {
+                    status.textContent = '✗ Errore: ' + err.message;
+                    status.className = 'refine-status error';
+                } finally {
+                    btn.disabled = false;
+                }
+            });
+        });
 
         // ── Char list ──
         async function loadCharList() {

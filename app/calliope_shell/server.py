@@ -243,6 +243,187 @@ def create_app():
         result = char_memory_list_facts(name, scope=scope)
         return jsonify(result)
 
+    # ── Scene variant routes ──────────────────────────────────────────────────
+
+    @app.route("/api/scene/refine", methods=["POST"])
+    def scene_refine():
+        import difflib  # noqa: PLC0415
+
+        body = request.get_json(silent=True) or {}
+        scene_text: str = body.get("scene_text") or ""
+        scene_file_path: str = body.get("scene_file_path") or ""
+        feedback: str = body.get("feedback", "").strip()
+        auto_lint: bool = bool(body.get("auto_lint", False))
+
+        if not scene_text and scene_file_path:
+            try:
+                scene_text = Path(scene_file_path).read_text(encoding="utf-8")
+            except Exception as exc:
+                return jsonify({"error": f"Cannot read file: {exc}"}), 400
+
+        if not scene_text:
+            return jsonify({"error": "scene_text or scene_file_path is required"}), 400
+        if not feedback:
+            return jsonify({"error": "feedback is required"}), 400
+
+        feedback = feedback[:2000]
+        refine_prompt = (
+            f"Original scene:\n{scene_text}\n\n"
+            f"Operator feedback: {feedback}\n\n"
+            "Rewrite the scene applying the feedback. Preserve key narrative beats. "
+            "Be concise and direct."
+        )
+
+        try:
+            resp = requests.post(
+                f"{GATEWAY_URL}/llm_ask",
+                json={"provider": "groq", "model": "llama-3.3-70b-versatile", "prompt": refine_prompt},
+                timeout=45,
+            )
+            resp.raise_for_status()
+            data = resp.json()
+            refined_text: str = data.get("content") or data.get("result") or ""
+        except Exception as exc:
+            logger.warning("scene_refine gateway call failed: %s", exc)
+            return jsonify({"error": "LLM gateway unavailable", "detail": str(exc)}), 503
+
+        lint_findings: list = []
+        if auto_lint:
+            try:
+                import sys as _sys  # noqa: PLC0415
+                _sys.path.insert(0, str(Path(__file__).parents[2] / "scripts"))
+                from style_filter import filter_response as _fr  # noqa: PLC0415
+                refined_text, _hits = _fr(refined_text, severity_threshold="HIGH")
+                lint_findings = [h["pattern"] for h in _hits if h.get("action") == "stripped"]
+            except Exception as exc:
+                logger.warning("auto-lint in refine route failed (non-fatal): %s", exc)
+
+        # Simple line-diff for UI delta view
+        orig_lines = scene_text.splitlines(keepends=True)
+        ref_lines = refined_text.splitlines(keepends=True)
+        diff_html = "".join(difflib.unified_diff(orig_lines, ref_lines, lineterm=""))
+
+        return jsonify({
+            "refined_text": refined_text,
+            "diff": diff_html,
+            "lint_findings": lint_findings,
+            "auto_lint_applied": auto_lint,
+        })
+
+    @app.route("/api/scene/variants", methods=["POST"])
+    def scene_variants():
+        import sys as _sys  # noqa: PLC0415
+        _sys.path.insert(0, str(Path(__file__).parents[2] / "scripts"))
+        from generate_scene import generate_variants, DEFAULT_STYLE_HINTS  # noqa: PLC0415,F401
+        from route_scene import DEFAULT_CONFIG, load_config, route_scene  # noqa: PLC0415,F401
+
+        body = request.get_json(silent=True) or {}
+        prompt = body.get("prompt", "").strip()
+        scene_type = body.get("scene_type", "action_combat")
+        n_variants = min(int(body.get("n_variants", 3)), 5)
+        style_hints = body.get("style_hints") or None
+
+        if not prompt:
+            return jsonify({"error": "prompt is required"}), 400
+
+        try:
+            config = load_config("data/llm_routing_config.yaml")
+        except Exception:
+            config = DEFAULT_CONFIG
+
+        try:
+            from route_scene import route_scene as _rs  # noqa: PLC0415
+            nsfw_score = {"nudity_explicit": 0, "violence_gore": 0, "non_consent": 0, "minors_adjacent": 0}
+            decision = _rs(scene_type, nsfw_score, "low", config)
+            tier_name = decision["tier"]
+            provider = decision["provider"]
+        except Exception as exc:
+            logger.warning("route_scene failed: %s — using default", exc)
+            tier_name = "cerebras_workhorse"
+            provider = "cerebras"
+
+        try:
+            variants = generate_variants(
+                prompt=prompt,
+                scene_type=scene_type,
+                n_variants=n_variants,
+                style_hints=style_hints,
+                config=config,
+                gateway_url=GATEWAY_URL,
+                ollama_url="http://localhost:11434",
+                tier_name=tier_name,
+            )
+        except Exception as exc:
+            logger.warning("generate_variants failed: %s", exc)
+            return jsonify({"error": str(exc)}), 503
+
+        # Write variants file to tmp
+        import tempfile  # noqa: PLC0415
+        from generate_scene import _write_variants_file  # noqa: PLC0415
+        from datetime import datetime as _dt  # noqa: PLC0415
+        tmp_path = Path(tempfile.mktemp(suffix=".variants.md", prefix="calliope_"))
+        _write_variants_file(
+            tmp_path, variants, scene_type, tier_name, provider,
+            _dt.now().isoformat(timespec="seconds"),
+        )
+
+        return jsonify({
+            "variants": [
+                {"index": i + 1, "style": v["style"], "text": v["text"], "latency_ms": v["latency_ms"]}
+                for i, v in enumerate(variants)
+            ],
+            "variants_file_path": str(tmp_path),
+            "n": len(variants),
+        })
+
+    @app.route("/api/scene/blend", methods=["POST"])
+    def scene_blend():
+        import sys as _sys  # noqa: PLC0415
+        _sys.path.insert(0, str(Path(__file__).parents[2] / "scripts"))
+        from blend_scene import parse_variants_file, blend_variants, parse_blend_spec  # noqa: PLC0415
+        import tempfile  # noqa: PLC0415
+
+        body = request.get_json(silent=True) or {}
+        variants_file_path = body.get("variants_file_path", "").strip()
+        blend_indices = body.get("blend_indices", [1, 2])
+        hint = body.get("hint") or None
+
+        if not variants_file_path:
+            return jsonify({"error": "variants_file_path is required"}), 400
+
+        vpath = Path(variants_file_path)
+        if not vpath.exists():
+            return jsonify({"error": f"variants file not found: {variants_file_path}"}), 404
+
+        try:
+            content = vpath.read_text(encoding="utf-8")
+            variants = parse_variants_file(content)
+            if not variants:
+                return jsonify({"error": "no variants parsed from file"}), 400
+
+            if isinstance(blend_indices, str):
+                indices = parse_blend_spec(blend_indices)
+            else:
+                indices = [int(i) for i in blend_indices]
+
+            blended, latency_ms = blend_variants(
+                variants, indices, hint=hint, gateway_url=GATEWAY_URL,
+            )
+        except Exception as exc:
+            logger.warning("scene_blend failed: %s", exc)
+            return jsonify({"error": str(exc)}), 503
+
+        out_path = Path(tempfile.mktemp(suffix=".blend.md", prefix="calliope_"))
+        from blend_scene import write_blended_output  # noqa: PLC0415
+        write_blended_output(out_path, blended, indices, hint, latency_ms, vpath)
+
+        return jsonify({
+            "blended_text": blended,
+            "output_path": str(out_path),
+            "latency_ms": latency_ms,
+            "blend_indices": indices,
+        })
+
     return app, FLASK_PORT
 
 
