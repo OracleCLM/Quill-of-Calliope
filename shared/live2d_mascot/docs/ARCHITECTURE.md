@@ -20,7 +20,7 @@ Any RP/VTuber project needs the same WebSocket broadcast, state machine, and emo
 - TTS amplitude-driven lip-sync
 
 **Repo-specific** = personality + pipeline:
-- Character identity (Aurora/Minerva/custom .moc3 model)
+- Character identity (Calliope/Minerva/custom .moc3 model)
 - Scene narrative pipeline (Calliope-only)
 - LLM tier routing (Calliope storytelling-specific)
 - Discord/Twitch integration (Calliope M4)
@@ -141,7 +141,7 @@ _ws_core.app.title = "vesta-mascot-ws"
 | State machine | ✅ | uses as-is | uses as-is |
 | Emotion slots | ✅ | uses as-is | uses as-is |
 | Phoneme sync | ✅ | uses as-is | uses as-is |
-| Mascot model (.moc3) | ❌ | Hiyori/Aurora | Minerva/custom |
+| Mascot model (.moc3) | ❌ | calliope.moc3 | Minerva/custom |
 | App init (app.js) | ❌ | Calliope-specific | Vesta-specific |
 | Scene pipeline | ❌ | route_scene.py | N/A |
 | Character roster | ❌ | Yokai chars | Vesta persona |

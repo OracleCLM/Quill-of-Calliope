@@ -1,9 +1,9 @@
-// mascot.js — Aurora Live2D sidebar renderer + WebSocket emotion sync
+// mascot.js — Calliope Live2D sidebar renderer + WebSocket emotion sync
 (function () {
     'use strict';
 
     const CANVAS_ID = 'mascot';
-    const MODEL_PATH = '/static/models/aurora/aurora.model3.json';
+    const MODEL_PATH = '/static/models/calliope/calliope.model3.json';
     const EMOTION_MAP_URL = '/api/mascot/emotion_map';
     const DEFAULT_WS_URL = 'ws://localhost:9876/mascot';
     const RETRY_DELAY = 3000;
@@ -104,7 +104,7 @@
         g.endFill();
         app.stage.addChild(g);
 
-        const label = new PIXI.Text('Aurora', {
+        const label = new PIXI.Text('Calliope', {
             fontFamily: 'serif',
             fontSize: 18,
             fill: 0xffffff,

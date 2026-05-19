@@ -34,9 +34,9 @@ def test_ws_server_broadcasts_emotion(ws_client):
 # ── test 2: emotion_map YAML loads and is non-empty ──────────────────────────
 
 def test_emotion_map_loads():
-    """aurora_emotion_map.yaml parses correctly and has required keys."""
-    map_path = Path(__file__).parents[2] / "data" / "aurora_emotion_map.yaml"
-    assert map_path.exists(), f"aurora_emotion_map.yaml not found at {map_path}"
+    """calliope_emotion_map.yaml parses correctly and has required keys."""
+    map_path = Path(__file__).parents[2] / "data" / "calliope_emotion_map.yaml"
+    assert map_path.exists(), f"calliope_emotion_map.yaml not found at {map_path}"
     data = yaml.safe_load(map_path.read_text(encoding="utf-8"))
     assert isinstance(data, dict), "YAML must parse to dict"
     assert "expressions" in data, "Missing 'expressions' key"

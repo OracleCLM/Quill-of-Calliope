@@ -1,4 +1,4 @@
-# Aurora Live2D emotion → expression/motion mapping
+# Calliope mascot Live2D emotion → expression/motion mapping
 # Used by mascot.js (fetch /api/mascot/emotion_map) and generate_scene.py inference
 
 expressions:

@@ -1,8 +1,8 @@
 {
   "Version": 3,
   "FileReferences": {
-    "Moc": "aurora.moc3",
-    "Textures": ["textures/aurora.png"],
+    "Moc": "calliope.moc3",
+    "Textures": ["textures/calliope.png"],
     "Physics": "",
     "Pose": "",
     "DisplayInfo": "",
@@ -28,5 +28,5 @@
     {"Id": "HitAreaHead", "Name": "Head"},
     {"Id": "HitAreaBody", "Name": "Body"}
   ],
-  "_comment": "TODO: Aurora rigging WIP — Cubism sample placeholder. Replace aurora.moc3 + textures/ with real Cubism assets in Sprint 5."
+  "_comment": "TODO: Calliope mascot rigging WIP — placeholder. Replace calliope.moc3 + textures/ with real Cubism assets in Sprint 5."
 }

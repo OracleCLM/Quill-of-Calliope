@@ -8,6 +8,12 @@ import yaml
 from flask import Flask, jsonify, request, render_template
 
 from app.calliope_shell.char_memory import get_char, list_chars, upsert_char
+from app.calliope_shell.char_memory_tools import (
+    char_memory_append,
+    char_memory_replace,
+    char_memory_recall,
+    char_memory_list_facts,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -22,11 +28,11 @@ def _chroma_client():
 
 
 def _load_emotion_map() -> dict:
-    map_path = Path(__file__).parents[2] / "data" / "aurora_emotion_map.yaml"
+    map_path = Path(__file__).parents[2] / "data" / "calliope_emotion_map.yaml"
     try:
         return yaml.safe_load(map_path.read_text(encoding="utf-8")) or {}
     except Exception as exc:
-        logger.warning("aurora_emotion_map.yaml load failed: %s", exc)
+        logger.warning("calliope_emotion_map.yaml load failed: %s", exc)
         return {}
 
 
@@ -189,6 +195,53 @@ def create_app():
         if char:
             results["char_state"] = char
         return jsonify(results)
+
+    # ── Char memory tools routes ──────────────────────────────────────────────
+
+    @app.route("/api/char/memory_append", methods=["POST"])
+    def char_action_append():
+        body = request.get_json(silent=True) or {}
+        char = body.get("char", "").strip()
+        fact = body.get("fact", "").strip()
+        scope = body.get("scope", "L1")
+        if not char or not fact:
+            return jsonify({"error": "char and fact are required"}), 400
+        result = char_memory_append(char, fact, scope=scope)
+        status = 200 if result.get("success") else 400
+        return jsonify(result), status
+
+    @app.route("/api/char/memory_replace", methods=["POST"])
+    def char_action_replace():
+        body = request.get_json(silent=True) or {}
+        char = body.get("char", "").strip()
+        old_fact = body.get("old_fact", "").strip()
+        new_fact = body.get("new_fact", "").strip()
+        scope = body.get("scope", "L1")
+        approved = bool(body.get("approved", False))
+        if not char or not old_fact or not new_fact:
+            return jsonify({"error": "char, old_fact, new_fact are required"}), 400
+        result = char_memory_replace(char, old_fact, new_fact, scope=scope, approved=approved)
+        if result.get("requires_approval"):
+            return jsonify(result), 202
+        status = 200 if result.get("success") else 400
+        return jsonify(result), status
+
+    @app.route("/api/char/recall", methods=["POST"])
+    def char_action_recall():
+        body = request.get_json(silent=True) or {}
+        char = body.get("char", "").strip()
+        query = body.get("query", "").strip()
+        top_k = int(body.get("top_k", 5))
+        if not char or not query:
+            return jsonify({"error": "char and query are required"}), 400
+        result = char_memory_recall(char, query, top_k=top_k)
+        return jsonify(result)
+
+    @app.route("/api/char/<name>/facts", methods=["GET"])
+    def char_facts_list(name: str):
+        scope = request.args.get("scope")
+        result = char_memory_list_facts(name, scope=scope)
+        return jsonify(result)
 
     return app, FLASK_PORT
 

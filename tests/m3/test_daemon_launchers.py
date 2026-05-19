@@ -85,8 +85,9 @@ class TestStopAll:
 
     def test_stop_all_references_both(self):
         content = (SCRIPTS / "stop_all_calliope_daemons.sh").read_text()
-        assert "start_mascot_ws.sh" in content
-        assert "GW_PID" in content or "llm_gateway" in content
+        # G06 sprint-4: stop script uses pkill-based approach (no start_mascot_ws.sh wrapper)
+        assert "mascot_ws" in content or "mascot" in content
+        assert "llm_gateway" in content
 
 
 class TestSystemdDoc:
