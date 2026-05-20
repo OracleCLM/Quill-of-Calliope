@@ -257,12 +257,14 @@ def retrieve_multi_signal(
     char_name: str,
     query: str,
     top_k: int = 5,
-    w_bm25: float = 0.5,
-    w_entity: float = 0.5,
+    w_bm25: float = 0.6,
+    w_entity: float = 0.4,
 ) -> list[dict]:
     """Fuse BM25 (FTS5) + entity overlap signals; return top_k ranked facts.
 
-    Cosine is a stub (NotImplementedError redistributed to BM25+entity).
+    Weights match Vesta effective defaults (cosine stub redistributes 0.40+0.40
+    cosine → 0.60 BM25 / 0.40 entity when cosine unavailable).
+    Cosine is a stub (weight redistributed to BM25+entity per Vesta pattern).
     Ported from Vesta vesta_minerva_substrate/memory_tree/manager.py::retrieve_multi_signal.
     """
     limit = top_k * 3
@@ -344,15 +346,28 @@ def retrieve_multi_signal(
     return fused[:top_k]
 
 
+_FTS_PREFIX_LEN = 5  # chars for morphological prefix matching (IT stem ~5)
+
+
 def _fts_escape(query: str) -> str:
-    """Build FTS5 MATCH query — OR between tokens for recall-first retrieval."""
+    """Build FTS5 MATCH query — OR between tokens + prefix variants.
+
+    Strategy: exact-token OR prefix-truncated* for tokens ≥8 chars.
+    Prefix matching catches Italian morphological variants (addestra/addestrare,
+    combatte/combattimento). Ported parity with Vesta _sanitize_fts5 approach.
+    """
     tokens = [t.replace('"', '').replace("'", "").strip()
               for t in query.strip().split() if len(t.strip()) >= 2]
     if not tokens:
         return '""'
-    # OR query: any matching token boosts document score (recall-first memory retrieval)
-    # Prefer exact-token match; FTS5 unicode61 tokeniser splits on whitespace/punct
-    return " OR ".join(f'"{t}"' for t in tokens)
+    parts = []
+    for t in tokens:
+        parts.append(f'"{t}"')
+        # Add prefix variant for long tokens (catches morphological forms)
+        if len(t) >= 8:
+            prefix = t[:_FTS_PREFIX_LEN]
+            parts.append(f'"{prefix}"*')
+    return " OR ".join(parts)
 
 
 init_db()

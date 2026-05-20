@@ -125,9 +125,13 @@ def test_tcm7_l0_blocked_in_replace():
 # ── TCM8: 30-query precision@10 benchmark ≥70% ──────────────────────────────
 
 def test_tcm8_precision_at_10_benchmark():
-    """Insert labeled facts, run 30 queries, verify ≥70% precision@10."""
+    """50-query precision@10 benchmark — Vesta parity target ≥80%.
+
+    Expanded from 30q (70% threshold) to 50q (80% threshold) per
+    R-CALLIOPE-RECIPROCAL-VALIDATION-VESTA sprint.
+    Tuning: FTS5 prefix matching + w_bm25=0.60/w_entity=0.40 (Vesta defaults).
+    """
     CHAR = "TestHero"
-    # Seed facts
     labeled_facts = [
         ("combatte con la spada nella foresta oscura", ["foresta", "spada", "combatte"]),
         ("incontra un elfo misterioso al mercato", ["elfo", "mercato"]),
@@ -143,8 +147,9 @@ def test_tcm8_precision_at_10_benchmark():
     for fact_text, _kw in labeled_facts:
         cm.append_fact(CHAR, fact_text, scope="L1")
 
-    # 30 queries: 3 per fact → expect at least 1 relevant in top results
+    # 50 queries: original 30 + 20 expansion (Vesta parity set)
     queries = [
+        # ── Original 30 ─────────────────────────────────────────────────────
         ("foresta spada combatte", "combatte con la spada"),
         ("elfo mercato", "elfo misterioso"),
         ("stelle notte", "stelle nella notte"),
@@ -175,6 +180,27 @@ def test_tcm8_precision_at_10_benchmark():
         ("mistero oscuro", "cantina buia"),
         ("bestia selvaggia", "lupo grigio"),
         ("medicazione ferita", "ferita alla spalla"),
+        # ── Expansion 20 (Vesta parity, deterministic seed) ──────────────────
+        ("spada nella foresta buia", "combatte con la spada"),
+        ("elfo al mercato cittadino", "elfo misterioso"),
+        ("notte stellata silenziosa", "stelle nella notte"),
+        ("drago nemico del villaggio", "drago rosso"),
+        ("libro raro trovato in biblioteca", "libro antico"),
+        ("il re ordina nel castello", "re nel castello"),
+        ("ponte di pietra vecchio", "ponte di pietra"),
+        ("segreto nascosto in cantina", "cantina buia"),
+        ("lupo addestrato in pianura", "lupo grigio"),
+        ("ferita curata sulla spalla", "ferita alla spalla"),
+        ("combatte con la lancia in foresta", "combatte con la spada"),
+        ("elfo incontrato misteriosamente", "elfo misterioso"),
+        ("stelle e luna nella notte", "stelle nella notte"),
+        ("drago sconfitto e villaggio salvo", "drago rosso"),
+        ("libro di saggezza in biblioteca", "libro antico"),
+        ("re potente nel castello", "re nel castello"),
+        ("attraversare il ponte rotto", "ponte di pietra"),
+        ("cantina con segreto oscuro", "cantina buia"),
+        ("addestramento del lupo in pianura", "lupo grigio"),
+        ("cura della ferita alla spalla", "ferita alla spalla"),
     ]
 
     hits = 0
@@ -186,7 +212,7 @@ def test_tcm8_precision_at_10_benchmark():
             hits += 1
 
     precision = hits / total
-    assert precision >= 0.70, (
-        f"precision@10={precision:.2%} < 70% threshold "
+    assert precision >= 0.80, (
+        f"precision@10={precision:.2%} < 80% threshold "
         f"({hits}/{total} queries returned expected fact)"
     )
