@@ -49,7 +49,14 @@ def create_app():
 
     @app.route("/")
     def index():
-        return render_template("shell.html", ST_URL=ST_URL, MASCOT_WS_URL=MASCOT_WS_URL)
+        # Gap D: detect ST liveness for empty-state fallback
+        st_alive = False
+        try:
+            r = requests.head(ST_URL, timeout=1)
+            st_alive = r.status_code < 500
+        except Exception:
+            st_alive = False
+        return render_template("shell.html", ST_URL=ST_URL, MASCOT_WS_URL=MASCOT_WS_URL, st_alive=st_alive)
 
     @app.route("/health")
     def health():
@@ -491,6 +498,176 @@ def create_app():
             return jsonify({"error": "query is required"}), 400
         results = _pa.search_arcs_by_topic(query)
         return jsonify({"results": results})
+
+    # ── WAVE-5 Operator Workflow Routes ───────────────────────────────────────
+
+    _SCENES_DIR = Path(__file__).parents[2] / "scenes"
+
+    def _parse_scene_yaml(path: Path) -> dict:
+        """Parse scene YAML, return flat dict with key fields."""
+        try:
+            raw = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+            if not isinstance(raw, dict):
+                return {}
+            return {
+                "scene_id": raw.get("scene_id", path.stem),
+                "title": raw.get("title", ""),
+                "status": raw.get("status", "draft"),
+                "summary": (raw.get("summary") or "")[:200],
+                "participants": raw.get("participants", []),
+                "date_started": raw.get("date_started", ""),
+                "last_active": raw.get("last_active", ""),
+                "message_count": raw.get("message_count", 0),
+                "first_msg_excerpt": (raw.get("first_msg_excerpt") or "")[:120].strip(),
+                "last_msg_excerpt": (raw.get("last_msg_excerpt") or "")[:120].strip(),
+                "operator_notes": raw.get("operator_notes"),
+            }
+        except Exception as exc:
+            logger.warning("parse_scene_yaml %s: %s", path.name, exc)
+            return {}
+
+    @app.route("/api/scenes", methods=["GET"])
+    def scenes_list():
+        """List scene drafts with optional text filter. Gap B."""
+        filt = request.args.get("filter", "").lower().strip()
+        limit = min(int(request.args.get("limit", 50)), 200)
+        scenes = []
+        paths = sorted(_SCENES_DIR.glob("*.draft.yaml"), reverse=True)
+        for p in paths:
+            if len(scenes) >= limit:
+                break
+            d = _parse_scene_yaml(p)
+            if not d:
+                continue
+            if filt:
+                searchable = " ".join([
+                    d.get("title", ""), d.get("summary", ""),
+                    " ".join(d.get("participants", [])),
+                ]).lower()
+                if filt not in searchable:
+                    continue
+            scenes.append(d)
+        return jsonify({"scenes": scenes, "total": len(scenes), "filter": filt})
+
+    @app.route("/api/scenes/<scene_id>", methods=["GET"])
+    def scene_detail(scene_id: str):
+        """Return full scene YAML for a specific scene_id. Gap B."""
+        # Try exact stem match
+        for p in _SCENES_DIR.glob("*.yaml"):
+            if p.stem.startswith(scene_id) or scene_id in p.stem:
+                d = _parse_scene_yaml(p)
+                if d:
+                    return jsonify(d)
+        return jsonify({"error": "scene not found"}), 404
+
+    @app.route("/api/messages/recent", methods=["GET"])
+    def messages_recent():
+        """Query ChromaDB calliope_messages for recent messages. Gap A."""
+        limit = min(int(request.args.get("limit", 20)), 100)
+        char = request.args.get("char", "").strip()
+        try:
+            client = _chroma_client()
+            col = client.get_collection("calliope_messages")
+            # Use .get() (no embedding needed) — avoids dimension mismatch
+            # Filter by author_id if char specified
+            where_filter = {"author_id": char} if char else None
+            kwargs: dict = {"limit": limit, "include": ["documents", "metadatas"]}
+            if where_filter:
+                kwargs["where"] = where_filter
+            results = col.get(**kwargs)
+            docs = results.get("documents") or []
+            metas = results.get("metadatas") or []
+            messages = [
+                {
+                    "text": (doc or "")[:300],
+                    "meta": meta or {},
+                    "distance": 0,
+                }
+                for doc, meta in zip(docs, metas)
+            ]
+            # Sort by timestamp descending if available
+            messages.sort(key=lambda m: m["meta"].get("timestamp", ""), reverse=True)
+            return jsonify({"messages": messages[:limit], "count": len(messages), "char_filter": char})
+        except Exception as exc:
+            logger.warning("messages_recent failed: %s", exc)
+            return jsonify({"messages": [], "count": 0, "error": str(exc)})
+
+    @app.route("/api/messages/next", methods=["POST"])
+    def messages_next():
+        """Generate next RP message given scene + char context. Gap C."""
+        body = request.get_json(silent=True) or {}
+        scene_id = body.get("scene_id", "").strip()
+        char = body.get("char", "").strip()
+        last_msg = body.get("last_msg", "").strip()
+        context_hint = body.get("context_hint", "").strip()
+
+        if not char:
+            return jsonify({"error": "char is required"}), 400
+
+        # Build context from char_memory
+        from app.calliope_shell.char_memory import retrieve_multi_signal  # noqa: PLC0415
+        char_facts = []
+        if char and last_msg:
+            try:
+                hits = retrieve_multi_signal(char, last_msg, top_k=3)
+                char_facts = [h["fact_text"] for h in hits[:3]]
+            except Exception:
+                pass
+
+        # Build scene context
+        scene_ctx = ""
+        if scene_id:
+            for p in _SCENES_DIR.glob("*.yaml"):
+                if scene_id in p.stem:
+                    d = _parse_scene_yaml(p)
+                    if d:
+                        scene_ctx = f"Scene: {d.get('title', scene_id)}\nSummary: {d.get('summary', '')}\nParticipants: {', '.join(d.get('participants', []))}"
+                    break
+
+        # Compose prompt
+        prompt_parts = [
+            f"You are {char}, a character in a fantasy RP.",
+        ]
+        if scene_ctx:
+            prompt_parts.append(f"\n{scene_ctx}")
+        if char_facts:
+            prompt_parts.append(f"\nKnown facts about {char}: {'; '.join(char_facts)}")
+        if last_msg:
+            prompt_parts.append(f"\nLast message in scene:\n{last_msg}")
+        if context_hint:
+            prompt_parts.append(f"\nDirection hint: {context_hint}")
+        prompt_parts.append(f"\nWrite {char}'s next message (2-4 sentences, in character, in English).")
+        full_prompt = "\n".join(prompt_parts)
+
+        try:
+            resp = requests.post(
+                f"{GATEWAY_URL}/llm_ask",
+                json={
+                    "provider": "groq",
+                    "model": "llama-3.3-70b-versatile",
+                    "prompt": full_prompt,
+                    "temperature": 0.8,
+                },
+                timeout=30,
+            )
+            resp.raise_for_status()
+            data = resp.json()
+            next_msg = data.get("result") or data.get("text") or data.get("content", "")
+            return jsonify({
+                "next_msg": next_msg,
+                "char": char,
+                "scene_id": scene_id,
+                "context_used": {
+                    "char_facts": len(char_facts),
+                    "scene_context": bool(scene_ctx),
+                    "last_msg": bool(last_msg),
+                },
+            })
+        except requests.exceptions.ConnectionError:
+            return jsonify({"error": "LLM gateway not available", "code": "gateway_down"}), 503
+        except Exception as exc:
+            logger.warning("messages_next failed: %s", exc)
+            return jsonify({"error": str(exc)}), 503
 
     return app, FLASK_PORT
 

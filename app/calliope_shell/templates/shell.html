@@ -11,6 +11,51 @@
         nav a { color:#aac; margin-left:16px; text-decoration:none; cursor:pointer; font-size:.95em; }
         nav a:hover, nav a.active { color:#fff; text-decoration:underline; }
 
+        /* ── Welcome panel (ST fallback) ── */
+        #welcome-panel { display:none; flex-direction:column; align-items:center; justify-content:center; height:100%; padding:40px; gap:20px; }
+        .welcome-cards { display:flex; gap:20px; flex-wrap:wrap; justify-content:center; }
+        .welcome-card { background:#111827; border:1px solid #2a3a5a; border-radius:10px; padding:20px 28px; cursor:pointer; min-width:180px; text-align:center; transition:background .15s; }
+        .welcome-card:hover { background:#1e2f5a; }
+        .welcome-card .wc-icon { font-size:2em; margin-bottom:8px; }
+        .welcome-card .wc-title { font-size:1em; color:#aac; font-weight:bold; }
+        .welcome-card .wc-desc { font-size:.8em; color:#667; margin-top:4px; }
+
+        /* ── Scenes panel ── */
+        #scenes-panel { display:none; flex-direction:row; height:calc(100vh - 60px); overflow:hidden; }
+        #scenes-list-col { width:320px; background:#111827; border-right:1px solid #223; display:flex; flex-direction:column; flex-shrink:0; }
+        #scenes-filter-bar { padding:10px 12px; border-bottom:1px solid #223; }
+        #scene-filter { width:100%; background:#0d1117; color:#eee; border:1px solid #2a3a5a; border-radius:6px; padding:7px 10px; font-size:.88em; box-sizing:border-box; }
+        #scenes-list { list-style:none; margin:0; padding:0; overflow-y:auto; flex:1; }
+        #scenes-list li { padding:10px 12px; border-bottom:1px solid #1a2440; cursor:pointer; }
+        #scenes-list li:hover { background:#1e2f5a; }
+        .scene-item-title { font-size:.88em; color:#ccd; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:280px; }
+        .scene-item-meta { font-size:.75em; color:#556; margin-top:2px; }
+        #scenes-detail-col { flex:1; padding:20px; overflow-y:auto; background:#0d1117; }
+        #scene-detail { display:none; }
+        #scene-detail h2 { margin:0 0 6px; color:#aac; font-size:1.1em; }
+        .scene-detail-meta { font-size:.8em; color:#667; margin-bottom:12px; }
+        .scene-excerpt { background:#111827; border:1px solid #223; border-radius:6px; padding:10px; font-size:.85em; color:#aab; white-space:pre-wrap; margin:8px 0; }
+        #scene-empty-state { color:#334; margin-top:60px; text-align:center; font-size:.9em; }
+        #scenes-continue-area { margin-top:16px; padding-top:14px; border-top:1px solid #223; }
+        #scene-char-select { background:#111827; color:#eee; border:1px solid #2a3a5a; border-radius:6px; padding:6px 10px; font-size:.88em; }
+        #scene-ctx-hint { background:#111827; color:#eee; border:1px solid #2a3a5a; border-radius:6px; padding:7px 10px; font-size:.88em; width:100%; box-sizing:border-box; margin-top:8px; }
+        #continue-btn { background:#1e4a1e; color:#8f8; border:none; border-radius:6px; padding:9px 22px; cursor:pointer; font-size:.9em; margin-top:8px; }
+        #continue-btn:hover { background:#2a6a2a; }
+        #continue-btn:disabled { opacity:.4; cursor:not-allowed; }
+        #gen-output { display:none; background:#111827; border:1px solid #2a4; border-radius:6px; padding:14px; margin-top:12px; font-size:.88em; color:#cde; white-space:pre-wrap; line-height:1.55; }
+
+        /* ── Messages panel ── */
+        #messages-panel { display:none; flex-direction:column; padding:20px; max-width:900px; margin:0 auto; width:100%; height:calc(100vh - 60px); box-sizing:border-box; overflow-y:auto; }
+        #messages-panel h2 { margin:0 0 12px; color:#aac; }
+        .msg-filter-bar { display:flex; gap:10px; margin-bottom:12px; align-items:center; }
+        #msg-char-filter { background:#111827; color:#eee; border:1px solid #2a3a5a; border-radius:6px; padding:7px 10px; font-size:.88em; width:200px; }
+        #msg-load-btn { background:#1e3a6e; color:#fff; border:none; border-radius:6px; padding:8px 18px; cursor:pointer; font-size:.88em; }
+        .message-list { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:8px; }
+        .message-item { background:#111827; border:1px solid #223; border-radius:6px; padding:10px 14px; cursor:pointer; }
+        .message-item:hover { border-color:#2a3a5a; }
+        .message-item-meta { font-size:.75em; color:#556; margin-bottom:4px; }
+        .message-item-text { font-size:.87em; color:#ccd; white-space:pre-wrap; max-height:80px; overflow:hidden; }
+
         /* ── Main view (ST iframe + sidebar) ── */
         #main-view { display:flex; height:calc(100vh - 60px); }
         iframe { flex:1; height:100%; border:0; }
@@ -94,20 +139,53 @@
         <h1>Quill of Calliope</h1>
         <nav>
             <a id="nav-home" class="active" onclick="showView('main')">Home</a> |
+            <a id="nav-messages" onclick="showView('messages')">◇ Messages</a> |
+            <a id="nav-scenes" onclick="showView('scenes')">◆ Scenes</a> |
             <a id="nav-translate" onclick="showView('translate')">Translate</a> |
             <a id="nav-draft" onclick="showView('draft')">✦ Draft</a> |
             <a id="nav-refine" onclick="showView('refine')">✎ Refine</a> |
-            <a id="nav-arc" onclick="showView('arc')">◈ Arc</a> |
-            <a href="#">Settings</a>
+            <a id="nav-arc" onclick="showView('arc')">◈ Arc</a>
         </nav>
     </header>
 
     <!-- ── MAIN VIEW ── -->
     <div id="main-view">
-        <iframe
+        {% if st_alive %}
+        <iframe id="st-iframe"
             src="{{ ST_URL }}"
             sandbox="allow-scripts allow-forms allow-same-origin allow-popups">
         </iframe>
+        {% else %}
+        <div id="welcome-panel" style="display:flex; flex-direction:column; align-items:center; justify-content:center; flex:1; padding:40px; gap:24px; background:#0d1117;">
+            <div style="text-align:center;">
+                <div style="font-size:2.5em; margin-bottom:8px;">✦</div>
+                <h2 style="margin:0; color:#aac; font-size:1.4em;">Quill of Calliope</h2>
+                <p style="color:#445; font-size:.9em; margin-top:6px;">SillyTavern non raggiungibile — usa i tab per accedere alle funzioni</p>
+            </div>
+            <div class="welcome-cards">
+                <div class="welcome-card" onclick="showView('messages')">
+                    <div class="wc-icon">◇</div>
+                    <div class="wc-title">Messaggi recenti</div>
+                    <div class="wc-desc">Recupera gli ultimi N messaggi</div>
+                </div>
+                <div class="welcome-card" onclick="showView('scenes')">
+                    <div class="wc-icon">◆</div>
+                    <div class="wc-title">Seleziona scena</div>
+                    <div class="wc-desc">Cerca e apri una scena RP</div>
+                </div>
+                <div class="welcome-card" onclick="showView('draft')">
+                    <div class="wc-icon">✦</div>
+                    <div class="wc-title">Genera varianti</div>
+                    <div class="wc-desc">Draft con stili differenti</div>
+                </div>
+                <div class="welcome-card" onclick="showView('arc')">
+                    <div class="wc-icon">◈</div>
+                    <div class="wc-title">Plot Arcs</div>
+                    <div class="wc-desc">Continua un arco narrativo</div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
         <aside>
             <div id="char-list-panel">
                 <h3>Personaggi</h3>
@@ -117,6 +195,49 @@
             <canvas id="mascot" width="320" height="440"></canvas>
             <p class="mascot-label">Calliope</p>
         </aside>
+    </div>
+
+    <!-- ── SCENES PANEL (Gap B) ── -->
+    <div id="scenes-panel">
+        <div id="scenes-list-col">
+            <div id="scenes-filter-bar">
+                <input id="scene-filter" placeholder="Filtra per titolo, personaggio..." oninput="_scenesFilter(this.value)">
+            </div>
+            <ul id="scenes-list"><li style="color:#334;padding:12px">Caricamento...</li></ul>
+        </div>
+        <div id="scenes-detail-col">
+            <div id="scene-empty-state">← Seleziona una scena dalla lista</div>
+            <div id="scene-detail">
+                <h2 id="scene-detail-title"></h2>
+                <div class="scene-detail-meta" id="scene-detail-meta"></div>
+                <div class="scene-excerpt" id="scene-detail-summary"></div>
+                <div style="font-size:.8em;color:#667;margin-top:8px">Primo messaggio:</div>
+                <div class="scene-excerpt" id="scene-detail-first"></div>
+                <div style="font-size:.8em;color:#667;margin-top:4px">Ultimo messaggio:</div>
+                <div class="scene-excerpt" id="scene-detail-last"></div>
+                <div id="scenes-continue-area">
+                    <div style="font-size:.85em;color:#8899cc;margin-bottom:8px;font-weight:bold;">▶ Genera prossimo messaggio</div>
+                    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+                        <select id="scene-char-select"><option value="">— Seleziona personaggio —</option></select>
+                        <button id="continue-btn" onclick="_generateNextMsg()" disabled>▶ Continue</button>
+                    </div>
+                    <input id="scene-ctx-hint" placeholder="Hint contestuale (opzionale)...">
+                    <div id="continue-status" style="font-size:.8em;color:#88aaff;margin-top:6px;min-height:1em;"></div>
+                    <div id="gen-output" class="gen-output"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── MESSAGES PANEL (Gap A) ── -->
+    <div id="messages-panel">
+        <h2>◇ Messaggi recenti</h2>
+        <div class="msg-filter-bar">
+            <input id="msg-char-filter" placeholder="Filtra per personaggio (es. Aurora)...">
+            <button id="msg-load-btn" onclick="_loadMessages()">↻ Carica</button>
+            <span id="msg-status" style="font-size:.82em;color:#88aaff;"></span>
+        </div>
+        <ul id="message-list" class="message-list"><li style="color:#334;padding:12px">Clicca Carica per vedere i messaggi recenti.</li></ul>
     </div>
 
     <!-- ── TRANSLATE PANEL ── -->
@@ -246,24 +367,148 @@
         window.MASCOT_WS_URL = "{{ MASCOT_WS_URL }}";
 
         // ── View routing ──
+        const _ALL_PANELS = ['main','scenes','messages','translate','draft','refine','arc'];
         function showView(view) {
-            const mainView = document.getElementById('main-view');
-            const translatePanel = document.getElementById('translate-panel');
-            const draftPanel = document.getElementById('draft-panel');
-            const refinePanel = document.getElementById('refine-panel');
-            const arcPanel = document.getElementById('arc-panel');
-            document.getElementById('nav-home').classList.toggle('active', view === 'main');
-            document.getElementById('nav-arc').classList.toggle('active', view === 'arc');
-            if (arcPanel) arcPanel.style.display = view === 'arc' ? 'flex' : 'none';
+            _ALL_PANELS.forEach(v => {
+                const el = document.getElementById(v === 'main' ? 'main-view' : v + '-panel');
+                const nav = document.getElementById('nav-' + v);
+                if (el) el.style.display = (v === view) ? 'flex' : 'none';
+                if (nav) nav.classList.toggle('active', v === view);
+            });
             if (view === 'arc') loadArcList();
-            document.getElementById('nav-home').classList.toggle('active', view === 'main');
-            document.getElementById('nav-translate').classList.toggle('active', view === 'translate');
-            document.getElementById('nav-draft').classList.toggle('active', view === 'draft');
-            document.getElementById('nav-refine').classList.toggle('active', view === 'refine');
-            mainView.style.display = view === 'main' ? 'flex' : 'none';
-            translatePanel.style.display = view === 'translate' ? 'flex' : 'none';
-            draftPanel.style.display = view === 'draft' ? 'flex' : 'none';
-            refinePanel.style.display = view === 'refine' ? 'flex' : 'none';
+            if (view === 'scenes') _loadScenes();
+            if (view === 'messages') _loadMessages();
+        }
+
+        // ── Scenes panel (Gap B) ──
+        let _currentSceneId = null;
+        let _allScenes = [];
+
+        async function _loadScenes() {
+            const ul = document.getElementById('scenes-list');
+            ul.innerHTML = '<li style="color:#334;padding:12px">Caricamento 332 scene...</li>';
+            try {
+                const resp = await fetch('/api/scenes?limit=100');
+                const data = await resp.json();
+                _allScenes = data.scenes || [];
+                _renderSceneList(_allScenes);
+            } catch(e) {
+                ul.innerHTML = '<li style="color:#f66;padding:12px">Errore: ' + e.message + '</li>';
+            }
+        }
+
+        function _renderSceneList(scenes) {
+            const ul = document.getElementById('scenes-list');
+            if (!scenes.length) { ul.innerHTML = '<li style="color:#334;padding:12px">Nessuna scena trovata.</li>'; return; }
+            ul.innerHTML = scenes.map(s => `
+                <li onclick="_loadSceneDetail('${s.scene_id}')">
+                    <div class="scene-item-title">${s.title || s.scene_id}</div>
+                    <div class="scene-item-meta">${s.date_started || ''} | ${(s.participants||[]).slice(0,3).join(', ')}</div>
+                </li>`).join('');
+        }
+
+        function _scenesFilter(val) {
+            const f = val.toLowerCase();
+            if (!f) { _renderSceneList(_allScenes); return; }
+            _renderSceneList(_allScenes.filter(s =>
+                (s.title||'').toLowerCase().includes(f) ||
+                (s.summary||'').toLowerCase().includes(f) ||
+                (s.participants||[]).some(p => p.toLowerCase().includes(f))
+            ));
+        }
+
+        async function _loadSceneDetail(sceneId) {
+            _currentSceneId = sceneId;
+            document.getElementById('scene-empty-state').style.display = 'none';
+            document.getElementById('scene-detail').style.display = 'block';
+            document.getElementById('scene-detail-title').textContent = '…';
+            document.getElementById('gen-output').style.display = 'none';
+            document.getElementById('continue-status').textContent = '';
+            try {
+                const resp = await fetch('/api/scenes/' + encodeURIComponent(sceneId));
+                const s = await resp.json();
+                if (s.error) throw new Error(s.error);
+                document.getElementById('scene-detail-title').textContent = s.title || sceneId;
+                document.getElementById('scene-detail-meta').textContent =
+                    `ID: ${s.scene_id} | ${s.date_started || ''} | ${s.message_count || 0} msg | Partecipanti: ${(s.participants||[]).join(', ')}`;
+                document.getElementById('scene-detail-summary').textContent = s.summary || '(nessun sommario)';
+                document.getElementById('scene-detail-first').textContent = s.first_msg_excerpt || '—';
+                document.getElementById('scene-detail-last').textContent = s.last_msg_excerpt || '—';
+                // Populate char select
+                const sel = document.getElementById('scene-char-select');
+                sel.innerHTML = '<option value="">— Seleziona personaggio —</option>' +
+                    (s.participants||[]).map(p => `<option value="${p}">${p}</option>`).join('');
+                sel.onchange = () => { document.getElementById('continue-btn').disabled = !sel.value; };
+            } catch(e) {
+                document.getElementById('scene-detail-title').textContent = 'Errore: ' + e.message;
+            }
+        }
+
+        async function _generateNextMsg() {
+            const sceneId = _currentSceneId;
+            const char = document.getElementById('scene-char-select').value;
+            const hint = document.getElementById('scene-ctx-hint').value.trim();
+            const lastScene = _allScenes.find(s => s.scene_id === sceneId);
+            const lastMsg = lastScene ? lastScene.last_msg_excerpt : '';
+            const statusEl = document.getElementById('continue-status');
+            const outEl = document.getElementById('gen-output');
+            const btn = document.getElementById('continue-btn');
+            if (!char) return;
+            btn.disabled = true;
+            statusEl.textContent = `Generando prossimo messaggio per ${char}...`;
+            outEl.style.display = 'none';
+            try {
+                const resp = await fetch('/api/messages/next', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({scene_id: sceneId, char, last_msg: lastMsg, context_hint: hint}),
+                });
+                const data = await resp.json();
+                if (!resp.ok) throw new Error(data.error || resp.statusText);
+                outEl.textContent = data.next_msg || '(vuoto)';
+                outEl.style.display = 'block';
+                statusEl.textContent = `✓ Generato — ctx: facts=${data.context_used?.char_facts||0}, scene=${data.context_used?.scene_context}`;
+            } catch(e) {
+                statusEl.textContent = '✗ ' + e.message;
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        // ── Messages panel (Gap A) ──
+        async function _loadMessages() {
+            const char = document.getElementById('msg-char-filter').value.trim();
+            const statusEl = document.getElementById('msg-status');
+            const ul = document.getElementById('message-list');
+            statusEl.textContent = 'Caricamento...';
+            ul.innerHTML = '';
+            try {
+                const url = '/api/messages/recent?limit=20' + (char ? '&char=' + encodeURIComponent(char) : '');
+                const resp = await fetch(url);
+                const data = await resp.json();
+                const msgs = data.messages || [];
+                statusEl.textContent = `${msgs.length} messaggi` + (char ? ` per "${char}"` : '');
+                if (!msgs.length) { ul.innerHTML = '<li style="color:#334;padding:12px">Nessun messaggio trovato.</li>'; return; }
+                ul.innerHTML = msgs.map((m, i) => `
+                    <li class="message-item" onclick="_useMessageAsContext(${i})">
+                        <div class="message-item-meta">${JSON.stringify(m.meta).slice(0,80)} | dist=${m.distance}</div>
+                        <div class="message-item-text">${(m.text||'').replace(/</g,'&lt;')}</div>
+                    </li>`).join('');
+                window._recentMessages = msgs;
+            } catch(e) {
+                statusEl.textContent = '✗ ' + e.message;
+            }
+        }
+
+        function _useMessageAsContext(idx) {
+            const msg = (window._recentMessages||[])[idx];
+            if (!msg) return;
+            showView('scenes');
+            // Put msg text in scene hint for continuation
+            setTimeout(() => {
+                const hint = document.getElementById('scene-ctx-hint');
+                if (hint) hint.value = (msg.text||'').slice(0, 200);
+            }, 300);
         }
 
         // ── Draft / Variant handler ──
