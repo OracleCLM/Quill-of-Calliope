@@ -1032,7 +1032,8 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            loadDashboardSnapshot();
+            // Q1=A: Dashboard is landing tab — activate on page load.
+            showView('dashboard');
             _startDashSnapshotPoll();
         });
 
