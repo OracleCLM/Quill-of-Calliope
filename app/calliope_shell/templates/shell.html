@@ -998,6 +998,31 @@
             }
         }
 
+        async function _toggleUncensored() {
+            const btn = document.getElementById('dash-btn-uncensored');
+            const label = document.getElementById('dash-uncensored-label');
+            btn.disabled = true;
+            const currentState = btn.dataset.uncensored === 'true';
+            try {
+                const resp = await fetch('/api/dashboard/llm_routing', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({uncensored: !currentState}),
+                });
+                if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+                const d = await resp.json();
+                btn.dataset.uncensored = String(d.uncensored_active);
+                label.textContent = d.uncensored_active
+                    ? `← Back to default (${d.active_provider}/${d.active_model})`
+                    : 'Switch to Ollama uncensored';
+                loadDashboardSnapshot();
+            } catch (e) {
+                label.textContent = '✗ ' + e.message;
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
         function _startDashSnapshotPoll() {
             if (_dashSnapshotTimer) clearInterval(_dashSnapshotTimer);
             _dashSnapshotTimer = setInterval(() => {

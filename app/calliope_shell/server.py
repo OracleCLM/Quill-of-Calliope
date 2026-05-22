@@ -125,6 +125,58 @@ def create_app():
     def health():
         return jsonify({"status": "ok"})
 
+    _llm_routing_state: dict = {
+        "provider": os.getenv("CALLIOPE_LLM_PROVIDER", "cerebras"),
+        "model": os.getenv("CALLIOPE_LLM_MODEL", "qwen-3-235b-a22b-instruct-2507"),
+        "uncensored": False,
+    }
+    _UNCENSORED_PROFILE = {
+        "provider": "ollama",
+        "model": os.getenv("CALLIOPE_OLLAMA_UNCENSORED_MODEL", "dolphin-mistral:7b"),
+    }
+    _DEFAULT_PROFILE = {
+        "provider": os.getenv("CALLIOPE_LLM_PROVIDER", "cerebras"),
+        "model": os.getenv("CALLIOPE_LLM_MODEL", "qwen-3-235b-a22b-instruct-2507"),
+    }
+
+    @app.route("/api/dashboard/llm_routing", methods=["GET"])
+    def dashboard_llm_routing_get():
+        return jsonify({
+            "active_provider": _llm_routing_state["provider"],
+            "active_model": _llm_routing_state["model"],
+            "uncensored_active": _llm_routing_state["uncensored"],
+            "uncensored_provider": _UNCENSORED_PROFILE["provider"],
+            "uncensored_model": _UNCENSORED_PROFILE["model"],
+            "default_provider": _DEFAULT_PROFILE["provider"],
+            "default_model": _DEFAULT_PROFILE["model"],
+        })
+
+    @app.route("/api/dashboard/llm_routing", methods=["POST"])
+    def dashboard_llm_routing_post():
+        """Toggle between default tier and uncensored Ollama profile (Q3).
+
+        Body: {"uncensored": true|false}. Persists in process memory; on
+        Flask restart reverts to env defaults. Cross-request consistency is
+        intentional — operator toggle is a session-scoped decision.
+        """
+        body = request.get_json(silent=True) or {}
+        if "uncensored" not in body:
+            return jsonify({"error": "missing 'uncensored' (bool) in body"}), 400
+        target = bool(body["uncensored"])
+        if target:
+            _llm_routing_state["provider"] = _UNCENSORED_PROFILE["provider"]
+            _llm_routing_state["model"] = _UNCENSORED_PROFILE["model"]
+            _llm_routing_state["uncensored"] = True
+        else:
+            _llm_routing_state["provider"] = _DEFAULT_PROFILE["provider"]
+            _llm_routing_state["model"] = _DEFAULT_PROFILE["model"]
+            _llm_routing_state["uncensored"] = False
+        return jsonify({
+            "active_provider": _llm_routing_state["provider"],
+            "active_model": _llm_routing_state["model"],
+            "uncensored_active": _llm_routing_state["uncensored"],
+        })
+
     @app.route("/api/dashboard/snapshot", methods=["GET"])
     def dashboard_snapshot():
         """Consolidated dashboard snapshot — state + counts + recent activity.
@@ -194,13 +246,14 @@ def create_app():
         except Exception:
             pass
 
-        # Active LLM provider — defaults from VISION 4-tier (Cerebras workhorse)
-        # In future this can read from a runtime config; for now reflect VISION default.
+        # Active LLM provider — reflects current process state, toggleable
+        # via POST /api/dashboard/llm_routing (Q3 operator decision).
         llm_routing = {
-            "active_provider": os.getenv("CALLIOPE_LLM_PROVIDER", "cerebras"),
-            "active_model": os.getenv("CALLIOPE_LLM_MODEL", "qwen-3-235b-a22b-instruct-2507"),
+            "active_provider": _llm_routing_state["provider"],
+            "active_model": _llm_routing_state["model"],
             "uncensored_available": True,
-            "uncensored_provider": "ollama",
+            "uncensored_provider": _UNCENSORED_PROFILE["provider"],
+            "uncensored_active": _llm_routing_state["uncensored"],
         }
 
         # Recent activity — placeholder until audit_trail table exists (Sprint C scope)
