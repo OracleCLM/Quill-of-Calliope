@@ -76,6 +76,18 @@
         iframe { flex:1; height:100%; border:0; }
         aside { width:320px; background:#16213e; display:flex; flex-direction:column; align-items:center; padding:12px 16px; box-sizing:border-box; overflow-y:auto; }
 
+        /* ── Empty-state uniform (Sprint A4) ── */
+        .empty-state { display:flex; flex-direction:column; align-items:center;
+            justify-content:center; padding:40px 20px; text-align:center;
+            color:#556; min-height:180px; }
+        .empty-state .es-icon { font-size:2em; margin-bottom:10px; opacity:.6; }
+        .empty-state .es-title { font-size:1em; color:#889; margin-bottom:6px; }
+        .empty-state .es-hint { font-size:.82em; color:#445; max-width:380px; line-height:1.5; }
+        .empty-state .es-action { margin-top:14px; }
+        .empty-state.es-error .es-icon { color:#f66; }
+        .empty-state.es-error .es-title { color:#f88; }
+        .empty-state.es-loading .es-icon { color:#88aaff; }
+
         /* ── Counters widget (sidebar + welcome) ── */
         .counters-widget { background:#0d1117; border:1px solid #2a3a5a; border-radius:6px;
             padding:10px 12px; margin-bottom:10px; font-size:.78em; color:#aab; }
@@ -264,7 +276,7 @@
             <div id="scenes-filter-bar">
                 <input id="scene-filter" placeholder="Filtra per titolo, personaggio..." oninput="_scenesFilter(this.value)">
             </div>
-            <ul id="scenes-list"><li style="color:#334;padding:12px">Caricamento...</li></ul>
+            <ul id="scenes-list" data-empty-state="scenes"><li style="color:#334;padding:12px">Caricamento...</li></ul>
         </div>
         <div id="scenes-detail-col">
             <div id="scene-empty-state">← Seleziona una scena dalla lista</div>
@@ -298,7 +310,7 @@
             <button id="msg-load-btn" onclick="_loadMessages()">↻ Carica</button>
             <span id="msg-status" style="font-size:.82em;color:#88aaff;"></span>
         </div>
-        <ul id="message-list" class="message-list"><li style="color:#334;padding:12px">Clicca Carica per vedere i messaggi recenti.</li></ul>
+        <ul id="message-list" class="message-list" data-empty-state="messages"><li style="color:#334;padding:12px">Clicca Carica per vedere i messaggi recenti.</li></ul>
     </div>
 
     <!-- ── TRANSLATE PANEL ── -->
@@ -396,7 +408,7 @@
     <div id="arc-panel">
         <div id="arc-list-col">
             <h3>◈ Plot Arcs</h3>
-            <ul id="arc-ul"><li style="color:#555">Caricamento...</li></ul>
+            <ul id="arc-ul" data-empty-state="arc"><li style="color:#555">Caricamento...</li></ul>
         </div>
         <div id="arc-detail-col">
             <div id="arc-detail-empty" style="color:#445;margin-top:40px">Seleziona un arc dalla lista.</div>
@@ -426,6 +438,28 @@
 
     <script>
         window.MASCOT_WS_URL = "{{ MASCOT_WS_URL }}";
+
+        // ── Empty-state helper (Sprint A4) ──
+        // Uniform empty/loading/error rendering across all tabs.
+        // Usage: renderEmptyState(elementId, {kind, icon, title, hint, actionLabel, onAction})
+        // kind: 'empty' | 'loading' | 'error'
+        window.renderEmptyState = function(targetId, opts) {
+            const el = document.getElementById(targetId);
+            if (!el) return;
+            const kind = opts.kind || 'empty';
+            const icon = opts.icon || (kind === 'error' ? '⚠' : kind === 'loading' ? '⏳' : '∅');
+            const title = opts.title || (kind === 'error' ? 'Errore' : kind === 'loading' ? 'Caricamento…' : 'Nessun dato');
+            const hint = opts.hint || '';
+            const action = opts.actionLabel
+                ? `<div class="es-action"><button onclick="(${opts.onAction || (()=>{})})()">${opts.actionLabel}</button></div>`
+                : '';
+            el.innerHTML = `<div class="empty-state es-${kind}">
+                <div class="es-icon">${icon}</div>
+                <div class="es-title">${title}</div>
+                <div class="es-hint">${hint}</div>
+                ${action}
+            </div>`;
+        };
 
         // ── View routing ──
         const _ALL_PANELS = ['main','scenes','messages','translate','draft','refine','arc'];
@@ -460,7 +494,13 @@
 
         function _renderSceneList(scenes) {
             const ul = document.getElementById('scenes-list');
-            if (!scenes.length) { ul.innerHTML = '<li style="color:#334;padding:12px">Nessuna scena trovata.</li>'; return; }
+            if (!scenes.length) {
+                renderEmptyState('scenes-list', {
+                    icon: '◆', title: 'Nessuna scena',
+                    hint: 'Importa scene da Discord/Excel con scripts/import_discord_history.py o crea una nuova scena dal tab Draft.',
+                });
+                return;
+            }
             ul.innerHTML = scenes.map(s => `
                 <li onclick="_loadSceneDetail('${s.scene_id}')">
                     <div class="scene-item-title">${s.title || s.scene_id}</div>
@@ -549,7 +589,13 @@
                 const data = await resp.json();
                 const msgs = data.messages || [];
                 statusEl.textContent = `${msgs.length} messaggi` + (char ? ` per "${char}"` : '');
-                if (!msgs.length) { ul.innerHTML = '<li style="color:#334;padding:12px">Nessun messaggio trovato.</li>'; return; }
+                if (!msgs.length) {
+                    renderEmptyState('message-list', {
+                        icon: '◇', title: 'Nessun messaggio',
+                        hint: char ? `Nessun messaggio per "${char}". Verifica spelling o rimuovi il filtro.` : 'Importa messaggi da Discord/ChatGPT export per popolare il database.',
+                    });
+                    return;
+                }
                 ul.innerHTML = msgs.map((m, i) => `
                     <li class="message-item" onclick="_useMessageAsContext(${i})">
                         <div class="message-item-meta">${JSON.stringify(m.meta).slice(0,80)} | dist=${m.distance}</div>
@@ -773,7 +819,13 @@
             try {
                 const resp = await fetch('/api/arc');
                 const arcs = await resp.json();
-                if (!arcs.length) { ul.innerHTML = '<li style="color:#555">Nessun arc.</li>'; return; }
+                if (!arcs.length) {
+                    renderEmptyState('arc-ul', {
+                        icon: '◈', title: 'Nessun plot arc',
+                        hint: 'Crea un arco narrativo via CLI: python3 scripts/plot_arc_cli.py create --id <id> --title "<titolo>" --chars Aurora,Philly',
+                    });
+                    return;
+                }
                 ul.innerHTML = arcs.map(a =>
                     `<li onclick="loadArcDetail('${a.arc_id}')" title="${a.title}">`+
                     `<b>${a.arc_id}</b><br><span style="color:#778;font-size:.78em">${a.title}</span></li>`
