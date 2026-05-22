@@ -11,6 +11,21 @@
         nav a { color:#aac; margin-left:16px; text-decoration:none; cursor:pointer; font-size:.95em; }
         nav a:hover, nav a.active { color:#fff; text-decoration:underline; }
 
+        /* ── Privacy badge ── */
+        .privacy-badge { display:inline-flex; align-items:center; gap:6px; margin-left:20px; padding:4px 10px;
+            background:#0d2818; border:1px solid #1e5a3a; border-radius:14px; color:#7fdcb0;
+            font-size:.78em; cursor:help; user-select:none; position:relative; }
+        .privacy-badge:hover { background:#103d22; }
+        .privacy-badge .pb-icon { font-size:.95em; }
+        .privacy-badge .pb-tooltip { display:none; position:absolute; top:calc(100% + 8px); right:0;
+            background:#0d1117; border:1px solid #2a3a5a; border-radius:8px; padding:12px 14px;
+            min-width:300px; font-size:.85em; color:#cde; line-height:1.45; z-index:1000;
+            box-shadow:0 4px 12px rgba(0,0,0,.5); white-space:normal; }
+        .privacy-badge:hover .pb-tooltip { display:block; }
+        .privacy-badge .pb-tooltip h4 { margin:0 0 6px; color:#7fdcb0; font-size:.95em; }
+        .privacy-badge .pb-tooltip ul { margin:4px 0 0; padding-left:18px; color:#aab; }
+        .privacy-badge .pb-tooltip li { margin:3px 0; }
+
         /* ── Welcome panel (ST fallback) ── */
         #welcome-panel { display:none; flex-direction:column; align-items:center; justify-content:center; height:100%; padding:40px; gap:20px; }
         .welcome-cards { display:flex; gap:20px; flex-wrap:wrap; justify-content:center; }
@@ -145,6 +160,21 @@
             <a id="nav-draft" onclick="showView('draft')">✦ Draft</a> |
             <a id="nav-refine" onclick="showView('refine')">✎ Refine</a> |
             <a id="nav-arc" onclick="showView('arc')">◈ Arc</a>
+            <span id="privacy-badge" class="privacy-badge" role="status"
+                  aria-label="Privacy: local-only, no cloud upload of RP data">
+                <span class="pb-icon" aria-hidden="true">🔒</span>
+                <span>local-only</span>
+                <span class="pb-tooltip">
+                    <h4>🔒 Local-only mode</h4>
+                    NO cloud upload of RP data.
+                    <ul>
+                        <li>Storage: SQLite + ChromaDB su questa macchina</li>
+                        <li>Char sheets / scene / lore: filesystem locale, mai esportati</li>
+                        <li>LLM provider (Cerebras, Groq, OpenRouter, Ollama): chiamati come compute ephemeral; per ToS no retention/training</li>
+                        <li>NO Google Drive sync, NO indexing esterno</li>
+                    </ul>
+                </span>
+            </span>
         </nav>
     </header>
 
