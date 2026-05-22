@@ -60,12 +60,40 @@ _COMMAND_COOLDOWN = 12.0
 _CHANNEL_MSG_RATE: dict[int, list[float]] = {}
 _MAX_MSG_PER_MIN = 5
 
+# Eviction: prevent unbounded growth of rate-limit dicts on long-running bots.
+# Why: audit P0 #3 found _RATE_LIMITS + _CHANNEL_MSG_RATE grow O(n_users,
+# n_channels) without eviction → OOM after months of uptime.
+_RATE_LIMIT_TTL = 60.0
+_CLEANUP_INTERVAL = 300.0
+_last_cleanup = 0.0
+
 sys.path.insert(0, str(_SCRIPTS))
 sys.path.insert(0, str(_REPO_ROOT))
 
 
+def _cleanup_rate_state(force: bool = False) -> None:
+    """Evict stale entries opportunistically; called from rate-limit checkers."""
+    global _last_cleanup
+    now_mono = time.monotonic()
+    if not force and now_mono - _last_cleanup < _CLEANUP_INTERVAL:
+        return
+    _last_cleanup = now_mono
+    for cmd, users in list(_RATE_LIMITS.items()):
+        _RATE_LIMITS[cmd] = {u: t for u, t in users.items() if now_mono - t < _RATE_LIMIT_TTL}
+        if not _RATE_LIMITS[cmd]:
+            del _RATE_LIMITS[cmd]
+    now_wall = time.time()
+    for ch_id, ts_list in list(_CHANNEL_MSG_RATE.items()):
+        fresh = [t for t in ts_list if now_wall - t < 60]
+        if fresh:
+            _CHANNEL_MSG_RATE[ch_id] = fresh
+        else:
+            del _CHANNEL_MSG_RATE[ch_id]
+
+
 def _check_rate_limit(command: str, user_id: int) -> bool:
     """Return True if user is allowed (not rate limited)."""
+    _cleanup_rate_state()
     now = time.monotonic()
     users = _RATE_LIMITS.setdefault(command, {})
     if now - users.get(user_id, 0.0) < _COMMAND_COOLDOWN:
@@ -76,6 +104,7 @@ def _check_rate_limit(command: str, user_id: int) -> bool:
 
 def _check_channel_rate(channel_id: int) -> bool:
     """Return True if channel is below max msg/min threshold."""
+    _cleanup_rate_state()
     now = time.time()
     ts = _CHANNEL_MSG_RATE.setdefault(channel_id, [])
     _CHANNEL_MSG_RATE[channel_id] = [t for t in ts if now - t < 60]

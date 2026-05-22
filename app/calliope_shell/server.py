@@ -1,5 +1,6 @@
 import logging
 import os
+from functools import lru_cache
 from pathlib import Path
 
 import chromadb
@@ -20,11 +21,33 @@ logger = logging.getLogger(__name__)
 _mascot_state: dict = {"emotion": "neutral", "intensity": 1.0, "scene_id": None}
 
 _CHROMA_PATH = str(Path(__file__).parents[2] / ".chroma_calliope")
+_SCENES_DIR = Path(__file__).parents[2] / "scenes"
 _VALID_DIRECTIONS = {"IT_to_EN", "EN_to_IT"}
 
 
+@lru_cache(maxsize=1)
 def _chroma_client():
     return chromadb.PersistentClient(path=_CHROMA_PATH)
+
+
+def _safe_read_scene_file(user_path: str) -> str:
+    """Read a scene file, restricted to _SCENES_DIR.
+
+    Why: prevents path-traversal (e.g. '../../.env') on /api/scene/* endpoints
+    that accept a file path from the request body.
+    """
+    if not user_path:
+        raise ValueError("empty path")
+    candidate = Path(user_path)
+    if not candidate.is_absolute():
+        candidate = _SCENES_DIR / user_path
+    resolved = candidate.resolve()
+    scenes_root = _SCENES_DIR.resolve()
+    try:
+        resolved.relative_to(scenes_root)
+    except ValueError as exc:
+        raise ValueError(f"path outside scenes directory: {user_path}") from exc
+    return resolved.read_text(encoding="utf-8")
 
 
 def _load_emotion_map() -> dict:
@@ -264,7 +287,9 @@ def create_app():
 
         if not scene_text and scene_file_path:
             try:
-                scene_text = Path(scene_file_path).read_text(encoding="utf-8")
+                scene_text = _safe_read_scene_file(scene_file_path)
+            except ValueError as exc:
+                return jsonify({"error": str(exc)}), 400
             except Exception as exc:
                 return jsonify({"error": f"Cannot read file: {exc}"}), 400
 

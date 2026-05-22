@@ -2,7 +2,7 @@
 
 > Musa della poesia epica. Assistente AI per narrazione e gestione di giochi di ruolo testuali, con focus letterario, persistenza del contesto, e privacy locale.
 
-**Status**: 🟡 M0 SCAFFOLD (2026-05-16). Pianificazione completa, repo strutturato, MVP in progress.
+**Status**: 🟢 M0+M1+M2+M3.5+M4+Wave5 (2026-05-22, ~15.7k LOC). Discord bot operativo, Live2D integrato, Flask shell attiva. Vision aggiornata 2026-05-22 (drift-sync: M3-CLI→M3.5-Flask, M5/M6 anticipati).
 
 ---
 
@@ -56,11 +56,13 @@ Commands:
 
 ### 3. Skills custom (`~/.claude/skills/calliope-*`)
 
-- `calliope-draft-response` — main draft generator literate
-- `calliope-translate-iten` — italiano fantasy → inglese fantasy vocab coerente
-- `calliope-summarize-scene` — Discord thread → riassunto strutturato
-- `calliope-lore-coherent` — scenario nuovo → suggerisce dettagli coerenti con lore esistente
-- `calliope-character-action` — char + situazione → propone azioni in-character
+> **TECH-DEBT 2026-05-22**: le 5 skill calliope-* PROMESSE come `~/.claude/skills/` NON sono implementate. Funzionalità equivalenti esistono come Flask routes in `app/`. Risoluzione futura: (a) wrap Flask routes come skill, (b) implementare skill native, (c) mantenere Flask-only + rimuovere promessa skill. Scelta aperta.
+
+- `calliope-draft-response` — ⚠ PROMISE ONLY (equivalente: `/api/draft` Flask route)
+- `calliope-translate-iten` — ⚠ PROMISE ONLY (equivalente: `/api/translate` Flask route)
+- `calliope-summarize-scene` — ⚠ PROMISE ONLY (equivalente: `/api/summarize` Flask route)
+- `calliope-lore-coherent` — ⚠ PROMISE ONLY (non implementata né come route)
+- `calliope-character-action` — ⚠ PROMISE ONLY (non implementata né come route)
 
 ### 4. Discord integration GRADUALE
 
@@ -137,13 +139,22 @@ Quill_of_Calliope/
 
 ## Roadmap milestone
 
-- **M0 SCAFFOLD** (2026-05-16, DONE): repo struttura + VISION + .gitignore + manifest + 8 docs planning + 2 template + 1 stub script
-- **M1 IMPORT** (target ~3-5 giorni): Excel/ChatGPT/Discord parsers + ChromaDB indexing + IC/OOC filter + scene tracking heuristic
-- **M2 SKILLS CORE** (target ~5-7 giorni): 5 skill custom calliope-* (draft/translate/summarize/lore-coherent/character-action) + Vesta-Minerva persona/memory import
-- **M3 CLI** (target ~7-10 giorni): TUI Textual commands base + ChromaDB query + scene long-tail revive
-- **M4 SILLYTAVERN EVAL** (target ~10-14 giorni): integration test Path C consolidate vs full custom decision
-- **M5 PRODUCTION + TTS + IMAGE GEN** (target ~3-4 settimane): workflow stable + TTS Piper (punteggiatura-aware + per-char voice) + Image gen (Vesta-Minerva reuse + ComfyUI IP-Adapter multi-char + SDXL anime/action + char LoRA training SL GPU)
-- **M6 (futuro P3)**: Discord bot semi-auto + OBLITERATUS Tier 4b 70B abliterated + fine-tune LoRA con tuoi messaggi storici per voice replica perfetto
+- **M0 SCAFFOLD** (2026-05-16, ✅ DONE): repo struttura + VISION + .gitignore + manifest + 8 docs planning + 2 template + 1 stub script
+- **M1 IMPORT** (✅ DONE): Excel/ChatGPT/Discord parsers + ChromaDB indexing + IC/OOC filter + scene tracking heuristic
+- **M2 SKILLS CORE** (✅ DONE — parzialmente): Flask routes equivalenti a draft/translate/summarize. Skills `~/.claude/skills/calliope-*` PROMISE, non implementate (→ tech-debt §3)
+- **M3 CLI Textual** (⛔ SOSTITUITO da M3.5): TUI Textual commands base originalmente pianificata — ABBANDONATA per Path C2 Flask shell
+- **M3.5 FLASK SHELL** (✅ DONE — ANTICIPATO): Flask app operativa con route equivalenti CLI. Path C2 scelto vs TUI Textual originale
+- **M4 WAVE5 + CONSOLIDATION** (✅ DONE): ~15.7k LOC, Wave5 feature batch completato
+- **M5 LIVE2D + TTS** (✅ DONE — ANTICIPATO): Live2D integrato prima di schedule originale
+- **M6 DISCORD BOT** (✅ DONE — ANTICIPATO): Discord bot operativo, prima del P3 originale
+- **NEXT: USABILITY + POLISH** (pending): Wave 5 gap fixes, skill tech-debt resolution, scene revive UX
+
+**Componenti implementati non in VISION originale** (aggiunti post-brainstorm 2026-05-22):
+- `plot_arc` — arco narrativo tracker
+- `char_memory` — memoria persistente per personaggio
+- `entity_linker` — entity disambiguation cross-scene
+- `style_coach` — stile letterario consistency checker
+- `twitch_bot` — integrazione Twitch (fuori scope originale, aggiunto)
 
 ## Scene long-tail persistence (DESIGN consideration 2026-05-16)
 

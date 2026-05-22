@@ -11,6 +11,7 @@ import os
 import re
 import sqlite3
 import threading
+from functools import lru_cache
 from pathlib import Path
 from typing import List, Optional
 
@@ -20,6 +21,17 @@ DB_PATH = Path(__file__).parents[2] / "data" / "char_memory.db"
 GATEWAY_URL = os.getenv("GATEWAY_URL", "http://localhost:8766")
 _lock = threading.Lock()
 logger = logging.getLogger(__name__)
+
+
+@lru_cache(maxsize=1)
+def _arc_chroma_client():
+    """Singleton ChromaDB PersistentClient for plot-arc semantic search.
+
+    Why: PersistentClient was instantiated per call → connection accumulation
+    on long-running sessions (audit P0 #2).
+    """
+    import chromadb  # noqa: PLC0415
+    return chromadb.PersistentClient(str(DB_PATH.parent / "chromadb"))
 
 _VALID_SCENE_TYPES = {
     "action_combat", "mystery_investigation", "dialogue",
@@ -279,8 +291,7 @@ def propose_next_scene(arc_id: str, hint: Optional[str] = None) -> dict:
 def search_arcs_by_topic(query: str, top_k: int = 3) -> List[dict]:
     """Semantic search across arc summaries via ChromaDB (best-effort)."""
     try:
-        import chromadb  # noqa: PLC0415
-        client = chromadb.PersistentClient(str(DB_PATH.parent / "chromadb"))
+        client = _arc_chroma_client()
         try:
             col = client.get_or_create_collection("calliope_plot_arcs")
         except Exception:
