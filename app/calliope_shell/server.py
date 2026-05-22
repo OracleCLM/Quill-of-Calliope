@@ -85,6 +85,48 @@ def create_app():
     def health():
         return jsonify({"status": "ok"})
 
+    @app.route("/api/dashboard/counts", methods=["GET"])
+    def dashboard_counts():
+        """Aggregate knowledge-base counts for landing dashboard widgets.
+
+        Returns chars (DB + disk), scenes (DB + disk), arcs, lore docs.
+        Each subquery is best-effort: failures degrade to 0, never break the
+        endpoint (dashboard is informational, not transactional).
+        """
+        repo_root = Path(__file__).parents[2]
+
+        chars_db = 0
+        try:
+            chars_db = len(list_chars())
+        except Exception as exc:
+            logger.warning("dashboard_counts: chars_db query failed: %s", exc)
+        chars_yaml = len(list((repo_root / "characters").rglob("*.yaml"))) if (repo_root / "characters").exists() else 0
+
+        scenes_disk = len(list((repo_root / "scenes").rglob("*.md"))) if (repo_root / "scenes").exists() else 0
+        scenes_db = 0
+        try:
+            client = _chroma_client()
+            col = client.get_or_create_collection("calliope_scenes")
+            scenes_db = col.count()
+        except Exception as exc:
+            logger.warning("dashboard_counts: scenes_db query failed: %s", exc)
+
+        arcs = 0
+        try:
+            from app.calliope_shell.plot_arc import list_arcs  # noqa: PLC0415
+            arcs = len(list_arcs())
+        except Exception as exc:
+            logger.warning("dashboard_counts: arcs query failed: %s", exc)
+
+        lore_disk = len(list((repo_root / "lore").rglob("*.md"))) if (repo_root / "lore").exists() else 0
+
+        return jsonify({
+            "chars": {"db": chars_db, "yaml": chars_yaml},
+            "scenes": {"db": scenes_db, "disk": scenes_disk},
+            "arcs": arcs,
+            "lore_disk": lore_disk,
+        })
+
     # ── Mascot routes ─────────────────────────────────────────────────────────
 
     @app.route("/api/mascot/state", methods=["GET"])

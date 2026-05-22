@@ -76,6 +76,18 @@
         iframe { flex:1; height:100%; border:0; }
         aside { width:320px; background:#16213e; display:flex; flex-direction:column; align-items:center; padding:12px 16px; box-sizing:border-box; overflow-y:auto; }
 
+        /* ── Counters widget (sidebar + welcome) ── */
+        .counters-widget { background:#0d1117; border:1px solid #2a3a5a; border-radius:6px;
+            padding:10px 12px; margin-bottom:10px; font-size:.78em; color:#aab; }
+        .counters-widget h4 { margin:0 0 6px; color:#8899cc; font-size:.78em;
+            text-transform:uppercase; letter-spacing:.05em; }
+        .counters-row { display:flex; justify-content:space-between; padding:3px 0;
+            border-top:1px solid #1a2440; }
+        .counters-row:first-of-type { border-top:none; }
+        .counters-label { color:#778; }
+        .counters-value { color:#dde; font-weight:bold; }
+        .counters-warn { color:#f9a825; }
+
         /* char list */
         #char-list-panel { width:100%; margin-bottom:12px; }
         #char-list-panel h3 { margin:0 0 6px; font-size:.85em; color:#8899cc; text-transform:uppercase; letter-spacing:.05em; }
@@ -217,6 +229,25 @@
         </div>
         {% endif %}
         <aside>
+            <div id="counters-sidebar" class="counters-widget">
+                <h4>Knowledge base</h4>
+                <div class="counters-row">
+                    <span class="counters-label">Personaggi</span>
+                    <span class="counters-value" id="cnt-chars">…</span>
+                </div>
+                <div class="counters-row">
+                    <span class="counters-label">Scene</span>
+                    <span class="counters-value" id="cnt-scenes">…</span>
+                </div>
+                <div class="counters-row">
+                    <span class="counters-label">Plot arcs</span>
+                    <span class="counters-value" id="cnt-arcs">…</span>
+                </div>
+                <div class="counters-row">
+                    <span class="counters-label">Lore docs</span>
+                    <span class="counters-value" id="cnt-lore">…</span>
+                </div>
+            </div>
             <div id="char-list-panel">
                 <h3>Personaggi</h3>
                 <ul id="char-list"><li style="color:#555">Caricamento...</li></ul>
@@ -713,6 +744,25 @@
         }
 
         document.addEventListener('DOMContentLoaded', loadCharList);
+
+        // ── Dashboard counters ──
+        async function loadDashboardCounts() {
+            try {
+                const resp = await fetch('/api/dashboard/counts');
+                if (!resp.ok) return;
+                const d = await resp.json();
+                const charsTxt = d.chars.db === d.chars.yaml
+                    ? `${d.chars.db}`
+                    : `${d.chars.db} <span class="counters-warn" title="${d.chars.yaml - d.chars.db} char yaml non in DB">/ ${d.chars.yaml} yaml</span>`;
+                const scenesTxt = `${d.scenes.db} <span style="color:#556">/ ${d.scenes.disk} md</span>`;
+                const setEl = (id, html) => { const el = document.getElementById(id); if (el) el.innerHTML = html; };
+                setEl('cnt-chars', charsTxt);
+                setEl('cnt-scenes', scenesTxt);
+                setEl('cnt-arcs', String(d.arcs));
+                setEl('cnt-lore', String(d.lore_disk));
+            } catch (e) { /* silent — counters are informational */ }
+        }
+        document.addEventListener('DOMContentLoaded', loadDashboardCounts);
 
         // ── Arc panel logic ──
         let _currentArcId = null;
