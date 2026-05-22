@@ -30,6 +30,46 @@ def _chroma_client():
     return chromadb.PersistentClient(path=_CHROMA_PATH)
 
 
+def _detect_discord_bot() -> dict:
+    """Detect Discord bot state — graceful-degradation pattern (Q6 code-prepared).
+
+    Returns {up, reason, channels, last_msg_ts} so the UI widget can render
+    both 'active' state (when bot eventually runs) and 'configure first' CTA
+    without waiting on a code change.
+    """
+    import subprocess  # noqa: PLC0415
+    token_configured = bool(os.environ.get("CALLIOPE_DISCORD_BOT_TOKEN", "").strip())
+    try:
+        out = subprocess.run(
+            ["pgrep", "-fa", "scripts/discord_bot.py"],
+            capture_output=True, text=True, timeout=2,
+        )
+        process_running = bool(out.stdout.strip())
+    except Exception:
+        process_running = False
+
+    if process_running:
+        return {
+            "up": True, "code": 200, "latency_ms": None,
+            "reason": "active",
+            "token_configured": True,
+            "channels": [], "last_msg_ts": None,
+        }
+    if not token_configured:
+        return {
+            "up": False, "code": None, "latency_ms": None,
+            "reason": "token_not_configured",
+            "token_configured": False,
+            "channels": [], "last_msg_ts": None,
+        }
+    return {
+        "up": False, "code": None, "latency_ms": None,
+        "reason": "token_configured_but_bot_not_running",
+        "token_configured": True,
+        "channels": [], "last_msg_ts": None,
+    }
+
+
 def _safe_read_scene_file(user_path: str) -> str:
     """Read a scene file, restricted to _SCENES_DIR.
 
@@ -111,6 +151,7 @@ def create_app():
             "llm_gateway": _ping(f"{GATEWAY_URL}/health"),
             "mascot_ws": _ping(f"{MASCOT_REST_URL}/health" if MASCOT_REST_URL else "http://localhost:9876/"),
             "chromadb": {"up": False, "code": None, "latency_ms": None},
+            "discord": _detect_discord_bot(),
         }
         try:
             client = _chroma_client()

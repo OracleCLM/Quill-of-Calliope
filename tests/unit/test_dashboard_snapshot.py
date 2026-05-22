@@ -42,10 +42,29 @@ def test_snapshot_daemons_schema(client):
         assert "latency_ms" in d
 
 
-def test_snapshot_no_discord_panel(client):
-    """Q6 operator-decision: Discord widget SKIPPED until bot active."""
+def test_snapshot_discord_graceful_degradation(client, monkeypatch):
+    """Q6 update: Discord widget code-prepared with graceful-degradation.
+
+    Detection reports {up, reason, token_configured, channels, last_msg_ts}
+    so the UI widget can render both active and CTA-placeholder states.
+    """
+    monkeypatch.delenv("CALLIOPE_DISCORD_BOT_TOKEN", raising=False)
     data = client.get("/api/dashboard/snapshot").get_json()
-    assert "discord" not in data["daemons"]
+    dc = data["daemons"]["discord"]
+    assert dc["up"] is False
+    assert dc["reason"] in ("token_not_configured", "token_configured_but_bot_not_running", "active")
+    assert "token_configured" in dc
+    assert isinstance(dc["channels"], list)
+    assert "last_msg_ts" in dc
+
+
+def test_snapshot_discord_token_not_configured_when_env_absent(client, monkeypatch):
+    monkeypatch.delenv("CALLIOPE_DISCORD_BOT_TOKEN", raising=False)
+    data = client.get("/api/dashboard/snapshot").get_json()
+    dc = data["daemons"]["discord"]
+    # Bot process not running in test env, and we cleared the token
+    assert dc["token_configured"] is False
+    assert dc["reason"] == "token_not_configured"
 
 
 def test_snapshot_counts_split_active_archive(client):

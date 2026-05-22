@@ -76,6 +76,40 @@
         iframe { flex:1; height:100%; border:0; }
         aside { width:320px; background:#16213e; display:flex; flex-direction:column; align-items:center; padding:12px 16px; box-sizing:border-box; overflow-y:auto; }
 
+        /* ── Dashboard panel (Sprint B) ── */
+        #dashboard-panel { display:none; flex-direction:column; padding:20px 28px;
+            max-width:1200px; margin:0 auto; width:100%; height:calc(100vh - 60px);
+            box-sizing:border-box; overflow-y:auto; }
+        #dashboard-panel h2 { margin:0 0 16px; color:#aac; font-size:1.15em; }
+        .dash-grid { display:grid; grid-template-columns:repeat(2, 1fr); gap:16px;
+            margin-bottom:16px; }
+        @media (max-width:900px) { .dash-grid { grid-template-columns:1fr; } }
+        .dash-card { background:#111827; border:1px solid #2a3a5a; border-radius:8px;
+            padding:14px 16px; }
+        .dash-card h3 { margin:0 0 10px; color:#8899cc; font-size:.82em;
+            text-transform:uppercase; letter-spacing:.06em; }
+        .dash-card .dash-row { display:flex; justify-content:space-between;
+            align-items:center; padding:6px 0; border-top:1px solid #1a2440;
+            font-size:.88em; }
+        .dash-card .dash-row:first-of-type { border-top:none; }
+        .dash-row .dash-label { color:#889; }
+        .dash-row .dash-value { color:#dde; font-weight:bold; }
+        .daemon-badge { display:inline-flex; align-items:center; gap:5px;
+            padding:2px 7px; border-radius:10px; font-size:.78em; font-weight:bold; }
+        .daemon-badge.up { background:#0d3a1e; color:#7fdcb0; }
+        .daemon-badge.down { background:#3a1414; color:#ff8a8a; }
+        .shortcut-grid { display:grid; grid-template-columns:repeat(2, 1fr); gap:8px;
+            margin-top:8px; }
+        .shortcut-btn { background:#1e2f5a; color:#cde; border:1px solid #2a3a5a;
+            border-radius:6px; padding:10px 12px; cursor:pointer; font-size:.88em;
+            text-align:left; display:flex; align-items:center; gap:8px;
+            transition:background .15s; }
+        .shortcut-btn:hover { background:#2a4080; color:#fff; }
+        .shortcut-btn .sc-icon { font-size:1.1em; }
+        .dash-snapshot-meta { font-size:.74em; color:#445; text-align:right;
+            margin-top:4px; }
+        .archive-hint { color:#f9a825; font-size:.78em; cursor:help; }
+
         /* ── Empty-state uniform (Sprint A4) ── */
         .empty-state { display:flex; flex-direction:column; align-items:center;
             justify-content:center; padding:40px 20px; text-align:center;
@@ -177,7 +211,8 @@
     <header>
         <h1>Quill of Calliope</h1>
         <nav>
-            <a id="nav-home" class="active" onclick="showView('main')">Home</a> |
+            <a id="nav-dashboard" class="active" onclick="showView('dashboard')">◈ Dashboard</a> |
+            <a id="nav-home" onclick="showView('main')">Home</a> |
             <a id="nav-messages" onclick="showView('messages')">◇ Messages</a> |
             <a id="nav-scenes" onclick="showView('scenes')">◆ Scenes</a> |
             <a id="nav-translate" onclick="showView('translate')">Translate</a> |
@@ -201,6 +236,91 @@
             </span>
         </nav>
     </header>
+
+    <!-- ── DASHBOARD PANEL (Sprint B — landing tab, Q1=A) ── -->
+    <div id="dashboard-panel">
+        <h2>◈ Dashboard</h2>
+        <div class="dash-grid">
+
+            <div class="dash-card" id="dash-card-state">
+                <h3>Stato sistema</h3>
+                <div class="dash-row"><span class="dash-label">Flask shell</span>
+                    <span class="dash-value" id="dash-d-flask">…</span></div>
+                <div class="dash-row"><span class="dash-label">LLM gateway</span>
+                    <span class="dash-value" id="dash-d-gateway">…</span></div>
+                <div class="dash-row"><span class="dash-label">Mascot WS</span>
+                    <span class="dash-value" id="dash-d-mascot">…</span></div>
+                <div class="dash-row"><span class="dash-label">ChromaDB</span>
+                    <span class="dash-value" id="dash-d-chroma">…</span></div>
+            </div>
+
+            <div class="dash-card" id="dash-card-counts">
+                <h3>Conoscenza</h3>
+                <div class="dash-row"><span class="dash-label">Personaggi attivi</span>
+                    <span class="dash-value" id="dash-c-chars-active">…</span></div>
+                <div class="dash-row"><span class="dash-label">Personaggi archivio</span>
+                    <span class="dash-value" id="dash-c-chars-archive">…</span></div>
+                <div class="dash-row"><span class="dash-label">Scene (DB / disco)</span>
+                    <span class="dash-value" id="dash-c-scenes">…</span></div>
+                <div class="dash-row"><span class="dash-label">Plot arcs</span>
+                    <span class="dash-value" id="dash-c-arcs">…</span></div>
+                <div class="dash-row"><span class="dash-label">Messaggi indicizzati</span>
+                    <span class="dash-value" id="dash-c-messages">…</span></div>
+                <div class="dash-row"><span class="dash-label">Lore docs</span>
+                    <span class="dash-value" id="dash-c-lore">…</span></div>
+            </div>
+
+            <div class="dash-card" id="dash-card-shortcuts">
+                <h3>Scorciatoie</h3>
+                <div class="shortcut-grid">
+                    <button class="shortcut-btn" onclick="showView('draft')">
+                        <span class="sc-icon">✦</span><span>Genera draft (varianti)</span></button>
+                    <button class="shortcut-btn" onclick="showView('refine')">
+                        <span class="sc-icon">✎</span><span>Rifinisci scena</span></button>
+                    <button class="shortcut-btn" onclick="showView('translate')">
+                        <span class="sc-icon">⇄</span><span>Traduci IT ↔ EN</span></button>
+                    <button class="shortcut-btn" onclick="showView('arc')">
+                        <span class="sc-icon">◈</span><span>Continua plot arc</span></button>
+                </div>
+            </div>
+
+            <div class="dash-card" id="dash-card-tone">
+                <h3>Tono sessione</h3>
+                <div class="dash-row"><span class="dash-label">Provider attivo</span>
+                    <span class="dash-value" id="dash-llm-provider">…</span></div>
+                <div class="dash-row"><span class="dash-label">Modello</span>
+                    <span class="dash-value" id="dash-llm-model" style="font-size:.78em">…</span></div>
+                <div class="dash-row"><span class="dash-label">Uncensored disponibile</span>
+                    <span class="dash-value" id="dash-llm-uncensored">…</span></div>
+                <div style="margin-top:10px;">
+                    <button class="shortcut-btn" id="dash-btn-uncensored"
+                            onclick="_toggleUncensored()" style="width:100%;justify-content:center;">
+                        <span class="sc-icon">⚙</span><span id="dash-uncensored-label">Switch to Ollama uncensored</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="dash-card" id="dash-card-discord">
+                <h3>Discord bot</h3>
+                <div class="dash-row"><span class="dash-label">Stato</span>
+                    <span class="dash-value" id="dash-discord-state">…</span></div>
+                <div class="dash-row"><span class="dash-label">Token configurato</span>
+                    <span class="dash-value" id="dash-discord-token">…</span></div>
+                <div class="dash-row"><span class="dash-label">Canali attivi</span>
+                    <span class="dash-value" id="dash-discord-channels">—</span></div>
+                <div class="dash-row"><span class="dash-label">Ultimo messaggio</span>
+                    <span class="dash-value" id="dash-discord-lastmsg">—</span></div>
+                <div id="dash-discord-cta" style="display:none; margin-top:10px;
+                    padding:8px 10px; background:#1a1f2e; border-radius:6px;
+                    font-size:.82em; color:#aab; line-height:1.45;">
+                    <span id="dash-discord-cta-text"></span>
+                </div>
+            </div>
+        </div>
+        <div class="dash-snapshot-meta">
+            <span id="dash-snapshot-status">…</span>
+        </div>
+    </div>
 
     <!-- ── MAIN VIEW ── -->
     <div id="main-view">
@@ -462,7 +582,7 @@
         };
 
         // ── View routing ──
-        const _ALL_PANELS = ['main','scenes','messages','translate','draft','refine','arc'];
+        const _ALL_PANELS = ['dashboard','main','scenes','messages','translate','draft','refine','arc'];
         function showView(view) {
             _ALL_PANELS.forEach(v => {
                 const el = document.getElementById(v === 'main' ? 'main-view' : v + '-panel');
@@ -473,6 +593,7 @@
             if (view === 'arc') loadArcList();
             if (view === 'scenes') _loadScenes();
             if (view === 'messages') _loadMessages();
+            if (view === 'dashboard') loadDashboardSnapshot();
         }
 
         // ── Scenes panel (Gap B) ──
@@ -809,6 +930,86 @@
             } catch (e) { /* silent — counters are informational */ }
         }
         document.addEventListener('DOMContentLoaded', loadDashboardCounts);
+
+        // ── Dashboard snapshot (Sprint B) — landing tab consolidated view ──
+        let _dashSnapshotTimer = null;
+
+        function _daemonBadge(d) {
+            const up = d && d.up;
+            const lat = d && d.latency_ms != null ? `${d.latency_ms}ms` : '';
+            return `<span class="daemon-badge ${up ? 'up' : 'down'}">${up ? '✓' : '✗'} ${up ? lat || 'UP' : 'DOWN'}</span>`;
+        }
+
+        async function loadDashboardSnapshot() {
+            const setEl = (id, html) => { const el = document.getElementById(id); if (el) el.innerHTML = html; };
+            const setText = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
+            try {
+                const t0 = performance.now();
+                const resp = await fetch('/api/dashboard/snapshot');
+                if (!resp.ok) { setText('dash-snapshot-status', `✗ snapshot HTTP ${resp.status}`); return; }
+                const d = await resp.json();
+                const elapsed = (performance.now() - t0).toFixed(0);
+
+                setEl('dash-d-flask',   _daemonBadge(d.daemons.flask));
+                setEl('dash-d-gateway', _daemonBadge(d.daemons.llm_gateway));
+                setEl('dash-d-mascot',  _daemonBadge(d.daemons.mascot_ws));
+                setEl('dash-d-chroma',  _daemonBadge(d.daemons.chromadb));
+
+                const chars = d.counts.chars;
+                setText('dash-c-chars-active',  String(chars.active));
+                setEl('dash-c-chars-archive',
+                    `${chars.archive} <span class="archive-hint" title="yaml su disco senza entry in char_memory.db — vedi Q2 pending">⚠</span>`);
+                setText('dash-c-scenes', `${d.counts.scenes.db} / ${d.counts.scenes.disk}`);
+                setText('dash-c-arcs',     String(d.counts.arcs));
+                setText('dash-c-messages', String(d.counts.messages_indexed));
+                setText('dash-c-lore',     String(d.counts.lore_disk));
+
+                const r = d.llm_routing;
+                setText('dash-llm-provider', r.active_provider);
+                setText('dash-llm-model',   r.active_model);
+                setText('dash-llm-uncensored', r.uncensored_available ? `✓ ${r.uncensored_provider}` : '✗');
+
+                // Discord widget (Q6 code-prepared, graceful-degradation)
+                const dc = d.daemons.discord || {};
+                setEl('dash-discord-state', _daemonBadge(dc));
+                setText('dash-discord-token', dc.token_configured ? '✓ presente' : '✗ assente');
+                setText('dash-discord-channels', (dc.channels && dc.channels.length) ? dc.channels.join(', ') : '—');
+                setText('dash-discord-lastmsg', dc.last_msg_ts ? new Date(dc.last_msg_ts * 1000).toLocaleString() : '—');
+                const ctaEl = document.getElementById('dash-discord-cta');
+                const ctaText = document.getElementById('dash-discord-cta-text');
+                if (ctaEl && ctaText) {
+                    if (dc.reason === 'token_not_configured') {
+                        ctaText.innerHTML = '⚙ <strong>Bot non attivo.</strong> Configura <code>CALLIOPE_DISCORD_BOT_TOKEN</code> in <code>.env</code> e avvia <code>scripts/start_discord_bot.sh</code> per abilitare.';
+                        ctaEl.style.display = 'block';
+                    } else if (dc.reason === 'token_configured_but_bot_not_running') {
+                        ctaText.innerHTML = '⚙ Token presente ma bot non in esecuzione. Avvia con <code>scripts/start_discord_bot.sh</code>.';
+                        ctaEl.style.display = 'block';
+                    } else {
+                        ctaEl.style.display = 'none';
+                    }
+                }
+
+                const took = d.snapshot_latency_ms;
+                const budget = took < 500 ? 'within budget' : 'over budget';
+                setText('dash-snapshot-status',
+                    `snapshot ${took}ms server, ${elapsed}ms wall-clock (${budget}) • polling 15s`);
+            } catch (e) {
+                setText('dash-snapshot-status', `✗ snapshot error: ${e.message}`);
+            }
+        }
+
+        function _startDashSnapshotPoll() {
+            if (_dashSnapshotTimer) clearInterval(_dashSnapshotTimer);
+            _dashSnapshotTimer = setInterval(() => {
+                const panel = document.getElementById('dashboard-panel');
+                if (panel && panel.style.display !== 'none') loadDashboardSnapshot();
+            }, 15000);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadDashboardSnapshot();
+            _startDashSnapshotPoll();
+        });
 
         // ── Arc panel logic ──
         let _currentArcId = null;
