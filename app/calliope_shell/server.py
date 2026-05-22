@@ -30,6 +30,46 @@ def _chroma_client():
     return chromadb.PersistentClient(path=_CHROMA_PATH)
 
 
+def _detect_discord_bot() -> dict:
+    """Detect Discord bot state — graceful-degradation pattern (Q6 code-prepared).
+
+    Returns {up, reason, channels, last_msg_ts} so the UI widget can render
+    both 'active' state (when bot eventually runs) and 'configure first' CTA
+    without waiting on a code change.
+    """
+    import subprocess  # noqa: PLC0415
+    token_configured = bool(os.environ.get("CALLIOPE_DISCORD_BOT_TOKEN", "").strip())
+    try:
+        out = subprocess.run(
+            ["pgrep", "-fa", "scripts/discord_bot.py"],
+            capture_output=True, text=True, timeout=2,
+        )
+        process_running = bool(out.stdout.strip())
+    except Exception:
+        process_running = False
+
+    if process_running:
+        return {
+            "up": True, "code": 200, "latency_ms": None,
+            "reason": "active",
+            "token_configured": True,
+            "channels": [], "last_msg_ts": None,
+        }
+    if not token_configured:
+        return {
+            "up": False, "code": None, "latency_ms": None,
+            "reason": "token_not_configured",
+            "token_configured": False,
+            "channels": [], "last_msg_ts": None,
+        }
+    return {
+        "up": False, "code": None, "latency_ms": None,
+        "reason": "token_configured_but_bot_not_running",
+        "token_configured": True,
+        "channels": [], "last_msg_ts": None,
+    }
+
+
 def _safe_read_scene_file(user_path: str) -> str:
     """Read a scene file, restricted to _SCENES_DIR.
 
@@ -84,6 +124,156 @@ def create_app():
     @app.route("/health")
     def health():
         return jsonify({"status": "ok"})
+
+    _llm_routing_state: dict = {
+        "provider": os.getenv("CALLIOPE_LLM_PROVIDER", "cerebras"),
+        "model": os.getenv("CALLIOPE_LLM_MODEL", "qwen-3-235b-a22b-instruct-2507"),
+        "uncensored": False,
+    }
+    _UNCENSORED_PROFILE = {
+        "provider": "ollama",
+        "model": os.getenv("CALLIOPE_OLLAMA_UNCENSORED_MODEL", "dolphin-mistral:7b"),
+    }
+    _DEFAULT_PROFILE = {
+        "provider": os.getenv("CALLIOPE_LLM_PROVIDER", "cerebras"),
+        "model": os.getenv("CALLIOPE_LLM_MODEL", "qwen-3-235b-a22b-instruct-2507"),
+    }
+
+    @app.route("/api/dashboard/llm_routing", methods=["GET"])
+    def dashboard_llm_routing_get():
+        return jsonify({
+            "active_provider": _llm_routing_state["provider"],
+            "active_model": _llm_routing_state["model"],
+            "uncensored_active": _llm_routing_state["uncensored"],
+            "uncensored_provider": _UNCENSORED_PROFILE["provider"],
+            "uncensored_model": _UNCENSORED_PROFILE["model"],
+            "default_provider": _DEFAULT_PROFILE["provider"],
+            "default_model": _DEFAULT_PROFILE["model"],
+        })
+
+    @app.route("/api/dashboard/llm_routing", methods=["POST"])
+    def dashboard_llm_routing_post():
+        """Toggle between default tier and uncensored Ollama profile (Q3).
+
+        Body: {"uncensored": true|false}. Persists in process memory; on
+        Flask restart reverts to env defaults. Cross-request consistency is
+        intentional — operator toggle is a session-scoped decision.
+        """
+        body = request.get_json(silent=True) or {}
+        if "uncensored" not in body:
+            return jsonify({"error": "missing 'uncensored' (bool) in body"}), 400
+        target = bool(body["uncensored"])
+        if target:
+            _llm_routing_state["provider"] = _UNCENSORED_PROFILE["provider"]
+            _llm_routing_state["model"] = _UNCENSORED_PROFILE["model"]
+            _llm_routing_state["uncensored"] = True
+        else:
+            _llm_routing_state["provider"] = _DEFAULT_PROFILE["provider"]
+            _llm_routing_state["model"] = _DEFAULT_PROFILE["model"]
+            _llm_routing_state["uncensored"] = False
+        return jsonify({
+            "active_provider": _llm_routing_state["provider"],
+            "active_model": _llm_routing_state["model"],
+            "uncensored_active": _llm_routing_state["uncensored"],
+        })
+
+    @app.route("/api/dashboard/snapshot", methods=["GET"])
+    def dashboard_snapshot():
+        """Consolidated dashboard snapshot — state + counts + recent activity.
+
+        Perf budget: <500ms warm, <2s cold (operator-mandate Q7).
+        All sub-queries best-effort with try/except → degrade to safe defaults.
+        Daemon health checks parallelizable via concurrent.futures (kept
+        sequential here since each curl has 1.5s timeout — total 4s worst-case;
+        switch to ThreadPool only if perf gate fails).
+        """
+        import time as _time  # noqa: PLC0415
+        t0 = _time.monotonic()
+        repo_root = Path(__file__).parents[2]
+
+        def _ping(url: str, timeout: float = 1.5) -> dict:
+            try:
+                r = requests.get(url, timeout=timeout)
+                return {"up": r.status_code < 500, "code": r.status_code, "latency_ms": int(r.elapsed.total_seconds() * 1000)}
+            except Exception:
+                return {"up": False, "code": None, "latency_ms": None}
+
+        daemons = {
+            "flask": {"up": True, "code": 200, "latency_ms": 0},
+            "llm_gateway": _ping(f"{GATEWAY_URL}/health"),
+            "mascot_ws": _ping(f"{MASCOT_REST_URL}/health" if MASCOT_REST_URL else "http://localhost:9876/"),
+            "chromadb": {"up": False, "code": None, "latency_ms": None},
+            "discord": _detect_discord_bot(),
+        }
+        try:
+            client = _chroma_client()
+            client.heartbeat()
+            daemons["chromadb"] = {"up": True, "code": 200, "latency_ms": 0}
+        except Exception as exc:
+            logger.warning("dashboard_snapshot: chromadb heartbeat failed: %s", exc)
+
+        chars_db = 0
+        try:
+            chars_db = len(list_chars())
+        except Exception as exc:
+            logger.warning("dashboard_snapshot: chars_db query failed: %s", exc)
+        chars_yaml = len(list((repo_root / "characters").rglob("*.yaml"))) if (repo_root / "characters").exists() else 0
+        chars_archive = max(0, chars_yaml - chars_db)
+
+        scenes_disk = len(list((repo_root / "scenes").rglob("*.md"))) if (repo_root / "scenes").exists() else 0
+        scenes_db = 0
+        try:
+            client = _chroma_client()
+            col = client.get_or_create_collection("calliope_scenes")
+            scenes_db = col.count()
+        except Exception:
+            pass
+
+        arcs = 0
+        try:
+            from app.calliope_shell.plot_arc import list_arcs  # noqa: PLC0415
+            arcs = len(list_arcs())
+        except Exception:
+            pass
+
+        lore_disk = len(list((repo_root / "lore").rglob("*.md"))) if (repo_root / "lore").exists() else 0
+
+        messages_db = 0
+        try:
+            client = _chroma_client()
+            col = client.get_or_create_collection("calliope_messages")
+            messages_db = col.count()
+        except Exception:
+            pass
+
+        # Active LLM provider — reflects current process state, toggleable
+        # via POST /api/dashboard/llm_routing (Q3 operator decision).
+        llm_routing = {
+            "active_provider": _llm_routing_state["provider"],
+            "active_model": _llm_routing_state["model"],
+            "uncensored_available": True,
+            "uncensored_provider": _UNCENSORED_PROFILE["provider"],
+            "uncensored_active": _llm_routing_state["uncensored"],
+        }
+
+        # Recent activity — placeholder until audit_trail table exists (Sprint C scope)
+        recent_activity: list = []
+
+        elapsed_ms = int((_time.monotonic() - t0) * 1000)
+        return jsonify({
+            "daemons": daemons,
+            "counts": {
+                "chars": {"active": chars_db, "archive": chars_archive, "total_yaml": chars_yaml},
+                "scenes": {"db": scenes_db, "disk": scenes_disk},
+                "arcs": arcs,
+                "lore_disk": lore_disk,
+                "messages_indexed": messages_db,
+            },
+            "llm_routing": llm_routing,
+            "recent_activity": recent_activity,
+            "snapshot_latency_ms": elapsed_ms,
+            "snapshot_taken_at": int(_time.time()),
+        })
 
     @app.route("/api/dashboard/counts", methods=["GET"])
     def dashboard_counts():

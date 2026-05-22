@@ -2,7 +2,7 @@
 
 > Musa della poesia epica. Assistente AI per narrazione e gestione di giochi di ruolo testuali, con focus letterario, persistenza del contesto, e privacy locale.
 
-**Status**: 🟢 M0+M1+M2+M3.5+M4+Wave5 (2026-05-22, ~15.7k LOC). Discord bot operativo, Live2D integrato, Flask shell attiva. Vision aggiornata 2026-05-22 (drift-sync: M3-CLI→M3.5-Flask, M5/M6 anticipati).
+**Status**: 🟢 M0+M1+M2+M3.5+M4+Wave5 (2026-05-22, ~15.7k LOC). Live2D integrato, Flask shell + Dashboard tab (Sprint A+B 2026-05-23). Discord bot **codice pronto, attivazione operativa pending** (token non configurato, processo non in esecuzione — vedi M6). Vision aggiornata 2026-05-23 (Discord activation drift-correction).
 
 ---
 
@@ -146,7 +146,7 @@ Quill_of_Calliope/
 - **M3.5 FLASK SHELL** (✅ DONE — ANTICIPATO): Flask app operativa con route equivalenti CLI. Path C2 scelto vs TUI Textual originale
 - **M4 WAVE5 + CONSOLIDATION** (✅ DONE): ~15.7k LOC, Wave5 feature batch completato
 - **M5 LIVE2D + TTS** (✅ DONE — ANTICIPATO): Live2D integrato prima di schedule originale
-- **M6 DISCORD BOT** (✅ DONE — ANTICIPATO): Discord bot operativo, prima del P3 originale
+- **M6 DISCORD BOT** (⚠ CODE READY — ACTIVATION PENDING): codice bot semi-auto presente (commit 297b10e, M4 feature), graceful-degradation widget UI Dashboard (Sprint B2). Attivazione in produzione pending operator-decision: (a) configurazione `CALLIOPE_DISCORD_BOT_TOKEN` in `.env`, (b) avvio processo via `scripts/start_discord_bot.sh`, (c) design separato "instructions + interpellation game master" che precede l'esposizione del bot ai canali live. Pattern coerente con principio "feature ready, activation pending".
 - **NEXT: USABILITY + POLISH** (pending): Wave 5 gap fixes, skill tech-debt resolution, scene revive UX
 
 **Componenti implementati non in VISION originale** (aggiunti post-brainstorm 2026-05-22):
