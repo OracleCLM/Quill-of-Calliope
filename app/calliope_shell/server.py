@@ -85,6 +85,102 @@ def create_app():
     def health():
         return jsonify({"status": "ok"})
 
+    @app.route("/api/dashboard/snapshot", methods=["GET"])
+    def dashboard_snapshot():
+        """Consolidated dashboard snapshot — state + counts + recent activity.
+
+        Perf budget: <500ms warm, <2s cold (operator-mandate Q7).
+        All sub-queries best-effort with try/except → degrade to safe defaults.
+        Daemon health checks parallelizable via concurrent.futures (kept
+        sequential here since each curl has 1.5s timeout — total 4s worst-case;
+        switch to ThreadPool only if perf gate fails).
+        """
+        import time as _time  # noqa: PLC0415
+        t0 = _time.monotonic()
+        repo_root = Path(__file__).parents[2]
+
+        def _ping(url: str, timeout: float = 1.5) -> dict:
+            try:
+                r = requests.get(url, timeout=timeout)
+                return {"up": r.status_code < 500, "code": r.status_code, "latency_ms": int(r.elapsed.total_seconds() * 1000)}
+            except Exception:
+                return {"up": False, "code": None, "latency_ms": None}
+
+        daemons = {
+            "flask": {"up": True, "code": 200, "latency_ms": 0},
+            "llm_gateway": _ping(f"{GATEWAY_URL}/health"),
+            "mascot_ws": _ping(f"{MASCOT_REST_URL}/health" if MASCOT_REST_URL else "http://localhost:9876/"),
+            "chromadb": {"up": False, "code": None, "latency_ms": None},
+        }
+        try:
+            client = _chroma_client()
+            client.heartbeat()
+            daemons["chromadb"] = {"up": True, "code": 200, "latency_ms": 0}
+        except Exception as exc:
+            logger.warning("dashboard_snapshot: chromadb heartbeat failed: %s", exc)
+
+        chars_db = 0
+        try:
+            chars_db = len(list_chars())
+        except Exception as exc:
+            logger.warning("dashboard_snapshot: chars_db query failed: %s", exc)
+        chars_yaml = len(list((repo_root / "characters").rglob("*.yaml"))) if (repo_root / "characters").exists() else 0
+        chars_archive = max(0, chars_yaml - chars_db)
+
+        scenes_disk = len(list((repo_root / "scenes").rglob("*.md"))) if (repo_root / "scenes").exists() else 0
+        scenes_db = 0
+        try:
+            client = _chroma_client()
+            col = client.get_or_create_collection("calliope_scenes")
+            scenes_db = col.count()
+        except Exception:
+            pass
+
+        arcs = 0
+        try:
+            from app.calliope_shell.plot_arc import list_arcs  # noqa: PLC0415
+            arcs = len(list_arcs())
+        except Exception:
+            pass
+
+        lore_disk = len(list((repo_root / "lore").rglob("*.md"))) if (repo_root / "lore").exists() else 0
+
+        messages_db = 0
+        try:
+            client = _chroma_client()
+            col = client.get_or_create_collection("calliope_messages")
+            messages_db = col.count()
+        except Exception:
+            pass
+
+        # Active LLM provider — defaults from VISION 4-tier (Cerebras workhorse)
+        # In future this can read from a runtime config; for now reflect VISION default.
+        llm_routing = {
+            "active_provider": os.getenv("CALLIOPE_LLM_PROVIDER", "cerebras"),
+            "active_model": os.getenv("CALLIOPE_LLM_MODEL", "qwen-3-235b-a22b-instruct-2507"),
+            "uncensored_available": True,
+            "uncensored_provider": "ollama",
+        }
+
+        # Recent activity — placeholder until audit_trail table exists (Sprint C scope)
+        recent_activity: list = []
+
+        elapsed_ms = int((_time.monotonic() - t0) * 1000)
+        return jsonify({
+            "daemons": daemons,
+            "counts": {
+                "chars": {"active": chars_db, "archive": chars_archive, "total_yaml": chars_yaml},
+                "scenes": {"db": scenes_db, "disk": scenes_disk},
+                "arcs": arcs,
+                "lore_disk": lore_disk,
+                "messages_indexed": messages_db,
+            },
+            "llm_routing": llm_routing,
+            "recent_activity": recent_activity,
+            "snapshot_latency_ms": elapsed_ms,
+            "snapshot_taken_at": int(_time.time()),
+        })
+
     @app.route("/api/dashboard/counts", methods=["GET"])
     def dashboard_counts():
         """Aggregate knowledge-base counts for landing dashboard widgets.
