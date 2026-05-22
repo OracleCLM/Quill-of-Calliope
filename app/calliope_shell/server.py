@@ -1,5 +1,6 @@
 import logging
 import os
+from functools import lru_cache
 from pathlib import Path
 
 import chromadb
@@ -24,6 +25,7 @@ _SCENES_DIR = Path(__file__).parents[2] / "scenes"
 _VALID_DIRECTIONS = {"IT_to_EN", "EN_to_IT"}
 
 
+@lru_cache(maxsize=1)
 def _chroma_client():
     return chromadb.PersistentClient(path=_CHROMA_PATH)
 
