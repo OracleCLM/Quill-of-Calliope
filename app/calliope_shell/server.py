@@ -215,6 +215,31 @@ def create_app():
             "uncensored_active": _llm_routing_state["uncensored"],
         })
 
+    @app.route("/api/dashboard/activity", methods=["GET"])
+    def dashboard_activity():
+        """Read audit_trail for the activity-feed panel (Sprint C3).
+
+        Query params:
+          mode: 'highlight' (default, operator-perceived events) |
+                'verbose' (all 13 write kinds)
+          limit: 1..100 (default 20)
+        """
+        from app.calliope_shell import audit_trail as _audit  # noqa: PLC0415
+        mode = request.args.get("mode", "highlight")
+        if mode not in ("highlight", "verbose"):
+            return jsonify({"error": "mode must be 'highlight' or 'verbose'"}), 400
+        try:
+            limit = max(1, min(int(request.args.get("limit", 20)), 100))
+        except ValueError:
+            limit = 20
+        events = _audit.recent_events(limit=limit, mode=mode)
+        return jsonify({
+            "events": events,
+            "mode": mode,
+            "limit": limit,
+            "count": len(events),
+        })
+
     @app.route("/api/dashboard/snapshot", methods=["GET"])
     def dashboard_snapshot():
         """Consolidated dashboard snapshot — state + counts + recent activity.
@@ -294,8 +319,12 @@ def create_app():
             "uncensored_active": _llm_routing_state["uncensored"],
         }
 
-        # Recent activity — placeholder until audit_trail table exists (Sprint C scope)
-        recent_activity: list = []
+        # Recent activity from audit_trail (Sprint C3 — highlight subset).
+        try:
+            from app.calliope_shell import audit_trail as _audit  # noqa: PLC0415
+            recent_activity = _audit.recent_events(limit=5, mode="highlight")
+        except Exception:
+            recent_activity = []
 
         elapsed_ms = int((_time.monotonic() - t0) * 1000)
         return jsonify({
