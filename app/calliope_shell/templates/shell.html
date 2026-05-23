@@ -110,6 +110,25 @@
             margin-top:4px; }
         .archive-hint { color:#f9a825; font-size:.78em; cursor:help; }
 
+        /* ── Activity feed (Sprint C4) ── */
+        .activity-card { grid-column: 1 / -1; }
+        .activity-controls { display:flex; align-items:center; gap:10px; margin:8px 0;
+            font-size:.82em; }
+        .activity-controls label { display:flex; align-items:center; gap:5px; cursor:pointer; color:#aab; }
+        .activity-controls input[type=radio] { cursor:pointer; }
+        .activity-controls .ac-refresh { background:#1e3a6e; color:#cde; border:none;
+            border-radius:5px; padding:5px 12px; cursor:pointer; font-size:.82em; margin-left:auto; }
+        .activity-list { max-height:260px; overflow-y:auto; padding:4px 0; }
+        .activity-item { padding:7px 8px; border-bottom:1px solid #1a2440;
+            font-size:.83em; line-height:1.45; display:flex; gap:10px; }
+        .activity-item:last-child { border-bottom:none; }
+        .activity-ts { color:#556; font-size:.78em; min-width:90px; flex-shrink:0; }
+        .activity-kind { color:#7faaff; font-weight:bold; min-width:135px; flex-shrink:0;
+            font-family:monospace; font-size:.78em; }
+        .activity-body { color:#cde; flex:1; }
+        .activity-subject { color:#dde; font-weight:bold; }
+        .activity-empty { color:#445; font-size:.85em; padding:20px; text-align:center; }
+
         /* ── Empty-state uniform (Sprint A4) ── */
         .empty-state { display:flex; flex-direction:column; align-items:center;
             justify-content:center; padding:40px 20px; text-align:center;
@@ -297,6 +316,19 @@
                             onclick="_toggleUncensored()" style="width:100%;justify-content:center;">
                         <span class="sc-icon">⚙</span><span id="dash-uncensored-label">Switch to Ollama uncensored</span>
                     </button>
+                </div>
+            </div>
+
+            <div class="dash-card activity-card" id="dash-card-activity">
+                <h3>Attività recente</h3>
+                <div class="activity-controls">
+                    <label><input type="radio" name="activity-mode" value="on-demand"> on-demand</label>
+                    <label><input type="radio" name="activity-mode" value="highlight" checked> highlight</label>
+                    <label><input type="radio" name="activity-mode" value="verbose"> verbose</label>
+                    <button class="ac-refresh" id="ac-refresh-btn" onclick="loadActivityFeed()">↻ Refresh</button>
+                </div>
+                <div id="activity-list" class="activity-list">
+                    <div class="activity-empty">Caricamento…</div>
                 </div>
             </div>
 
@@ -1022,6 +1054,79 @@
                 btn.disabled = false;
             }
         }
+
+        // ── Activity feed (Sprint C4) ──
+        // Q5 3-mode toggle:
+        //   on-demand → fetch only on Refresh click
+        //   highlight → auto-fetch with 6 operator-perceived kinds (default)
+        //   verbose   → auto-fetch with all 13 write kinds
+        function _activityMode() {
+            const checked = document.querySelector('input[name="activity-mode"]:checked');
+            return checked ? checked.value : 'highlight';
+        }
+
+        function _formatActivityTs(iso) {
+            if (!iso) return '';
+            try {
+                const d = new Date(iso.replace(' ', 'T') + 'Z');
+                return d.toLocaleString();
+            } catch (e) { return iso; }
+        }
+
+        async function loadActivityFeed() {
+            const list = document.getElementById('activity-list');
+            if (!list) return;
+            const mode = _activityMode();
+            if (mode === 'on-demand' && !window._activityForceLoad) {
+                list.innerHTML = '<div class="activity-empty">Modalità on-demand — clicca ↻ Refresh per caricare.</div>';
+                return;
+            }
+            window._activityForceLoad = false;
+            try {
+                const apiMode = mode === 'verbose' ? 'verbose' : 'highlight';
+                const resp = await fetch(`/api/dashboard/activity?mode=${apiMode}&limit=30`);
+                if (!resp.ok) { list.innerHTML = `<div class="activity-empty">HTTP ${resp.status}</div>`; return; }
+                const data = await resp.json();
+                if (!data.events.length) {
+                    list.innerHTML = '<div class="activity-empty">Nessuna attività registrata.</div>';
+                    return;
+                }
+                list.innerHTML = data.events.map(e => `
+                    <div class="activity-item">
+                        <span class="activity-ts">${_formatActivityTs(e.ts)}</span>
+                        <span class="activity-kind">${e.kind}</span>
+                        <span class="activity-body">
+                            ${e.subject ? `<span class="activity-subject">${e.subject}</span> ` : ''}
+                            ${(e.detail || '').replace(/</g, '&lt;')}
+                        </span>
+                    </div>`).join('');
+            } catch (err) {
+                list.innerHTML = `<div class="activity-empty">Errore: ${err.message}</div>`;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('input[name="activity-mode"]').forEach(r => {
+                r.addEventListener('change', () => {
+                    window._activityForceLoad = (r.value !== 'on-demand');
+                    loadActivityFeed();
+                });
+            });
+            const refreshBtn = document.getElementById('ac-refresh-btn');
+            if (refreshBtn) refreshBtn.addEventListener('click', () => {
+                window._activityForceLoad = true;
+                loadActivityFeed();
+            });
+            // Auto-load on landing (highlight mode is default)
+            loadActivityFeed();
+            // Refresh every 30s if not on-demand
+            setInterval(() => {
+                if (_activityMode() !== 'on-demand') {
+                    const panel = document.getElementById('dashboard-panel');
+                    if (panel && panel.style.display !== 'none') loadActivityFeed();
+                }
+            }, 30000);
+        });
 
         function _startDashSnapshotPoll() {
             if (_dashSnapshotTimer) clearInterval(_dashSnapshotTimer);
