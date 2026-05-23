@@ -45,6 +45,11 @@ def _conn() -> sqlite3.Connection:
     c = sqlite3.connect(str(DB_PATH), check_same_thread=False)
     c.row_factory = sqlite3.Row
     c.execute("PRAGMA foreign_keys = ON")
+    # WAL mode (audit P1 #11): readers no longer block writers. Shared DB
+    # with char_memory; journal_mode is database-wide so both modules
+    # need the same setting on connect.
+    c.execute("PRAGMA journal_mode=WAL")
+    c.execute("PRAGMA synchronous=NORMAL")
     return c
 
 

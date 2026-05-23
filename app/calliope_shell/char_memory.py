@@ -25,6 +25,11 @@ _VALID_SCOPES = {"L0", "L1", "L2"}
 def _conn() -> sqlite3.Connection:
     c = sqlite3.connect(str(_DB_PATH), check_same_thread=False)
     c.row_factory = sqlite3.Row
+    # WAL mode (audit P1 #11): readers no longer block writers.
+    # synchronous=NORMAL trades durability-on-crash for ~2x write throughput
+    # on the use-case profile (RP narrative, no transactional money).
+    c.execute("PRAGMA journal_mode=WAL")
+    c.execute("PRAGMA synchronous=NORMAL")
     return c
 
 
