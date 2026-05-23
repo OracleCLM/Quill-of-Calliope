@@ -114,6 +114,7 @@ def upsert_char(
 ) -> None:
     try:
         existing = get_char(name) or {}
+        is_new = not bool(existing)
         new_traits = traits if traits is not None else existing.get("traits", {})
         new_rels = relationships if relationships is not None else existing.get("relationships", {})
         new_action = last_action if last_action is not None else existing.get("last_action")
@@ -131,6 +132,15 @@ def upsert_char(
                     new_scene,
                 ),
             )
+        # Audit hook (Sprint C2). Differentiate create vs update so the
+        # activity feed can use it for highlight mode (create is highlight,
+        # update is verbose-only).
+        from app.calliope_shell import audit_trail  # noqa: PLC0415
+        audit_trail.log_event(
+            "char.create" if is_new else "char.update",
+            subject=name,
+            detail=last_action,
+        )
     except Exception as exc:
         logger.warning("char_memory upsert_char failed: %s", exc)
 
@@ -200,6 +210,14 @@ def append_fact(
                 (fact_id, char_name, scope),
             )
         logger.info("append_fact: %s → %s [%s]", char_name, fact_id[:8], scope)
+        # Audit hook (Sprint C2). detail = truncated fact text for activity feed.
+        from app.calliope_shell import audit_trail  # noqa: PLC0415
+        audit_trail.log_event(
+            "char.fact_append",
+            subject=char_name,
+            detail=fact_text[:200],
+            metadata={"fact_id": fact_id, "scope": scope, "n_entities": len(entities)},
+        )
         return fact_id
     except Exception as exc:
         logger.warning("char_memory append_fact failed: %s", exc)
@@ -233,6 +251,15 @@ def replace_fact(
                         (new_fact, row["rowid"]),
                     )
                     updated.append(row["fact_id"])
+        if updated:
+            # Audit hook (Sprint C2).
+            from app.calliope_shell import audit_trail  # noqa: PLC0415
+            audit_trail.log_event(
+                "char.fact_replace",
+                subject=char_name,
+                detail=f"'{old_text[:80]}' → '{new_text[:80]}'",
+                metadata={"replaced": len(updated), "scope": scope},
+            )
         return {"success": True, "replaced": len(updated), "fact_ids": updated}
     except Exception as exc:
         logger.warning("char_memory replace_fact failed: %s", exc)

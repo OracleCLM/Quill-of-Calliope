@@ -198,6 +198,17 @@ def create_app():
             _llm_routing_state["provider"] = _DEFAULT_PROFILE["provider"]
             _llm_routing_state["model"] = _DEFAULT_PROFILE["model"]
             _llm_routing_state["uncensored"] = False
+        # Audit hook (Sprint C2).
+        try:
+            from app.calliope_shell import audit_trail as _audit  # noqa: PLC0415
+            _audit.log_event(
+                "llm_routing.switch",
+                subject=_llm_routing_state["provider"],
+                detail=f"uncensored={'on' if _llm_routing_state['uncensored'] else 'off'}",
+                metadata={"model": _llm_routing_state["model"]},
+            )
+        except Exception:
+            pass
         return jsonify({
             "active_provider": _llm_routing_state["provider"],
             "active_model": _llm_routing_state["model"],
@@ -425,6 +436,17 @@ def create_app():
             resp.raise_for_status()
             data = resp.json()
             translation = data.get("result") or data.get("text") or data.get("content", "")
+            # Audit hook (Sprint C2).
+            try:
+                from app.calliope_shell import audit_trail as _audit  # noqa: PLC0415
+                _audit.log_event(
+                    "translate.run",
+                    subject=direction,
+                    detail=text[:120],
+                    metadata={"in_chars": len(text), "out_chars": len(translation)},
+                )
+            except Exception:
+                pass
             return jsonify({"translation": translation, "model_used": "groq/llama-3.3-70b-versatile"})
         except requests.exceptions.ConnectionError:
             return jsonify({"error": "LLM gateway not available", "code": "gateway_down"}), 503
@@ -594,6 +616,18 @@ def create_app():
         ref_lines = refined_text.splitlines(keepends=True)
         diff_html = "".join(difflib.unified_diff(orig_lines, ref_lines, lineterm=""))
 
+        # Audit hook (Sprint C2).
+        try:
+            from app.calliope_shell import audit_trail as _audit  # noqa: PLC0415
+            _audit.log_event(
+                "scene.refine",
+                subject=scene_file_path or "inline_text",
+                detail=feedback[:200],
+                metadata={"auto_lint": auto_lint, "lint_findings_count": len(lint_findings)},
+            )
+        except Exception:
+            pass
+
         return jsonify({
             "refined_text": refined_text,
             "diff": diff_html,
@@ -658,6 +692,18 @@ def create_app():
             _dt.now().isoformat(timespec="seconds"),
         )
 
+        # Audit hook (Sprint C2).
+        try:
+            from app.calliope_shell import audit_trail as _audit  # noqa: PLC0415
+            _audit.log_event(
+                "scene.variants_generated",
+                subject=scene_type,
+                detail=f"n={len(variants)} prompt='{prompt[:80]}'",
+                metadata={"tier": tier_name, "provider": provider, "n": len(variants)},
+            )
+        except Exception:
+            pass
+
         return jsonify({
             "variants": [
                 {"index": i + 1, "style": v["style"], "text": v["text"], "latency_ms": v["latency_ms"]}
@@ -710,6 +756,18 @@ def create_app():
         out_path = Path(tempfile.mktemp(suffix=".blend.md", prefix="calliope_"))
         from blend_scene import write_blended_output  # noqa: PLC0415
         write_blended_output(out_path, blended, indices, hint, latency_ms, vpath)
+
+        # Audit hook (Sprint C2).
+        try:
+            from app.calliope_shell import audit_trail as _audit  # noqa: PLC0415
+            _audit.log_event(
+                "scene.blend",
+                subject=str(vpath.name),
+                detail=f"indices={indices} latency={latency_ms}ms",
+                metadata={"blend_indices": indices, "latency_ms": latency_ms},
+            )
+        except Exception:
+            pass
 
         return jsonify({
             "blended_text": blended,
@@ -940,6 +998,17 @@ def create_app():
             resp.raise_for_status()
             data = resp.json()
             next_msg = data.get("result") or data.get("text") or data.get("content", "")
+            # Audit hook (Sprint C2).
+            try:
+                from app.calliope_shell import audit_trail as _audit  # noqa: PLC0415
+                _audit.log_event(
+                    "scene.next_msg",
+                    subject=scene_id,
+                    detail=f"{char}: {next_msg[:120]}",
+                    metadata={"char": char, "ctx_facts": len(char_facts), "out_chars": len(next_msg)},
+                )
+            except Exception:
+                pass
             return jsonify({
                 "next_msg": next_msg,
                 "char": char,

@@ -120,6 +120,15 @@ def create_arc(arc_id: str, title: str, chars: List[str]) -> dict:
             "INSERT OR REPLACE INTO plot_arcs (arc_id, title, chars) VALUES (?, ?, ?)",
             (arc_id, title, json.dumps(chars)),
         )
+    # Audit hook (Sprint C2).
+    try:
+        from app.calliope_shell import audit_trail  # noqa: PLC0415
+        audit_trail.log_event(
+            "arc.create", subject=arc_id, detail=title,
+            metadata={"chars": chars},
+        )
+    except Exception:
+        pass
     return get_arc(arc_id) or {"arc_id": arc_id, "title": title, "chars": chars}
 
 
@@ -189,6 +198,17 @@ def append_scene(
             "UPDATE plot_arcs SET updated_at = CURRENT_TIMESTAMP WHERE arc_id = ?", (arc_id,)
         )
 
+    # Audit hook (Sprint C2).
+    try:
+        from app.calliope_shell import audit_trail  # noqa: PLC0415
+        audit_trail.log_event(
+            "arc.scene_append", subject=arc_id,
+            detail=scene_summary[:200] if scene_summary else None,
+            metadata={"scene_order": scene_order, "scene_id": scene_id},
+        )
+    except Exception:
+        pass
+
     return {
         "arc_id": arc_id, "scene_order": scene_order,
         "scene_id": scene_id, "scene_md_path": str(path),
@@ -216,6 +236,14 @@ def regenerate_summary(arc_id: str) -> str:
             "WHERE arc_id = ?",
             (summary, arc_id),
         )
+    # Audit hook (Sprint C2).
+    try:
+        from app.calliope_shell import audit_trail  # noqa: PLC0415
+        audit_trail.log_event(
+            "arc.summary_regen", subject=arc_id, detail=summary[:200],
+        )
+    except Exception:
+        pass
     return summary
 
 
