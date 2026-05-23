@@ -21,6 +21,11 @@ _lock = threading.Lock()
 
 _VALID_SCOPES = {"L0", "L1", "L2"}
 
+# Cap on facts scanned per char during entity-overlap signal of
+# retrieve_multi_signal (audit P1 #10). Recency-bounded scan trades
+# exhaustive coverage for predictable latency on long-lived chars.
+_ENTITY_OVERLAP_SCAN_LIMIT = 500
+
 
 def _conn() -> sqlite3.Connection:
     c = sqlite3.connect(str(_DB_PATH), check_same_thread=False)
@@ -298,6 +303,10 @@ def retrieve_multi_signal(
         logger.warning("retrieve_multi_signal BM25 failed: %s", exc)
 
     # ── Signal 2: entity overlap ─────────────────────────────────────────────
+    # Audit P1 #10: previously this scanned ALL facts per char (O(n)) per
+    # query. On chars with 10k+ facts the entity-overlap phase dominated
+    # latency. Cap at the most recent _ENTITY_OVERLAP_SCAN_LIMIT facts —
+    # narrative recency matters more than exhaustive scan for entity link.
     entity_scores: dict[str, float] = {}
     try:
         from app.calliope_shell.entity_linker import EntityLinker  # noqa: PLC0415
@@ -308,8 +317,9 @@ def retrieve_multi_signal(
             q_labels = {e["label"] for e in query_entities}
             with _lock, _conn() as c:
                 all_facts = c.execute(
-                    "SELECT fact_id, fact_text, entities, scope FROM char_facts WHERE char_name = ?",
-                    (char_name,),
+                    "SELECT fact_id, fact_text, entities, scope FROM char_facts "
+                    "WHERE char_name = ? ORDER BY created_at DESC LIMIT ?",
+                    (char_name, _ENTITY_OVERLAP_SCAN_LIMIT),
                 ).fetchall()
             for row in all_facts:
                 fid = row["fact_id"]
