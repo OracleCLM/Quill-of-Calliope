@@ -70,6 +70,33 @@ def _detect_discord_bot() -> dict:
     }
 
 
+def _safe_variants_path(user_path: str) -> Path:
+    """Validate a variants file path supplied to /api/scene/blend.
+
+    Why: /api/scene/variants writes to tempfile.mktemp() (system tmp dir,
+    files named 'calliope_*.variants.md'). /api/scene/blend then reads via
+    user-supplied path → path-traversal if unchecked (audit P1 #4, same
+    vector as P0 #1 on /api/scene/refine).
+
+    Allowed roots: tmp dir prefix + repo scenes/ dir. Filename must match
+    the calliope_*.variants.md pattern produced by the variants route.
+    """
+    import tempfile as _tempfile  # noqa: PLC0415
+    if not user_path:
+        raise ValueError("empty path")
+    candidate = Path(user_path).resolve()
+    tmp_root = Path(_tempfile.gettempdir()).resolve()
+    scenes_root = (Path(__file__).parents[2] / "scenes").resolve()
+    name = candidate.name
+    is_in_tmp = candidate.is_relative_to(tmp_root) if hasattr(candidate, "is_relative_to") else str(candidate).startswith(str(tmp_root) + "/")
+    is_in_scenes = candidate.is_relative_to(scenes_root) if hasattr(candidate, "is_relative_to") else str(candidate).startswith(str(scenes_root) + "/")
+    if not (is_in_tmp or is_in_scenes):
+        raise ValueError(f"path outside allowed roots (tmp / scenes): {user_path}")
+    if not (name.startswith("calliope_") and name.endswith(".variants.md")):
+        raise ValueError(f"filename pattern mismatch (expected calliope_*.variants.md): {name}")
+    return candidate
+
+
 def _safe_read_scene_file(user_path: str) -> str:
     """Read a scene file, restricted to _SCENES_DIR.
 
@@ -655,7 +682,10 @@ def create_app():
         if not variants_file_path:
             return jsonify({"error": "variants_file_path is required"}), 400
 
-        vpath = Path(variants_file_path)
+        try:
+            vpath = _safe_variants_path(variants_file_path)
+        except ValueError as exc:
+            return jsonify({"error": str(exc)}), 400
         if not vpath.exists():
             return jsonify({"error": f"variants file not found: {variants_file_path}"}), 404
 
