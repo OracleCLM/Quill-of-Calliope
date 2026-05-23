@@ -25,7 +25,12 @@
             _setStatus(statusEl, 'loading', 'Traduzione in corso...');
 
             try {
-                const resp = await fetch(API_URL, {
+                // Sprint C5: route through cloudCall when available (privacy warning per-call).
+                // Fall back to direct fetch if cloudCall not yet defined (e.g. unit-test harness).
+                const _fetcher = (typeof window !== 'undefined' && typeof window.cloudCall === 'function')
+                    ? (u, o) => window.cloudCall(u, o, {kind: 'translate'})
+                    : fetch;
+                const resp = await _fetcher(API_URL, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({text, direction, context: 'fantasy_rp'}),
