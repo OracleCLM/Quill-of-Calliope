@@ -293,8 +293,25 @@ def propose_next_scene(arc_id: str, hint: Optional[str] = None) -> dict:
 
 # ── ChromaDB search (best-effort, degrades to empty list) ────────────────────
 
+# Incremental upsert cache (audit P1 #12). Maps arc_id → fingerprint
+# (updated_at + summary hash) so we only upsert rows that actually changed.
+# Bounded by len(arcs); cleared if the underlying DB is reset.
+_arc_upsert_cache: dict[str, str] = {}
+
+
+def _arc_fingerprint(arc: dict) -> str:
+    """Cheap change-detector: (updated_at + summary length) is enough to
+    catch every observable mutation without hashing the full summary text.
+    """
+    return f"{arc.get('updated_at', '')}|{len(arc.get('summary') or arc.get('title', ''))}"
+
+
 def search_arcs_by_topic(query: str, top_k: int = 3) -> List[dict]:
-    """Semantic search across arc summaries via ChromaDB (best-effort)."""
+    """Semantic search across arc summaries via ChromaDB (best-effort).
+
+    Audit P1 #12: previously upserted ALL arc summaries on every search.
+    Now incremental — only changed arcs (by fingerprint) get re-upserted.
+    """
     try:
         client = _arc_chroma_client()
         try:
@@ -304,10 +321,16 @@ def search_arcs_by_topic(query: str, top_k: int = 3) -> List[dict]:
 
         arcs = list_arcs()
         if arcs:
-            docs = [a.get("summary") or a["title"] for a in arcs]
-            ids = [a["arc_id"] for a in arcs]
-            # Upsert all arc summaries
-            col.upsert(documents=docs, ids=ids)
+            changed_docs: list = []
+            changed_ids: list = []
+            for a in arcs:
+                fp = _arc_fingerprint(a)
+                if _arc_upsert_cache.get(a["arc_id"]) != fp:
+                    changed_docs.append(a.get("summary") or a["title"])
+                    changed_ids.append(a["arc_id"])
+                    _arc_upsert_cache[a["arc_id"]] = fp
+            if changed_ids:
+                col.upsert(documents=changed_docs, ids=changed_ids)
 
         results = col.query(query_texts=[query], n_results=min(top_k, max(1, len(arcs))))
         out = []
