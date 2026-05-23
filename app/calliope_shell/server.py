@@ -809,6 +809,10 @@ def create_app():
 
     from app.calliope_shell import plot_arc as _pa  # noqa: PLC0415
     _pa.init_db()
+    # Sprint C1: audit_trail table init at app startup so log_event() writes
+    # land in the DB even before any other code path triggers init.
+    from app.calliope_shell import audit_trail as _audit_init  # noqa: PLC0415
+    _audit_init.init_db()
 
     @app.route("/api/arc", methods=["GET"])
     def arc_list():
