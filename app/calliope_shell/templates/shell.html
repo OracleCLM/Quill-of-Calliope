@@ -641,7 +641,9 @@
                 </div>
                 <div>
                     <label style="font-size:.85em; color:#889; display:block; margin-bottom:4px;">Char focus (opzionale)</label>
-                    <input id="sd-char-focus" type="text" style="width:100%; background:#111827; color:#eee; border:1px solid #2a3a5a; border-radius:6px; padding:6px; box-sizing:border-box;" placeholder="Aurora">
+                    <select id="sd-char-focus" style="width:100%; background:#111827; color:#eee; border:1px solid #2a3a5a; border-radius:6px; padding:6px; box-sizing:border-box;">
+                        <option value="">— Nessuno —</option>
+                    </select>
                 </div>
                 <div>
                     <label style="font-size:.85em; color:#889; display:block; margin-bottom:4px;">Style hints</label>
@@ -847,6 +849,7 @@
             if (view === 'scenes') _loadScenes();
             if (view === 'messages') _loadMessages();
             if (view === 'dashboard') loadDashboardSnapshot();
+            if (view === 'smartdraft') _loadCharDropdown();
         }
 
         // ── Scenes panel (Gap B) ──
@@ -1525,6 +1528,24 @@
                 showView('lorecheck');
             }
         });
+
+        // ── Char dropdown loader (Smart Draft) ──
+        let _charDropdownLoaded = false;
+        async function _loadCharDropdown() {
+            if (_charDropdownLoaded) return;
+            const sel = document.getElementById('sd-char-focus');
+            try {
+                const resp = await fetch('/api/chars');
+                const chars = await resp.json();
+                if (Array.isArray(chars) && chars.length) {
+                    const prev = sel.value;
+                    sel.innerHTML = '<option value="">— Nessuno —</option>' +
+                        chars.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
+                    if (prev) sel.value = prev;
+                    _charDropdownLoaded = true;
+                }
+            } catch(e) { /* non-fatal */ }
+        }
 
         // ── Scene Revive (from scene detail) ──
         window._reviveScene = async function() {
