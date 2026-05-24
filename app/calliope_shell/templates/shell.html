@@ -342,6 +342,12 @@
                         <span class="sc-icon">⇄</span><span>Traduci IT ↔ EN</span></button>
                     <button class="shortcut-btn" onclick="showView('arc')">
                         <span class="sc-icon">◈</span><span>Continua plot arc</span></button>
+                    <button class="shortcut-btn" onclick="showView('smartdraft')">
+                        <span class="sc-icon">⚡</span><span>Smart Draft (IT→EN)</span></button>
+                    <button class="shortcut-btn" onclick="showView('summarize')">
+                        <span class="sc-icon">∑</span><span>Summarize paste</span></button>
+                    <button class="shortcut-btn" onclick="showView('lorecheck')">
+                        <span class="sc-icon">⊘</span><span>Lore coherence check</span></button>
                 </div>
             </div>
 
@@ -430,6 +436,21 @@
                     <div class="wc-icon">◈</div>
                     <div class="wc-title">Plot Arcs</div>
                     <div class="wc-desc">Continua un arco narrativo</div>
+                </div>
+                <div class="welcome-card" onclick="showView('smartdraft')">
+                    <div class="wc-icon">⚡</div>
+                    <div class="wc-title">Smart Draft</div>
+                    <div class="wc-desc">Intento IT → draft letterario EN</div>
+                </div>
+                <div class="welcome-card" onclick="showView('summarize')">
+                    <div class="wc-icon">∑</div>
+                    <div class="wc-title">Summarize</div>
+                    <div class="wc-desc">Discord paste → key facts</div>
+                </div>
+                <div class="welcome-card" onclick="showView('lorecheck')">
+                    <div class="wc-icon">⊘</div>
+                    <div class="wc-title">Lore Check</div>
+                    <div class="wc-desc">Verifica coerenza col lore</div>
                 </div>
             </div>
         </div>
@@ -854,11 +875,16 @@
                 });
                 return;
             }
-            ul.innerHTML = scenes.map(s => `
+            const _statusColor = {'active':'#4c8','draft':'#c90','dormant':'#667'};
+            ul.innerHTML = scenes.map(s => {
+                const st = s.status || 'draft';
+                const col = _statusColor[st] || '#556';
+                return `
                 <li onclick="_loadSceneDetail('${s.scene_id}')">
-                    <div class="scene-item-title">${s.title || s.scene_id}</div>
+                    <div class="scene-item-title">${s.title || s.scene_id} <span style="font-size:.7em;color:${col};border:1px solid ${col};border-radius:3px;padding:1px 5px;margin-left:6px;vertical-align:middle;">${st}</span></div>
                     <div class="scene-item-meta">${s.date_started || ''} | ${(s.participants||[]).slice(0,3).join(', ')}</div>
-                </li>`).join('');
+                </li>`;
+            }).join('');
         }
 
         function _scenesFilter(val) {
