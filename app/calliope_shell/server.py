@@ -22,6 +22,7 @@ _mascot_state: dict = {"emotion": "neutral", "intensity": 1.0, "scene_id": None}
 
 _CHROMA_PATH = str(Path(__file__).parents[2] / ".chroma_calliope")
 _SCENES_DIR = Path(__file__).parents[2] / "scenes"
+_CHARS_DIR = Path(__file__).parents[2] / "characters"
 _VALID_DIRECTIONS = {"IT_to_EN", "EN_to_IT"}
 
 
@@ -1057,6 +1058,180 @@ def create_app():
         except Exception as exc:
             logger.warning("messages_next failed: %s", exc)
             return jsonify({"error": str(exc)}), 503
+
+    # ── Draft generation (VISION core feature) ────────────────────────────────
+
+    def _load_char_sheets(names: list[str]) -> list[dict]:
+        sheets = []
+        for name in names:
+            for p in _CHARS_DIR.glob("*.yaml"):
+                if name.lower() in p.stem.lower():
+                    try:
+                        raw = yaml.safe_load(p.read_text(encoding="utf-8")) or {}
+                        if isinstance(raw, dict):
+                            sheets.append({
+                                "name": raw.get("name", p.stem),
+                                "traits": raw.get("traits", []),
+                                "backstory": (raw.get("backstory") or "")[:300],
+                                "speech_pattern": raw.get("speech_pattern", {}),
+                                "race": raw.get("race", ""),
+                                "class": raw.get("class", ""),
+                            })
+                    except Exception:
+                        pass
+                    break
+        return sheets
+
+    def _search_lore(query: str, n: int = 3) -> list[str]:
+        try:
+            client = _chroma_client()
+            col = client.get_collection("calliope_lore")
+            results = col.query(query_texts=[query], n_results=n)
+            return [doc[:300] for doc in (results.get("documents", [[]])[0])]
+        except Exception:
+            return []
+
+    @app.route("/api/draft", methods=["POST"])
+    def draft_scene():
+        body = request.get_json(silent=True) or {}
+        scene_id = body.get("scene_id", "").strip()
+        intent_it = body.get("intent_it", "").strip()
+        char_focus = body.get("char_focus", "").strip()
+        style_hints = body.get("style_hints", "")
+
+        if not intent_it:
+            return jsonify({"error": "intent_it is required"}), 400
+
+        scene_ctx = ""
+        participants = []
+        if scene_id:
+            for p in _SCENES_DIR.glob("*.yaml"):
+                if scene_id in p.stem:
+                    d = _parse_scene_yaml(p)
+                    if d:
+                        participants = d.get("participants", [])
+                        scene_ctx = (
+                            f"Scene: {d.get('title', scene_id)}\n"
+                            f"Status: {d.get('status', 'unknown')}\n"
+                            f"Summary: {d.get('summary', '')}\n"
+                            f"Participants: {', '.join(participants)}\n"
+                            f"Last excerpt: {d.get('last_msg_excerpt', '')}"
+                        )
+                    break
+
+        char_sheets = _load_char_sheets(
+            [char_focus] if char_focus else participants[:5]
+        )
+
+        char_facts = []
+        focus_names = [char_focus] if char_focus else participants[:3]
+        for cn in focus_names:
+            if not cn:
+                continue
+            try:
+                from app.calliope_shell.char_memory import retrieve_multi_signal  # noqa: PLC0415
+                hits = retrieve_multi_signal(cn, intent_it, top_k=3)
+                char_facts.extend(
+                    f"{cn}: {h['fact_text']}" for h in hits[:2]
+                )
+            except Exception:
+                pass
+
+        lore_snippets = _search_lore(intent_it, n=3)
+
+        sheets_text = ""
+        for s in char_sheets:
+            sp = s.get("speech_pattern", {})
+            sheets_text += (
+                f"\n[{s['name']}] {s.get('race','')} {s.get('class','')}\n"
+                f"Traits: {', '.join(s.get('traits', []))}\n"
+                f"Backstory: {s.get('backstory', '')}\n"
+                f"Speech: vocab={sp.get('vocabulary','')}, "
+                f"pov={sp.get('pov','')}, notes={sp.get('notes','')}\n"
+            )
+
+        prompt_parts = [
+            "You are a literary fantasy RP writer producing high-quality English prose.",
+            "Write a scene draft based on the operator's intent (given in Italian).",
+            "Preserve character voice, use vivid sensory details, and maintain narrative continuity.",
+        ]
+        if scene_ctx:
+            prompt_parts.append(f"\n--- SCENE CONTEXT ---\n{scene_ctx}")
+        if sheets_text:
+            prompt_parts.append(f"\n--- CHARACTERS ---{sheets_text}")
+        if char_facts:
+            prompt_parts.append("\n--- CHARACTER MEMORY ---\n" + "\n".join(char_facts))
+        if lore_snippets:
+            prompt_parts.append("\n--- LORE ---\n" + "\n".join(lore_snippets))
+        if style_hints:
+            prompt_parts.append(f"\n--- STYLE ---\n{style_hints}")
+        prompt_parts.append(f"\n--- OPERATOR INTENT (Italian) ---\n{intent_it}")
+        prompt_parts.append(
+            "\nWrite the draft scene in English. "
+            "Be literary and evocative. 200-500 words."
+        )
+
+        full_prompt = "\n".join(prompt_parts)
+
+        try:
+            resp = requests.post(
+                f"{GATEWAY_URL}/llm_code",
+                json={
+                    "provider": "cerebras",
+                    "prompt": full_prompt,
+                    "temperature": 0.7,
+                },
+                timeout=60,
+            )
+            resp.raise_for_status()
+            data = resp.json()
+            draft_text = data.get("result") or data.get("text") or data.get("content", "")
+        except requests.exceptions.ConnectionError:
+            return jsonify({"error": "LLM gateway not available", "code": "gateway_down"}), 503
+        except Exception as exc:
+            logger.warning("draft generation failed: %s", exc)
+            return jsonify({"error": str(exc)}), 503
+
+        lint_findings = []
+        try:
+            import sys as _sys  # noqa: PLC0415
+            _sys.path.insert(0, str(Path(__file__).parents[2] / "scripts"))
+            from style_filter import filter_response as _fr  # noqa: PLC0415
+            draft_text, hits = _fr(draft_text, severity_threshold="HIGH")
+            lint_findings = [h["pattern"] for h in hits if h.get("action") == "stripped"]
+        except Exception as exc:
+            logger.warning("style_filter in draft route failed (non-fatal): %s", exc)
+
+        try:
+            from app.calliope_shell import audit_trail as _audit  # noqa: PLC0415
+            _audit.log_event(
+                "draft.generate",
+                subject=scene_id or "no_scene",
+                detail=intent_it[:200],
+                metadata={
+                    "char_focus": char_focus,
+                    "chars_loaded": len(char_sheets),
+                    "lore_hits": len(lore_snippets),
+                    "char_facts": len(char_facts),
+                    "out_chars": len(draft_text),
+                    "lint_findings": len(lint_findings),
+                },
+            )
+        except Exception:
+            pass
+
+        return jsonify({
+            "draft_text": draft_text,
+            "model_used": "cerebras/qwen-3-235b",
+            "context_used": {
+                "scene": bool(scene_ctx),
+                "char_sheets": len(char_sheets),
+                "char_facts": len(char_facts),
+                "lore_snippets": len(lore_snippets),
+                "style_hints": bool(style_hints),
+            },
+            "lint_findings": lint_findings,
+        })
 
     return app, FLASK_PORT
 
