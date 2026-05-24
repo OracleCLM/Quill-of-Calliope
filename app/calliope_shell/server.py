@@ -26,6 +26,38 @@ _CHARS_DIR = Path(__file__).parents[2] / "characters"
 _VALID_DIRECTIONS = {"IT_to_EN", "EN_to_IT"}
 
 
+def _load_char_sheets(names: list[str]) -> list[dict]:
+    sheets = []
+    for name in names:
+        for p in _CHARS_DIR.glob("*.yaml"):
+            if name.lower() in p.stem.lower():
+                try:
+                    raw = yaml.safe_load(p.read_text(encoding="utf-8")) or {}
+                    if isinstance(raw, dict):
+                        sheets.append({
+                            "name": raw.get("name", p.stem),
+                            "traits": raw.get("traits", []),
+                            "backstory": (raw.get("backstory") or "")[:300],
+                            "speech_pattern": raw.get("speech_pattern", {}),
+                            "race": raw.get("race", ""),
+                            "class": raw.get("class", ""),
+                        })
+                except Exception:
+                    pass
+                break
+    return sheets
+
+
+def _search_lore(query: str, n: int = 3) -> list[str]:
+    try:
+        client = _chroma_client()
+        col = client.get_collection("calliope_lore")
+        results = col.query(query_texts=[query], n_results=n)
+        return [doc[:300] for doc in (results.get("documents", [[]])[0])]
+    except Exception:
+        return []
+
+
 @lru_cache(maxsize=1)
 def _chroma_client():
     return chromadb.PersistentClient(path=_CHROMA_PATH)
@@ -880,8 +912,6 @@ def create_app():
 
     # ── WAVE-5 Operator Workflow Routes ───────────────────────────────────────
 
-    _SCENES_DIR = Path(__file__).parents[2] / "scenes"
-
     def _parse_scene_yaml(path: Path) -> dict:
         """Parse scene YAML, return flat dict with key fields."""
         try:
@@ -1060,36 +1090,6 @@ def create_app():
             return jsonify({"error": str(exc)}), 503
 
     # ── Draft generation (VISION core feature) ────────────────────────────────
-
-    def _load_char_sheets(names: list[str]) -> list[dict]:
-        sheets = []
-        for name in names:
-            for p in _CHARS_DIR.glob("*.yaml"):
-                if name.lower() in p.stem.lower():
-                    try:
-                        raw = yaml.safe_load(p.read_text(encoding="utf-8")) or {}
-                        if isinstance(raw, dict):
-                            sheets.append({
-                                "name": raw.get("name", p.stem),
-                                "traits": raw.get("traits", []),
-                                "backstory": (raw.get("backstory") or "")[:300],
-                                "speech_pattern": raw.get("speech_pattern", {}),
-                                "race": raw.get("race", ""),
-                                "class": raw.get("class", ""),
-                            })
-                    except Exception:
-                        pass
-                    break
-        return sheets
-
-    def _search_lore(query: str, n: int = 3) -> list[str]:
-        try:
-            client = _chroma_client()
-            col = client.get_collection("calliope_lore")
-            results = col.query(query_texts=[query], n_results=n)
-            return [doc[:300] for doc in (results.get("documents", [[]])[0])]
-        except Exception:
-            return []
 
     @app.route("/api/draft", methods=["POST"])
     def draft_scene():
@@ -1302,6 +1302,228 @@ def create_app():
             "key_facts": key_facts,
             "word_count": len(summary.split()),
             "model_used": "groq/llama-3.3-70b-versatile",
+        })
+
+    # ── Scene revive (VISION §Scene long-tail persistence) ───────────────────
+
+    @app.route("/api/scene/revive", methods=["POST"])
+    def scene_revive():
+        body = request.get_json(silent=True) or {}
+        scene_id = body.get("scene_id", "").strip()
+
+        if not scene_id:
+            return jsonify({"error": "scene_id is required"}), 400
+
+        scene_data = None
+        for p in _SCENES_DIR.glob("*.yaml"):
+            if scene_id in p.stem:
+                scene_data = _parse_scene_yaml(p)
+                if scene_data:
+                    break
+
+        if not scene_data:
+            return jsonify({"error": "scene not found"}), 404
+
+        participants = scene_data.get("participants", [])
+        char_sheets = _load_char_sheets(participants[:5])
+
+        char_facts = []
+        for cn in participants[:3]:
+            try:
+                from app.calliope_shell.char_memory import retrieve_multi_signal  # noqa: PLC0415
+                hits = retrieve_multi_signal(cn, scene_data.get("summary", cn), top_k=3)
+                char_facts.extend(f"{cn}: {h['fact_text']}" for h in hits[:2])
+            except Exception:
+                pass
+
+        recent_messages = []
+        try:
+            client = _chroma_client()
+            col = client.get_collection("calliope_messages")
+            query_text = f"{scene_data.get('title', scene_id)} {' '.join(participants[:3])}"
+            results = col.query(query_texts=[query_text], n_results=5)
+            recent_messages = [doc[:200] for doc in (results.get("documents", [[]])[0])]
+        except Exception:
+            pass
+
+        lore_refs = _search_lore(
+            f"{scene_data.get('title', '')} {scene_data.get('summary', '')}", n=3
+        )
+
+        revival_prompt = (
+            f"A dormant RP scene is being revived after a long pause.\n"
+            f"Scene: {scene_data.get('title', scene_id)}\n"
+            f"Summary: {scene_data.get('summary', '')}\n"
+            f"Participants: {', '.join(participants)}\n"
+            f"Last excerpt: {scene_data.get('last_msg_excerpt', '')}\n"
+        )
+        if char_facts:
+            revival_prompt += "\nCharacter memory:\n" + "\n".join(char_facts[:6])
+        if recent_messages:
+            revival_prompt += "\nRecent exchanges:\n" + "\n".join(recent_messages[:3])
+        if scene_data.get("operator_notes"):
+            revival_prompt += f"\nOperator notes: {scene_data['operator_notes']}"
+        revival_prompt += (
+            "\n\nWrite a brief revival summary (100-200 words): "
+            "what was happening, where things left off, what each character was doing, "
+            "and suggest 2-3 possible re-entry points for the scene."
+        )
+
+        suggested_reentry = ""
+        try:
+            resp = requests.post(
+                f"{GATEWAY_URL}/llm_ask",
+                json={
+                    "provider": "groq",
+                    "model": "llama-3.3-70b-versatile",
+                    "prompt": revival_prompt,
+                    "temperature": 0.5,
+                },
+                timeout=30,
+            )
+            resp.raise_for_status()
+            data = resp.json()
+            suggested_reentry = data.get("result") or data.get("text") or data.get("content", "")
+        except Exception as exc:
+            logger.warning("scene_revive LLM call failed (non-fatal): %s", exc)
+            suggested_reentry = "(LLM unavailable — manual review of context below)"
+
+        try:
+            from app.calliope_shell import audit_trail as _audit  # noqa: PLC0415
+            _audit.log_event(
+                "scene.revive",
+                subject=scene_id,
+                detail=scene_data.get("title", "")[:200],
+                metadata={
+                    "participants": len(participants),
+                    "char_facts": len(char_facts),
+                    "lore_refs": len(lore_refs),
+                    "recent_msgs": len(recent_messages),
+                },
+            )
+        except Exception:
+            pass
+
+        return jsonify({
+            "scene_context": {
+                "scene_id": scene_data.get("scene_id", scene_id),
+                "title": scene_data.get("title", ""),
+                "status": scene_data.get("status", ""),
+                "summary": scene_data.get("summary", ""),
+                "last_excerpt": scene_data.get("last_msg_excerpt", ""),
+                "operator_notes": scene_data.get("operator_notes"),
+            },
+            "participants": [
+                {"name": s["name"], "traits": s.get("traits", []), "race": s.get("race", "")}
+                for s in char_sheets
+            ],
+            "char_facts": char_facts,
+            "recent_messages": recent_messages,
+            "lore_refs": lore_refs,
+            "suggested_reentry": suggested_reentry,
+            "model_used": "groq/llama-3.3-70b-versatile",
+        })
+
+    # ── Lore coherence check (VISION calliope-lore-coherent) ─────────────────
+
+    @app.route("/api/lore/check", methods=["POST"])
+    def lore_check():
+        body = request.get_json(silent=True) or {}
+        text = body.get("text", "").strip()
+        scene_id = body.get("scene_id", "").strip()
+
+        if not text:
+            return jsonify({"error": "text is required"}), 400
+
+        search_query = text[:500]
+        if scene_id:
+            for p in _SCENES_DIR.glob("*.yaml"):
+                if scene_id in p.stem:
+                    d = _parse_scene_yaml(p)
+                    if d:
+                        search_query = f"{d.get('title', '')} {text[:300]}"
+                    break
+
+        lore_snippets = _search_lore(search_query, n=5)
+
+        if not lore_snippets:
+            try:
+                from app.calliope_shell import audit_trail as _audit  # noqa: PLC0415
+                _audit.log_event(
+                    "lore.check", subject=scene_id or "inline",
+                    detail="no lore found", metadata={"text_len": len(text)},
+                )
+            except Exception:
+                pass
+            return jsonify({
+                "coherent": True,
+                "issues": [],
+                "checked_against": [],
+                "note": "No lore documents found in ChromaDB to check against.",
+            })
+
+        review_prompt = (
+            "You are a lore consistency checker for a fantasy RP world.\n"
+            "Compare the DRAFT TEXT against the LORE REFERENCES below.\n"
+            "Identify any contradictions, inconsistencies, or factual errors.\n\n"
+            f"DRAFT TEXT:\n{text[:3000]}\n\n"
+            f"LORE REFERENCES:\n" + "\n---\n".join(lore_snippets) + "\n\n"
+            "Output a JSON object:\n"
+            '- "coherent": true/false\n'
+            '- "issues": [{\"severity\": \"warning\"|\"error\", \"description\": \"...\", \"lore_ref\": \"...\"}]\n'
+            "If no issues found, set coherent=true and issues=[].\n"
+            "Respond ONLY with valid JSON, no markdown fences."
+        )
+
+        try:
+            resp = requests.post(
+                f"{GATEWAY_URL}/llm_review",
+                json={
+                    "provider": "openrouter",
+                    "prompt": review_prompt,
+                    "temperature": 0.1,
+                },
+                timeout=45,
+            )
+            resp.raise_for_status()
+            data = resp.json()
+            raw_result = data.get("result") or data.get("text") or data.get("content", "")
+        except requests.exceptions.ConnectionError:
+            return jsonify({"error": "LLM gateway not available", "code": "gateway_down"}), 503
+        except Exception as exc:
+            logger.warning("lore_check failed: %s", exc)
+            return jsonify({"error": str(exc)}), 503
+
+        import json as _json  # noqa: PLC0415
+        coherent = True
+        issues: list = []
+        try:
+            clean = raw_result.strip()
+            if clean.startswith("```"):
+                clean = clean.split("\n", 1)[1].rsplit("```", 1)[0]
+            parsed = _json.loads(clean)
+            coherent = parsed.get("coherent", True)
+            issues = parsed.get("issues", [])
+        except (_json.JSONDecodeError, Exception):
+            issues = [{"severity": "warning", "description": "Could not parse LLM response", "lore_ref": ""}]
+            coherent = False
+
+        try:
+            from app.calliope_shell import audit_trail as _audit  # noqa: PLC0415
+            _audit.log_event(
+                "lore.check",
+                subject=scene_id or "inline",
+                detail=f"coherent={coherent} issues={len(issues)}",
+                metadata={"text_len": len(text), "lore_checked": len(lore_snippets), "issues": len(issues)},
+            )
+        except Exception:
+            pass
+
+        return jsonify({
+            "coherent": coherent,
+            "issues": issues,
+            "checked_against": [s[:100] for s in lore_snippets],
+            "model_used": "openrouter/deepseek-r1-0528",
         })
 
     return app, FLASK_PORT
