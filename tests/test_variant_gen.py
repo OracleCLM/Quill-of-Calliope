@@ -240,7 +240,7 @@ She struck. Fast. Clean.
 
 ---
 """
-    vfile = tmp_path / "test.variants.md"
+    vfile = tmp_path / "calliope_test.variants.md"
     vfile.write_text(variants_content, encoding="utf-8")
 
     from app.calliope_shell.server import create_app

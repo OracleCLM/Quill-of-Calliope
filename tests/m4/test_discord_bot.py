@@ -12,7 +12,7 @@ sys.path.insert(0, str(Path(__file__).parents[2] / "scripts"))
 # Set token before import to avoid sys.exit at module level
 os.environ.setdefault("CALLIOPE_DISCORD_BOT_TOKEN", "test_token_placeholder")
 
-from discord_bot import get_state_path, load_guild_state, CALLIOPE_DISCORD_BOT_TOKEN  # noqa: E402
+from discord_bot import get_state_path, load_guild_state  # noqa: E402
 from narrative_state import NarrativeState  # noqa: E402
 
 
@@ -73,7 +73,8 @@ def test_per_guild_isolation(tmp_path):
 
 
 def test_bot_token_env_var_name():
-    assert CALLIOPE_DISCORD_BOT_TOKEN == "CALLIOPE_DISCORD_BOT_TOKEN"
+    import discord_bot
+    assert discord_bot._ENV_TOKEN == "CALLIOPE_DISCORD_BOT_TOKEN"
 
 
 def test_valid_states_set():
