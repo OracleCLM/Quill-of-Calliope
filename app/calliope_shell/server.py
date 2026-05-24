@@ -1233,6 +1233,77 @@ def create_app():
             "lint_findings": lint_findings,
         })
 
+    # ── Summarize (VISION CLI /summarize) ────────────────────────────────────
+
+    @app.route("/api/summarize", methods=["POST"])
+    def summarize():
+        body = request.get_json(silent=True) or {}
+        text = body.get("text", "").strip()
+        max_length = min(int(body.get("max_length", 200)), 500)
+
+        if not text:
+            return jsonify({"error": "text is required"}), 400
+
+        prompt = (
+            f"Summarize the following roleplay / Discord conversation text.\n"
+            f"Output a JSON object with two fields:\n"
+            f"- \"summary\": a concise summary (max {max_length} words)\n"
+            f"- \"key_facts\": a list of 3-7 key facts extracted (names, events, decisions, locations)\n\n"
+            f"Text:\n{text[:5000]}\n\n"
+            f"Respond ONLY with valid JSON, no markdown fences."
+        )
+
+        try:
+            resp = requests.post(
+                f"{GATEWAY_URL}/llm_ask",
+                json={
+                    "provider": "groq",
+                    "model": "llama-3.3-70b-versatile",
+                    "prompt": prompt,
+                    "temperature": 0.2,
+                },
+                timeout=30,
+            )
+            resp.raise_for_status()
+            data = resp.json()
+            raw_result = data.get("result") or data.get("text") or data.get("content", "")
+        except requests.exceptions.ConnectionError:
+            return jsonify({"error": "LLM gateway not available", "code": "gateway_down"}), 503
+        except Exception as exc:
+            logger.warning("summarize failed: %s", exc)
+            return jsonify({"error": str(exc)}), 503
+
+        import json as _json  # noqa: PLC0415
+        summary = raw_result
+        key_facts: list = []
+        try:
+            clean = raw_result.strip()
+            if clean.startswith("```"):
+                clean = clean.split("\n", 1)[1].rsplit("```", 1)[0]
+            parsed = _json.loads(clean)
+            summary = parsed.get("summary", raw_result)
+            key_facts = parsed.get("key_facts", [])
+        except (_json.JSONDecodeError, Exception):
+            pass
+
+        try:
+            from app.calliope_shell import audit_trail as _audit  # noqa: PLC0415
+            _audit.log_event(
+                "summarize.run",
+                subject="paste",
+                detail=text[:200],
+                metadata={"in_chars": len(text), "key_facts": len(key_facts)},
+            )
+        except Exception:
+            pass
+
+        return jsonify({
+            "summary": summary,
+            "key_facts": key_facts,
+            "word_count": len(summary.split()),
+            "model_used": "groq/llama-3.3-70b-versatile",
+        })
+
     return app, FLASK_PORT
 
 
