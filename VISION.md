@@ -2,7 +2,7 @@
 
 > Musa della poesia epica. Assistente AI per narrazione e gestione di giochi di ruolo testuali, con focus letterario, persistenza del contesto, e privacy locale.
 
-**Status**: 🟢 M0+M1+M2+M3.5+M4+Wave5 (2026-05-22, ~15.7k LOC). Live2D integrato, Flask shell + Dashboard tab (Sprint A+B 2026-05-23). Discord bot **codice pronto, attivazione operativa pending** (token non configurato, processo non in esecuzione — vedi M6). Vision aggiornata 2026-05-23 (Discord activation drift-correction).
+**Status**: 🟢 M0+M1+M2+M3.5+M4+Wave5+Sprint D (2026-05-24, ~19.8k LOC, 38 Flask routes). Live2D integrato, Flask shell + Dashboard tab (Sprint A+B). Privacy audit_trail + warning per-call (Sprint C). Core draft/summarize/revive/lore-check routes (Sprint D). Discord bot **codice pronto, attivazione operativa pending** (vedi M6). 584 unit tests passing.
 
 ---
 
@@ -56,13 +56,13 @@ Commands:
 
 ### 3. Skills custom (`~/.claude/skills/calliope-*`)
 
-> **TECH-DEBT 2026-05-22**: le 5 skill calliope-* PROMESSE come `~/.claude/skills/` NON sono implementate. Funzionalità equivalenti esistono come Flask routes in `app/`. Risoluzione futura: (a) wrap Flask routes come skill, (b) implementare skill native, (c) mantenere Flask-only + rimuovere promessa skill. Scelta aperta.
+> **TECH-DEBT RESOLVED 2026-05-24**: skill CLI originariamente promesse come `~/.claude/skills/calliope-*` — decisione: **Flask-only** (opzione C). Tutte le funzionalità sono implementate come Flask routes, coerente con l'architettura Flask shell (Path C2). Nessuna skill CLI necessaria.
 
-- `calliope-draft-response` — ⚠ PROMISE ONLY (equivalente: `/api/draft` Flask route)
-- `calliope-translate-iten` — ⚠ PROMISE ONLY (equivalente: `/api/translate` Flask route)
-- `calliope-summarize-scene` — ⚠ PROMISE ONLY (equivalente: `/api/summarize` Flask route)
-- `calliope-lore-coherent` — ⚠ PROMISE ONLY (non implementata né come route)
-- `calliope-character-action` — ⚠ PROMISE ONLY (non implementata né come route)
+- `/api/draft` — ✅ draft literate da intent italiano + context scene/char/lore (Sprint D1)
+- `/api/translate` — ✅ traduzione IT↔EN letteraria (M3.5)
+- `/api/summarize` — ✅ summary strutturato + key_facts (Sprint D2)
+- `/api/lore/check` — ✅ coerenza lore via ChromaDB + LLM review (Sprint D4)
+- `/api/scene/revive` — ✅ risveglio scene dormienti con context completo (Sprint D3)
 
 ### 4. Discord integration GRADUALE
 
@@ -141,13 +141,14 @@ Quill_of_Calliope/
 
 - **M0 SCAFFOLD** (2026-05-16, ✅ DONE): repo struttura + VISION + .gitignore + manifest + 8 docs planning + 2 template + 1 stub script
 - **M1 IMPORT** (✅ DONE): Excel/ChatGPT/Discord parsers + ChromaDB indexing + IC/OOC filter + scene tracking heuristic
-- **M2 SKILLS CORE** (✅ DONE — parzialmente): Flask routes equivalenti a draft/translate/summarize. Skills `~/.claude/skills/calliope-*` PROMISE, non implementate (→ tech-debt §3)
+- **M2 SKILLS CORE** (✅ DONE): tutte le funzionalità core implementate come Flask routes — draft, translate, summarize, lore-check, scene-revive. Tech-debt skill CLI risolto (Flask-only decision 2026-05-24)
 - **M3 CLI Textual** (⛔ SOSTITUITO da M3.5): TUI Textual commands base originalmente pianificata — ABBANDONATA per Path C2 Flask shell
 - **M3.5 FLASK SHELL** (✅ DONE — ANTICIPATO): Flask app operativa con route equivalenti CLI. Path C2 scelto vs TUI Textual originale
 - **M4 WAVE5 + CONSOLIDATION** (✅ DONE): ~15.7k LOC, Wave5 feature batch completato
 - **M5 LIVE2D + TTS** (✅ DONE — ANTICIPATO): Live2D integrato prima di schedule originale
 - **M6 DISCORD BOT** (⚠ CODE READY — ACTIVATION PENDING): codice bot semi-auto presente (commit 297b10e, M4 feature), graceful-degradation widget UI Dashboard (Sprint B2). Attivazione in produzione pending operator-decision: (a) configurazione `CALLIOPE_DISCORD_BOT_TOKEN` in `.env`, (b) avvio processo via `scripts/start_discord_bot.sh`, (c) design separato "instructions + interpellation game master" che precede l'esposizione del bot ai canali live. Pattern coerente con principio "feature ready, activation pending".
-- **NEXT: USABILITY + POLISH** (pending): Wave 5 gap fixes, skill tech-debt resolution, scene revive UX
+- **Sprint D VISION GAP CLOSE** (✅ DONE 2026-05-24): /api/draft (D1), /api/summarize (D2), /api/scene/revive (D3), /api/lore/check (D4), VISION cleanup (D5). Tech-debt skill risolto.
+- **NEXT: USABILITY + POLISH** (pending): Dashboard UI wiring per draft/summarize/revive/lore-check, Discord bot activation (M6), scene revive UX refinement
 
 **Componenti implementati non in VISION originale** (aggiunti post-brainstorm 2026-05-22):
 - `plot_arc` — arco narrativo tracker
