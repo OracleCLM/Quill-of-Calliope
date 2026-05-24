@@ -276,7 +276,10 @@
             <a id="nav-translate" onclick="showView('translate')">Translate</a> |
             <a id="nav-draft" onclick="showView('draft')">✦ Draft</a> |
             <a id="nav-refine" onclick="showView('refine')">✎ Refine</a> |
-            <a id="nav-arc" onclick="showView('arc')">◈ Arc</a>
+            <a id="nav-arc" onclick="showView('arc')">◈ Arc</a> |
+            <a id="nav-smartdraft" onclick="showView('smartdraft')">⚡ Smart Draft</a> |
+            <a id="nav-summarize" onclick="showView('summarize')">∑ Summarize</a> |
+            <a id="nav-lorecheck" onclick="showView('lorecheck')">⊘ Lore Check</a>
             <span id="privacy-badge" class="privacy-badge" role="status"
                   aria-label="Privacy: local-only, no cloud upload of RP data">
                 <span class="pb-icon" aria-hidden="true">🔒</span>
@@ -489,6 +492,12 @@
                     <div id="continue-status" style="font-size:.8em;color:#88aaff;margin-top:6px;min-height:1em;"></div>
                     <div id="gen-output" class="gen-output"></div>
                 </div>
+                <div style="margin-top:14px; padding-top:10px; border-top:1px solid #1a2a3a;">
+                    <button id="btn-scene-revive" onclick="_reviveScene()" style="background:#2a2a1e; color:#cc8; border:1px solid #3a3a2a; border-radius:6px; padding:8px 18px; cursor:pointer; font-size:.85em;">🔄 Revive Scene</button>
+                    <button id="btn-scene-smartdraft" onclick="_smartDraftFromScene()" style="background:#1a2a4a; color:#aac; border:1px solid #2a3a5a; border-radius:6px; padding:8px 18px; cursor:pointer; font-size:.85em; margin-left:6px;">⚡ Smart Draft</button>
+                    <div id="revive-status" style="font-size:.8em; color:#88aaff; margin-top:6px; min-height:1em;"></div>
+                    <div id="revive-output" style="display:none; margin-top:8px; background:#111827; border:1px solid #2a3a5a; border-radius:6px; padding:12px; font-size:.85em; color:#dde; white-space:pre-wrap; line-height:1.5; max-height:300px; overflow-y:auto;"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -592,6 +601,89 @@
         <div class="refine-row" id="refine-output-row" style="display:none">
             <label>Scena raffinata:</label>
             <div id="refine-output-box"></div>
+        </div>
+    </section>
+
+    <!-- ── SMART DRAFT PANEL (Sprint E — /api/draft) ── -->
+    <section id="smartdraft-panel" style="display:none; flex-direction:column; padding:24px; max-width:800px; margin:0 auto; width:100%; height:calc(100vh - 60px); box-sizing:border-box; overflow-y:auto;">
+        <h2 style="margin:0 0 16px; color:#aac;">⚡ Smart Draft — Context-Aware Literate Draft</h2>
+        <p style="color:#667; font-size:.82em; margin:0 0 12px;">Scrivi il tuo intento in italiano. Calliope carica scene + personaggi + lore e genera un draft letterario in inglese.</p>
+        <div style="display:flex; gap:12px; margin-bottom:12px; flex-wrap:wrap;">
+            <div style="flex:2; min-width:280px;">
+                <label style="font-size:.85em; color:#889; display:block; margin-bottom:4px;">Intento operatore (IT)</label>
+                <textarea id="sd-intent" style="width:100%; background:#111827; color:#eee; border:1px solid #2a3a5a; border-radius:6px; padding:10px; resize:vertical; font-size:.9em; font-family:inherit; min-height:100px; box-sizing:border-box;" placeholder="Aurora alza la spada contro l'ombra, proteggendo Kikyo..."></textarea>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:8px; min-width:180px;">
+                <div>
+                    <label style="font-size:.85em; color:#889; display:block; margin-bottom:4px;">Scene ID (opzionale)</label>
+                    <input id="sd-scene-id" type="text" style="width:100%; background:#111827; color:#eee; border:1px solid #2a3a5a; border-radius:6px; padding:6px; box-sizing:border-box;" placeholder="scene_003">
+                </div>
+                <div>
+                    <label style="font-size:.85em; color:#889; display:block; margin-bottom:4px;">Char focus (opzionale)</label>
+                    <input id="sd-char-focus" type="text" style="width:100%; background:#111827; color:#eee; border:1px solid #2a3a5a; border-radius:6px; padding:6px; box-sizing:border-box;" placeholder="Aurora">
+                </div>
+                <div>
+                    <label style="font-size:.85em; color:#889; display:block; margin-bottom:4px;">Style hints</label>
+                    <input id="sd-style" type="text" style="width:100%; background:#111827; color:#eee; border:1px solid #2a3a5a; border-radius:6px; padding:6px; box-sizing:border-box;" placeholder="poetic, tense, slow pacing">
+                </div>
+                <button id="btn-smartdraft" style="background:#1e3a6e; color:#fff; border:none; border-radius:6px; padding:10px 16px; cursor:pointer; font-size:.95em; margin-top:4px;">⚡ Generate Draft</button>
+            </div>
+        </div>
+        <div id="sd-status" style="font-size:.82em; min-height:1.2em; margin-bottom:8px; color:#88aaff;"></div>
+        <div id="sd-context-info" style="display:none; font-size:.8em; color:#667; margin-bottom:8px; padding:6px 10px; background:#0d1117; border-radius:4px;"></div>
+        <div id="sd-output" style="display:none; background:#111827; border:1px solid #2a3a5a; border-radius:6px; padding:14px; font-size:.9em; color:#dde; white-space:pre-wrap; line-height:1.6;"></div>
+        <div id="sd-lint" style="display:none; font-size:.78em; color:#c90; margin-top:6px;"></div>
+        <div id="sd-actions" style="display:none; margin-top:10px; display:flex; gap:8px;">
+            <button id="btn-sd-copy" style="background:#1a2a4a; color:#aac; border:1px solid #2a3a5a; border-radius:4px; padding:6px 14px; cursor:pointer; font-size:.82em;">📋 Copy</button>
+            <button id="btn-sd-lorecheck" style="background:#2a1a1a; color:#c99; border:1px solid #3a2a2a; border-radius:4px; padding:6px 14px; cursor:pointer; font-size:.82em;">⊘ Lore Check</button>
+        </div>
+    </section>
+
+    <!-- ── SUMMARIZE PANEL (Sprint E — /api/summarize) ── -->
+    <section id="summarize-panel" style="display:none; flex-direction:column; padding:24px; max-width:800px; margin:0 auto; width:100%; height:calc(100vh - 60px); box-sizing:border-box; overflow-y:auto;">
+        <h2 style="margin:0 0 16px; color:#aac;">∑ Summarize — Discord Paste → Key Facts</h2>
+        <div style="margin-bottom:12px;">
+            <label style="font-size:.85em; color:#889; display:block; margin-bottom:4px;">Incolla testo Discord / scene log</label>
+            <textarea id="sum-text" style="width:100%; background:#111827; color:#eee; border:1px solid #2a3a5a; border-radius:6px; padding:10px; resize:vertical; font-size:.9em; font-family:inherit; min-height:150px; box-sizing:border-box;" placeholder="Incolla qui il testo da riassumere..."></textarea>
+        </div>
+        <button id="btn-summarize" style="background:#1e3a6e; color:#fff; border:none; border-radius:6px; padding:10px 16px; cursor:pointer; font-size:.95em; align-self:flex-start;">∑ Summarize</button>
+        <div id="sum-status" style="font-size:.82em; min-height:1.2em; margin:8px 0; color:#88aaff;"></div>
+        <div id="sum-output" style="display:none;">
+            <div style="margin-bottom:8px;">
+                <h3 style="color:#8899cc; font-size:.9em; margin:0 0 6px;">Summary</h3>
+                <div id="sum-summary" style="background:#111827; border:1px solid #2a3a5a; border-radius:6px; padding:12px; font-size:.88em; color:#dde; line-height:1.55;"></div>
+            </div>
+            <div>
+                <h3 style="color:#8899cc; font-size:.9em; margin:0 0 6px;">Key Facts</h3>
+                <ul id="sum-facts" style="color:#bbc; font-size:.85em; line-height:1.5; padding-left:20px;"></ul>
+            </div>
+            <div style="font-size:.78em; color:#556; margin-top:6px;" id="sum-meta"></div>
+        </div>
+    </section>
+
+    <!-- ── LORE CHECK PANEL (Sprint E — /api/lore/check) ── -->
+    <section id="lorecheck-panel" style="display:none; flex-direction:column; padding:24px; max-width:800px; margin:0 auto; width:100%; height:calc(100vh - 60px); box-sizing:border-box; overflow-y:auto;">
+        <h2 style="margin:0 0 16px; color:#aac;">⊘ Lore Check — Coherence Gate</h2>
+        <p style="color:#667; font-size:.82em; margin:0 0 12px;">Verifica che un testo draft sia coerente con il lore del mondo. ChromaDB cerca frammenti rilevanti, LLM controlla contraddizioni.</p>
+        <div style="margin-bottom:12px;">
+            <label style="font-size:.85em; color:#889; display:block; margin-bottom:4px;">Testo da verificare</label>
+            <textarea id="lc-text" style="width:100%; background:#111827; color:#eee; border:1px solid #2a3a5a; border-radius:6px; padding:10px; resize:vertical; font-size:.9em; font-family:inherit; min-height:120px; box-sizing:border-box;" placeholder="Aurora, the human warrior, drew her sword..."></textarea>
+        </div>
+        <div style="display:flex; gap:8px; align-items:center; margin-bottom:8px;">
+            <input id="lc-scene-id" type="text" style="background:#111827; color:#eee; border:1px solid #2a3a5a; border-radius:6px; padding:6px; width:180px;" placeholder="Scene ID (opzionale)">
+            <button id="btn-lorecheck" style="background:#4a1e1e; color:#fff; border:none; border-radius:6px; padding:10px 16px; cursor:pointer; font-size:.95em;">⊘ Check Lore</button>
+        </div>
+        <div id="lc-status" style="font-size:.82em; min-height:1.2em; margin-bottom:8px; color:#88aaff;"></div>
+        <div id="lc-output" style="display:none;">
+            <div id="lc-verdict" style="font-size:1.1em; font-weight:bold; padding:10px 14px; border-radius:6px; margin-bottom:10px;"></div>
+            <div id="lc-issues" style="display:none;">
+                <h3 style="color:#c88; font-size:.9em; margin:0 0 6px;">Issues Found</h3>
+                <ul id="lc-issues-list" style="font-size:.85em; line-height:1.5; padding-left:20px;"></ul>
+            </div>
+            <div>
+                <h3 style="color:#889; font-size:.85em; margin:10px 0 4px;">Checked against</h3>
+                <ul id="lc-refs" style="font-size:.78em; color:#556; line-height:1.4; padding-left:20px;"></ul>
+            </div>
         </div>
     </section>
 
@@ -722,7 +814,7 @@
         }
 
         // ── View routing ──
-        const _ALL_PANELS = ['dashboard','main','scenes','messages','translate','draft','refine','arc'];
+        const _ALL_PANELS = ['dashboard','main','scenes','messages','translate','draft','refine','arc','smartdraft','summarize','lorecheck'];
         function showView(view) {
             _ALL_PANELS.forEach(v => {
                 const el = document.getElementById(v === 'main' ? 'main-view' : v + '-panel');
@@ -737,7 +829,7 @@
         }
 
         // ── Scenes panel (Gap B) ──
-        let _currentSceneId = null;
+        window._currentSceneId = null;
         let _allScenes = [];
 
         async function _loadScenes() {
@@ -780,7 +872,7 @@
         }
 
         async function _loadSceneDetail(sceneId) {
-            _currentSceneId = sceneId;
+            window._currentSceneId = sceneId;
             document.getElementById('scene-empty-state').style.display = 'none';
             document.getElementById('scene-detail').style.display = 'block';
             document.getElementById('scene-detail-title').textContent = '…';
@@ -807,7 +899,7 @@
         }
 
         async function _generateNextMsg() {
-            const sceneId = _currentSceneId;
+            const sceneId = window._currentSceneId;
             const char = document.getElementById('scene-char-select').value;
             const hint = document.getElementById('scene-ctx-hint').value.trim();
             const lastScene = _allScenes.find(s => s.scene_id === sceneId);
@@ -1347,6 +1439,198 @@
             });
         });
     </script>
+    <!-- ── Sprint E: Smart Draft / Summarize / Lore Check / Scene Revive JS ── -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // ── Smart Draft ──
+        document.getElementById('btn-smartdraft').addEventListener('click', async function() {
+            const intent = document.getElementById('sd-intent').value.trim();
+            if (!intent) { document.getElementById('sd-status').textContent = '✗ Scrivi un intento in italiano.'; return; }
+            const btn = this;
+            btn.disabled = true;
+            document.getElementById('sd-status').textContent = 'Generando draft con context scene+char+lore...';
+            document.getElementById('sd-output').style.display = 'none';
+            document.getElementById('sd-context-info').style.display = 'none';
+            document.getElementById('sd-lint').style.display = 'none';
+            try {
+                const resp = await cloudCall('/api/draft', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        intent_it: intent,
+                        scene_id: document.getElementById('sd-scene-id').value.trim(),
+                        char_focus: document.getElementById('sd-char-focus').value.trim(),
+                        style_hints: document.getElementById('sd-style').value.trim(),
+                    }),
+                }, {kind: 'draft'});
+                const data = await resp.json();
+                if (!resp.ok) throw new Error(data.error || resp.statusText);
+                document.getElementById('sd-output').textContent = data.draft_text;
+                document.getElementById('sd-output').style.display = 'block';
+                const ctx = data.context_used || {};
+                document.getElementById('sd-context-info').textContent =
+                    `Context: scene=${ctx.scene?'✓':'✗'} chars=${ctx.char_sheets||0} facts=${ctx.char_facts||0} lore=${ctx.lore_snippets||0} | Model: ${data.model_used}`;
+                document.getElementById('sd-context-info').style.display = 'block';
+                if (data.lint_findings && data.lint_findings.length) {
+                    document.getElementById('sd-lint').textContent = '⚠ Stripped: ' + data.lint_findings.join(', ');
+                    document.getElementById('sd-lint').style.display = 'block';
+                }
+                document.getElementById('sd-actions').style.display = 'flex';
+                document.getElementById('sd-status').textContent = '✓ Draft generato.';
+            } catch(e) {
+                document.getElementById('sd-status').textContent = '✗ ' + e.message;
+            } finally { btn.disabled = false; }
+        });
+
+        // Copy button
+        const copyBtn = document.getElementById('btn-sd-copy');
+        if (copyBtn) copyBtn.addEventListener('click', function() {
+            const text = document.getElementById('sd-output').textContent;
+            navigator.clipboard.writeText(text).then(() => { this.textContent = '✓ Copied!'; setTimeout(() => { this.textContent = '📋 Copy'; }, 1500); });
+        });
+
+        // Lore check from smart draft
+        const lcFromDraft = document.getElementById('btn-sd-lorecheck');
+        if (lcFromDraft) lcFromDraft.addEventListener('click', function() {
+            const text = document.getElementById('sd-output').textContent;
+            if (text) {
+                document.getElementById('lc-text').value = text;
+                document.getElementById('lc-scene-id').value = document.getElementById('sd-scene-id').value;
+                showView('lorecheck');
+            }
+        });
+
+        // ── Scene Revive (from scene detail) ──
+        window._reviveScene = async function() {
+            const sceneId = window._currentSceneId;
+            if (!sceneId) return;
+            const btn = document.getElementById('btn-scene-revive');
+            const status = document.getElementById('revive-status');
+            const output = document.getElementById('revive-output');
+            btn.disabled = true;
+            status.textContent = 'Reviving scene context...';
+            output.style.display = 'none';
+            try {
+                const resp = await cloudCall('/api/scene/revive', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ scene_id: sceneId }),
+                }, {kind: 'scene_revive'});
+                const data = await resp.json();
+                if (!resp.ok) throw new Error(data.error || resp.statusText);
+                let text = '=== SCENE REVIVAL ===\n\n';
+                text += data.suggested_reentry + '\n\n';
+                if (data.participants && data.participants.length) {
+                    text += '--- Participants ---\n';
+                    data.participants.forEach(p => { text += `• ${p.name} (${p.race}) — ${(p.traits||[]).join(', ')}\n`; });
+                }
+                if (data.char_facts && data.char_facts.length) {
+                    text += '\n--- Character Memory ---\n';
+                    data.char_facts.forEach(f => { text += `• ${f}\n`; });
+                }
+                if (data.lore_refs && data.lore_refs.length) {
+                    text += '\n--- Lore References ---\n';
+                    data.lore_refs.forEach(l => { text += `• ${l.slice(0,150)}\n`; });
+                }
+                output.textContent = text;
+                output.style.display = 'block';
+                status.textContent = '✓ Scene revived — context loaded.';
+            } catch(e) {
+                status.textContent = '✗ ' + e.message;
+            } finally { btn.disabled = false; }
+        };
+
+        // ── Smart Draft from Scene detail ──
+        window._smartDraftFromScene = function() {
+            const sceneId = window._currentSceneId;
+            if (sceneId) document.getElementById('sd-scene-id').value = sceneId;
+            const charSel = document.getElementById('scene-char-select');
+            if (charSel && charSel.value) document.getElementById('sd-char-focus').value = charSel.value;
+            showView('smartdraft');
+        };
+
+        // ── Summarize ──
+        document.getElementById('btn-summarize').addEventListener('click', async function() {
+            const text = document.getElementById('sum-text').value.trim();
+            if (!text) { document.getElementById('sum-status').textContent = '✗ Incolla del testo.'; return; }
+            const btn = this;
+            btn.disabled = true;
+            document.getElementById('sum-status').textContent = 'Summarizing via MCP groq...';
+            document.getElementById('sum-output').style.display = 'none';
+            try {
+                const resp = await cloudCall('/api/summarize', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ text }),
+                }, {kind: 'summarize'});
+                const data = await resp.json();
+                if (!resp.ok) throw new Error(data.error || resp.statusText);
+                document.getElementById('sum-summary').textContent = data.summary;
+                const factsUl = document.getElementById('sum-facts');
+                factsUl.innerHTML = (data.key_facts || []).map(f => `<li>${f}</li>`).join('');
+                document.getElementById('sum-meta').textContent = `${data.word_count} words | Model: ${data.model_used}`;
+                document.getElementById('sum-output').style.display = 'block';
+                document.getElementById('sum-status').textContent = '✓ Summary generato.';
+            } catch(e) {
+                document.getElementById('sum-status').textContent = '✗ ' + e.message;
+            } finally { btn.disabled = false; }
+        });
+
+        // ── Lore Check ──
+        document.getElementById('btn-lorecheck').addEventListener('click', async function() {
+            const text = document.getElementById('lc-text').value.trim();
+            if (!text) { document.getElementById('lc-status').textContent = '✗ Inserisci testo da verificare.'; return; }
+            const btn = this;
+            btn.disabled = true;
+            document.getElementById('lc-status').textContent = 'Verificando coerenza lore via ChromaDB + LLM review...';
+            document.getElementById('lc-output').style.display = 'none';
+            try {
+                const resp = await cloudCall('/api/lore/check', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        text,
+                        scene_id: document.getElementById('lc-scene-id').value.trim(),
+                    }),
+                }, {kind: 'lore_check'});
+                const data = await resp.json();
+                if (!resp.ok) throw new Error(data.error || resp.statusText);
+                const verdict = document.getElementById('lc-verdict');
+                if (data.coherent) {
+                    verdict.textContent = '✓ Coerente con il lore';
+                    verdict.style.background = '#0a2a0a';
+                    verdict.style.color = '#4c8';
+                    verdict.style.border = '1px solid #1a3a1a';
+                } else {
+                    verdict.textContent = '✗ Incoerenze rilevate';
+                    verdict.style.background = '#2a0a0a';
+                    verdict.style.color = '#c66';
+                    verdict.style.border = '1px solid #3a1a1a';
+                }
+                const issuesDiv = document.getElementById('lc-issues');
+                const issuesList = document.getElementById('lc-issues-list');
+                if (data.issues && data.issues.length) {
+                    issuesList.innerHTML = data.issues.map(i =>
+                        `<li style="color:${i.severity==='error'?'#f66':'#cc8'}"><b>[${i.severity}]</b> ${i.description}${i.lore_ref ? ' <span style="color:#556">(ref: '+i.lore_ref+')</span>' : ''}</li>`
+                    ).join('');
+                    issuesDiv.style.display = 'block';
+                } else {
+                    issuesDiv.style.display = 'none';
+                }
+                const refs = document.getElementById('lc-refs');
+                refs.innerHTML = (data.checked_against || []).map(r => `<li>${r}</li>`).join('') || '<li>Nessun lore trovato</li>';
+                if (data.note) {
+                    verdict.textContent += ' — ' + data.note;
+                }
+                document.getElementById('lc-output').style.display = 'block';
+                document.getElementById('lc-status').textContent = '✓ Check completato.';
+            } catch(e) {
+                document.getElementById('lc-status').textContent = '✗ ' + e.message;
+            } finally { btn.disabled = false; }
+        });
+    });
+    </script>
+
     <script src="/static/js/vendor/live2dcubismcore.min.js"></script>
     <script src="/static/js/vendor/pixi.min.js"></script>
     <script src="/static/js/vendor/pixi-live2d-cubism4.min.js"></script>
