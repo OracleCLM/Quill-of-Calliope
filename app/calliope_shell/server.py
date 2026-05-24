@@ -1424,6 +1424,51 @@ def create_app():
             "model_used": "groq/llama-3.3-70b-versatile",
         })
 
+    # ── Lore search (VISION §2 /lore search <query>) ───────────────────────
+
+    @app.route("/api/lore/search", methods=["POST"])
+    def lore_search():
+        body = request.get_json(silent=True) or {}
+        query = body.get("query", "").strip()
+        n = min(int(body.get("n", 10)), 20)
+
+        if not query:
+            return jsonify({"error": "query is required"}), 400
+
+        try:
+            client = _chroma_client()
+            col = client.get_collection("calliope_lore")
+            results = col.query(query_texts=[query], n_results=n, include=["documents", "metadatas", "distances"])
+            docs = results.get("documents", [[]])[0]
+            metas = results.get("metadatas", [[]])[0]
+            dists = results.get("distances", [[]])[0]
+            hits = [
+                {
+                    "text": doc,
+                    "source": meta.get("source", ""),
+                    "type": meta.get("type", ""),
+                    "char": meta.get("char", ""),
+                    "distance": round(dist, 4),
+                }
+                for doc, meta, dist in zip(docs, metas, dists)
+            ]
+        except Exception as exc:
+            logger.warning("lore_search failed: %s", exc)
+            return jsonify({"results": [], "count": 0, "error": str(exc)})
+
+        try:
+            from app.calliope_shell import audit_trail as _audit  # noqa: PLC0415
+            _audit.log_event(
+                "lore.search",
+                subject=query[:100],
+                detail=f"hits={len(hits)}",
+                metadata={"query_len": len(query), "n": n, "hits": len(hits)},
+            )
+        except Exception:
+            pass
+
+        return jsonify({"results": hits, "count": len(hits), "query": query})
+
     # ── Lore coherence check (VISION calliope-lore-coherent) ─────────────────
 
     @app.route("/api/lore/check", methods=["POST"])

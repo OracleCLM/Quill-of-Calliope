@@ -279,6 +279,7 @@
             <a id="nav-arc" onclick="showView('arc')">◈ Arc</a> |
             <a id="nav-smartdraft" onclick="showView('smartdraft')">⚡ Smart Draft</a> |
             <a id="nav-summarize" onclick="showView('summarize')">∑ Summarize</a> |
+            <a id="nav-loresearch" onclick="showView('loresearch')">📖 Lore</a> |
             <a id="nav-lorecheck" onclick="showView('lorecheck')">⊘ Lore Check</a>
             <span id="privacy-badge" class="privacy-badge" role="status"
                   aria-label="Privacy: local-only, no cloud upload of RP data">
@@ -684,6 +685,17 @@
         </div>
     </section>
 
+    <!-- ── LORE SEARCH PANEL (Sprint G1 — /api/lore/search) ── -->
+    <section id="loresearch-panel" style="display:none; flex-direction:column; padding:24px; max-width:800px; margin:0 auto; width:100%; height:calc(100vh - 60px); box-sizing:border-box; overflow-y:auto;">
+        <h2 style="margin:0 0 16px; color:#aac;">📖 Lore Search — Semantic Knowledge Base</h2>
+        <div style="display:flex; gap:8px; margin-bottom:12px;">
+            <input id="ls-query" type="text" style="flex:1; background:#111827; color:#eee; border:1px solid #2a3a5a; border-radius:6px; padding:8px 12px; font-size:.9em;" placeholder="yokai queen, shrine location, magic system...">
+            <button id="btn-loresearch" style="background:#1e3a6e; color:#fff; border:none; border-radius:6px; padding:8px 16px; cursor:pointer; font-size:.9em;">📖 Search</button>
+        </div>
+        <div id="ls-status" style="font-size:.82em; min-height:1.2em; margin-bottom:8px; color:#88aaff;"></div>
+        <div id="ls-results" style="display:flex; flex-direction:column; gap:8px;"></div>
+    </section>
+
     <!-- ── LORE CHECK PANEL (Sprint E — /api/lore/check) ── -->
     <section id="lorecheck-panel" style="display:none; flex-direction:column; padding:24px; max-width:800px; margin:0 auto; width:100%; height:calc(100vh - 60px); box-sizing:border-box; overflow-y:auto;">
         <h2 style="margin:0 0 16px; color:#aac;">⊘ Lore Check — Coherence Gate</h2>
@@ -837,7 +849,7 @@
         }
 
         // ── View routing ──
-        const _ALL_PANELS = ['dashboard','main','scenes','messages','translate','draft','refine','arc','smartdraft','summarize','lorecheck'];
+        const _ALL_PANELS = ['dashboard','main','scenes','messages','translate','draft','refine','arc','smartdraft','summarize','loresearch','lorecheck'];
         function showView(view) {
             _ALL_PANELS.forEach(v => {
                 const el = document.getElementById(v === 'main' ? 'main-view' : v + '-panel');
@@ -1621,6 +1633,45 @@
             } catch(e) {
                 document.getElementById('sum-status').textContent = '✗ ' + e.message;
             } finally { btn.disabled = false; }
+        });
+
+        // ── Lore Search ──
+        document.getElementById('btn-loresearch').addEventListener('click', async function() {
+            const query = document.getElementById('ls-query').value.trim();
+            if (!query) { document.getElementById('ls-status').textContent = '✗ Inserisci una query.'; return; }
+            const btn = this;
+            btn.disabled = true;
+            document.getElementById('ls-status').textContent = 'Searching lore...';
+            document.getElementById('ls-results').innerHTML = '';
+            try {
+                const resp = await fetch('/api/lore/search', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ query, n: 10 }),
+                });
+                const data = await resp.json();
+                const results = data.results || [];
+                document.getElementById('ls-status').textContent = `${results.length} risultati per "${query}"`;
+                if (!results.length) {
+                    document.getElementById('ls-results').innerHTML = '<div style="color:#556; padding:12px;">Nessun risultato. Prova una query diversa.</div>';
+                } else {
+                    document.getElementById('ls-results').innerHTML = results.map(r => `
+                        <div style="background:#111827; border:1px solid #2a3a5a; border-radius:6px; padding:10px;">
+                            <div style="font-size:.82em; color:#667; margin-bottom:4px;">
+                                <span style="color:#8af;">[${r.type}]</span>
+                                ${r.source === 'character' ? '<span style="color:#c90;">char: '+r.char+'</span>' : '<span style="color:#6a8;">scene</span>'}
+                                <span style="float:right; color:#445;">dist: ${r.distance}</span>
+                            </div>
+                            <div style="font-size:.88em; color:#dde; line-height:1.4;">${r.text}</div>
+                        </div>
+                    `).join('');
+                }
+            } catch(e) {
+                document.getElementById('ls-status').textContent = '✗ ' + e.message;
+            } finally { btn.disabled = false; }
+        });
+        document.getElementById('ls-query').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') document.getElementById('btn-loresearch').click();
         });
 
         // ── Lore Check ──
