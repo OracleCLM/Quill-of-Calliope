@@ -2,7 +2,7 @@
 
 > Musa della poesia epica. Assistente AI per narrazione e gestione di giochi di ruolo testuali, con focus letterario, persistenza del contesto, e privacy locale.
 
-**Status**: 🟢 M0+M1+M2+M3.5+M4+Wave5+Sprint D (2026-05-24, ~19.8k LOC, 38 Flask routes). Live2D integrato, Flask shell + Dashboard tab (Sprint A+B). Privacy audit_trail + warning per-call (Sprint C). Core draft/summarize/revive/lore-check routes (Sprint D). Discord bot **codice pronto, attivazione operativa pending** (vedi M6). 584 unit tests passing.
+**Status**: 🟢 M0+M1+M2+M3.5+M4+Wave5+Sprint D+E+F (2026-05-24, ~20k LOC, 38 Flask routes, 11 dashboard tabs). Dashboard fully wired (Sprint E). Lore index 86 docs (Sprint F1). ChatGPT import parser (Sprint F3). Discord bot **codice pronto, attivazione operativa pending** (vedi M6). 596 unit tests passing.
 
 ---
 
@@ -148,7 +148,7 @@ Quill_of_Calliope/
 - **M5 LIVE2D + TTS** (✅ DONE — ANTICIPATO): Live2D integrato prima di schedule originale
 - **M6 DISCORD BOT** (⚠ CODE READY — ACTIVATION PENDING): codice bot semi-auto presente (commit 297b10e, M4 feature), graceful-degradation widget UI Dashboard (Sprint B2). Attivazione in produzione pending operator-decision: (a) configurazione `CALLIOPE_DISCORD_BOT_TOKEN` in `.env`, (b) avvio processo via `scripts/start_discord_bot.sh`, (c) design separato "instructions + interpellation game master" che precede l'esposizione del bot ai canali live. Pattern coerente con principio "feature ready, activation pending".
 - **Sprint D VISION GAP CLOSE** (✅ DONE 2026-05-24): /api/draft (D1), /api/summarize (D2), /api/scene/revive (D3), /api/lore/check (D4), VISION cleanup (D5). Tech-debt skill risolto.
-- **NEXT: USABILITY + POLISH** (pending): Dashboard UI wiring per draft/summarize/revive/lore-check, Discord bot activation (M6), scene revive UX refinement
+- **NEXT: OPERATOR ACTIVATION** (pending): Discord bot activation M6 (operator-side: token + start script), scene revive UX polish (revival output panel refinement), lore docs manual enrichment (beyond auto-extracted)
 
 **Componenti implementati non in VISION originale** (aggiunti post-brainstorm 2026-05-22):
 - `plot_arc` — arco narrativo tracker
