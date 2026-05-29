@@ -271,6 +271,7 @@
         <nav>
             <a id="nav-dashboard" class="active" onclick="showView('dashboard')">◈ Dashboard</a> |
             <a id="nav-home" onclick="showView('main')">Home</a> |
+            <a id="nav-characters" onclick="showView('characters')">☺ Characters</a> |
             <a id="nav-messages" onclick="showView('messages')">◇ Messages</a> |
             <a id="nav-scenes" onclick="showView('scenes')">◆ Scenes</a> |
             <a id="nav-translate" onclick="showView('translate')">Translate</a> |
@@ -534,6 +535,18 @@
         </div>
         <ul id="message-list" class="message-list" data-empty-state="messages"><li style="color:#334;padding:12px">Clicca Carica per vedere i messaggi recenti.</li></ul>
     </div>
+
+    <!-- ── CHARACTERS PANEL (P5a — redesign) ── -->
+    <section id="characters-panel" style="display:none; flex-direction:column; padding:24px; height:calc(100vh - 60px); box-sizing:border-box;">
+        <h2>☺ Personaggi</h2>
+        <div style="margin-bottom:12px;">
+            <input id="char-search" placeholder="Filtra per nome, persona, tag..." style="width:100%; max-width:420px; background:#0d1117; color:#dde; border:1px solid #2a3a5a; border-radius:6px; padding:8px 12px; font-size:.9em; box-sizing:border-box;">
+        </div>
+        <div style="display:flex; gap:20px; flex:1; min-height:0;">
+            <div id="characters-grid" style="flex:1.4; min-width:0;"></div>
+            <div id="character-detail" style="flex:1; min-width:0; overflow-y:auto; background:#0d1117; border:1px solid #1a2a3a; border-radius:8px; padding:16px; color:#8899aa;">← Seleziona un personaggio</div>
+        </div>
+    </section>
 
     <!-- ── TRANSLATE PANEL ── -->
     <section id="translate-panel">
@@ -849,7 +862,7 @@
         }
 
         // ── View routing ──
-        const _ALL_PANELS = ['dashboard','main','scenes','messages','translate','draft','refine','arc','smartdraft','summarize','loresearch','lorecheck'];
+        const _ALL_PANELS = ['dashboard','main','characters','scenes','messages','translate','draft','refine','arc','smartdraft','summarize','loresearch','lorecheck'];
         function showView(view) {
             _ALL_PANELS.forEach(v => {
                 const el = document.getElementById(v === 'main' ? 'main-view' : v + '-panel');
@@ -862,6 +875,7 @@
             if (view === 'messages') _loadMessages();
             if (view === 'dashboard') loadDashboardSnapshot();
             if (view === 'smartdraft') _loadCharDropdown();
+            if (view === 'characters') loadCharactersPanel();
         }
 
         // ── Scenes panel (Gap B) ──
@@ -1734,5 +1748,6 @@
     <script src="/static/js/vendor/pixi-live2d-cubism4.min.js"></script>
     <script src="/static/js/mascot.js"></script>
     <script src="/static/js/translate.js"></script>
+    <script src="/static/js/characters.js"></script>
 </body>
 </html>
