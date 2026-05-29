@@ -159,8 +159,11 @@ def _load_emotion_map() -> dict:
         return {}
 
 
+from app.calliope_shell.characters_routes import register_character_routes
+
 def create_app():
     app = Flask(__name__)
+    register_character_routes(app)
 
     FLASK_PORT = os.getenv("FLASK_PORT", "5000")
     ST_URL = os.getenv("ST_URL", "http://localhost:8001")
