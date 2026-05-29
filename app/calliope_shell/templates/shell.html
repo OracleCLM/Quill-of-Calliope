@@ -279,7 +279,7 @@
             <a id="nav-characters" onclick="showView('characters')">☺ Characters</a> |
             <a id="nav-scenes" onclick="showView('scenes')">◆ Scenes</a> |
             <a id="nav-messages" onclick="showView('messages')">◇ Messages</a> |
-            <a id="nav-loresearch" onclick="showView('loresearch')">📖 Lore</a>
+            <a id="nav-lorekb" onclick="showView('lorekb')">📖 Lore</a>
             <span id="privacy-badge" class="privacy-badge" role="status"
                   aria-label="Privacy: local-only, no cloud upload of RP data">
                 <span class="pb-icon" aria-hidden="true">🔒</span>
@@ -696,6 +696,27 @@
         </div>
     </section>
 
+    <!-- ── LORE KB PANEL (P5c.1b — KB-first, browse/edit 5 categories; semantic search = 2nd step) ── -->
+    <section id="lorekb-panel" style="display:none; flex-direction:column; padding:24px; height:calc(100vh - 60px); box-sizing:border-box;">
+        <div style="display:flex; align-items:center; gap:16px; margin-bottom:12px;">
+            <h2 style="margin:0; color:#aac;">📖 Lore — Knowledge Base</h2>
+            <button id="lorekb-new-btn" style="background:#1e3a6e; color:#fff; border:none; border-radius:6px; padding:8px 14px; cursor:pointer;">+ Nuova voce</button>
+        </div>
+        <div id="lorekb-categories" style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px;"></div>
+        <div style="display:flex; gap:20px; flex:1; min-height:0;">
+            <div id="lorekb-entries" style="flex:1; min-width:0; overflow-y:auto;"></div>
+            <div id="lorekb-detail" style="flex:1.3; min-width:0; overflow-y:auto; background:#0d1117; border:1px solid #1a2a3a; border-radius:8px; padding:16px; color:#8899aa;">← Seleziona una voce o creane una nuova</div>
+        </div>
+        <details style="margin-top:14px; border-top:1px solid #1a2a3a; padding-top:10px;">
+            <summary style="cursor:pointer; color:#88aaff; font-size:.9em;">🔍 Ricerca semantica profonda (2° passo — dataset/messaggi)</summary>
+            <div style="display:flex; gap:8px; margin-top:10px;">
+                <input id="lorekb-search-input" placeholder="Cerca nei dataset / messaggi scraped..." style="flex:1; background:#0d1117; color:#dde; border:1px solid #2a3a5a; border-radius:6px; padding:8px;">
+                <button id="lorekb-search-btn" style="background:#1e3a6e; color:#fff; border:none; border-radius:6px; padding:8px 16px; cursor:pointer;">Cerca</button>
+            </div>
+            <div id="lorekb-search-results" style="margin-top:10px;"></div>
+        </details>
+    </section>
+
     <!-- ── LORE SEARCH PANEL (Sprint G1 — /api/lore/search) ── -->
     <section id="loresearch-panel" style="display:none; flex-direction:column; padding:24px; max-width:800px; margin:0 auto; width:100%; height:calc(100vh - 60px); box-sizing:border-box; overflow-y:auto;">
         <h2 style="margin:0 0 16px; color:#aac;">📖 Lore Search — Semantic Knowledge Base</h2>
@@ -860,7 +881,7 @@
         }
 
         // ── View routing ──
-        const _ALL_PANELS = ['dashboard','main','characters','scenes','messages','translate','draft','refine','arc','smartdraft','summarize','loresearch','lorecheck'];
+        const _ALL_PANELS = ['dashboard','main','characters','scenes','messages','translate','draft','refine','arc','smartdraft','summarize','lorekb','loresearch','lorecheck'];
         function showView(view) {
             _ALL_PANELS.forEach(v => {
                 const el = document.getElementById(v === 'main' ? 'main-view' : v + '-panel');
@@ -874,6 +895,7 @@
             if (view === 'dashboard') loadDashboardSnapshot();
             if (view === 'smartdraft') _loadCharDropdown();
             if (view === 'characters') loadCharactersPanel();
+            if (view === 'lorekb') loadLoreKB();
         }
 
         // ── Scenes panel (Gap B) ──
@@ -1747,5 +1769,6 @@
     <script src="/static/js/mascot.js"></script>
     <script src="/static/js/translate.js"></script>
     <script src="/static/js/characters.js"></script>
+    <script src="/static/js/lore_kb.js"></script>
 </body>
 </html>
