@@ -16,6 +16,7 @@ from app.calliope_shell.char_memory_tools import (
     char_memory_list_facts,
 )
 from app.calliope_shell.characters_routes import register_character_routes
+from app.calliope_shell.lore_routes import register_lore_routes
 
 logger = logging.getLogger(__name__)
 
@@ -163,6 +164,7 @@ def _load_emotion_map() -> dict:
 def create_app():
     app = Flask(__name__)
     register_character_routes(app)
+    register_lore_routes(app)
 
     FLASK_PORT = os.getenv("FLASK_PORT", "5000")
     ST_URL = os.getenv("ST_URL", "http://localhost:8001")
