@@ -269,19 +269,17 @@
     <header>
         <h1>Quill of Calliope</h1>
         <nav>
+            <!-- P5b nav slim 13->5 surfaces. REVERSIBLE: removed entries
+                 (home/translate/draft/refine/arc/smartdraft/summarize/lorecheck)
+                 keep their panels in the DOM + in _ALL_PANELS; they are unlinked
+                 from top-nav and become in-scene actions in P5c. Restore = re-add
+                 the <a> links below. Lore points at loresearch for now; P5c
+                 repoints it to the KB-first surface. -->
             <a id="nav-dashboard" class="active" onclick="showView('dashboard')">◈ Dashboard</a> |
-            <a id="nav-home" onclick="showView('main')">Home</a> |
             <a id="nav-characters" onclick="showView('characters')">☺ Characters</a> |
-            <a id="nav-messages" onclick="showView('messages')">◇ Messages</a> |
             <a id="nav-scenes" onclick="showView('scenes')">◆ Scenes</a> |
-            <a id="nav-translate" onclick="showView('translate')">Translate</a> |
-            <a id="nav-draft" onclick="showView('draft')">✦ Draft</a> |
-            <a id="nav-refine" onclick="showView('refine')">✎ Refine</a> |
-            <a id="nav-arc" onclick="showView('arc')">◈ Arc</a> |
-            <a id="nav-smartdraft" onclick="showView('smartdraft')">⚡ Smart Draft</a> |
-            <a id="nav-summarize" onclick="showView('summarize')">∑ Summarize</a> |
-            <a id="nav-loresearch" onclick="showView('loresearch')">📖 Lore</a> |
-            <a id="nav-lorecheck" onclick="showView('lorecheck')">⊘ Lore Check</a>
+            <a id="nav-messages" onclick="showView('messages')">◇ Messages</a> |
+            <a id="nav-loresearch" onclick="showView('loresearch')">📖 Lore</a>
             <span id="privacy-badge" class="privacy-badge" role="status"
                   aria-label="Privacy: local-only, no cloud upload of RP data">
                 <span class="pb-icon" aria-hidden="true">🔒</span>
