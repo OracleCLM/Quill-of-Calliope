@@ -1,0 +1,20 @@
+# Quill of Calliope — runtime dependencies for the local stack
+# Derived from actual imports of the 4 quickstart daemons (2026-05-29).
+# Install into the dedicated venv: .venv/bin/pip install -r requirements.txt
+
+# Mascot WS :9876  +  LLM gateway :8766
+fastapi
+uvicorn
+pydantic
+httpx
+mcp
+
+# LLM gateway external module (Workspace/mcp_servers/llm_gateway/server.py)
+# uses httpx + mcp (already above)
+
+# Flask shell :5000
+flask>=3.1,<4
+requests>=2.31
+pyyaml>=6.0
+chromadb
+rapidfuzz
