@@ -15,6 +15,7 @@ from app.calliope_shell.char_memory_tools import (
     char_memory_recall,
     char_memory_list_facts,
 )
+from app.calliope_shell.characters_routes import register_character_routes
 
 logger = logging.getLogger(__name__)
 
@@ -159,8 +160,6 @@ def _load_emotion_map() -> dict:
         return {}
 
 
-from app.calliope_shell.characters_routes import register_character_routes
-
 def create_app():
     app = Flask(__name__)
     register_character_routes(app)
@@ -190,7 +189,7 @@ def create_app():
 
     _llm_routing_state: dict = {
         "provider": os.getenv("CALLIOPE_LLM_PROVIDER", "cerebras"),
-        "model": os.getenv("CALLIOPE_LLM_MODEL", "qwen-3-235b-a22b-instruct-2507"),
+        "model": os.getenv("CALLIOPE_LLM_MODEL", "gpt-oss-120b"),
         "uncensored": False,
     }
     _UNCENSORED_PROFILE = {
@@ -199,7 +198,7 @@ def create_app():
     }
     _DEFAULT_PROFILE = {
         "provider": os.getenv("CALLIOPE_LLM_PROVIDER", "cerebras"),
-        "model": os.getenv("CALLIOPE_LLM_MODEL", "qwen-3-235b-a22b-instruct-2507"),
+        "model": os.getenv("CALLIOPE_LLM_MODEL", "gpt-oss-120b"),
     }
 
     @app.route("/api/dashboard/llm_routing", methods=["GET"])
@@ -1225,7 +1224,7 @@ def create_app():
 
         return jsonify({
             "draft_text": draft_text,
-            "model_used": "cerebras/qwen-3-235b",
+            "model_used": "cerebras/gpt-oss-120b",
             "context_used": {
                 "scene": bool(scene_ctx),
                 "char_sheets": len(char_sheets),
