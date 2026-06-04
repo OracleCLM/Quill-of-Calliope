@@ -1,14 +1,19 @@
 """
 Modulo di gestione delle reazioni per il database di Calliope.
 
-Fornisce funzioni di utilità per:
-- Inizializzare le tabelle necessarie (`init_db`).
-- Aggiungere una reazione (`add_reaction`).
-- Recuperare le reazioni (`list_reactions`).
+Questo modulo è stato riscritto per utilizzare la tabella reale
+``scene_reactions`` presente nello schema del database.  Le funzioni
+forniscono:
+
+* ``add_reaction`` – inserisce una nuova reazione associata a un
+  ``message_id`` e a un ``character_id`` (l'ID della scena viene
+  ricavato dal messaggio).
+* ``list_reactions`` – restituisce le reazioni per un dato
+  ``message_id`` ordinate per data di creazione.
 
 Le funzioni operano su un oggetto ``sqlite3.Connection`` passato
 esplicitamente, così da poter essere usate sia in produzione sia nei
-test con un DB temporaneo in‑memory.
+test con un DB temporaneo.
 """
 
 from __future__ import annotations
@@ -16,117 +21,130 @@ from __future__ import annotations
 import sqlite3
 from typing import List, Mapping, Optional
 
-
-def init_db(conn: sqlite3.Connection) -> None:
-    """
-    Crea le tabelle di base se non esistono.
-
-    Tabelle:
-    - scenes (id)
-    - characters (id, scene_id)
-    - messages (id, scene_id, character_id, content)
-    - reactions (id, scene_id, character_id, message_id, reaction)
-
-    La funzione è idempotente.
-    """
-    cur = conn.cursor()
-    # Le tabelle ``scenes``, ``characters`` e ``messages`` sono
-    # semplificate: bastano gli ID per i test.
-    cur.executescript(
-        """
-        CREATE TABLE IF NOT EXISTS scenes (
-            id INTEGER PRIMARY KEY AUTOINCREMENT
-        );
-
-        CREATE TABLE IF NOT EXISTS characters (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            scene_id INTEGER NOT NULL,
-            FOREIGN KEY (scene_id) REFERENCES scenes(id) ON DELETE CASCADE
-        );
-
-        CREATE TABLE IF NOT EXISTS messages (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            scene_id INTEGER NOT NULL,
-            character_id INTEGER NOT NULL,
-            content TEXT,
-            FOREIGN KEY (scene_id) REFERENCES scenes(id) ON DELETE CASCADE,
-            FOREIGN KEY (character_id) REFERENCES characters(id) ON DELETE CASCADE
-        );
-
-        CREATE TABLE IF NOT EXISTS reactions (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            scene_id INTEGER NOT NULL,
-            character_id INTEGER NOT NULL,
-            message_id INTEGER NOT NULL,
-            reaction TEXT NOT NULL,
-            FOREIGN KEY (scene_id) REFERENCES scenes(id) ON DELETE CASCADE,
-            FOREIGN KEY (character_id) REFERENCES characters(id) ON DELETE CASCADE,
-            FOREIGN KEY (message_id) REFERENCES messages(id) ON DELETE CASCADE
-        );
-        """
-    )
-    conn.commit()
+# Importiamo utility generiche dal package ``app.db``.
+# Si assume che ``app.db`` esponga:
+#   - ``init_schema(conn)`` per creare lo schema completo del DB.
+#   - ``new_id()`` per generare un ID unico (usato per le tabelle che
+#     non hanno AUTOINCREMENT).
+try:
+    # Importiamo in modo dinamico per evitare errori se il modulo non è
+    # presente al momento del parsing del file.
+    from app.db import new_id  # type: ignore
+except Exception:  # pragma: no cover
+    # Fallback di sicurezza: se la funzione non è disponibile, usiamo
+    # ``None`` e lasciamo che SQLite gestisca l'autoincrement.
+    new_id = None  # type: ignore
 
 
 def add_reaction(
     conn: sqlite3.Connection,
     *,
-    scene_id: int,
-    character_id: int,
     message_id: int,
-    reaction: str,
+    character_id: int,
+    emoji: Optional[str] = None,
 ) -> int:
     """
-    Inserisce una nuova reazione nella tabella ``reactions``.
+    Inserisce una nuova reazione nella tabella ``scene_reactions``.
 
-    Restituisce l'ID della riga appena inserita.
+    Parameters
+    ----------
+    conn:
+        Connessione SQLite attiva.
+    message_id:
+        ID del messaggio a cui la reazione si riferisce.
+    character_id:
+        ID del personaggio che ha effettuato la reazione.
+    emoji:
+        Simbolo della reazione (es. ``👍``).  Se ``None`` viene inserito
+        una stringa vuota.
+
+    Returns
+    -------
+    int
+        L'ID della riga appena inserita.
     """
+    # Recuperiamo lo ``scene_id`` dal messaggio, poiché la tabella
+    # ``scene_reactions`` richiede anche questo campo.
     cur = conn.cursor()
     cur.execute(
-        """
-        INSERT INTO reactions (scene_id, character_id, message_id, reaction)
-        VALUES (?, ?, ?, ?)
-        """,
-        (scene_id, character_id, message_id, reaction),
+        "SELECT scene_id FROM messages WHERE id = ?",
+        (message_id,),
     )
+    row = cur.fetchone()
+    if row is None:
+        raise ValueError(f"Message with id {message_id} does not exist")
+    scene_id: int = row[0]
+
+    # Prepariamo i valori da inserire.
+    reaction_text = emoji if emoji is not None else ""
+
+    # Se la tabella prevede un campo ``id`` con AUTOINCREMENT possiamo
+    # ometterlo; altrimenti, usiamo ``new_id()`` se disponibile.
+    if new_id is not None:
+        reaction_id = new_id()
+        cur.execute(
+            """
+            INSERT INTO scene_reactions
+                (id, scene_id, character_id, message_id, reaction)
+            VALUES (?, ?, ?, ?, ?)
+            """,
+            (reaction_id, scene_id, character_id, message_id, reaction_text),
+        )
+    else:
+        cur.execute(
+            """
+            INSERT INTO scene_reactions
+                (scene_id, character_id, message_id, reaction)
+            VALUES (?, ?, ?, ?)
+            """,
+            (scene_id, character_id, message_id, reaction_text),
+        )
+        reaction_id = cur.lastrowid
+
     conn.commit()
-    return cur.lastrowid
+    return reaction_id
 
 
 def list_reactions(
     conn: sqlite3.Connection,
     *,
-    scene_id: Optional[int] = None,
-    character_id: Optional[int] = None,
-    message_id: Optional[int] = None,
+    message_id: int,
 ) -> List[Mapping[str, object]]:
     """
-    Restituisce una lista di reazioni filtrate opzionalmente per
-    ``scene_id``, ``character_id`` e/o ``message_id``.
+    Restituisce la lista delle reazioni associate a ``message_id``,
+    ordinate per data di creazione (campo ``created_at`` se presente).
 
-    Ogni elemento è un mapping con le chiavi:
-    ``id``, ``scene_id``, ``character_id``, ``message_id``, ``reaction``.
+    Parameters
+    ----------
+    conn:
+        Connessione SQLite attiva.
+    message_id:
+        ID del messaggio di cui si vogliono le reazioni.
+
+    Returns
+    -------
+    List[Mapping[str, object]]
+        Lista di dizionari, ciascuno contenente le colonne della tabella
+        ``scene_reactions``.
     """
     cur = conn.cursor()
-    query = "SELECT id, scene_id, character_id, message_id, reaction FROM reactions"
-    conditions: List[str] = []
-    params: List[object] = []
+    # Verifichiamo se la tabella possiede il campo ``created_at`` per
+    # ordinare correttamente; altrimenti, ordiniamo per ``id``.
+    cur.execute(
+        "PRAGMA table_info(scene_reactions)"
+    )
+    columns_info = cur.fetchall()
+    column_names = {info[1] for info in columns_info}
+    order_by = "created_at" if "created_at" in column_names else "id"
 
-    if scene_id is not None:
-        conditions.append("scene_id = ?")
-        params.append(scene_id)
-    if character_id is not None:
-        conditions.append("character_id = ?")
-        params.append(character_id)
-    if message_id is not None:
-        conditions.append("message_id = ?")
-        params.append(message_id)
-
-    if conditions:
-        query += " WHERE " + " AND ".join(conditions)
-
-    cur.execute(query, tuple(params))
+    query = f"""
+        SELECT *
+        FROM scene_reactions
+        WHERE message_id = ?
+        ORDER BY {order_by}
+    """
+    cur.execute(query, (message_id,))
     rows = cur.fetchall()
     # Convertiamo le tuple in dict per comodità di test
-    columns = [desc[0] for desc in cur.description]
-    return [dict(zip(columns, row)) for row in rows]
+    col_desc = [desc[0] for desc in cur.description]
+    return [dict(zip(col_desc, row)) for row in rows]
