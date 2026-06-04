@@ -112,3 +112,9 @@ def count_messages_for_scene(session: Session, scene_id: str) -> int:
         .filter(Message.scene_id == scene_id)
         .count()
     )
+
+def get_message_by_id(session: Session, message_id: str) -> Message | None:
+    """
+    Restituisce il messaggio con l'ID specificato o None se non trovato.
+    """
+    return session.query(Message).filter(Message.id == message_id).first()
