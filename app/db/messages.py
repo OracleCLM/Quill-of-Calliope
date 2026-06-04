@@ -18,6 +18,7 @@ from sqlalchemy.orm import (
     mapped_column,
     relationship,
     sessionmaker,
+    session,
 )
 
 from app.db import new_id
@@ -144,3 +145,15 @@ def get_scene_message_page(
         'offset': offset,
         'has_more': (offset + len(rows)) < total
     }
+
+def delete_message(session: Session, message_id: str) -> bool:
+    """
+    Elimina il messaggio con l'ID specificato.
+    """
+    msg = get_message_by_id(session, message_id)
+    if msg:
+        session.delete(msg)
+        session.commit()
+        return True
+    else:
+        return False
