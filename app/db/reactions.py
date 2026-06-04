@@ -78,28 +78,17 @@ def add_reaction(
     # Prepariamo i valori da inserire.
     reaction_text = emoji if emoji is not None else ""
 
-    # Se la tabella prevede un campo ``id`` con AUTOINCREMENT possiamo
-    # ometterlo; altrimenti, usiamo ``new_id()`` se disponibile.
-    if new_id is not None:
-        reaction_id = new_id()
-        cur.execute(
-            """
-            INSERT INTO scene_reactions
-                (id, scene_id, character_id, message_id, reaction)
-            VALUES (?, ?, ?, ?, ?)
-            """,
-            (reaction_id, scene_id, character_id, message_id, reaction_text),
-        )
-    else:
-        cur.execute(
-            """
-            INSERT INTO scene_reactions
-                (scene_id, character_id, message_id, reaction)
-            VALUES (?, ?, ?, ?)
-            """,
-            (scene_id, character_id, message_id, reaction_text),
-        )
-        reaction_id = cur.lastrowid
+    # Inseriamo la riga.  Utilizziamo l'autoincrement di SQLite per l'ID,
+    # indipendentemente dal fatto che ``new_id`` sia disponibile.
+    cur.execute(
+        """
+        INSERT INTO scene_reactions
+            (scene_id, character_id, message_id, reaction)
+        VALUES (?, ?, ?, ?)
+        """,
+        (scene_id, character_id, message_id, reaction_text),
+    )
+    reaction_id = cur.lastrowid
 
     conn.commit()
     return reaction_id
@@ -130,9 +119,7 @@ def list_reactions(
     cur = conn.cursor()
     # Verifichiamo se la tabella possiede il campo ``created_at`` per
     # ordinare correttamente; altrimenti, ordiniamo per ``id``.
-    cur.execute(
-        "PRAGMA table_info(scene_reactions)"
-    )
+    cur.execute("PRAGMA table_info(scene_reactions)")
     columns_info = cur.fetchall()
     column_names = {info[1] for info in columns_info}
     order_by = "created_at" if "created_at" in column_names else "id"
