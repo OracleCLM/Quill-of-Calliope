@@ -36,6 +36,26 @@ except Exception:  # pragma: no cover
     new_id = None  # type: ignore
 
 
+def _detect_reaction_column(conn: sqlite3.Connection) -> str:
+    """
+    Determina il nome della colonna usata per la reazione nella tabella
+    ``scene_reactions``.  Alcuni schemi usano ``reaction`` (nome più
+    descrittivo), altri usano ``emoji``.  Restituisce il nome corretto
+    da utilizzare nelle query di INSERT/SELECT.
+    """
+    cur = conn.cursor()
+    cur.execute("PRAGMA table_info(scene_reactions)")
+    cols = {row[1] for row in cur.fetchall()}
+    if "reaction" in cols:
+        return "reaction"
+    if "emoji" in cols:
+        return "emoji"
+    # Se nessuna delle due è presente, solleviamo un errore chiaro.
+    raise RuntimeError(
+        "La tabella scene_reactions non contiene né la colonna 'reaction' né 'emoji'."
+    )
+
+
 def add_reaction(
     conn: sqlite3.Connection,
     *,
@@ -75,15 +95,18 @@ def add_reaction(
         raise ValueError(f"Message with id {message_id} does not exist")
     scene_id: int = row[0]
 
+    # Determiniamo il nome della colonna per la reazione.
+    reaction_col = _detect_reaction_column(conn)
+
     # Prepariamo i valori da inserire.
     reaction_text = emoji if emoji is not None else ""
 
     # Inseriamo la riga.  Utilizziamo l'autoincrement di SQLite per l'ID,
     # indipendentemente dal fatto che ``new_id`` sia disponibile.
     cur.execute(
-        """
+        f"""
         INSERT INTO scene_reactions
-            (scene_id, character_id, message_id, reaction)
+            (scene_id, character_id, message_id, {reaction_col})
         VALUES (?, ?, ?, ?)
         """,
         (scene_id, character_id, message_id, reaction_text),
