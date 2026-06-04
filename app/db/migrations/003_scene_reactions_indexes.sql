@@ -13,4 +13,3 @@ CREATE INDEX IF NOT EXISTS idx_scene_reactions_character_id
     ON scene_reactions (character_id);
 
 COMMIT;
-```​
