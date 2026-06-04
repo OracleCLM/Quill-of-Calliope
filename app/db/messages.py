@@ -102,3 +102,13 @@ def list_messages_for_scene(session: Session, scene_id: str) -> List[Message]:
         .order_by(Message.position_order)
         .all()
     )
+
+def count_messages_for_scene(session: Session, scene_id: str) -> int:
+    """
+    Restituisce il numero di messaggi associati a ``scene_id``.
+    """
+    return (
+        session.query(Message)
+        .filter(Message.scene_id == scene_id)
+        .count()
+    )
