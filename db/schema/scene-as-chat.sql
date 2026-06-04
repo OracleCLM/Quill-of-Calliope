@@ -23,9 +23,9 @@ CREATE TABLE characters (id SERIAL PRIMARY KEY, name VARCHAR(255) NOT NULL, desc
 CREATE TABLE scene_as_chat (id SERIAL PRIMARY KEY, scene_id INTEGER NOT NULL REFERENCES scenes(id), chat_id INTEGER NOT NULL REFERENCES chats(id), created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
 
 CREATE TABLE scene_reactions (
-    id SERIAL PRIMARY KEY,
-    message_id INTEGER NOT NULL,
-    character_id INTEGER NOT NULL,
+    id TEXT PRIMARY KEY,
+    message_id TEXT NOT NULL REFERENCES messages(id) ON DELETE CASCADE,
+    character_id TEXT NOT NULL REFERENCES characters(id) ON DELETE CASCADE,
     emoji TEXT,
-    FOREIGN KEY (character_id) REFERENCES characters(id) ON DELETE CASCADE
+    created_at TEXT DEFAULT (strftime('%Y-%m-%d %H:%M:%f', 'now'))
 );
