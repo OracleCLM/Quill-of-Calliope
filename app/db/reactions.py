@@ -147,4 +147,13 @@ def list_reactions(
     rows = cur.fetchall()
     # Convertiamo le tuple in dict per comodità di test
     col_desc = [desc[0] for desc in cur.description]
-    return [dict(zip(col_desc, row)) for row in rows]
+    result = [dict(zip(col_desc, row)) for row in rows]
+
+    # Normalizziamo il nome della colonna della reazione: se lo schema
+    # usa ``emoji`` la chiave viene rinominata in ``reaction`` per
+    # coerenza con l'API pubblica.
+    for entry in result:
+        if "emoji" in entry and "reaction" not in entry:
+            entry["reaction"] = entry.pop("emoji")
+
+    return result
