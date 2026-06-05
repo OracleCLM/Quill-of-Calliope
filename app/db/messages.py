@@ -296,3 +296,43 @@ def duplicate_scene(session: Session, scene_id: str, new_name: str) -> str:
 
     session.commit()
     return new_scene.id
+
+def merge_scenes(session: Session, scene_id_a: str, scene_id_b: str, new_name: str) -> str:
+    """
+    Crea una nuova scena unendo i messaggi di scene_id_a e scene_id_b.
+    I messaggi di A vengono prima, seguiti da quelli di B.
+    Genera nuovi ID per la scena e i messaggi.
+    """
+    new_scene = Scene(name=new_name)
+    session.add(new_scene)
+    session.flush()
+
+    messages_a = list_messages_for_scene(session, scene_id_a)
+    messages_b = list_messages_for_scene(session, scene_id_b)
+
+    current_position = 1
+
+    for msg in messages_a:
+        session.add(
+            Message(
+                scene_id=new_scene.id,
+                character_id=msg.character_id,
+                content=msg.content,
+                position_order=current_position,
+            )
+        )
+        current_position += 1
+
+    for msg in messages_b:
+        session.add(
+            Message(
+                scene_id=new_scene.id,
+                character_id=msg.character_id,
+                content=msg.content,
+                position_order=current_position,
+            )
+        )
+        current_position += 1
+
+    session.commit()
+    return new_scene.id
