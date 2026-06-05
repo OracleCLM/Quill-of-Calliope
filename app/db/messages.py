@@ -234,3 +234,38 @@ def compact_scene_positions(session: Session, scene_id: str) -> int:
         msg.position_order = i + 1
     session.commit()
     return len(messages)
+
+def move_message_to_scene(session: Session, message_id: str, target_scene_id: str, new_position: int) -> bool:
+    """
+    Sposta il messaggio message_id in un'ALTRA scena target_scene_id, inserendolo alla posizione 1-based new_position.
+    """
+    msg = get_message_by_id(session, message_id)
+    if not msg:
+        return False
+
+    if msg.scene_id == target_scene_id:
+        return move_message(session, message_id, new_position)
+
+    # Clamp new_position
+    target_count = count_messages_for_scene(session, target_scene_id)
+    if new_position < 1:
+        new_position = 1
+    elif new_position > target_count + 1:
+        new_position = target_count + 1
+
+    # Shift target scene messages
+    session.query(Message).filter(
+        Message.scene_id == target_scene_id,
+        Message.position_order >= new_position
+    ).update({Message.position_order: Message.position_order + 1}, synchronize_session="fetch")
+
+    # Update moved message
+    original_scene_id = msg.scene_id
+    msg.scene_id = target_scene_id
+    msg.position_order = new_position
+
+    # Compact source scene
+    compact_scene_positions(session, original_scene_id)
+
+    session.commit()
+    return True
