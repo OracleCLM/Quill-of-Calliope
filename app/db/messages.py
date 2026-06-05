@@ -90,6 +90,34 @@ def add_message(
     return msg.id
 
 
+def insert_message_at(
+    session: Session,
+    scene_id: str,
+    character_id: str,
+    content: str,
+    position: int,
+) -> str:
+    """
+    Inserisce un nuovo messaggio alla posizione specificata.
+    Sposta in avanti (position_order + 1) i messaggi esistenti
+    con position_order >= position per evitare collisioni.
+    Ritorna l'id del nuovo messaggio.
+    """
+    session.query(Message).filter(
+        Message.scene_id == scene_id, Message.position_order >= position
+    ).update({Message.position_order: Message.position_order + 1})
+
+    msg = Message(
+        scene_id=scene_id,
+        character_id=character_id,
+        content=content,
+        position_order=position,
+    )
+    session.add(msg)
+    session.commit()
+    return msg.id
+
+
 def list_messages_for_scene(session: Session, scene_id: str) -> List[Message]:
     """
     Restituisce tutti i messaggi associati a ``scene_id`` ordinati per ``position_order``.
