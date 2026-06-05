@@ -1,10 +1,8 @@
 from __future__ import annotations
 
-import uuid
 from typing import List
 
 from sqlalchemy import (
-    Column,
     ForeignKey,
     Integer,
     String,
@@ -18,7 +16,6 @@ from sqlalchemy.orm import (
     mapped_column,
     relationship,
     sessionmaker,
-    session,
 )
 
 from app.db import new_id
@@ -192,3 +189,20 @@ def move_message(session: Session, message_id: str, new_position: int) -> bool:
 
     session.commit()
     return True
+
+def compact_scene_positions(session: Session, scene_id: str) -> int:
+    """
+    Rinumera il position_order di tutti i messaggi della scena a una sequenza
+    contigua 1..N preservando l'ordine corrente.
+    Ritorna il numero di messaggi rinumerati.
+    """
+    messages = (
+        session.query(Message)
+        .filter(Message.scene_id == scene_id)
+        .order_by(Message.position_order)
+        .all()
+    )
+    for i, msg in enumerate(messages):
+        msg.position_order = i + 1
+    session.commit()
+    return len(messages)
