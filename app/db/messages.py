@@ -157,3 +157,38 @@ def delete_message(session: Session, message_id: str) -> bool:
         return True
     else:
         return False
+
+def move_message(session: Session, message_id: str, new_position: int) -> bool:
+    """
+    Sposta il messaggio identificato da message_id alla posizione new_position
+    all'interno della sua scena e ribilancia il position_order di tutti gli altri
+    messaggi affinché le posizioni siano una sequenza contigua 1..N.
+    Ritorna False se message_id non esiste; True dopo aver fatto session.commit().
+    """
+    msg = get_message_by_id(session, message_id)
+    if not msg:
+        return False
+
+    # Recupera tutti i messaggi della scena ordinati per posizione corrente
+    messages = list_messages_for_scene(session, msg.scene_id)
+
+    # Rimuovi il messaggio target dalla lista (in memoria)
+    other_messages = [m for m in messages if m.id != msg.id]
+
+    # Calcola l'indice di inserimento (gestisce posizioni fuori range)
+    # new_position è 1-based, l'indice della lista è 0-based
+    insert_index = new_position - 1
+    if insert_index < 0:
+        insert_index = 0
+    if insert_index > len(other_messages):
+        insert_index = len(other_messages)
+
+    # Inserisci il messaggio target nella nuova posizione
+    other_messages.insert(insert_index, msg)
+
+    # Aggiorna position_order per tutta la lista (ribilanciamento)
+    for i, m in enumerate(other_messages):
+        m.position_order = i + 1
+
+    session.commit()
+    return True
