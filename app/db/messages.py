@@ -269,3 +269,30 @@ def move_message_to_scene(session: Session, message_id: str, target_scene_id: st
 
     session.commit()
     return True
+
+def duplicate_scene(session: Session, scene_id: str, new_name: str) -> str:
+    """
+    Clona una scena esistente creando una nuova Scene con new_name.
+    Copia tutti i messaggi della scena sorgente nella nuova scena,
+    preservando il contenuto, il character_id e l'ordine (position_order).
+    Genera nuovi ID per la scena e per i messaggi.
+    """
+    new_scene = Scene(name=new_name)
+    session.add(new_scene)
+    # Flush per assicurarsi che l'ID della nuova scena sia generato
+    # prima di usarlo come chiave esterna per i messaggi.
+    session.flush()
+
+    source_messages = list_messages_for_scene(session, scene_id)
+
+    for i, msg in enumerate(source_messages):
+        new_msg = Message(
+            scene_id=new_scene.id,
+            character_id=msg.character_id,
+            content=msg.content,
+            position_order=i + 1,
+        )
+        session.add(new_msg)
+
+    session.commit()
+    return new_scene.id
