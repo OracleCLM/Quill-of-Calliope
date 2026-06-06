@@ -192,3 +192,11 @@ Operator-mandate: scene RP duraturanno settimane/mesi tipicamente. Design implic
 **Operator**: nic (single user)
 **Maintainer**: father-NM (opus orchestrator)
 **Created**: 2026-05-16 brainstorming session post-Atlante enterprise prep
+
+---
+
+## Integrazioni candidate (stato: 2026-06-06)
+
+| Integrazione | Stato | Note |
+|---|---|---|
+| **TurboQuant KV-cache** (Google Research ICLR 2026) | **WATCH** — ChromaDB/local | Se Calliope integra modelli locali per RAG narrativo o generazione, TurboQuant può ridurre OOM su sessioni lunghe; dipende da llama.cpp integration (non ancora disponibile) |
