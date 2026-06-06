@@ -30,9 +30,9 @@ def db_connection():
         # Creiamo una scena
         scene_id = db_mod.new_id() if hasattr(db_mod, "new_id") else None
         if scene_id is not None:
-            cur.execute("INSERT INTO scenes (id) VALUES (?)", (scene_id,))
+            cur.execute("INSERT INTO scenes (id, title) VALUES (?, ?)", (scene_id, "Test Scene"))
         else:
-            cur.execute("INSERT INTO scenes DEFAULT VALUES")
+            cur.execute("INSERT INTO scenes (title) VALUES (?)", ("Test Scene",))
             scene_id = cur.lastrowid
 
         # Creiamo un personaggio associato alla scena
