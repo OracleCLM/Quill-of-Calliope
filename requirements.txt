@@ -18,3 +18,6 @@ requests>=2.31
 pyyaml>=6.0
 chromadb
 rapidfuzz
+
+# app/db/messages.py ORM layer (sqlite3-uniformity refactor = backlog; declared to reflect current reality)
+sqlalchemy>=2.0
