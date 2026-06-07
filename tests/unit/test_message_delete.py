@@ -1,51 +1,24 @@
-import pytest
+"""Tests for delete_message."""
+from __future__ import annotations
 
-from app.db.messages import (
-    Base,
-    SessionLocal,
-    engine,
-    Scene,
-    Character,
-    add_message,
-    get_message_by_id,
-    count_messages_for_scene,
-    delete_message,
-)
+from app.db.messages import add_message, count_messages_for_scene, delete_message, get_message_by_id
+from tests.unit.conftest import add_scene, add_character
 
 
-@pytest.fixture(scope="module", autouse=True)
-def setup_schema():
-    """Crea lo schema una sola volta per il modulo (DB in-memory)."""
-    Base.metadata.create_all(engine)
-    yield
-
-
-def test_delete_existing_message():
+def test_delete_existing_message(msg_conn):
     """delete_message su id esistente: True, riga rimossa, count decrementato."""
-    session = SessionLocal()
-    scene = Scene(name="DelScene")
-    character = Character(name="DelChar")
-    session.add_all([scene, character])
-    session.commit()
+    scene_id = add_scene(msg_conn)
+    char_id = add_character(msg_conn)
 
-    msg_id = add_message(
-        session,
-        scene_id=scene.id,
-        character_id=character.id,
-        content="to delete",
-        position_order=0,
-    )
-    assert count_messages_for_scene(session, scene.id) == 1
+    msg_id = add_message(msg_conn, scene_id=scene_id, character_id=char_id,
+                         author_name="DelChar", content_original="to delete", position_order=0)
+    assert count_messages_for_scene(msg_conn, scene_id) == 1
 
-    assert delete_message(session, msg_id) is True
-    assert get_message_by_id(session, msg_id) is None
-    assert count_messages_for_scene(session, scene.id) == 0
-
-    session.close()
+    assert delete_message(msg_conn, msg_id) is True
+    assert get_message_by_id(msg_conn, msg_id) is None
+    assert count_messages_for_scene(msg_conn, scene_id) == 0
 
 
-def test_delete_missing_message():
-    """delete_message su id inesistente: False (nessun errore)."""
-    session = SessionLocal()
-    assert delete_message(session, "non-existent-id") is False
-    session.close()
+def test_delete_missing_message(msg_conn):
+    """delete_message su id inesistente: False."""
+    assert delete_message(msg_conn, "non-existent-id") is False

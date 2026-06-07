@@ -1,53 +1,23 @@
-import unittest
+"""Tests for move_message."""
+from __future__ import annotations
 
-from app.db.messages import (
-    Base,
-    engine,
-    SessionLocal,
-    Scene,
-    Character,
-    add_message,
-    list_messages_for_scene,
-    move_message,
-)
+from app.db.messages import add_message, list_messages_for_scene, move_message
+from tests.unit.conftest import add_scene, add_character
 
 
-class TestMessageReorder(unittest.TestCase):
-    def setUp(self):
-        Base.metadata.create_all(engine)
-        self.session = SessionLocal()
+def test_move_message_rebalance(msg_conn):
+    scene_id = add_scene(msg_conn)
+    char_id = add_character(msg_conn)
 
-    def tearDown(self):
-        self.session.close()
-        Base.metadata.drop_all(engine)
+    add_message(msg_conn, scene_id=scene_id, character_id=char_id,
+                author_name="X", content_original="A", position_order=1)
+    add_message(msg_conn, scene_id=scene_id, character_id=char_id,
+                author_name="X", content_original="B", position_order=2)
+    msg_c_id = add_message(msg_conn, scene_id=scene_id, character_id=char_id,
+                           author_name="X", content_original="C", position_order=3)
 
-    def test_move_message_rebalance(self):
-        session = self.session
+    assert move_message(msg_conn, msg_c_id, 1) is True
 
-        # Crea Scene e Character
-        scene = Scene(name="Test Scene")
-        character = Character(name="Test Character")
-        session.add(scene)
-        session.add(character)
-        session.commit()
-
-        # Inserisci 3 messaggi A, B, C con posizioni 1, 2, 3
-        # Non assegniamo il risultato per A e B perché non ci serve
-        add_message(session, scene.id, character.id, "A", 1)
-        add_message(session, scene.id, character.id, "B", 2)
-        # Assegniamo l'ID di C per usarlo nel test
-        msg_c_id = add_message(session, scene.id, character.id, "C", 3)
-
-        # Sposta il messaggio C alla posizione 1
-        result = move_message(session, msg_c_id, 1)
-        self.assertTrue(result)
-
-        # Recupera i messaggi e verifica l'ordinamento
-        messages = list_messages_for_scene(session, scene.id)
-        contents = [m.content for m in messages]
-        positions = [m.position_order for m in messages]
-
-        # Verifica che l'ordine dei contenuti sia C, A, B
-        self.assertEqual(contents, ["C", "A", "B"])
-        # Verifica che le posizioni siano 1, 2, 3 contigue
-        self.assertEqual(positions, [1, 2, 3])
+    messages = list_messages_for_scene(msg_conn, scene_id)
+    assert [m["content_original"] for m in messages] == ["C", "A", "B"]
+    assert [m["position_order"] for m in messages] == [1, 2, 3]
