@@ -1,20 +1,16 @@
 import tempfile
 import sqlite3
 from app.db import init_schema
-def test_migration_lore_entries_structure():
-    """Verifica la struttura della tabella lore_entries."""
+def test_migration_arc_lore_structure():
+    """Verifica la struttura della tabella arc_lore."""
     with tempfile.NamedTemporaryFile(suffix=".db") as tf:
         conn = sqlite3.connect(tf.name)
         init_schema(conn)
 
-        # Verifica struttura tabella lore_entries
-        cursor = conn.execute("PRAGMA table_info(lore_entries)")
+        # Verifica struttura tabella arc_lore
+        cursor = conn.execute("PRAGMA table_info(arc_lore)")
         columns = {row[1]: row[2] for row in cursor.fetchall()}
-        assert "id" in columns
-        assert columns["id"] == "TEXT"
-        assert "title" in columns
-        assert columns["title"] == "TEXT"
-        assert "content_text" in columns
-        assert columns["content_text"] == "TEXT"
-        assert "category" in columns
-        assert columns["category"] == "TEXT"
+        assert "arc_id" in columns
+        assert columns["arc_id"] == "TEXT"
+        assert "lore_id" in columns
+        assert columns["lore_id"] == "TEXT"
