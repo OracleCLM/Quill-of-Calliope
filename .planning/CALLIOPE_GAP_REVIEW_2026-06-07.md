@@ -581,3 +581,15 @@ Il progetto non è pronto per il testing umano. Mancano molte funzionalità crit
 7. Implementare le funzionalità complete per le mascotte.
 8. Aggiungere l'interfaccia utente per la gestione delle mascotte.
 9. Implementare la sincronizzazione delle modifiche con il database.
+## Conclusioni
+Il progetto non è pronto per il testing umano. Mancano molte funzionalità critiche che devono essere implementate prima di procedere.
+### Priorità delle azioni necessarie
+1. Implementare la gestione di più personaggi in una singola scena.
+2. Aggiungere funzionalità per il dialogo tra personaggi.
+3. Implementare la sincronizzazione delle azioni dei personaggi.
+4. Implementare l'interfaccia utente per la gestione delle entry.
+5. Aggiungere funzionalità di ricerca e filtro per le entry.
+6. Implementare la sincronizzazione delle modifiche con il database.
+7. Implementare le funzionalità complete per le mascotte.
+8. Aggiungere l'interfaccia utente per la gestione delle mascotte.
+9. Implementare la sincronizzazione delle modifiche con il database.
