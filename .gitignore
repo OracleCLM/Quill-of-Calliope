@@ -111,3 +111,9 @@ docs/sessions/
 *.ogg
 audio_output/
 .chroma_calliope_dryrun/
+.aider*
+
+# === Runtime data (local DB, ChromaDB shards) ===
+data/*.db
+data/chromadb/
+data/discord_persona_config.db
