@@ -1,4 +1,4 @@
-"""Fixtures condivise per i test di app/db/messages.py (sqlite3 raw)."""
+"""Fixtures condivise per i test di app/db/ (sqlite3 raw)."""
 from __future__ import annotations
 
 import sqlite3
@@ -6,9 +6,19 @@ from pathlib import Path
 
 import pytest
 
-from app.db import new_id
+from app.db import new_id, init_schema
 
 _MIGRATION = Path(__file__).parents[2] / "app" / "db" / "migrations" / "001_scene_as_chat.sql"
+
+
+@pytest.fixture
+def db_connection():
+    """In-memory SQLite con schema completo (tutte le migrations) — per test characters/lore/reactions."""
+    c = sqlite3.connect(":memory:")
+    c.row_factory = sqlite3.Row
+    init_schema(c)
+    yield {"conn": c}
+    c.close()
 
 
 @pytest.fixture

@@ -53,6 +53,10 @@ def add_lore_entry(
     str
         L'ID della voce appena inserita.
     """
+    if not title:
+        raise ValueError("title non può essere vuoto")
+    if len(title) > 255:
+        raise ValueError("title non può superare 255 caratteri")
     if new_id is None:
         raise RuntimeError("new_id function not available")
 

@@ -53,6 +53,10 @@ def add_character(
     str
         L'ID del personaggio appena inserito.
     """
+    if not name:
+        raise ValueError("name non può essere vuoto")
+    if len(name) > 255:
+        raise ValueError("name non può superare 255 caratteri")
     if new_id is None:
         raise RuntimeError("new_id function not available")
 
