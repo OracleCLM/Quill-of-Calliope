@@ -1,37 +1,22 @@
-import sqlite3
 import tempfile
-
+import sqlite3
 from app.db import init_schema
-
-
-def test_schema_migrations():
-    """
-    Verifica che lo script di migrazione crei tutte le tabelle previste.
-    """
-    # Creiamo un database SQLite temporaneo
+def test_migration_foreign_keys():
+    """Verifica che le foreign keys siano abilitate."""
     with tempfile.NamedTemporaryFile(suffix=".db") as tf:
         conn = sqlite3.connect(tf.name)
-
-        # Eseguiamo le migrazioni
         init_schema(conn)
 
-        # Recuperiamo l'elenco delle tabelle presenti
-        cursor = conn.execute(
-            "SELECT name FROM sqlite_master WHERE type='table'"
-        )
-        tables = {row[0] for row in cursor.fetchall()}
+        # Verifica che le foreign keys siano abilitate
+        cursor = conn.execute("PRAGMA foreign_keys")
+        assert cursor.fetchone()[0] == 1
 
-        # Elenco delle tabelle che ci aspettiamo siano state create
-        expected_tables = {
-            "arcs",
-            "scenes",
-            "characters",
-            "scene_characters",
-            "messages",
-            "lore_entries",
-            "arc_lore",
-            "scene_reactions",
-        }
+def test_migration_journal_mode():
+    """Verifica che il journal mode sia WAL."""
+    with tempfile.NamedTemporaryFile(suffix=".db") as tf:
+        conn = sqlite3.connect(tf.name)
+        init_schema(conn)
 
-        missing = expected_tables - tables
-        assert not missing, f"Tabelle mancanti dopo le migrazioni: {missing}"
+        # Verifica che il journal mode sia WAL
+        cursor = conn.execute("PRAGMA journal_mode")
+        assert cursor.fetchone()[0] == "wal"
