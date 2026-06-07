@@ -429,6 +429,16 @@ These features are critical for the functionality and usability of the feature.
 ## Additional Notes
 * The assistant tool calls to read the content of the file `app/calliope_shell/tests/test_characters_service.py` multiple times, and the tool results show the content of the file, which includes various test functions for the `characters_service` module.
 * The file `app/calliope_shell/lore_kb.py` contains the definition of the `LORE_CATEGORIES` list, which includes the categories `WORLD_SETTING`, `PLACES`, `CHARACTERS_EVENTS`, `MECHANICS_MAGIC`, and `OTHER`.
+3. Implement the component for the mascot.
+4. Provide the final verdict and prioritized list of missing features.
+
+## Critical Context
+* [Tool Error]: Path 'docs/plans/CALLIOPE_REDESIGN_SPEC.md' not found. Attempted to read from 'docs/plans/CALLIOPE_REDESIGN_SPEC.md' and 'docs/plans/CALLIOPE_REDESIGN_SPEC.md:raw' but the file was not found.
+* [Repository State]: Uncommitted changes in .planning/CALLIOPE_GAP_REVIEW_2026-06-07.md.
+
+## Additional Notes
+* The assistant tool calls to read the content of the file `app/calliope_shell/tests/test_characters_service.py` multiple times, and the tool results show the content of the file, which includes various test functions for the `characters_service` module.
+* The file `app/calliope_shell/lore_kb.py` contains the definition of the `LORE_CATEGORIES` list, which includes the categories `WORLD_SETTING`, `PLACES`, `CHARACTERS_EVENTS`, `MECHANICS_MAGIC`, and `OTHER`.
 ## Next Steps
 1. Implement the missing parts for multi-person character chat.
 2. Implement the CRUD/UI for 5 categories.
@@ -512,3 +522,62 @@ These features are critical for the functionality and usability of the feature.
 ## Additional Notes
 * The assistant tool calls to read the content of the file `app/calliope_shell/tests/test_characters_service.py` multiple times, and the tool results show the content of the file, which includes various test functions for the `characters_service` module.
 * The file `app/calliope_shell/lore_kb.py` contains the definition of the `LORE_CATEGORIES` list, which includes the categories `WORLD_SETTING`, `PLACES`, `CHARACTERS_EVENTS`, `MECHANICS_MAGIC`, and `OTHER`.
+## Scene multi-personaggio
+### Stato attuale
+Il codice per le scene multi-personaggio esiste parzialmente ma non è completo. Mancano le funzionalità per gestire più personaggi in una singola scena.
+
+### Azioni necessarie
+1. Implementare la gestione di più personaggi in una singola scena.
+2. Aggiungere funzionalità per il dialogo tra personaggi.
+3. Implementare la sincronizzazione delle azioni dei personaggi.
+
+## LORE KB editabile
+### Stato attuale
+Il modulo LORE KB ha le funzionalità CRUD per 5 categorie, ma manca l'interfaccia utente per la gestione delle entry.
+
+### Azioni necessarie
+1. Implementare l'interfaccia utente per la gestione delle entry.
+2. Aggiungere funzionalità di ricerca e filtro per le entry.
+3. Implementare la sincronizzazione delle modifiche con il database.
+
+## MASCOTTE riusabile
+### Stato attuale
+Il componente per le mascotte esiste ma non è completamente implementato.
+
+### Azioni necessarie
+1. Implementare le funzionalità complete per le mascotte.
+2. Aggiungere l'interfaccia utente per la gestione delle mascotte.
+3. Implementare la sincronizzazione delle modifiche con il database.
+
+## Verdetto finale
+Il progetto non è pronto per il testing umano. Mancano molte funzionalità critiche che devono essere implementate prima di procedere.
+## Conclusioni
+Il codice per le scene multi-personaggio esiste parzialmente ma non è completo. Mancano le funzionalità per gestire più personaggi in una singola scena.
+
+Il modulo LORE KB ha le funzionalità CRUD per 5 categorie, ma manca l'interfaccia utente per la gestione delle entry.
+
+Il componente per le mascotte esiste ma non è completamente implementato.
+
+Il progetto non è pronto per il testing umano. Mancano molte funzionalità critiche che devono essere implementate prima di procedere.
+## Azioni necessarie
+1. Implementare la gestione di più personaggi in una singola scena.
+2. Aggiungere funzionalità per il dialogo tra personaggi.
+3. Implementare la sincronizzazione delle azioni dei personaggi.
+4. Implementare l'interfaccia utente per la gestione delle entry.
+5. Aggiungere funzionalità di ricerca e filtro per le entry.
+6. Implementare la sincronizzazione delle modifiche con il database.
+7. Implementare le funzionalità complete per le mascotte.
+8. Aggiungere l'interfaccia utente per la gestione delle mascotte.
+9. Implementare la sincronizzazione delle modifiche con il database.
+## Verdetto finale
+Il progetto non è pronto per il testing umano. Mancano molte funzionalità critiche che devono essere implementate prima di procedere.
+### Priorità delle azioni necessarie
+1. Implementare la gestione di più personaggi in una singola scena.
+2. Aggiungere funzionalità per il dialogo tra personaggi.
+3. Implementare la sincronizzazione delle azioni dei personaggi.
+4. Implementare l'interfaccia utente per la gestione delle entry.
+5. Aggiungere funzionalità di ricerca e filtro per le entry.
+6. Implementare la sincronizzazione delle modifiche con il database.
+7. Implementare le funzionalità complete per le mascotte.
+8. Aggiungere l'interfaccia utente per la gestione delle mascotte.
+9. Implementare la sincronizzazione delle modifiche con il database.
