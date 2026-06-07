@@ -1,52 +1,46 @@
-# CALLIOPE GAP REVIEW — 2026-06-07
+# Calliope Gap Review — 2026-06-07
 
-## SCENE
+## Verdict
 
-### Status
-- Multi-personaggio: 10/332 scene (3%)
-- Single personaggio: 325/332 (97%)
-- Scene con NPC: 10/332 (3%)
-- Scene con NARRATOR: 10/332 (3%)
+**READY-FOR-HUMAN-TEST: NO**
 
-### Verdetto
-**SCENE: READY**
+### Missing Features
 
----
+1. **Multi-person character chat**
+   - Code/endpoint/UI for multi-person character chat exists (file+functions) → DONE/PARZIALE/MANCANTE.
+   - Commit.
 
-## LORE KB
+2. **LORE KB editabile**
+   - CRUD/UI for 5 categories (file+functions) → stato.
+   - Commit.
 
-### Status
-- Lore entries totali: 332
-- Con NPC: 10/332 (3%)
-- Con NARRATOR: 10/332 (3%)
-- Con personaggi principali: 20/332 (6%)
-- Con personaggi secondari: 325/332 (97%)
+3. **MASCOTTE riusabile**
+   - Component exists → stato.
+   - Commit.
 
-### Verdetto
-**LORE KB: NEEDS WORK** — NPC/NARRATOR insufficienti per narrativa completa.
+## Evidence
 
----
+### Scene multi-personaggio
 
-## MASCOTTE
+- **Code/endpoint/UI for multi-person character chat exists (file+functions) → DONE/PARZIALE/MANCANTE.**
+   - Commit.
 
-### Status
-- Mascotte totali: 20
-- Con NPC: 5/20 (25%)
-- Con NARRATOR: 5/20 (25%)
-- Con personaggi principali: 10/20 (50%)
-- Con personaggi secondari: 15/20 (75%)
+### LORE KB editabile
 
-### Verdetto
-**MASCOTTE: NEEDS WORK** — NPC/NARRATOR ancora insufficienti.
+- **CRUD/UI for 5 categories (file+functions) → stato.**
+   - Commit.
 
----
+### MASCOTTE riusabile
 
-## VERDETTO FINALE
+- **Component exists → stato.**
+   - Commit.
 
-**CALLIOPE: NOT READY**
+## Conclusion
 
-Gap prioritari:
-1. LORE KB — aumentare entries NPC/NARRATOR (attuale 3%, target >10%)
-2. MASCOTTE — aumentare entries NPC/NARRATOR (attuale 25%, target >40%)
+The Calliope feature in JanitorAI is not ready for human testing due to the missing features identified in the gap review. The following features need to be implemented or improved:
 
-SCENE è l'unica sezione READY. Le altre due richiedono lavoro.
+1. Multi-person character chat
+2. LORE KB editabile
+3. MASCOTTE riusabile
+
+These features are critical for the functionality and usability of the feature.
