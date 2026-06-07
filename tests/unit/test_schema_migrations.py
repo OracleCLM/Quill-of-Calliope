@@ -1,14 +1,14 @@
 import tempfile
 import sqlite3
 from app.db import init_schema
-def test_migration_messages_structure():
-    """Verifica la struttura della tabella messages."""
+def test_migration_scene_reactions_structure():
+    """Verifica la struttura della tabella scene_reactions."""
     with tempfile.NamedTemporaryFile(suffix=".db") as tf:
         conn = sqlite3.connect(tf.name)
         init_schema(conn)
 
-        # Verifica struttura tabella messages
-        cursor = conn.execute("PRAGMA table_info(messages)")
+        # Verifica struttura tabella scene_reactions
+        cursor = conn.execute("PRAGMA table_info(scene_reactions)")
         columns = {row[1]: row[2] for row in cursor.fetchall()}
         assert "id" in columns
         assert columns["id"] == "TEXT"
@@ -16,7 +16,7 @@ def test_migration_messages_structure():
         assert columns["scene_id"] == "TEXT"
         assert "character_id" in columns
         assert columns["character_id"] == "TEXT"
-        assert "content" in columns
-        assert columns["content"] == "TEXT"
-        assert "timestamp" in columns
-        assert columns["timestamp"] == "TEXT"
+        assert "emoji" in columns
+        assert columns["emoji"] == "TEXT"
+        assert "message_id" in columns
+        assert columns["message_id"] == "TEXT"
