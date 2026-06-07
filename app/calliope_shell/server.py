@@ -1226,7 +1226,7 @@ def create_app():
 
         return jsonify({
             "draft_text": draft_text,
-            "model_used": "cerebras/gpt-oss-120b",
+            "model_used": "cerebras/qwen-3-235b",
             "context_used": {
                 "scene": bool(scene_ctx),
                 "char_sheets": len(char_sheets),
