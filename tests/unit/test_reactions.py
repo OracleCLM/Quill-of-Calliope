@@ -46,3 +46,31 @@ def test_add_and_list_reaction():
     finally:
         conn.close()
         db_path.unlink(missing_ok=True)
+
+
+def test_list_reactions_empty_message():
+    """list_reactions su messaggio senza reazioni restituisce lista vuota."""
+    conn, db_path, char_id, msg_id = _make_db()
+    try:
+        reactions = list_reactions(conn, message_id=msg_id)
+        assert reactions == []
+    finally:
+        conn.close()
+        db_path.unlink(missing_ok=True)
+
+
+def test_add_multiple_reactions():
+    """Più reazioni sullo stesso messaggio sono tutte restituite."""
+    conn, db_path, char_id, msg_id = _make_db()
+    try:
+        add_reaction(conn, message_id=msg_id, character_id=char_id, emoji="👍")
+        add_reaction(conn, message_id=msg_id, character_id=char_id, emoji="❤️")
+
+        reactions = list_reactions(conn, message_id=msg_id)
+        assert len(reactions) == 2
+        emojis = {r["emoji"] for r in reactions}
+        assert "👍" in emojis
+        assert "❤️" in emojis
+    finally:
+        conn.close()
+        db_path.unlink(missing_ok=True)
