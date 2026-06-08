@@ -1,3 +1,4 @@
+# UNUSED - candidate P7 removal (server usa lore_kb.py JSON, non questo modulo)
 """
 Modulo di gestione della Lore knowledge-base per il database di Calliope.
 
