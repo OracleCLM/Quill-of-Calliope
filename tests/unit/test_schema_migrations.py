@@ -10,6 +10,7 @@ def test_migration_messages_structure():
         # Verifica struttura tabella messages
         cursor = conn.execute("PRAGMA table_info(messages)")
         columns = {row[1]: row[2] for row in cursor.fetchall()}
+        assert "message_id" in columns
         assert "id" in columns
         assert columns["id"] == "TEXT"
         assert "content" in columns
