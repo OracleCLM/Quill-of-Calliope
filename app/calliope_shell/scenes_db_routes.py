@@ -76,30 +76,25 @@ def register_scenes_db_routes(app, db_path=None):
 
     @app.route("/api/db/scenes/<scene_id>/messages", methods=["POST"])
     def db_append_message(scene_id):
-        # TODO(WI-4): conn = _conn(db_path)
-        #   if conn.execute("SELECT 1 FROM scenes WHERE id = ?", (scene_id,)).fetchone() is None:
-        #       conn.close(); return jsonify({"error": "not_found"}), 404
-        #   body = request.get_json(force=True) or {}
-        #   mid = db_messages.add_message(conn, scene_id=scene_id,
-        #       author_name=body["author_name"], content_original=body["content_original"],
-        #       character_id=body.get("character_id"))
-        #   conn.close(); return jsonify({"id": mid}), 201
-        return jsonify({"error": "not_implemented", "wi": "WI-4"}), 501
+        conn = _conn(db_path)
+        if conn.execute("SELECT 1 FROM scenes WHERE id = ?", (scene_id,)).fetchone() is None:
+            conn.close()
+            return jsonify({"error": "not_found"}), 404
+        body = request.get_json(force=True) or {}
+        mid = db_messages.add_message(conn, scene_id=scene_id,
+            author_name=body["author_name"], content_original=body["content_original"],
+            character_id=body.get("character_id"))
+        conn.close()
+        return jsonify({"id": mid}), 201
 
     @app.route("/api/db/messages/<message_id>/reactions", methods=["GET"])
     def db_list_reactions(message_id):
-        # TODO(WI-5): conn = _conn(db_path)
-        #   data = db_reactions.list_reactions(conn, message_id=message_id)
-        #   conn.close(); return jsonify({"reactions": list(data)}), 200
+        # TODO(WI-5): stub
         return jsonify({"error": "not_implemented", "wi": "WI-5"}), 501
 
     @app.route("/api/db/messages/<message_id>/reactions", methods=["POST"])
     def db_add_reaction(message_id):
-        # TODO(WI-5): conn = _conn(db_path)
-        #   body = request.get_json(force=True) or {}
-        #   rid = db_reactions.add_reaction(conn, message_id=message_id,
-        #       character_id=body["character_id"], emoji=body.get("emoji", ""))
-        #   conn.close(); return jsonify({"id": rid}), 201
+        # TODO(WI-5): stub
         return jsonify({"error": "not_implemented", "wi": "WI-5"}), 501
 
     return app
