@@ -1,5 +1,12 @@
-# UNUSED - candidate P7 removal (server usa lore_kb.py JSON, non questo modulo)
+# DEPRECATED / UNUSED (WI-8) — rimosso da runtime in P5 (server usa lore_kb.py/LoreStore JSON).
+# Rimozione definitiva GATED a P7. NON eliminare prima dell'approvazione operatore P7.
 """
+[DEPRECATED] Duplicato sqlite NON usato a runtime.
+
+Il server Calliope usa esclusivamente app/calliope_shell/lore_kb.py (LoreStore JSON)
+per la Lore KB. Questo modulo (sqlite CRUD su lore_entries/arc_lore) non è importato
+da nessun modulo runtime. Annotato in WI-8 (2026-06-09). Rimozione gated P7.
+
 Modulo di gestione della Lore knowledge-base per il database di Calliope.
 
 Fornisce funzioni CRUD per la tabella ``lore_entries`` e gestisce le
