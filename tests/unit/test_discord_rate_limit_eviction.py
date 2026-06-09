@@ -4,11 +4,12 @@ Audit ref: docs/audit/CALLIOPE_DEEP_REVIEW_2026-05-22.md §2 P0 #3
 Fix: _cleanup_rate_state evicts stale users/channels from _RATE_LIMITS and
 _CHANNEL_MSG_RATE; called opportunistically every _CLEANUP_INTERVAL.
 """
-from __future__ import annotations
+import pytest
+pytest.importorskip("audioop")
 
 import sys
 import time
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock  # noqa: E402
 
 import pytest
 
