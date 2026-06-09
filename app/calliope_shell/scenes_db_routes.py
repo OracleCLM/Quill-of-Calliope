@@ -53,23 +53,26 @@ def register_scenes_db_routes(app, db_path=None):
 
     @app.route("/api/db/scenes", methods=["GET"])
     def db_list_scenes():
-        # TODO(WI-3): conn = _conn(db_path)
-        #   cur = conn.execute(
-        #       "SELECT id, title, arc_id, location, last_activity_at, updated_at "
-        #       "FROM scenes ORDER BY COALESCE(last_activity_at, updated_at) DESC")
-        #   scenes = [dict(zip([d[0] for d in cur.description], r)) for r in cur.fetchall()]
-        #   conn.close(); return jsonify({"scenes": scenes}), 200
-        return jsonify({"error": "not_implemented", "wi": "WI-3"}), 501
+        conn = _conn(db_path)
+        cur = conn.execute(
+            "SELECT id, title, arc_id, location, last_activity_at, updated_at "
+            "FROM scenes ORDER BY COALESCE(last_activity_at, updated_at) DESC"
+        )
+        scenes = [dict(zip([d[0] for d in cur.description], r)) for r in cur.fetchall()]
+        conn.close()
+        return jsonify({"scenes": scenes}), 200
 
     @app.route("/api/db/scenes/<scene_id>", methods=["GET"])
     def db_scene_detail(scene_id):
-        # TODO(WI-3): conn = _conn(db_path)
-        #   row = conn.execute("SELECT * FROM scenes WHERE id = ?", (scene_id,)).fetchone()
-        #   if row is None: conn.close(); return jsonify({"error": "not_found"}), 404
-        #   scene = dict(row)
-        #   msgs = db_messages.list_messages_for_scene(conn, scene_id)
-        #   conn.close(); return jsonify({"scene": scene, "messages": list(msgs)}), 200
-        return jsonify({"error": "not_implemented", "wi": "WI-3"}), 501
+        conn = _conn(db_path)
+        row = conn.execute("SELECT * FROM scenes WHERE id = ?", (scene_id,)).fetchone()
+        if row is None:
+            conn.close()
+            return jsonify({"error": "not_found"}), 404
+        scene = dict(row)
+        msgs = db_messages.list_messages_for_scene(conn, scene_id)
+        conn.close()
+        return jsonify({"scene": scene, "messages": list(msgs)}), 200
 
     @app.route("/api/db/scenes/<scene_id>/messages", methods=["POST"])
     def db_append_message(scene_id):
