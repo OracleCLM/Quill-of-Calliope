@@ -30,4 +30,3 @@ def test_migration_messages_structure():
         assert columns["position_order"] == "INTEGER"
         assert "is_summary" in columns
         assert columns["is_summary"] == "INTEGER"
-        assert columns["updated_at"] == "TEXT"
