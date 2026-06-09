@@ -89,12 +89,18 @@ def register_scenes_db_routes(app, db_path=None):
 
     @app.route("/api/db/messages/<message_id>/reactions", methods=["GET"])
     def db_list_reactions(message_id):
-        # TODO(WI-5): stub
-        return jsonify({"error": "not_implemented", "wi": "WI-5"}), 501
+        conn = _conn(db_path)
+        data = db_reactions.list_reactions(conn, message_id=message_id)
+        conn.close()
+        return jsonify({"reactions": list(data)}), 200
 
     @app.route("/api/db/messages/<message_id>/reactions", methods=["POST"])
     def db_add_reaction(message_id):
-        # TODO(WI-5): stub
-        return jsonify({"error": "not_implemented", "wi": "WI-5"}), 501
+        conn = _conn(db_path)
+        body = request.get_json(force=True) or {}
+        rid = db_reactions.add_reaction(conn, message_id=message_id,
+            character_id=body["character_id"], emoji=body.get("emoji", ""))
+        conn.close()
+        return jsonify({"id": rid}), 201
 
     return app
