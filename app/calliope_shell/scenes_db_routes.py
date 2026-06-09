@@ -10,6 +10,7 @@ Route (tutte sotto /api/db):
   GET  /api/db/scenes                            -> lista scene            (WI-3)
   GET  /api/db/scenes/<scene_id>                 -> dettaglio + messaggi    (WI-3)
   POST /api/db/scenes/<scene_id>/messages        -> append messaggio        (WI-4)
+  GET  /api/db/scenes/<scene_id>/messages        -> paginazione messaggi    (WI-12)
   GET  /api/db/messages/<message_id>/reactions   -> lista reazioni          (WI-5)
   POST /api/db/messages/<message_id>/reactions   -> aggiungi reazione       (WI-5)
 
@@ -27,11 +28,11 @@ NON modificare le assertion del test: e' il contratto.
 """
 from __future__ import annotations
 
-from flask import jsonify, request  # noqa: F401  # request usato dai corpi route WI-4/WI-5
+from flask import jsonify, request
 
 from app.db import get_db
-from app.db import messages as db_messages  # noqa: F401  # usato dai corpi route WI-3/WI-4
-from app.db import reactions as db_reactions  # noqa: F401  # usato dai corpi route WI-5
+from app.db import messages as db_messages
+from app.db import reactions as db_reactions
 
 
 def _conn(db_path):
@@ -86,6 +87,20 @@ def register_scenes_db_routes(app, db_path=None):
             character_id=body.get("character_id"))
         conn.close()
         return jsonify({"id": mid}), 201
+
+    @app.route("/api/db/scenes/<scene_id>/messages", methods=["GET"])
+    def get_scene_messages_paginated(scene_id):
+        conn = _conn(db_path)
+        # 404 se scena non esiste
+        scene_row = conn.execute("SELECT id FROM scenes WHERE id=?", (scene_id,)).fetchone()
+        if not scene_row:
+            conn.close()
+            return jsonify({"error": "not found"}), 404
+        page = int(request.args.get("page", 1))
+        per_page = int(request.args.get("per_page", 50))
+        result = db_messages.get_scene_message_page(conn, scene_id, page, per_page)
+        conn.close()
+        return jsonify(result), 200
 
     @app.route("/api/db/messages/<message_id>/reactions", methods=["GET"])
     def db_list_reactions(message_id):
