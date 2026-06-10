@@ -2,8 +2,12 @@ from flask import jsonify, request
 from app.db import get_db
 from app.db import characters as db_chars
 
+VALID_KINDS = {"operator", "player", "npc"}
+
+
 def _conn(db_path):
     return get_db(db_path) if db_path else get_db()
+
 
 def register_characters_db_routes(app, *, db_path: str) -> None:
 
@@ -21,6 +25,8 @@ def register_characters_db_routes(app, *, db_path: str) -> None:
         if not name:
             return jsonify({"error": "name required"}), 400
         kind = data.get("kind", "npc")
+        if kind not in VALID_KINDS:
+            return jsonify({"error": "invalid kind"}), 400
         conn = _conn(db_path)
         char_id = db_chars.add_character(conn, name=name, kind=kind)
         conn.close()
