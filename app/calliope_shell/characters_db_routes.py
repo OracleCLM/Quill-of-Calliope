@@ -1,0 +1,36 @@
+from flask import jsonify, request
+from app.db import get_db
+from app.db import characters as db_chars
+
+def _conn(db_path):
+    return get_db(db_path) if db_path else get_db()
+
+def register_characters_db_routes(app, *, db_path: str) -> None:
+
+    @app.route("/api/db/characters", methods=["GET"])
+    def list_characters_db():
+        conn = _conn(db_path)
+        chars = db_chars.list_characters(conn)
+        conn.close()
+        return jsonify({"characters": [dict(c) for c in chars]}), 200
+
+    @app.route("/api/db/characters", methods=["POST"])
+    def add_character_db():
+        data = request.get_json(silent=True) or {}
+        name = data.get("name")
+        if not name:
+            return jsonify({"error": "name required"}), 400
+        kind = data.get("kind", "npc")
+        conn = _conn(db_path)
+        char_id = db_chars.add_character(conn, name=name, kind=kind)
+        conn.close()
+        return jsonify({"id": char_id}), 201
+
+    @app.route("/api/db/characters/<char_id>", methods=["GET"])
+    def get_character_db(char_id):
+        conn = _conn(db_path)
+        char = db_chars.get_character(conn, char_id)
+        conn.close()
+        if char is None:
+            return jsonify({"error": "not found"}), 404
+        return jsonify(dict(char)), 200
