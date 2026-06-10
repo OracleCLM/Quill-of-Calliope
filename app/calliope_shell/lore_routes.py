@@ -67,13 +67,17 @@ def register_lore_routes(app, *, store_path=None):
             updatable_fields["category"] = data["category"]
         if "keys" in data:
             updatable_fields["keys"] = (
-                list(data["keys"]) if isinstance(data["keys"], (list, tuple)) else []
+                list(data["keys"])
+                if isinstance(data["keys"], (list, tuple))
+                else []
             )
         if "content" in data:
             updatable_fields["content"] = data["content"]
         if "insertion_order" in data:
             try:
-                updatable_fields["insertion_order"] = int(data["insertion_order"])
+                updatable_fields["insertion_order"] = int(
+                    data["insertion_order"]
+                )
             except (TypeError, ValueError):
                 updatable_fields["insertion_order"] = 100
         if "scope" in data:
@@ -82,7 +86,9 @@ def register_lore_routes(app, *, store_path=None):
             updatable_fields["constant"] = bool(data["constant"])
         if "extensions" in data:
             updatable_fields["extensions"] = (
-                dict(data["extensions"]) if isinstance(data["extensions"], dict) else {}
+                dict(data["extensions"])
+                if isinstance(data["extensions"], dict)
+                else {}
             )
         updated = store.update_entry(entry_id, **updatable_fields)
         if updated is None:
