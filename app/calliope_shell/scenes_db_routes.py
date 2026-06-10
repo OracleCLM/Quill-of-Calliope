@@ -159,4 +159,26 @@ def register_scenes_db_routes(app, db_path=None):
         conn.close()
         return jsonify({"count": count, "scene_id": scene_id}), 200
 
+    @app.route("/api/db/messages/<message_id>/position", methods=["PATCH"])
+    def db_update_message_position(message_id):
+        conn = _conn(db_path)
+        body = request.get_json(force=True) or {}
+
+        if "position" not in body:
+            conn.close()
+            return jsonify({"error": "bad_request"}), 400
+
+        position = body["position"]
+        if not isinstance(position, int):
+            conn.close()
+            return jsonify({"error": "bad_request"}), 400
+
+        moved = db_messages.move_message(conn, message_id, position)
+        conn.close()
+
+        if not moved:
+            return jsonify({"error": "not_found"}), 404
+
+        return jsonify({}), 200
+
     return app
