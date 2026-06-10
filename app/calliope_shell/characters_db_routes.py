@@ -14,7 +14,8 @@ def register_characters_db_routes(app, *, db_path: str) -> None:
     @app.route("/api/db/characters", methods=["GET"])
     def list_characters_db():
         conn = _conn(db_path)
-        chars = db_chars.list_characters(conn)
+        kind = request.args.get("kind")
+        chars = db_chars.list_characters(conn, kind=kind)
         conn.close()
         return jsonify({"characters": [dict(c) for c in chars]}), 200
 
