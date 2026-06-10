@@ -240,12 +240,27 @@ def register_scenes_db_routes(app, db_path=None):
         if not all(k in body for k in required):
             conn.close()
             return jsonify({"error": "bad_request"}), 400
+
+        scene_id_a = body["scene_id_a"]
+        scene_id_b = body["scene_id_b"]
+        new_name = body["new_name"]
+
+        # Guard: verifica esistenza scene_id_a
+        if conn.execute("SELECT 1 FROM scenes WHERE id = ?", (scene_id_a,)).fetchone() is None:
+            conn.close()
+            return jsonify({"error": "not_found"}), 404
+
+        # Guard: verifica esistenza scene_id_b
+        if conn.execute("SELECT 1 FROM scenes WHERE id = ?", (scene_id_b,)).fetchone() is None:
+            conn.close()
+            return jsonify({"error": "not_found"}), 404
+
         try:
             merged_scene_id = db_messages.merge_scenes(
                 conn,
-                body["scene_id_a"],
-                body["scene_id_b"],
-                body["new_name"],
+                scene_id_a,
+                scene_id_b,
+                new_name,
             )
             conn.close()
             return jsonify({"merged_scene_id": merged_scene_id}), 201
