@@ -41,3 +41,12 @@ def register_characters_db_routes(app, *, db_path: str) -> None:
         if char is None:
             return jsonify({"error": "not found"}), 404
         return jsonify(dict(char)), 200
+
+    @app.route("/api/db/characters/<char_id>", methods=["DELETE"])
+    def delete_character_db(char_id):
+        conn = _conn(db_path)
+        if db_chars.delete_character(conn, char_id):
+            conn.close()
+            return "", 204
+        conn.close()
+        return jsonify({"error": "not found"}), 404
