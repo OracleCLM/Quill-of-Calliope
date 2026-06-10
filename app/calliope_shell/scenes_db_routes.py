@@ -30,7 +30,7 @@ from __future__ import annotations
 
 from flask import jsonify, request
 
-from app.db import get_db
+from app.db import get_db, new_id
 from app.db import characters as db_characters
 from app.db import messages as db_messages
 from app.db import reactions as db_reactions
@@ -75,6 +75,52 @@ def register_scenes_db_routes(app, db_path=None):
         msgs = db_messages.list_messages_for_scene(conn, scene_id)
         conn.close()
         return jsonify({"scene": scene, "messages": list(msgs)}), 200
+
+    @app.route("/api/db/scenes", methods=["POST"])
+    def db_create_scene():
+        # WI-64: crea scena con campo opzionale location.
+        body = request.get_json(silent=True) or {}
+        title = body.get("title")
+        if not title:
+            return jsonify({"error": "title required"}), 400
+        location = body.get("location")
+        scene_id = new_id()
+        conn = _conn(db_path)
+        conn.execute(
+            "INSERT INTO scenes (id, title, location) VALUES (?, ?, ?)",
+            (scene_id, title, location),
+        )
+        conn.commit()
+        conn.close()
+        return jsonify({"id": scene_id, "title": title, "location": location}), 201
+
+    @app.route("/api/db/scenes/<scene_id>", methods=["PATCH"])
+    def db_update_scene(scene_id):
+        # WI-65: aggiorna title e/o location (solo i campi forniti).
+        body = request.get_json(silent=True) or {}
+        if "title" not in body and "location" not in body:
+            return jsonify({"error": "no updatable fields"}), 400
+        if "title" in body and not body.get("title"):
+            return jsonify({"error": "title cannot be empty"}), 400
+        conn = _conn(db_path)
+        row = conn.execute(
+            "SELECT id FROM scenes WHERE id = ?", (scene_id,)
+        ).fetchone()
+        if row is None:
+            conn.close()
+            return jsonify({"error": "not_found"}), 404
+        sets, params = [], []
+        if "title" in body:
+            sets.append("title = ?")
+            params.append(body.get("title"))
+        if "location" in body:
+            sets.append("location = ?")
+            params.append(body.get("location"))
+        params.append(scene_id)
+        conn.execute(f"UPDATE scenes SET {', '.join(sets)} WHERE id = ?", params)
+        conn.commit()
+        conn.close()
+        return jsonify({}), 200
 
     @app.route("/api/db/scenes/<scene_id>/messages", methods=["POST"])
     def db_append_message(scene_id):
