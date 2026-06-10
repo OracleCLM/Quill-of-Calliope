@@ -243,4 +243,24 @@ def register_scenes_db_routes(app, db_path=None):
             conn.close()
             return jsonify({"error": "not_found"}), 404
 
+    @app.route("/api/db/scenes/<scene_id>/duplicate", methods=["POST"])
+    def db_duplicate_scene(scene_id):
+        conn = _conn(db_path)
+        body = request.get_json(force=True) or {}
+        new_name = body.get("new_name")
+
+        if not new_name:
+            conn.close()
+            return jsonify({"error": "bad_request"}), 400
+
+        try:
+            new_scene_id = db_messages.duplicate_scene(
+                conn, scene_id, new_name
+            )
+            conn.close()
+            return jsonify({"new_scene_id": new_scene_id}), 201
+        except ValueError:
+            conn.close()
+            return jsonify({"error": "not_found"}), 404
+
     return app
