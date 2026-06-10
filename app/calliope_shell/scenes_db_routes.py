@@ -190,6 +190,15 @@ def register_scenes_db_routes(app, db_path=None):
 
         return jsonify({}), 200
 
+    @app.route("/api/db/messages/<message_id>", methods=["GET"])
+    def db_get_message_by_id(message_id):
+        conn = _conn(db_path)
+        msg = db_messages.get_message_by_id(conn, message_id)
+        conn.close()
+        if msg is None:
+            return jsonify({"error": "not_found"}), 404
+        return jsonify(msg), 200
+
     @app.route("/api/db/scenes/<scene_id>/messages/insert", methods=["POST"])
     def db_insert_message_at(scene_id):
         conn = _conn(db_path)
