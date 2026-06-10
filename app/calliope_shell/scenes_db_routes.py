@@ -199,6 +199,16 @@ def register_scenes_db_routes(app, db_path=None):
             return jsonify({"error": "not_found"}), 404
         return jsonify(msg), 200
 
+    @app.route("/api/db/messages/<message_id>", methods=["DELETE"])
+    def db_delete_message(message_id):
+        conn = _conn(db_path)
+        if db_messages.delete_message(conn, message_id):
+            conn.commit()
+            conn.close()
+            return "", 204
+        conn.close()
+        return jsonify({"error": "not_found"}), 404
+
     @app.route("/api/db/scenes/<scene_id>/messages/insert", methods=["POST"])
     def db_insert_message_at(scene_id):
         conn = _conn(db_path)
