@@ -241,14 +241,14 @@ def register_scenes_db_routes(app, db_path=None):
             conn.close()
             return jsonify({"error": "bad_request"}), 400
         try:
-            new_id = db_messages.merge_scenes(
+            merged_scene_id = db_messages.merge_scenes(
                 conn,
                 body["scene_id_a"],
                 body["scene_id_b"],
                 body["new_name"],
             )
             conn.close()
-            return jsonify({"merged_scene_id": new_id}), 201
+            return jsonify({"merged_scene_id": merged_scene_id}), 201
         except ValueError:
             conn.close()
             return jsonify({"error": "not_found"}), 404
@@ -263,15 +263,16 @@ def register_scenes_db_routes(app, db_path=None):
             conn.close()
             return jsonify({"error": "bad_request"}), 400
 
-        try:
-            new_scene_id = db_messages.duplicate_scene(
-                conn, scene_id, new_name
-            )
-            conn.close()
-            return jsonify({"new_scene_id": new_scene_id}), 201
-        except ValueError:
+        # Verifica esplicita dell'esistenza della scena (Guard)
+        if conn.execute("SELECT 1 FROM scenes WHERE id = ?", (scene_id,)).fetchone() is None:
             conn.close()
             return jsonify({"error": "not_found"}), 404
+
+        new_scene_id = db_messages.duplicate_scene(
+            conn, scene_id, new_name
+        )
+        conn.close()
+        return jsonify({"new_scene_id": new_scene_id}), 201
 
     @app.route("/api/db/scenes/<scene_id>/messages/compact", methods=["POST"])
     def db_compact_scene_messages(scene_id):
