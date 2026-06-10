@@ -148,6 +148,15 @@ def register_scenes_db_routes(app, db_path=None):
         conn.close()
         return jsonify({}), 201
 
+    @app.route("/api/db/scenes/<scene_id>/characters/<character_id>", methods=["DELETE"])
+    def db_remove_character_from_scene(scene_id, character_id):
+        conn = _conn(db_path)
+        if db_characters.remove_character_from_scene(conn, scene_id, character_id):
+            conn.close()
+            return jsonify({}), 204
+        conn.close()
+        return jsonify({"error": "not_found"}), 404
+
     @app.route("/api/db/scenes/<scene_id>/messages/count", methods=["GET"])
     def db_count_messages(scene_id):
         conn = _conn(db_path)
