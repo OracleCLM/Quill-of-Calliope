@@ -31,6 +31,7 @@ from __future__ import annotations
 from flask import jsonify, request
 
 from app.db import get_db
+from app.db import characters as db_characters
 from app.db import messages as db_messages
 from app.db import reactions as db_reactions
 
@@ -117,5 +118,34 @@ def register_scenes_db_routes(app, db_path=None):
             character_id=body["character_id"], emoji=body.get("emoji", ""))
         conn.close()
         return jsonify({"id": rid}), 201
+
+    @app.route("/api/db/scenes/<scene_id>/characters", methods=["GET"])
+    def list_scene_characters(scene_id):
+        conn = _conn(db_path)
+        chars = db_characters.list_characters_in_scene(conn, scene_id)
+        conn.close()
+        return jsonify({"characters": [dict(c) for c in chars]}), 200
+
+    @app.route("/api/db/scenes/<scene_id>/characters", methods=["POST"])
+    def add_character_to_scene_route(scene_id):
+        conn = _conn(db_path)
+        scene_row = conn.execute(
+            "SELECT id FROM scenes WHERE id=?", (scene_id,)
+        ).fetchone()
+        if not scene_row:
+            conn.close()
+            return jsonify({"error": "not found"}), 404
+        data = request.get_json(silent=True) or {}
+        char_id = data.get("character_id")
+        char_row = conn.execute(
+            "SELECT id FROM characters WHERE id=?", (char_id,)
+        ).fetchone()
+        if not char_row:
+            conn.close()
+            return jsonify({"error": "not found"}), 404
+        role = data.get("role", "")
+        db_characters.add_character_to_scene(conn, scene_id, char_id, role)
+        conn.close()
+        return jsonify({}), 201
 
     return app
