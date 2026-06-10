@@ -213,4 +213,25 @@ def register_scenes_db_routes(app, db_path=None):
         conn.close()
         return jsonify({"id": mid}), 201
 
+    @app.route("/api/db/scenes/merge", methods=["POST"])
+    def db_merge_scenes():
+        conn = _conn(db_path)
+        body = request.get_json(force=True) or {}
+        required = ["scene_id_a", "scene_id_b", "new_name"]
+        if not all(k in body for k in required):
+            conn.close()
+            return jsonify({"error": "bad_request"}), 400
+        try:
+            new_id = db_messages.merge_scenes(
+                conn,
+                body["scene_id_a"],
+                body["scene_id_b"],
+                body["new_name"],
+            )
+            conn.close()
+            return jsonify({"merged_scene_id": new_id}), 201
+        except ValueError:
+            conn.close()
+            return jsonify({"error": "not_found"}), 404
+
     return app
