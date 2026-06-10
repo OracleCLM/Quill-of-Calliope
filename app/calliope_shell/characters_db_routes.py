@@ -42,6 +42,26 @@ def register_characters_db_routes(app, *, db_path: str) -> None:
             return jsonify({"error": "not found"}), 404
         return jsonify(dict(char)), 200
 
+    @app.route("/api/db/characters/<char_id>", methods=["PATCH"])
+    def update_character_db(char_id):
+        data = request.get_json(silent=True) or {}
+        if not data:
+            return jsonify({"error": "body required"}), 400
+
+        name = data.get("name")
+        kind = data.get("kind")
+        image_path = data.get("image_path")
+
+        conn = _conn(db_path)
+        updated = db_chars.update_character(
+            conn, char_id, name=name, kind=kind, image_path=image_path
+        )
+        conn.close()
+
+        if updated:
+            return jsonify({}), 200
+        return jsonify({"error": "not found"}), 404
+
     @app.route("/api/db/characters/<char_id>", methods=["DELETE"])
     def delete_character_db(char_id):
         conn = _conn(db_path)
