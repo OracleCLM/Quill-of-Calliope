@@ -148,4 +148,15 @@ def register_scenes_db_routes(app, db_path=None):
         conn.close()
         return jsonify({}), 201
 
+    @app.route("/api/db/scenes/<scene_id>/messages/count", methods=["GET"])
+    def db_count_messages(scene_id):
+        conn = _conn(db_path)
+        # Verifica esistenza scena per distinguere 404 da count 0
+        if conn.execute("SELECT 1 FROM scenes WHERE id = ?", (scene_id,)).fetchone() is None:
+            conn.close()
+            return jsonify({"error": "not_found"}), 404
+        count = db_messages.count_messages_for_scene(conn, scene_id)
+        conn.close()
+        return jsonify({"count": count, "scene_id": scene_id}), 200
+
     return app
