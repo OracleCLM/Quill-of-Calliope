@@ -2,7 +2,7 @@
 REST endpoints scene-as-chat su DB SQLite (app.db).
 
 GAP WIRING (CALLIOPE_GAP_NIGHT_2026-06-08, WI-3/WI-4/WI-5/WI-9):
-`server.py:create_app()` NON importava mai `app.db` → la dashboard serviva ancora
+`server.py:create_app()` NON importava mai `app.db` -> la dashboard serviva ancora
 il vecchio modello scene flat-YAML. Questo modulo cabla il layer DB GIA' testato
 (`app/db/messages.py`, `app/db/reactions.py`, migration 001/002) dentro Flask.
 
@@ -189,5 +189,28 @@ def register_scenes_db_routes(app, db_path=None):
             return jsonify({"error": "not_found"}), 404
 
         return jsonify({}), 200
+
+    @app.route("/api/db/scenes/<scene_id>/messages/insert", methods=["POST"])
+    def db_insert_message_at(scene_id):
+        conn = _conn(db_path)
+        if conn.execute("SELECT 1 FROM scenes WHERE id = ?", (scene_id,)).fetchone() is None:
+            conn.close()
+            return jsonify({"error": "not_found"}), 404
+
+        body = request.get_json(force=True) or {}
+        required_fields = ["author_name", "content_original", "position_order"]
+        if not all(k in body for k in required_fields):
+            conn.close()
+            return jsonify({"error": "bad_request"}), 400
+
+        mid = db_messages.insert_message_at(
+            conn,
+            scene_id=scene_id,
+            author_name=body["author_name"],
+            content_original=body["content_original"],
+            position_order=body["position_order"],
+        )
+        conn.close()
+        return jsonify({"id": mid}), 201
 
     return app
