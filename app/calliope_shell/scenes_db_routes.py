@@ -263,4 +263,14 @@ def register_scenes_db_routes(app, db_path=None):
             conn.close()
             return jsonify({"error": "not_found"}), 404
 
+    @app.route("/api/db/scenes/<scene_id>/messages/compact", methods=["POST"])
+    def db_compact_scene_messages(scene_id):
+        conn = _conn(db_path)
+        if conn.execute("SELECT 1 FROM scenes WHERE id = ?", (scene_id,)).fetchone() is None:
+            conn.close()
+            return jsonify({"error": "not_found"}), 404
+        count = db_messages.compact_scene_positions(conn, scene_id)
+        conn.close()
+        return jsonify({"count": count}), 200
+
     return app
