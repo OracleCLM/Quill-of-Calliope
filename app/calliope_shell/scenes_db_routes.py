@@ -114,6 +114,12 @@ def register_scenes_db_routes(app, db_path=None):
     def db_add_reaction(message_id):
         conn = _conn(db_path)
         body = request.get_json(force=True) or {}
+        if "character_id" not in body:
+            conn.close()
+            return jsonify({"error": "missing character_id"}), 400
+        if db_messages.get_message_by_id(conn, message_id) is None:
+            conn.close()
+            return jsonify({"error": "not found"}), 404
         rid = db_reactions.add_reaction(conn, message_id=message_id,
             character_id=body["character_id"], emoji=body.get("emoji", ""))
         conn.close()
