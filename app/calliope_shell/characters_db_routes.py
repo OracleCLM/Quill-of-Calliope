@@ -52,6 +52,9 @@ def register_characters_db_routes(app, *, db_path: str) -> None:
         kind = data.get("kind")
         image_path = data.get("image_path")
 
+        if kind is not None and kind not in VALID_KINDS:
+            return jsonify({"error": "invalid kind"}), 400
+
         conn = _conn(db_path)
         updated = db_chars.update_character(
             conn, char_id, name=name, kind=kind, image_path=image_path
