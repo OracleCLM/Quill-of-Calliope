@@ -291,6 +291,27 @@ def list_characters_in_scene(
     return [_row_to_dict(cur, row) for row in rows]
 
 
+def update_character_scene_role(
+    conn: sqlite3.Connection,
+    scene_id: str,
+    character_id: str,
+    role: str,
+) -> bool:
+    """
+    Aggiorna il ruolo di un personaggio in una scena (WI-43).
+
+    Ritorna True se la coppia (scene_id, character_id) esiste ed è stata
+    aggiornata, False altrimenti.
+    """
+    cur = conn.cursor()
+    cur.execute(
+        "UPDATE scene_characters SET role = ? WHERE scene_id = ? AND character_id = ?",
+        (role, scene_id, character_id),
+    )
+    conn.commit()
+    return cur.rowcount > 0
+
+
 def remove_character_from_scene(
     conn: sqlite3.Connection, scene_id: str, character_id: str
 ) -> bool:

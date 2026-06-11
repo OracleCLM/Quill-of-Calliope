@@ -32,6 +32,7 @@ from flask import jsonify, request
 
 from app.db import get_db, new_id
 from app.db import messages as db_messages
+from app.db import scenes as db_scenes
 from app.calliope_shell.reactions_db_routes import register_reactions_db_routes
 from app.calliope_shell.messages_db_routes import register_messages_db_routes
 from app.calliope_shell.scene_characters_db_routes import (
@@ -65,7 +66,13 @@ def register_scenes_db_routes(app, db_path=None):
     @app.route("/api/db/scenes", methods=["GET"])
     def db_list_scenes():
         # WI-44: filtro opzionale ?arc_id=<id> (assente → tutte le scene).
+        # WI-35: filtro opzionale ?title=<substr> (LIKE case-insensitive).
         conn = _conn(db_path)
+        title = request.args.get("title")
+        if title is not None:
+            scenes = db_scenes.list_scenes(conn, title_contains=title)
+            conn.close()
+            return jsonify({"scenes": scenes}), 200
         arc_id = request.args.get("arc_id")
         select = (
             "SELECT id, title, arc_id, location, last_activity_at, updated_at "
@@ -79,6 +86,19 @@ def register_scenes_db_routes(app, db_path=None):
         scenes = [dict(zip([d[0] for d in cur.description], r)) for r in cur.fetchall()]
         conn.close()
         return jsonify({"scenes": scenes}), 200
+
+    @app.route("/api/db/scenes/<scene_id>/arc", methods=["PATCH"])
+    def db_assign_scene_arc(scene_id):
+        # WI-38: assegna/disassocia l'arco (arc_id può essere null).
+        body = request.get_json(silent=True) or {}
+        if "arc_id" not in body:
+            return jsonify({"error": "bad_request"}), 400
+        conn = _conn(db_path)
+        ok = db_scenes.assign_scene_to_arc(conn, scene_id, body.get("arc_id"))
+        conn.close()
+        if not ok:
+            return jsonify({"error": "not_found"}), 404
+        return jsonify({}), 200
 
     @app.route("/api/db/scenes/<scene_id>", methods=["DELETE"])
     def db_delete_scene(scene_id):
