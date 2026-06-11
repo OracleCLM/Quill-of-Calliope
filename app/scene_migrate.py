@@ -60,7 +60,7 @@ def migrate_all(scenes_dir: str, chars_dir: str, db_path: str | None = None) -> 
     for p in sorted(Path(chars_dir).rglob("*.yaml")):
         try:
             data = yaml.safe_load(p.read_text())
-            cid = data.get("id")
+            cid = data.get("id") or data.get("slug")
             name = data.get("name")
             if not cid or not name:
                 continue
