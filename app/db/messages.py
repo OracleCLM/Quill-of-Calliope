@@ -329,6 +329,57 @@ def delete_message(
     return cur.rowcount > 0
 
 
+def update_message(
+    conn: sqlite3.Connection,
+    message_id: str,
+    *,
+    content_original: Optional[str] = None,
+    author_name: Optional[str] = None,
+) -> bool:
+    """
+    Aggiorna i campi non-None di un messaggio (patch parziale).
+
+    Parameters
+    ----------
+    conn:
+        Connessione SQLite attiva.
+    message_id:
+        ID del messaggio da aggiornare.
+    content_original:
+        Nuovo contenuto originale (aggiornato solo se non-None).
+    author_name:
+        Nuovo nome autore (aggiornato solo se non-None).
+
+    Returns
+    -------
+    bool
+        True se aggiornato, False se message_id non esiste.
+
+    Raises
+    ------
+    ValueError
+        Se nessun campo è fornito (entrambi None).
+    """
+    fields: list[str] = []
+    params: list[object] = []
+    if content_original is not None:
+        fields.append("content_original = ?")
+        params.append(content_original)
+    if author_name is not None:
+        fields.append("author_name = ?")
+        params.append(author_name)
+    if not fields:
+        raise ValueError("nessun campo da aggiornare")
+    params.append(message_id)
+    cur = conn.cursor()
+    cur.execute(
+        f"UPDATE messages SET {', '.join(fields)} WHERE id = ?",
+        params,
+    )
+    conn.commit()
+    return cur.rowcount > 0
+
+
 def move_message(
     conn: sqlite3.Connection,
     message_id: str,

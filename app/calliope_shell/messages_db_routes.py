@@ -63,6 +63,40 @@ def register_messages_db_routes(app, db_path=None):
         conn.close()
         return jsonify({"error": "not_found"}), 404
 
+    @app.route("/api/db/messages/<message_id>", methods=["PATCH"])
+    def db_update_message(message_id):
+        body = request.get_json(force=True) or {}
+        content_original = body.get("content_original")
+        author_name = body.get("author_name")
+        if content_original is None and author_name is None:
+            return jsonify({"error": "bad_request"}), 400
+        conn = _conn(db_path)
+        updated = db_messages.update_message(
+            conn, message_id,
+            content_original=content_original,
+            author_name=author_name,
+        )
+        conn.close()
+        if not updated:
+            return jsonify({"error": "not_found"}), 404
+        return jsonify({"id": message_id}), 200
+
+    @app.route("/api/db/messages/<message_id>/move", methods=["POST"])
+    def db_move_message_to_scene(message_id):
+        body = request.get_json(force=True) or {}
+        target_scene_id = body.get("target_scene_id")
+        position = body.get("position")
+        if target_scene_id is None or position is None:
+            return jsonify({"error": "bad_request"}), 400
+        conn = _conn(db_path)
+        moved = db_messages.move_message_to_scene(
+            conn, message_id, target_scene_id, position
+        )
+        conn.close()
+        if not moved:
+            return jsonify({"error": "not_found"}), 404
+        return jsonify({}), 200
+
     @app.route("/api/db/scenes/<scene_id>/messages", methods=["POST"])
     def db_append_message(scene_id):
         conn = _conn(db_path)
@@ -70,9 +104,15 @@ def register_messages_db_routes(app, db_path=None):
             conn.close()
             return jsonify({"error": "not_found"}), 404
         body = request.get_json(force=True) or {}
+        author_name = body.get("author_name", "").strip()
+        content_original = body.get("content_original")
+        if not author_name or content_original is None:
+            conn.close()
+            return jsonify({"error": "bad_request"}), 400
         mid = db_messages.add_message(conn, scene_id=scene_id,
-            author_name=body["author_name"], content_original=body["content_original"],
+            author_name=author_name, content_original=content_original,
             character_id=body.get("character_id"),
+            content_enhanced=body.get("content_enhanced"),
             source=body.get("source", "manual"),
             is_summary=body.get("is_summary", 0))
         conn.close()
@@ -88,6 +128,10 @@ def register_messages_db_routes(app, db_path=None):
             return jsonify({"error": "not found"}), 404
         page = int(request.args.get("page", 1))
         per_page = int(request.args.get("per_page", 50))
+        # page è 1-based, per_page deve essere positivo (evita div-by-zero nel calcolo pages)
+        if page < 1 or per_page < 1:
+            conn.close()
+            return jsonify({"error": "bad_request"}), 400
         result = db_messages.get_scene_message_page(conn, scene_id, page, per_page)
         conn.close()
         return jsonify(result), 200
