@@ -5,6 +5,9 @@ Sostituisce la lettura flat-YAML del draft-gen con il DB scene-as-chat: il
 """
 from __future__ import annotations
 
+from app.db import get_db
+from app.db.messages import list_messages_for_scene
+
 
 def build_scene_context(scene_id: str, db_path: str | None = None) -> str:
     """
@@ -13,4 +16,23 @@ def build_scene_context(scene_id: str, db_path: str | None = None) -> str:
       - scena inesistente -> "" (stringa vuota)
     Usa app.db.get_db(db_path) + app.db.messages.get_scene_message_page / list_messages_for_scene.
     """
-    raise NotImplementedError("VG-1: implementazione aider")
+    db = get_db(db_path)
+
+    # Recupera il titolo della scena per verificare l'esistenza
+    row = db.execute("SELECT title FROM scenes WHERE id = ?", (scene_id,)).fetchone()
+    if row is None:
+        return ""
+    title = row[0]
+
+    # Recupera i messaggi
+    messages = list_messages_for_scene(db, scene_id)
+
+    # Ordina i messaggi per position_order come richiesto
+    messages.sort(key=lambda m: m["position_order"])
+
+    # Costruisce la stringa di output
+    lines = [f"Scene: {title}"]
+    for msg in messages:
+        lines.append(f"{msg['author_name']}: {msg['content_original']}")
+
+    return "\n".join(lines)
