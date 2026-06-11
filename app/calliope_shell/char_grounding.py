@@ -14,4 +14,14 @@ def retrieve_char_grounding(char_name: str, chroma_path: str = ".chroma_calliope
       - slug = char_name.lower().strip().replace(" ", "-"); query calliope_characters where slug==slug.
       - ritorna la lista dei documents (max top_k); char sconosciuto o store assente -> [] (degrada).
     """
-    raise NotImplementedError("Step 1 char-grounding: impl worker")
+    try:
+        import chromadb
+
+        slug = char_name.lower().strip().replace(" ", "-")
+        client = chromadb.PersistentClient(path=chroma_path)
+        col = client.get_collection("calliope_characters")
+        r = col.get(where={"slug": slug}, include=["documents"], limit=top_k)
+        docs = r.get("documents") or []
+        return docs
+    except Exception:
+        return []
