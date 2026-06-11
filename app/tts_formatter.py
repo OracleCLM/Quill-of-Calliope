@@ -1,4 +1,5 @@
-"""TTS text formatter — converte testo in TESTO-PER-LETTURA-VOCALE (cost-zero, deterministico).
+"""TTS text formatter — converte testo in TESTO-PER-LETTURA-VOCALE
+(cost-zero, deterministico).
 
 Scope NM/Efesto: logica di formatting testuale (la voce/UI/GPU la fa SL con Piper).
 Consolida la skill `efesto-tts-formatter` (prima solo prompt-based) in codice testato.
