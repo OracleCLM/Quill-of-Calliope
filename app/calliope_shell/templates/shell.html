@@ -507,7 +507,6 @@
                     <div style="font-size:.85em;color:#8899cc;margin-bottom:8px;font-weight:bold;">▶ Genera prossimo messaggio</div>
                     <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
                         <select id="scene-char-select"><option value="">— Seleziona personaggio —</option></select>
-                        <button id="continue-btn" onclick="_generateNextMsg()" disabled>▶ Continue</button>
                     </div>
                     <input id="scene-ctx-hint" placeholder="Hint contestuale (opzionale)...">
                     <div id="continue-status" style="font-size:.8em;color:#88aaff;margin-top:6px;min-height:1em;"></div>
@@ -542,7 +541,6 @@
         <h2>◇ Messaggi recenti</h2>
         <div class="msg-filter-bar">
             <input id="msg-char-filter" placeholder="Filtra per personaggio (es. Aurora)...">
-            <button id="msg-load-btn" onclick="_loadMessages()">↻ Carica</button>
             <span id="msg-status" style="font-size:.82em;color:#88aaff;"></span>
         </div>
         <ul id="message-list" class="message-list" data-empty-state="messages"><li style="color:#334;padding:12px">Clicca Carica per vedere i messaggi recenti.</li></ul>
@@ -905,7 +903,6 @@
             });
             if (view === 'arc') loadArcList();
             if (view === 'scenes') _loadScenes();
-            if (view === 'messages') _loadMessages();
             if (view === 'dashboard') loadDashboardSnapshot();
             if (view === 'smartdraft') _loadCharDropdown();
             if (view === 'characters') loadCharactersPanel();
