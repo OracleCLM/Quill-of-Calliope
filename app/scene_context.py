@@ -7,6 +7,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import yaml
+
 from app.db import get_db
 from app.db.messages import list_messages_for_scene
 
@@ -60,4 +62,26 @@ def resolve_scene_context(
     Le route /api/messages/next e /api/messages/continue DEVONO usare questo helper
     al posto del glob _SCENES_DIR inline.
     """
-    raise NotImplementedError("VG-1b: implementare resolve_scene_context (DB-first + YAML-fallback)")
+    # DB-FIRST: path canonico scene-as-chat.
+    ctx = build_scene_context(scene_id, db_path)
+    if ctx:
+        return ctx
+
+    # FALLBACK-YAML: scena solo come *.yaml (compat retro durante la migrazione).
+    if scenes_dir is not None:
+        sdir = Path(scenes_dir)
+        if sdir.is_dir():
+            for yfile in sorted(sdir.glob("*.yaml")):
+                if scene_id in yfile.stem:
+                    data = yaml.safe_load(yfile.read_text(encoding="utf-8")) or {}
+                    title = data.get("title", "")
+                    summary = data.get("summary", "")
+                    participants = data.get("participants", []) or []
+                    return (
+                        f"Scene: {title}\n"
+                        f"Summary: {summary}\n"
+                        f"Participants: {', '.join(participants)}"
+                    )
+
+    # VUOTO: né DB né YAML.
+    return ""

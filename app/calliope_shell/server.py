@@ -19,6 +19,7 @@ from app.calliope_shell.characters_routes import register_character_routes
 from app.calliope_shell.lore_routes import register_lore_routes
 from app.calliope_shell.scenes_db_routes import register_scenes_db_routes
 from app.calliope_shell.arcs_db_routes import register_arcs_db_routes
+from app.scene_context import resolve_scene_context
 
 logger = logging.getLogger(__name__)
 
@@ -1031,15 +1032,10 @@ def create_app():
             except Exception:
                 pass
 
-        # Build scene context
-        scene_ctx = ""
-        if scene_id:
-            for p in _SCENES_DIR.glob("*.yaml"):
-                if scene_id in p.stem:
-                    d = _parse_scene_yaml(p)
-                    if d:
-                        scene_ctx = f"Scene: {d.get('title', scene_id)}\nSummary: {d.get('summary', '')}\nParticipants: {', '.join(d.get('participants', []))}"
-                    break
+        # Build scene context — DB-FIRST con fallback flat-YAML (VG-1b, chiude F1).
+        # Prima costruiva il contesto col glob _SCENES_DIR inline (il draft-gen non vedeva
+        # mai il DB scene-as-chat). Ora passa per resolve_scene_context.
+        scene_ctx = resolve_scene_context(scene_id, scenes_dir=_SCENES_DIR) if scene_id else ""
 
         # Compose prompt
         prompt_parts = [
@@ -1110,7 +1106,9 @@ def create_app():
         if not intent_it:
             return jsonify({"error": "intent_it is required"}), 400
 
-        scene_ctx = ""
+        # DB-FIRST con fallback flat-YAML (VG-1b, chiude F1) — non più glob inline per scene_ctx.
+        scene_ctx = resolve_scene_context(scene_id, scenes_dir=_SCENES_DIR) if scene_id else ""
+        # participants restano dal YAML (compat) per il wiring downstream del continue.
         participants = []
         if scene_id:
             for p in _SCENES_DIR.glob("*.yaml"):
@@ -1118,13 +1116,6 @@ def create_app():
                     d = _parse_scene_yaml(p)
                     if d:
                         participants = d.get("participants", [])
-                        scene_ctx = (
-                            f"Scene: {d.get('title', scene_id)}\n"
-                            f"Status: {d.get('status', 'unknown')}\n"
-                            f"Summary: {d.get('summary', '')}\n"
-                            f"Participants: {', '.join(participants)}\n"
-                            f"Last excerpt: {d.get('last_msg_excerpt', '')}"
-                        )
                     break
 
         char_sheets = _load_char_sheets(
