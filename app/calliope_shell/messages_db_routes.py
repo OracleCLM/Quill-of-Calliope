@@ -72,7 +72,9 @@ def register_messages_db_routes(app, db_path=None):
         body = request.get_json(force=True) or {}
         mid = db_messages.add_message(conn, scene_id=scene_id,
             author_name=body["author_name"], content_original=body["content_original"],
-            character_id=body.get("character_id"))
+            character_id=body.get("character_id"),
+            source=body.get("source", "manual"),
+            is_summary=body.get("is_summary", 0))
         conn.close()
         return jsonify({"id": mid}), 201
 
