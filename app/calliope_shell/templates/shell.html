@@ -543,7 +543,7 @@
             <input id="msg-char-filter" placeholder="Filtra per personaggio (es. Aurora)...">
             <span id="msg-status" style="font-size:.82em;color:#88aaff;"></span>
         </div>
-        <ul id="message-list" class="message-list" data-empty-state="messages"><li style="color:#334;padding:12px">Clicca Carica per vedere i messaggi recenti.</li></ul>
+        <ul id="message-list" class="message-list" data-empty-state="messages"><li style="color:#334;padding:12px">Caricamento messaggi recenti…</li></ul>
     </div>
 
     <!-- ── CHARACTERS PANEL (P5a — redesign) ── -->
@@ -907,7 +907,43 @@
             if (view === 'smartdraft') _loadCharDropdown();
             if (view === 'characters') loadCharactersPanel();
             if (view === 'lorekb') loadLoreKB();
+            if (view === 'messages') loadRecentMessages();
         }
+
+        // nav-messages ricablato al DB (WI-NAVMSG-1, post-import): mostra i recent-messages reali.
+        async function loadRecentMessages() {
+            const ul = document.getElementById('message-list');
+            const charEl = document.getElementById('msg-char-filter');
+            const statusEl = document.getElementById('msg-status');
+            const char = (charEl && charEl.value.trim()) || '';
+            if (statusEl) statusEl.textContent = 'Caricamento…';
+            try {
+                let url = '/api/db/messages/recent?limit=50';
+                if (char) url += '&char=' + encodeURIComponent(char);
+                const r = await fetch(url);
+                const data = await r.json();
+                const msgs = (data && data.messages) || [];
+                if (!msgs.length) {
+                    if (window.renderEmptyState) renderEmptyState('message-list', {kind: 'empty', title: 'Nessun messaggio'});
+                    else ul.innerHTML = '<li style="color:#334;padding:12px">Nessun messaggio.</li>';
+                    if (statusEl) statusEl.textContent = '';
+                    return;
+                }
+                ul.innerHTML = msgs.map(m =>
+                    '<li style="padding:8px 12px;background:#0d1117;border:1px solid #1a2a3a;border-radius:6px">' +
+                    '<b style="color:#88aaff">' + (m.author_name || '—') + '</b> ' +
+                    '<span style="color:#566;font-size:.78em">' + (m.ts || '') + '</span><br>' +
+                    '<span style="color:#cdd">' + (m.content_original || '').replace(/</g, '&lt;') + '</span></li>'
+                ).join('');
+                if (statusEl) statusEl.textContent = msgs.length + ' messaggi';
+            } catch (e) {
+                if (statusEl) statusEl.textContent = 'Errore caricamento';
+            }
+        }
+        document.addEventListener('DOMContentLoaded', function() {
+            const f = document.getElementById('msg-char-filter');
+            if (f) f.addEventListener('change', loadRecentMessages);
+        });
 
         // Scene/Messages panel JS → /static/js/scenes.js (FE-0 estratto 2026-06-11)
         // ── Draft / Variant handler ──

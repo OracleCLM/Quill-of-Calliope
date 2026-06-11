@@ -22,6 +22,26 @@ def _conn(db_path):
 def register_messages_db_routes(app, db_path=None):
     """Registra gli endpoint messaggi-per-id sul Flask ``app``."""
 
+    @app.route("/api/db/messages/recent", methods=["GET"])
+    def db_messages_recent():
+        # Recent-messages cross-scena per il pannello nav-messages (post-import, WI-NAVMSG-1).
+        # Route statica → precede /api/db/messages/<message_id> nel routing Flask.
+        limit = request.args.get("limit", default=50, type=int)
+        char = request.args.get("char")
+        conn = _conn(db_path)
+        sql = "SELECT id, scene_id, author_name, content_original, ts FROM messages"
+        params: list = []
+        if char:
+            sql += " WHERE author_name = ?"
+            params.append(char)
+        sql += " ORDER BY ts DESC LIMIT ?"
+        params.append(limit)
+        rows = conn.execute(sql, params).fetchall()
+        conn.close()
+        cols = ("id", "scene_id", "author_name", "content_original", "ts")
+        messages = [dict(zip(cols, tuple(r))) for r in rows]
+        return jsonify({"messages": messages}), 200
+
     @app.route("/api/db/messages/<message_id>/position", methods=["PATCH"])
     def db_update_message_position(message_id):
         conn = _conn(db_path)
