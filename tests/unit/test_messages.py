@@ -9,8 +9,9 @@ def test_add_message(msg_conn):
         msg_conn,
         scene_id=scene_id,
         character_id=char_id,
+        author_name="test_author",
         content_original="test message",
-        content_rendered="<p>test message</p>",
+        content_enhanced="<p>test message</p>",
         position_order=1,
     )
 
