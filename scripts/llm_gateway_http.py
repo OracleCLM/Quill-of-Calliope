@@ -22,7 +22,7 @@ app = FastAPI(title="calliope-llm-gateway-http", version="1.0")
 class LLMRequest(BaseModel):
     provider: str  # "groq" | "cerebras" | "openrouter"
     prompt: str
-    max_tokens: int = 1024
+    max_tokens: int = 4096
     temperature: float = 0.7
 
 
