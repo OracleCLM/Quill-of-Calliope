@@ -1031,6 +1031,12 @@ def create_app():
                 char_facts = [h["fact_text"] for h in hits[:3]]
             except Exception:
                 pass
+        # ChromaDB char-grounding (GO Step 1b): profilo char da .chroma_calliope (by-slug)
+        try:
+            from app.calliope_shell.char_grounding import retrieve_char_grounding  # noqa: PLC0415
+            char_facts.extend(retrieve_char_grounding(char))
+        except Exception:
+            pass
 
         # Build scene context — DB-FIRST con fallback flat-YAML (VG-1b, chiude F1).
         # Prima costruiva il contesto col glob _SCENES_DIR inline (il draft-gen non vedeva
@@ -1133,6 +1139,12 @@ def create_app():
                 char_facts.extend(
                     f"{cn}: {h['fact_text']}" for h in hits[:2]
                 )
+            except Exception:
+                pass
+            # ChromaDB char-grounding (GO Step 1b): profilo char da .chroma_calliope (by-slug)
+            try:
+                from app.calliope_shell.char_grounding import retrieve_char_grounding  # noqa: PLC0415
+                char_facts.extend(f"{cn}: {g}" for g in retrieve_char_grounding(cn))
             except Exception:
                 pass
 
