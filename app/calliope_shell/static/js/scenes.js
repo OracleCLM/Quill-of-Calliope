@@ -58,19 +58,23 @@ async function _loadSceneDetail(sceneId) {
     document.getElementById('gen-output').style.display = 'none';
     document.getElementById('continue-status').textContent = '';
     try {
-        const resp = await fetch('/api/scenes/' + encodeURIComponent(sceneId));
-        const s = await resp.json();
-        if (s.error) throw new Error(s.error);
+        // FE-1: dettaglio scena dal DB. GET /api/db/scenes/<id> -> {scene:{...}, messages:[...]}
+        const resp = await fetch('/api/db/scenes/' + encodeURIComponent(sceneId));
+        const data = await resp.json();
+        if (data.error) throw new Error(data.error);
+        const s = data.scene || {};
+        const messages = data.messages || [];
         document.getElementById('scene-detail-title').textContent = s.title || sceneId;
         document.getElementById('scene-detail-meta').textContent =
-            `ID: ${s.scene_id} | ${s.date_started || ''} | ${s.message_count || 0} msg | Partecipanti: ${(s.participants||[]).join(', ')}`;
-        document.getElementById('scene-detail-summary').textContent = s.summary || '(nessun sommario)';
-        document.getElementById('scene-detail-first').textContent = s.first_msg_excerpt || '—';
-        document.getElementById('scene-detail-last').textContent = s.last_msg_excerpt || '—';
-        // Populate char select
+            `ID: ${s.id} | ${s.location || ''} | ${messages.length} msg`;
+        document.getElementById('scene-detail-summary').textContent =
+            messages.map(m => `${m.author_name}: ${m.content_original}`).join('\n') || '(nessun messaggio)';
+        document.getElementById('scene-detail-first').textContent = messages[0] ? messages[0].content_original : '—';
+        document.getElementById('scene-detail-last').textContent =
+            messages.length ? messages[messages.length - 1].content_original : '—';
+        // roster non incluso in questo endpoint (FE-2 lo popola da /api/db/scenes/<id>/characters)
         const sel = document.getElementById('scene-char-select');
-        sel.innerHTML = '<option value="">— Seleziona personaggio —</option>' +
-            (s.participants||[]).map(p => `<option value="${p}">${p}</option>`).join('');
+        sel.innerHTML = '<option value="">— Seleziona personaggio —</option>';
         sel.onchange = () => { document.getElementById('continue-btn').disabled = !sel.value; };
     } catch(e) {
         document.getElementById('scene-detail-title').textContent = 'Errore: ' + e.message;
