@@ -74,3 +74,24 @@ def expand_symbols(text: str) -> str:
     Contratto: '&'->'e', '%'->' percento', '@'->' chiocciola'. Testo senza simboli invariato.
     """
     return text.replace("&", "e").replace("%", " percento").replace("@", " chiocciola")
+
+
+def lists_to_sentences(text: str) -> str:
+    """
+    Converte gli elenchi puntati in frasi separate da punto (WI-TTS-5).
+
+    Contratto: righe che iniziano (dopo spazi) con '- ' diventano frasi: il marcatore
+    viene tolto e ogni voce termina con '. '. Testo non-lista invariato.
+    Esempio: "- mela\\n- pera" -> "mela. pera."
+    """
+    raise NotImplementedError("WI-TTS-5: implementazione aider")
+
+
+def to_speakable(text: str) -> str:
+    """
+    Orchestratore: applica in pipeline tutte le trasformazioni TTS (WI-TTS-6).
+
+    Pipeline: strip_code_fences -> tables_to_prose -> strip_markdown ->
+    lists_to_sentences -> expand_symbols. Ritorna prosa pronta per la lettura vocale.
+    """
+    raise NotImplementedError("WI-TTS-6: implementazione aider")

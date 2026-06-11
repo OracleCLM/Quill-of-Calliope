@@ -68,3 +68,20 @@ def test_expand_ampersand_percent():
 
 def test_expand_no_symbols_unchanged():
     assert expand_symbols("testo pulito") == "testo pulito"
+
+
+from app.tts_formatter import lists_to_sentences, to_speakable  # noqa: E402
+
+
+def test_bullets_to_sentences():
+    assert lists_to_sentences("- mela\n- pera") == "mela. pera."
+
+
+def test_non_list_unchanged():
+    assert lists_to_sentences("frase normale") == "frase normale"
+
+
+def test_to_speakable_strips_all():
+    out = to_speakable("# Titolo\n```\ncode\n```\n- **uno** & due")
+    assert "```" not in out and "#" not in out and "**" not in out and "&" not in out
+    assert "uno" in out and "due" in out
