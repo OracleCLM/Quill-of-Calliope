@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import json
 
-from app.db import get_db
+from app.db import get_db, new_id
 from app.db.messages import add_message
 
 
@@ -74,7 +74,35 @@ def import_messages_to_db(
 
                 # Nessuna scena trovata -> char_sheets
                 if not target_scene:
-                    char_sheets += 1
+                    cid = charmap.get(char)
+                    content = (
+                        rec.get("message") or rec.get("original_message") or ""
+                    )
+                    row_idx = rec["row_idx"]
+
+                    # Idempotenza
+                    existing_sheet = conn.execute(
+                        "SELECT 1 FROM character_sheets WHERE character_name=? AND position_order=?",
+                        (char, row_idx),
+                    ).fetchone()
+
+                    if not existing_sheet:
+                        conn.execute(
+                            "INSERT INTO character_sheets "
+                            "(id, character_name, character_id, content, ts, position_order) "
+                            "VALUES (?,?,?,?,?,?)",
+                            (
+                                new_id(),
+                                char,
+                                cid,
+                                content,
+                                rec.get("timestamp"),
+                                row_idx,
+                            ),
+                        )
+                        conn.commit()
+                        char_sheets += 1
+
                     continue
 
                 # Scena trovata
