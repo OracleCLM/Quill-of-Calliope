@@ -9,8 +9,15 @@ operatore (privacy + scope). Questo modulo è testato su fixture; non esegue alc
 """
 from __future__ import annotations
 
+import json
 
-def import_messages_to_db(messages_jsonl_path: str, scenes_json_path: str, db_path: str | None = None) -> dict:
+from app.db import get_db
+from app.db.messages import add_message
+
+
+def import_messages_to_db(
+    messages_jsonl_path: str, scenes_json_path: str, db_path: str | None = None
+) -> dict:
     """
     Importa i messaggi IC-in-scena nel DB, applicando le 4 regole di selezione.
 
@@ -25,4 +32,84 @@ def import_messages_to_db(messages_jsonl_path: str, scenes_json_path: str, db_pa
       - Idempotente (re-run non duplica).
       - Ritorna {"messages": n, "char_sheets": n, "skipped_system_ooc": n, "char_unmatched": n}.
     """
-    raise NotImplementedError("messages-import bridge: implementazione aider (contract-red-first)")
+    # 1. Carica scenes
+    with open(scenes_json_path, "r", encoding="utf-8") as f:
+        scenes = json.load(f)
+
+    # 2. Connessione DB e mappa personaggi
+    conn = get_db(db_path)
+    charmap = {
+        row["name"]: row["id"]
+        for row in conn.execute("SELECT id, name FROM characters").fetchall()
+    }
+
+    # 3. Inizializza contatori
+    messages = 0
+    char_sheets = 0
+    skipped_system_ooc = 0
+    char_unmatched = 0
+
+    # 4. Itera sui messaggi
+    with open(messages_jsonl_path, "r", encoding="utf-8") as f:
+        for line in f:
+            rec = json.loads(line)
+            typ = rec.get("type")
+            char = rec.get("character")
+
+            # Skip system/OOC o senza character
+            if typ in ("system", "OOC") or not char:
+                skipped_system_ooc += 1
+                continue
+
+            # 5. Logica IC
+            if typ == "IC" and char:
+                ts = rec["timestamp"]
+                target_scene = None
+
+                # Trova scena contenente il timestamp
+                for scene in scenes:
+                    if scene["timestamp_start"] <= ts <= scene["timestamp_end"]:
+                        target_scene = scene
+                        break
+
+                # Nessuna scena trovata -> char_sheets
+                if not target_scene:
+                    char_sheets += 1
+                    continue
+
+                # Scena trovata
+                cid = charmap.get(char)
+                if cid is None:
+                    char_unmatched += 1
+
+                # 6. Idempotenza e inserimento
+                row_idx = rec["row_idx"]
+                scene_id = target_scene["scene_id"]
+
+                existing = conn.execute(
+                    "SELECT 1 FROM messages WHERE scene_id = ? AND position_order = ?",
+                    (scene_id, row_idx),
+                ).fetchone()
+
+                if not existing:
+                    content = (
+                        rec.get("message") or rec.get("original_message") or ""
+                    )
+                    add_message(
+                        conn,
+                        scene_id=scene_id,
+                        character_id=cid,
+                        author_name=char,
+                        content_original=content,
+                        source="manual",
+                        position_order=row_idx,
+                    )
+                    messages += 1
+
+    # 7. Ritorna statistiche
+    return {
+        "messages": messages,
+        "char_sheets": char_sheets,
+        "skipped_system_ooc": skipped_system_ooc,
+        "char_unmatched": char_unmatched,
+    }
