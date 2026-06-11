@@ -47,3 +47,24 @@ def test_strip_lang_code_fence():
 
 def test_no_fence_unchanged():
     assert strip_code_fences("nessun blocco qui") == "nessun blocco qui"
+
+
+from app.tts_formatter import tables_to_prose, expand_symbols  # noqa: E402
+
+
+def test_tables_removed():
+    out = tables_to_prose("intro\n| a | b |\n|---|---|\n| 1 | 2 |\noutro")
+    assert "|" not in out and "intro" in out and "outro" in out
+
+
+def test_no_table_unchanged():
+    assert tables_to_prose("riga normale") == "riga normale"
+
+
+def test_expand_ampersand_percent():
+    assert expand_symbols("A & B") == "A e B"
+    assert expand_symbols("50%") == "50 percento"
+
+
+def test_expand_no_symbols_unchanged():
+    assert expand_symbols("testo pulito") == "testo pulito"

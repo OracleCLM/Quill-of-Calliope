@@ -52,3 +52,22 @@ def strip_code_fences(text: str) -> str:
       - testo fuori dai fence → invariato
     """
     raise NotImplementedError("WI-TTS-2: implementazione aider")
+
+
+def tables_to_prose(text: str) -> str:
+    """
+    Rimuove le righe di tabella markdown (non vanno lette ad alta voce) (WI-TTS-3).
+
+    Contratto: le righe che iniziano (dopo eventuale spazio) con '|' vengono rimosse;
+    il resto del testo resta invariato.
+    """
+    raise NotImplementedError("WI-TTS-3: implementazione aider")
+
+
+def expand_symbols(text: str) -> str:
+    """
+    Espande i simboli in parole leggibili ad alta voce (WI-TTS-4).
+
+    Contratto: '&'->'e', '%'->' percento', '@'->' chiocciola'. Testo senza simboli invariato.
+    """
+    raise NotImplementedError("WI-TTS-4: implementazione aider")
