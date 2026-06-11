@@ -41,13 +41,16 @@ def test_lists_have_data_empty_state_marker():
 
 
 def test_scene_empty_state_uses_helper():
-    html = _html()
-    assert "renderEmptyState('scenes-list'" in html
+    # FE-0 (2026-06-11): la scene-list JS è stata estratta da shell.html a static/js/scenes.js.
+    scenes_js = (
+        Path(__file__).parents[2] / "app" / "calliope_shell" / "static" / "js" / "scenes.js"
+    ).read_text(encoding="utf-8")
+    assert "renderEmptyState('scenes-list'" in scenes_js
 
 
-def test_messages_empty_state_uses_helper():
-    html = _html()
-    assert "renderEmptyState('message-list'" in html
+# test_messages_empty_state_uses_helper RIMOSSO (FE-4, 2026-06-11): il pannello Messages
+# flat-YAML (_loadMessages /api/messages/recent) è stato rimosso nella migrazione DB
+# scene-as-chat (no retrocompat). Non esiste più una empty-state 'message-list' da testare.
 
 
 def test_arc_empty_state_uses_helper():
