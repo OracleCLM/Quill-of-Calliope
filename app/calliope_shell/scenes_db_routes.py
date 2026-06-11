@@ -31,10 +31,12 @@ from __future__ import annotations
 from flask import jsonify, request
 
 from app.db import get_db, new_id
-from app.db import characters as db_characters
 from app.db import messages as db_messages
 from app.calliope_shell.reactions_db_routes import register_reactions_db_routes
 from app.calliope_shell.messages_db_routes import register_messages_db_routes
+from app.calliope_shell.scene_characters_db_routes import (
+    register_scene_characters_db_routes,
+)
 
 
 def _conn(db_path):
@@ -58,6 +60,7 @@ def register_scenes_db_routes(app, db_path=None):
     # con i test/chiamanti che usano SOLO register_scenes_db_routes come entrypoint.
     register_reactions_db_routes(app, db_path=db_path)
     register_messages_db_routes(app, db_path=db_path)
+    register_scene_characters_db_routes(app, db_path=db_path)
 
     @app.route("/api/db/scenes", methods=["GET"])
     def db_list_scenes():
@@ -173,44 +176,6 @@ def register_scenes_db_routes(app, db_path=None):
         result = db_messages.get_scene_message_page(conn, scene_id, page, per_page)
         conn.close()
         return jsonify(result), 200
-
-    @app.route("/api/db/scenes/<scene_id>/characters", methods=["GET"])
-    def list_scene_characters(scene_id):
-        conn = _conn(db_path)
-        chars = db_characters.list_characters_in_scene(conn, scene_id)
-        conn.close()
-        return jsonify({"characters": [dict(c) for c in chars]}), 200
-
-    @app.route("/api/db/scenes/<scene_id>/characters", methods=["POST"])
-    def add_character_to_scene_route(scene_id):
-        conn = _conn(db_path)
-        scene_row = conn.execute(
-            "SELECT id FROM scenes WHERE id=?", (scene_id,)
-        ).fetchone()
-        if not scene_row:
-            conn.close()
-            return jsonify({"error": "not found"}), 404
-        data = request.get_json(silent=True) or {}
-        char_id = data.get("character_id")
-        char_row = conn.execute(
-            "SELECT id FROM characters WHERE id=?", (char_id,)
-        ).fetchone()
-        if not char_row:
-            conn.close()
-            return jsonify({"error": "not found"}), 404
-        role = data.get("role", "")
-        db_characters.add_character_to_scene(conn, scene_id, char_id, role)
-        conn.close()
-        return jsonify({}), 201
-
-    @app.route("/api/db/scenes/<scene_id>/characters/<character_id>", methods=["DELETE"])
-    def db_remove_character_from_scene(scene_id, character_id):
-        conn = _conn(db_path)
-        if db_characters.remove_character_from_scene(conn, scene_id, character_id):
-            conn.close()
-            return jsonify({}), 204
-        conn.close()
-        return jsonify({"error": "not_found"}), 404
 
     @app.route("/api/db/scenes/<scene_id>/messages/count", methods=["GET"])
     def db_count_messages(scene_id):
