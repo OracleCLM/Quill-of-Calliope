@@ -51,7 +51,8 @@ def strip_code_fences(text: str) -> str:
       - blocco con linguaggio "```python\\n...\\n```" → rimosso
       - testo fuori dai fence → invariato
     """
-    raise NotImplementedError("WI-TTS-2: implementazione aider")
+    # ```[lang]\n ... ``` (non-greedy, multilinea): sostituisci l'intero blocco con "".
+    return re.sub(r"```[^\n]*\n.*?```", "", text, flags=re.DOTALL)
 
 
 def tables_to_prose(text: str) -> str:
@@ -61,7 +62,9 @@ def tables_to_prose(text: str) -> str:
     Contratto: le righe che iniziano (dopo eventuale spazio) con '|' vengono rimosse;
     il resto del testo resta invariato.
     """
-    raise NotImplementedError("WI-TTS-3: implementazione aider")
+    # Scarta le righe la cui prima colonna non-spazio è '|' (riga di tabella markdown).
+    kept = [ln for ln in text.split("\n") if not ln.lstrip().startswith("|")]
+    return "\n".join(kept)
 
 
 def expand_symbols(text: str) -> str:
@@ -70,4 +73,4 @@ def expand_symbols(text: str) -> str:
 
     Contratto: '&'->'e', '%'->' percento', '@'->' chiocciola'. Testo senza simboli invariato.
     """
-    raise NotImplementedError("WI-TTS-4: implementazione aider")
+    return text.replace("&", "e").replace("%", " percento").replace("@", " chiocciola")
