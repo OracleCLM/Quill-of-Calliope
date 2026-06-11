@@ -9,6 +9,8 @@ Pipeline prevista (WI atomici):
 """
 from __future__ import annotations
 
+import re
+
 
 def strip_markdown(text: str) -> str:
     """
@@ -22,4 +24,19 @@ def strip_markdown(text: str) -> str:
       - marcatori di lista iniziali ("- ", "* ", "1. ") → rimossi (la lista→frasi è WI-TTS-5)
       - testo già piano → invariato
     """
-    raise NotImplementedError("WI-TTS-1: implementazione aider")
+    # Rimuove **bold**
+    text = re.sub(r"\*\*(.*?)\*\*", r"\1", text)
+    # Rimuove *italic*
+    text = re.sub(r"\*(.*?)\*", r"\1", text)
+    # Rimuove `inline code`
+    text = re.sub(r"`(.*?)`", r"\1", text)
+    # Rimuove [link](url)
+    text = re.sub(r"\[([^\]]+)\]\([^\)]+\)", r"\1", text)
+    # Rimuove header (# ## ...) all'inizio della riga
+    text = re.sub(r"^#+\s+", "", text, flags=re.MULTILINE)
+    # Rimuove marcatori di lista (- e *) all'inizio della riga
+    text = re.sub(r"^[-*]\s+", "", text, flags=re.MULTILINE)
+    # Rimuove marcatori di lista numerati (1. 2. ...) all'inizio della riga
+    text = re.sub(r"^\d+\.\s+", "", text, flags=re.MULTILINE)
+
+    return text
