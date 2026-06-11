@@ -55,14 +55,47 @@ def register_scenes_db_routes(app, db_path=None):
 
     @app.route("/api/db/scenes", methods=["GET"])
     def db_list_scenes():
+        # WI-44: filtro opzionale ?arc_id=<id> (assente → tutte le scene).
         conn = _conn(db_path)
-        cur = conn.execute(
+        arc_id = request.args.get("arc_id")
+        select = (
             "SELECT id, title, arc_id, location, last_activity_at, updated_at "
-            "FROM scenes ORDER BY COALESCE(last_activity_at, updated_at) DESC"
+            "FROM scenes"
         )
+        order = " ORDER BY COALESCE(last_activity_at, updated_at) DESC"
+        if arc_id is not None:
+            cur = conn.execute(select + " WHERE arc_id = ?" + order, (arc_id,))
+        else:
+            cur = conn.execute(select + order)
         scenes = [dict(zip([d[0] for d in cur.description], r)) for r in cur.fetchall()]
         conn.close()
         return jsonify({"scenes": scenes}), 200
+
+    @app.route("/api/db/scenes/<scene_id>", methods=["DELETE"])
+    def db_delete_scene(scene_id):
+        # WI-33: schema ha ON DELETE CASCADE su messages/scene_characters.
+        conn = _conn(db_path)
+        cur = conn.execute("DELETE FROM scenes WHERE id = ?", (scene_id,))
+        conn.commit()
+        conn.close()
+        if cur.rowcount > 0:
+            return "", 204
+        return jsonify({"error": "not_found"}), 404
+
+    @app.route(
+        "/api/db/messages/<message_id>/reactions/<reaction_id>", methods=["DELETE"]
+    )
+    def db_delete_reaction(message_id, reaction_id):
+        # WI-39: elimina una reazione da scene_reactions (id PK).
+        conn = _conn(db_path)
+        cur = conn.execute(
+            "DELETE FROM scene_reactions WHERE id = ?", (reaction_id,)
+        )
+        conn.commit()
+        conn.close()
+        if cur.rowcount > 0:
+            return "", 204
+        return jsonify({"error": "not_found"}), 404
 
     @app.route("/api/db/scenes/<scene_id>", methods=["GET"])
     def db_scene_detail(scene_id):
