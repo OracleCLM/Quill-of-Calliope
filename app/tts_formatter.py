@@ -40,3 +40,15 @@ def strip_markdown(text: str) -> str:
     text = re.sub(r"^\d+\.\s+", "", text, flags=re.MULTILINE)
 
     return text
+
+
+def strip_code_fences(text: str) -> str:
+    """
+    Rimuove i blocchi di codice ```...``` (non vanno letti ad alta voce) (WI-TTS-2).
+
+    Contratto (tests/unit/test_tts_formatter.py):
+      - blocco "```\\ncode\\n```" → rimosso (sostituito da stringa vuota)
+      - blocco con linguaggio "```python\\n...\\n```" → rimosso
+      - testo fuori dai fence → invariato
+    """
+    raise NotImplementedError("WI-TTS-2: implementazione aider")

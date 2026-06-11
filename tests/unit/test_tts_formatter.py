@@ -32,3 +32,18 @@ def test_plain_text_unchanged():
 def test_strip_bullet_markers():
     # i marcatori di lista vengono tolti (la lista→frasi è WI-TTS-5; qui solo i marker)
     assert strip_markdown("- primo\n- secondo") == "primo\nsecondo"
+
+
+from app.tts_formatter import strip_code_fences  # noqa: E402
+
+
+def test_strip_simple_code_fence():
+    assert strip_code_fences("prima\n```\nx=1\n```\ndopo").strip() == "prima\n\ndopo".strip()
+
+
+def test_strip_lang_code_fence():
+    assert "import" not in strip_code_fences("vedi:\n```python\nimport os\n```\nfine")
+
+
+def test_no_fence_unchanged():
+    assert strip_code_fences("nessun blocco qui") == "nessun blocco qui"
