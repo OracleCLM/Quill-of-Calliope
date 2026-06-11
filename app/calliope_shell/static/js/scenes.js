@@ -72,9 +72,19 @@ async function _loadSceneDetail(sceneId) {
         document.getElementById('scene-detail-first').textContent = messages[0] ? messages[0].content_original : '—';
         document.getElementById('scene-detail-last').textContent =
             messages.length ? messages[messages.length - 1].content_original : '—';
-        // roster non incluso in questo endpoint (FE-2 lo popola da /api/db/scenes/<id>/characters)
+        // FE-2: roster personaggi-in-scena dal DB (GET /api/db/scenes/<id>/characters -> {characters:[{id,name,role}]})
         const sel = document.getElementById('scene-char-select');
         sel.innerHTML = '<option value="">— Seleziona personaggio —</option>';
+        try {
+            const rresp = await fetch('/api/db/scenes/' + encodeURIComponent(sceneId) + '/characters');
+            const rdata = await rresp.json();
+            (rdata.characters || []).forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c.id;
+                opt.textContent = c.role ? `${c.name} (${c.role})` : c.name;
+                sel.appendChild(opt);
+            });
+        } catch (e) { /* roster opzionale: il dettaglio resta usabile senza */ }
         sel.onchange = () => { document.getElementById('continue-btn').disabled = !sel.value; };
     } catch(e) {
         document.getElementById('scene-detail-title').textContent = 'Errore: ' + e.message;
