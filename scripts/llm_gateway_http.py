@@ -24,6 +24,7 @@ class LLMRequest(BaseModel):
     prompt: str
     max_tokens: int = 4096
     temperature: float = 0.7
+    system: str | None = None
 
 
 class LLMResponse(BaseModel):
@@ -61,6 +62,7 @@ async def _dispatch(req: LLMRequest) -> LLMResponse:
             model=model,
             max_tokens=req.max_tokens,
             temperature=req.temperature,
+            system=req.system,
         )
         return LLMResponse(content=content, provider=req.provider, model=model)
     except Exception as exc:
