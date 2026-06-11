@@ -28,8 +28,16 @@ def register_characters_db_routes(app, *, db_path: str) -> None:
         kind = data.get("kind", "npc")
         if kind not in VALID_KINDS:
             return jsonify({"error": "invalid kind"}), 400
+        card_json = data.get("card_json")  # stringa opaca (WI-47)
         conn = _conn(db_path)
-        char_id = db_chars.add_character(conn, name=name, kind=kind)
+        try:
+            char_id = db_chars.add_character(
+                conn, name=name, kind=kind, card_json=card_json
+            )
+        except ValueError as exc:
+            # es. name > 255 caratteri (WI-55)
+            conn.close()
+            return jsonify({"error": str(exc)}), 400
         conn.close()
         return jsonify({"id": char_id}), 201
 
@@ -51,13 +59,15 @@ def register_characters_db_routes(app, *, db_path: str) -> None:
         name = data.get("name")
         kind = data.get("kind")
         image_path = data.get("image_path")
+        card_json = data.get("card_json")  # stringa opaca (WI-47)
 
         if kind is not None and kind not in VALID_KINDS:
             return jsonify({"error": "invalid kind"}), 400
 
         conn = _conn(db_path)
         updated = db_chars.update_character(
-            conn, char_id, name=name, kind=kind, image_path=image_path
+            conn, char_id, name=name, kind=kind, image_path=image_path,
+            card_json=card_json,
         )
         conn.close()
 

@@ -280,7 +280,7 @@ def list_characters_in_scene(
     cur = conn.cursor()
     cur.execute(
         """
-        SELECT c.*
+        SELECT c.*, sc.role
         FROM characters c
         JOIN scene_characters sc ON c.id = sc.character_id
         WHERE sc.scene_id = ?

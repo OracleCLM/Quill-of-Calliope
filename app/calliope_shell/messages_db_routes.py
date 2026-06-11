@@ -32,7 +32,7 @@ def register_messages_db_routes(app, db_path=None):
             return jsonify({"error": "bad_request"}), 400
 
         position = body["position"]
-        if not isinstance(position, int):
+        if not isinstance(position, int) or position < 0:
             conn.close()
             return jsonify({"error": "bad_request"}), 400
 
@@ -115,6 +115,13 @@ def register_messages_db_routes(app, db_path=None):
             content_enhanced=body.get("content_enhanced"),
             source=body.get("source", "manual"),
             is_summary=body.get("is_summary", 0))
+        # traccia ultima attività scena per sorting recente nel dashboard (WI-48).
+        # Precisione al ms (strftime %f) per ordinamento deterministico fra append ravvicinati.
+        conn.execute(
+            "UPDATE scenes SET last_activity_at = strftime('%Y-%m-%d %H:%M:%f', 'now') WHERE id = ?",
+            (scene_id,),
+        )
+        conn.commit()
         conn.close()
         return jsonify({"id": mid}), 201
 
@@ -157,6 +164,11 @@ def register_messages_db_routes(app, db_path=None):
         body = request.get_json(force=True) or {}
         required_fields = ["author_name", "content_original", "position_order"]
         if not all(k in body for k in required_fields):
+            conn.close()
+            return jsonify({"error": "bad_request"}), 400
+        # position_order deve essere un intero non-negativo (WI-58)
+        pos = body.get("position_order")
+        if not isinstance(pos, int) or pos < 0:
             conn.close()
             return jsonify({"error": "bad_request"}), 400
 
