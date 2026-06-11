@@ -1179,8 +1179,11 @@ def create_app():
                     "provider": "cerebras",
                     "prompt": full_prompt,
                     "temperature": 0.7,
+                    # zai-glm-4.7 è un reasoning-model: serve budget ampio o il reasoning
+                    # esaurisce i token e la risposta non ha 'content' (era qwen-3-235b non-reasoning).
+                    "max_tokens": 4096,
                 },
-                timeout=60,
+                timeout=90,
             )
             resp.raise_for_status()
             data = resp.json()
@@ -1221,7 +1224,7 @@ def create_app():
 
         return jsonify({
             "draft_text": draft_text,
-            "model_used": "cerebras/qwen-3-235b",
+            "model_used": "cerebras/zai-glm-4.7",
             "context_used": {
                 "scene": bool(scene_ctx),
                 "char_sheets": len(char_sheets),
