@@ -608,10 +608,15 @@ def duplicate_scene(
         (scene_id,),
     )
     rows = cur.fetchall()
+    # Copia arc_id dalla scena sorgente (WI-51): la duplicata resta nello stesso arco.
+    cur.execute("SELECT arc_id FROM scenes WHERE id = ?", (scene_id,))
+    arc_row = cur.fetchone()
+    source_arc_id = arc_row[0] if arc_row else None
     new_scene_id = new_id()
     cur.execute(
-        "INSERT INTO scenes(id, title, created_at, updated_at) VALUES(?, ?, datetime('now'), datetime('now'))",
-        (new_scene_id, new_name),
+        "INSERT INTO scenes(id, title, arc_id, created_at, updated_at)"
+        " VALUES(?, ?, ?, datetime('now'), datetime('now'))",
+        (new_scene_id, new_name, source_arc_id),
     )
     for row in rows:
         char_id, author, content_orig, content_enh, ts, source, pos, is_sum = row
@@ -650,11 +655,19 @@ def merge_scenes(
     str
         L'ID della nuova scena unita.
     """
+    # Guard self-merge (WI-52): unire una scena con se stessa è incoerente.
+    if scene_id_a == scene_id_b:
+        raise ValueError("cannot merge a scene with itself")
     cur = conn.cursor()
+    # Eredita arc_id dalla scena A (la "primaria") (WI-53).
+    cur.execute("SELECT arc_id FROM scenes WHERE id = ?", (scene_id_a,))
+    arc_row = cur.fetchone()
+    merged_arc_id = arc_row[0] if arc_row else None
     new_scene_id = new_id()
     cur.execute(
-        "INSERT INTO scenes(id, title, created_at, updated_at) VALUES(?, ?, datetime('now'), datetime('now'))",
-        (new_scene_id, new_name),
+        "INSERT INTO scenes(id, title, arc_id, created_at, updated_at)"
+        " VALUES(?, ?, ?, datetime('now'), datetime('now'))",
+        (new_scene_id, new_name, merged_arc_id),
     )
     # Copia messaggi da A poi da B, riassegnando position_order contigue
     cur.execute(

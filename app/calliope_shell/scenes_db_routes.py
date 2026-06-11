@@ -163,6 +163,11 @@ def register_scenes_db_routes(app, db_path=None):
         scene_id_b = body["scene_id_b"]
         new_name = body["new_name"]
 
+        # Guard self-merge (WI-52): a==b → bad_request (distinto dal not_found)
+        if scene_id_a == scene_id_b:
+            conn.close()
+            return jsonify({"error": "bad_request"}), 400
+
         # Guard: verifica esistenza scene_id_a
         if conn.execute("SELECT 1 FROM scenes WHERE id = ?", (scene_id_a,)).fetchone() is None:
             conn.close()
