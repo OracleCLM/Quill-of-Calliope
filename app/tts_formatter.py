@@ -84,7 +84,17 @@ def lists_to_sentences(text: str) -> str:
     viene tolto e ogni voce termina con '. '. Testo non-lista invariato.
     Esempio: "- mela\\n- pera" -> "mela. pera."
     """
-    raise NotImplementedError("WI-TTS-5: implementazione aider")
+    lines = text.split("\n")
+    if not any(ln.lstrip().startswith("- ") for ln in lines):
+        return text  # testo non-lista invariato
+    parts = []
+    for ln in lines:
+        s = ln.lstrip()
+        if s.startswith("- "):
+            parts.append(s[2:].strip() + ".")
+        elif ln.strip():
+            parts.append(ln)
+    return " ".join(parts)
 
 
 def to_speakable(text: str) -> str:
@@ -94,4 +104,9 @@ def to_speakable(text: str) -> str:
     Pipeline: strip_code_fences -> tables_to_prose -> strip_markdown ->
     lists_to_sentences -> expand_symbols. Ritorna prosa pronta per la lettura vocale.
     """
-    raise NotImplementedError("WI-TTS-6: implementazione aider")
+    text = strip_code_fences(text)
+    text = tables_to_prose(text)
+    text = strip_markdown(text)
+    text = lists_to_sentences(text)
+    text = expand_symbols(text)
+    return text
