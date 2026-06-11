@@ -62,3 +62,41 @@ def register_messages_db_routes(app, db_path=None):
             return "", 204
         conn.close()
         return jsonify({"error": "not_found"}), 404
+
+    @app.route("/api/db/scenes/<scene_id>/messages", methods=["POST"])
+    def db_append_message(scene_id):
+        conn = _conn(db_path)
+        if conn.execute("SELECT 1 FROM scenes WHERE id = ?", (scene_id,)).fetchone() is None:
+            conn.close()
+            return jsonify({"error": "not_found"}), 404
+        body = request.get_json(force=True) or {}
+        mid = db_messages.add_message(conn, scene_id=scene_id,
+            author_name=body["author_name"], content_original=body["content_original"],
+            character_id=body.get("character_id"))
+        conn.close()
+        return jsonify({"id": mid}), 201
+
+    @app.route("/api/db/scenes/<scene_id>/messages", methods=["GET"])
+    def get_scene_messages_paginated(scene_id):
+        conn = _conn(db_path)
+        # 404 se scena non esiste
+        scene_row = conn.execute("SELECT id FROM scenes WHERE id=?", (scene_id,)).fetchone()
+        if not scene_row:
+            conn.close()
+            return jsonify({"error": "not found"}), 404
+        page = int(request.args.get("page", 1))
+        per_page = int(request.args.get("per_page", 50))
+        result = db_messages.get_scene_message_page(conn, scene_id, page, per_page)
+        conn.close()
+        return jsonify(result), 200
+
+    @app.route("/api/db/scenes/<scene_id>/messages/count", methods=["GET"])
+    def db_count_messages(scene_id):
+        conn = _conn(db_path)
+        # Verifica esistenza scena per distinguere 404 da count 0
+        if conn.execute("SELECT 1 FROM scenes WHERE id = ?", (scene_id,)).fetchone() is None:
+            conn.close()
+            return jsonify({"error": "not_found"}), 404
+        count = db_messages.count_messages_for_scene(conn, scene_id)
+        conn.close()
+        return jsonify({"count": count, "scene_id": scene_id}), 200
