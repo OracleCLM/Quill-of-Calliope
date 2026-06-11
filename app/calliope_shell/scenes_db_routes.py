@@ -150,29 +150,6 @@ def register_scenes_db_routes(app, db_path=None):
         conn.close()
         return jsonify({}), 200
 
-    @app.route("/api/db/scenes/<scene_id>/messages/insert", methods=["POST"])
-    def db_insert_message_at(scene_id):
-        conn = _conn(db_path)
-        if conn.execute("SELECT 1 FROM scenes WHERE id = ?", (scene_id,)).fetchone() is None:
-            conn.close()
-            return jsonify({"error": "not_found"}), 404
-
-        body = request.get_json(force=True) or {}
-        required_fields = ["author_name", "content_original", "position_order"]
-        if not all(k in body for k in required_fields):
-            conn.close()
-            return jsonify({"error": "bad_request"}), 400
-
-        mid = db_messages.insert_message_at(
-            conn,
-            scene_id=scene_id,
-            author_name=body["author_name"],
-            content_original=body["content_original"],
-            position_order=body["position_order"],
-        )
-        conn.close()
-        return jsonify({"id": mid}), 201
-
     @app.route("/api/db/scenes/merge", methods=["POST"])
     def db_merge_scenes():
         conn = _conn(db_path)
@@ -229,15 +206,5 @@ def register_scenes_db_routes(app, db_path=None):
         )
         conn.close()
         return jsonify({"new_scene_id": new_scene_id}), 201
-
-    @app.route("/api/db/scenes/<scene_id>/messages/compact", methods=["POST"])
-    def db_compact_scene_messages(scene_id):
-        conn = _conn(db_path)
-        if conn.execute("SELECT 1 FROM scenes WHERE id = ?", (scene_id,)).fetchone() is None:
-            conn.close()
-            return jsonify({"error": "not_found"}), 404
-        count = db_messages.compact_scene_positions(conn, scene_id)
-        conn.close()
-        return jsonify({"count": count}), 200
 
     return app
