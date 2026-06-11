@@ -43,11 +43,17 @@ def import_messages_to_db(
         for row in conn.execute("SELECT id, name FROM characters").fetchall()
     }
 
+    # 2b. Carica ID scene esistenti nel DB per check FK
+    db_scene_ids = {
+        r[0] for r in conn.execute("SELECT id FROM scenes").fetchall()
+    }
+
     # 3. Inizializza contatori
     messages = 0
     char_sheets = 0
     skipped_system_ooc = 0
     char_unmatched = 0
+    skipped_no_scene = 0
 
     # 4. Itera sui messaggi
     with open(messages_jsonl_path, "r", encoding="utf-8") as f:
@@ -106,6 +112,11 @@ def import_messages_to_db(
                     continue
 
                 # Scena trovata
+                # Check FK: se la scena non è nel DB, salta per evitare errore
+                if target_scene["scene_id"] not in db_scene_ids:
+                    skipped_no_scene += 1
+                    continue
+
                 cid = charmap.get(char)
                 if cid is None:
                     char_unmatched += 1
@@ -140,4 +151,5 @@ def import_messages_to_db(
         "char_sheets": char_sheets,
         "skipped_system_ooc": skipped_system_ooc,
         "char_unmatched": char_unmatched,
+        "skipped_no_scene": skipped_no_scene,
     }
