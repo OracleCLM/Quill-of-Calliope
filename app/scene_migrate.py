@@ -47,28 +47,35 @@ def migrate_all(scenes_dir: str, chars_dir: str, db_path: str | None = None) -> 
         se esiste, salta (idempotente).
       - Ritorna {"scenes": n_scene_processate, "characters": n_char_processati}.
     """
+    skipped = []
     scenes_count = 0
     for p in sorted(Path(scenes_dir).glob("*.yaml")):
-        migrate_scene_yaml(str(p), db_path)
-        scenes_count += 1
+        try:
+            migrate_scene_yaml(str(p), db_path)
+            scenes_count += 1
+        except Exception:
+            skipped.append(str(p))
 
     chars_count = 0
     for p in sorted(Path(chars_dir).rglob("*.yaml")):
-        data = yaml.safe_load(p.read_text())
-        cid = data.get("id")
-        name = data.get("name")
-        if not cid or not name:
-            continue
+        try:
+            data = yaml.safe_load(p.read_text())
+            cid = data.get("id")
+            name = data.get("name")
+            if not cid or not name:
+                continue
 
-        db = get_db(db_path)
-        cursor = db.execute("SELECT 1 FROM characters WHERE id = ?", (cid,))
-        if cursor.fetchone() is None:
-            kind = "player" if data.get("type") == "pc" else "npc"
-            db.execute(
-                "INSERT INTO characters (id, name, kind) VALUES (?, ?, ?)",
-                (cid, name, kind),
-            )
-            db.commit()
-            chars_count += 1
+            db = get_db(db_path)
+            cursor = db.execute("SELECT 1 FROM characters WHERE id = ?", (cid,))
+            if cursor.fetchone() is None:
+                kind = "player" if data.get("type") == "pc" else "npc"
+                db.execute(
+                    "INSERT INTO characters (id, name, kind) VALUES (?, ?, ?)",
+                    (cid, name, kind),
+                )
+                db.commit()
+                chars_count += 1
+        except Exception:
+            skipped.append(str(p))
 
-    return {"scenes": scenes_count, "characters": chars_count}
+    return {"scenes": scenes_count, "characters": chars_count, "skipped": skipped}
