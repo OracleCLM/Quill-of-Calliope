@@ -34,6 +34,7 @@ from app.db import get_db, new_id
 from app.db import characters as db_characters
 from app.db import messages as db_messages
 from app.calliope_shell.reactions_db_routes import register_reactions_db_routes
+from app.calliope_shell.messages_db_routes import register_messages_db_routes
 
 
 def _conn(db_path):
@@ -56,6 +57,7 @@ def register_scenes_db_routes(app, db_path=None):
     # (modulo piccolo, cost-zero-friendly). Le registriamo qui per backward-compat
     # con i test/chiamanti che usano SOLO register_scenes_db_routes come entrypoint.
     register_reactions_db_routes(app, db_path=db_path)
+    register_messages_db_routes(app, db_path=db_path)
 
     @app.route("/api/db/scenes", methods=["GET"])
     def db_list_scenes():
@@ -220,47 +222,6 @@ def register_scenes_db_routes(app, db_path=None):
         count = db_messages.count_messages_for_scene(conn, scene_id)
         conn.close()
         return jsonify({"count": count, "scene_id": scene_id}), 200
-
-    @app.route("/api/db/messages/<message_id>/position", methods=["PATCH"])
-    def db_update_message_position(message_id):
-        conn = _conn(db_path)
-        body = request.get_json(force=True) or {}
-
-        if "position" not in body:
-            conn.close()
-            return jsonify({"error": "bad_request"}), 400
-
-        position = body["position"]
-        if not isinstance(position, int):
-            conn.close()
-            return jsonify({"error": "bad_request"}), 400
-
-        moved = db_messages.move_message(conn, message_id, position)
-        conn.close()
-
-        if not moved:
-            return jsonify({"error": "not_found"}), 404
-
-        return jsonify({}), 200
-
-    @app.route("/api/db/messages/<message_id>", methods=["GET"])
-    def db_get_message_by_id(message_id):
-        conn = _conn(db_path)
-        msg = db_messages.get_message_by_id(conn, message_id)
-        conn.close()
-        if msg is None:
-            return jsonify({"error": "not_found"}), 404
-        return jsonify(msg), 200
-
-    @app.route("/api/db/messages/<message_id>", methods=["DELETE"])
-    def db_delete_message(message_id):
-        conn = _conn(db_path)
-        if db_messages.delete_message(conn, message_id):
-            conn.commit()
-            conn.close()
-            return "", 204
-        conn.close()
-        return jsonify({"error": "not_found"}), 404
 
     @app.route("/api/db/scenes/<scene_id>/messages/insert", methods=["POST"])
     def db_insert_message_at(scene_id):
