@@ -41,7 +41,7 @@ def test_td2_draft_minimal_intent():
     data = r.get_json()
     assert "draft_text" in data
     assert len(data["draft_text"]) > 0
-    assert data["model_used"] == "cerebras/qwen-3-235b"
+    assert data["model_used"] == "cerebras/zai-glm-4.7"
 
 
 # TD3 — draft with scene_id loads scene context
