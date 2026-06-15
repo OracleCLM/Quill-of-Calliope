@@ -32,8 +32,39 @@ _VALID_DIRECTIONS = {"IT_to_EN", "EN_to_IT"}
 
 
 def _load_char_sheets(names: list[str]) -> list[dict]:
+    import json as _json  # noqa: PLC0415
     sheets = []
     for name in names:
+        found = False
+        try:
+            from app.db import get_db as _get_db  # noqa: PLC0415
+            _conn = _get_db()
+            cur = _conn.execute(
+                "SELECT name, card_json FROM characters WHERE name = ? LIMIT 1",
+                (name,),
+            )
+            row = cur.fetchone()
+            _conn.close()
+            if row:
+                card: dict = {}
+                try:
+                    card = _json.loads(row["card_json"] or "{}") or {}
+                except Exception:
+                    pass
+                sheets.append({
+                    "name": row["name"],
+                    "traits": card.get("traits", []),
+                    "backstory": (card.get("backstory") or "")[:300],
+                    "speech_pattern": card.get("speech_pattern", {}),
+                    "race": card.get("race", ""),
+                    "class": card.get("class", ""),
+                })
+                found = True
+        except Exception:
+            pass
+        if found:
+            continue
+        # fallback YAML
         for p in _CHARS_DIR.glob("*.yaml"):
             if name.lower() in p.stem.lower():
                 try:
@@ -1114,15 +1145,25 @@ def create_app():
 
         # DB-FIRST con fallback flat-YAML (VG-1b, chiude F1) — non più glob inline per scene_ctx.
         scene_ctx = resolve_scene_context(scene_id, scenes_dir=_SCENES_DIR) if scene_id else ""
-        # participants restano dal YAML (compat) per il wiring downstream del continue.
+        # participants: DB-FIRST via list_characters_in_scene, fallback YAML glob.
         participants = []
         if scene_id:
-            for p in _SCENES_DIR.glob("*.yaml"):
-                if scene_id in p.stem:
-                    d = _parse_scene_yaml(p)
-                    if d:
-                        participants = d.get("participants", [])
-                    break
+            try:
+                from app.db import get_db as _get_db  # noqa: PLC0415
+                from app.db.characters import list_characters_in_scene as _list_chars_scene  # noqa: PLC0415
+                _conn = _get_db()
+                _db_rows = _list_chars_scene(_conn, scene_id)
+                _conn.close()
+                participants = [r["name"] for r in _db_rows]
+            except Exception:
+                pass
+            if not participants:
+                for p in _SCENES_DIR.glob("*.yaml"):
+                    if scene_id in p.stem:
+                        d = _parse_scene_yaml(p)
+                        if d:
+                            participants = d.get("participants", [])
+                        break
 
         char_sheets = _load_char_sheets(
             [char_focus] if char_focus else participants[:5]

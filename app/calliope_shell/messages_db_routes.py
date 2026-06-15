@@ -24,9 +24,12 @@ def register_messages_db_routes(app, db_path=None):
 
     @app.route("/api/db/messages/recent", methods=["GET"])
     def db_messages_recent():
-        # Recent-messages cross-scena per il pannello nav-messages (post-import, WI-NAVMSG-1).
+        # Recent-messages cross-scena per il pannello nav-messages
+        # (post-import, WI-NAVMSG-1).
         # Route statica → precede /api/db/messages/<message_id> nel routing Flask.
         limit = request.args.get("limit", default=50, type=int)
+        if limit <= 0:
+            return jsonify({"error": "bad_request"}), 400
         char = request.args.get("char")
         conn = _conn(db_path)
         sql = "SELECT id, scene_id, author_name, content_original, ts FROM messages"
