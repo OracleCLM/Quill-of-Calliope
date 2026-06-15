@@ -158,8 +158,12 @@ def register_messages_db_routes(app, db_path=None):
         if not scene_row:
             conn.close()
             return jsonify({"error": "not found"}), 404
-        page = int(request.args.get("page", 1))
-        per_page = int(request.args.get("per_page", 50))
+        try:
+            page = int(request.args.get("page", 1))
+            per_page = int(request.args.get("per_page", 50))
+        except (ValueError, TypeError):
+            conn.close()
+            return jsonify({"error": "bad_request"}), 400
         # page è 1-based, per_page deve essere positivo (evita div-by-zero nel calcolo pages)
         if page < 1 or per_page < 1:
             conn.close()
