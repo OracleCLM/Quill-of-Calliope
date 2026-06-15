@@ -1107,9 +1107,14 @@ def create_app():
             if persist and scene_id:
                 try:
                     from app.db import get_db as _get_db  # noqa: PLC0415
-                    from app.db.messages import add_message as _add_message  # noqa: PLC0415
+                    from app.db.messages import (  # noqa: PLC0415
+                        add_message as _add_message,
+                        list_messages_for_scene as _list_msgs,
+                    )
                     _pconn = _get_db()
-                    _add_message(_pconn, scene_id=scene_id, author_name=char, content_original=next_msg)
+                    _pos = len(_list_msgs(_pconn, scene_id))
+                    _add_message(_pconn, scene_id=scene_id, author_name=char,
+                                 content_original=next_msg, position_order=_pos)
                     _pconn.commit()
                     _pconn.close()
                 except Exception as _exc:
@@ -1262,9 +1267,14 @@ def create_app():
         if persist and scene_id:
             try:
                 from app.db import get_db as _get_db  # noqa: PLC0415
-                from app.db.messages import add_message as _add_message  # noqa: PLC0415
+                from app.db.messages import (  # noqa: PLC0415
+                    add_message as _add_message,
+                    list_messages_for_scene as _list_msgs,
+                )
                 _pconn = _get_db()
-                _add_message(_pconn, scene_id=scene_id, author_name=char_focus, content_original=draft_text)
+                _pos = len(_list_msgs(_pconn, scene_id))
+                _add_message(_pconn, scene_id=scene_id, author_name=char_focus,
+                             content_original=draft_text, position_order=_pos)
                 _pconn.commit()
                 _pconn.close()
             except Exception as _exc:
