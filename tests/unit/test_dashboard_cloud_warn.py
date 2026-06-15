@@ -76,9 +76,9 @@ def test_blend_handler_uses_cloud_call():
     assert "cloudCall('/api/scene/blend'" in html
 
 
-def test_next_msg_handler_uses_cloud_call():
-    html = _html()
-    assert "cloudCall('/api/messages/next'" in html
+# test_next_msg_handler_uses_cloud_call RIMOSSO (FE-4, 2026-06-11): la funzione
+# _generateNextMsg (LLM-gen "continua scena" via cloudCall /api/messages/next) è stata
+# rimossa nella migrazione DB scene-as-chat (no retrocompat sul path flat /api/messages).
 
 
 def test_translate_js_uses_cloud_call_when_available():

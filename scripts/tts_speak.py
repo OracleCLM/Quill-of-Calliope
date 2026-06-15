@@ -82,7 +82,7 @@ def _synth_piper(text: str, output_path: str, model_path: Path) -> None:
         config_path=str(model_path.with_suffix(".onnx.json")),
     )
     with wave.open(output_path, "wb") as wav_file:
-        voice.synthesize(text, wav_file)
+        voice.synthesize_wav(text, wav_file)
 
 
 def _play_wav(wav_path: str) -> None:

@@ -111,3 +111,11 @@ docs/sessions/
 *.ogg
 audio_output/
 .chroma_calliope_dryrun/
+.aider*
+graphify-out/
+
+# === Runtime data (local DB, ChromaDB shards) ===
+data/*.db
+data/chromadb/
+data/discord_persona_config.db
+!.planning/CALLIOPE_GAP_REVIEW_2026-06-07.md

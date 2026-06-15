@@ -60,6 +60,40 @@ def _check_espeak() -> bool:
         return False
 
 
+def get_phonemes_piper(text: str) -> list[str]:
+    """Extract IPA phonemes via piper's internal espeak-ng binding.
+
+    Fallback when system espeak-ng is absent. Returns [] on error.
+    """
+    try:
+        from piper import PiperVoice  # type: ignore[import]
+        from pathlib import Path as _Path
+        models_dir = _Path.home() / ".local/share/piper/voices"
+        model = models_dir / "en_US-amy-medium.onnx"
+        cfg = model.with_suffix(".onnx.json")
+        if not (model.exists() and cfg.exists()):
+            return []
+        voice = PiperVoice.load(str(model), config_path=str(cfg))
+        raw_chunks = voice.phonemize(text)
+        phonemes: list[str] = []
+        for chunk in raw_chunks:
+            for char in chunk:
+                if char in (" ", "\n", "\t"):
+                    continue
+                stripped = _STRIP_RE.sub("", char)
+                if not stripped:
+                    continue
+                if stripped in PHONEME_DURATION_MS:
+                    phonemes.append(stripped)
+                elif stripped in VOWEL_PHONEMES:
+                    phonemes.append(stripped)
+                elif stripped.isalpha():
+                    phonemes.append("default")
+        return phonemes
+    except Exception:  # noqa: BLE001
+        return []
+
+
 def get_phonemes_espeak(text: str) -> list[str]:
     """Extract IPA phonemes via espeak-ng --ipa.
 
@@ -148,8 +182,11 @@ def export_phonemes(text: str, output_dir: str = "/tmp") -> dict[str, Any]:
 
     espeak_ok = _check_espeak()
 
-    # Phoneme extraction
-    phonemes = get_phonemes_espeak(text) if espeak_ok else []
+    # Phoneme extraction — espeak-ng preferred, piper as fallback
+    if espeak_ok:
+        phonemes = get_phonemes_espeak(text)
+    else:
+        phonemes = get_phonemes_piper(text)
     timings = estimate_timing(phonemes)
 
     # WAV generation

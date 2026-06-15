@@ -1,6 +1,8 @@
+import pytest
+pytest.importorskip("audioop")
 """Force real discord.py (site-packages) before tests/discord/ shadow is cached."""
-import sys
-import importlib
+import sys  # noqa: E402
+import importlib  # noqa: E402
 
 # Remove cached shadow if present
 for key in list(sys.modules.keys()):
@@ -12,11 +14,11 @@ _tests_path = str(__import__('pathlib').Path(__file__).parents[1])
 sys.path = [p for p in sys.path if p != _tests_path]
 
 # Add real discord site-packages to front of path
-import site
+import site  # noqa: E402
 sys.path.insert(0, next((p for p in site.getsitepackages() if "site-packages" in p), ""))
 
 # Pre-import real discord so it wins
-import importlib.util
+import importlib.util  # noqa: E402
 spec = importlib.util.spec_from_file_location(
     "discord",
     "/home/nic/anaconda3/lib/python3.13/site-packages/discord/__init__.py",

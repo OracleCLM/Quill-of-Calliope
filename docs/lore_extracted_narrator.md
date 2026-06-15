@@ -22,6 +22,13 @@
 
 Humans · Kitsune (fox-type) · Nine-tailed fox yokai · Elf · Alû · Hobbit · Metal+wood Construct · Shapeshifters (Koibo/bird, Philip/slime) · Demon (Saturn) · Naga · Ghoul · Goblins · Ushi sisters · Valkyrie · Void creature (4m, no internals) · Three-headed demonic hound
 
+## 5. NPCs & Characters
+
+- **Syvis** — Female elf, Adventurer's Guild staff. Manages registration system, enforces shapeshifter adult requirements. Observed: post-battle attendance visibly lower.
+- **Azu Blythe** — Huntress Church leader. Scrolls, confessionals, training nuns. Observed: no direct combat participation.
+- **Filomena E.A.V.** — Royal Guard captain. Ice magic user, serves as guard, patrol leader, and correspondence deliverer. Observed: collaborates with Sweet Shop (Peaches, Snow, sisters).
+- **Minh** — Archer in arena crowd. Observed: arrow freezes+shatters a paladin.
+- **Jothunvar** — Combatant in arena crowd. Observed: cheered by spectators.
 ---
 
 ## 3. Factions & Organizations

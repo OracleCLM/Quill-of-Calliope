@@ -1,4 +1,5 @@
-from flask import jsonify
+from pathlib import Path
+from flask import jsonify, request, current_app
 from app.calliope_shell import characters_service
 
 
@@ -13,3 +14,16 @@ def register_character_routes(app):
         if card is None:
             return jsonify({"error": "character not found"}), 404
         return jsonify(card)
+
+    @app.route("/api/characters/<stem>/image", methods=["POST"])
+    def characters_upload_image(stem):
+        if characters_service.get_card_v3(stem) is None:
+            return jsonify({"error": "not found"}), 404
+        f = request.files.get("image")
+        if not f:
+            return jsonify({"error": "missing image field"}), 400
+        ext = Path(f.filename).suffix or ".png"
+        dest = Path(current_app.static_folder) / "media" / "characters"
+        dest.mkdir(parents=True, exist_ok=True)
+        f.save(dest / f"{stem}{ext}")
+        return jsonify({"image_path": f"media/characters/{stem}{ext}"}), 200

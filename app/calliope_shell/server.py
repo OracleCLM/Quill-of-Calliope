@@ -17,6 +17,9 @@ from app.calliope_shell.char_memory_tools import (
 )
 from app.calliope_shell.characters_routes import register_character_routes
 from app.calliope_shell.lore_routes import register_lore_routes
+from app.calliope_shell.scenes_db_routes import register_scenes_db_routes
+from app.calliope_shell.arcs_db_routes import register_arcs_db_routes
+from app.scene_context import resolve_scene_context
 
 logger = logging.getLogger(__name__)
 
@@ -29,8 +32,39 @@ _VALID_DIRECTIONS = {"IT_to_EN", "EN_to_IT"}
 
 
 def _load_char_sheets(names: list[str]) -> list[dict]:
+    import json as _json  # noqa: PLC0415
     sheets = []
     for name in names:
+        found = False
+        try:
+            from app.db import get_db as _get_db  # noqa: PLC0415
+            _conn = _get_db()
+            cur = _conn.execute(
+                "SELECT name, card_json FROM characters WHERE name = ? LIMIT 1",
+                (name,),
+            )
+            row = cur.fetchone()
+            _conn.close()
+            if row:
+                card: dict = {}
+                try:
+                    card = _json.loads(row["card_json"] or "{}") or {}
+                except Exception:
+                    pass
+                sheets.append({
+                    "name": row["name"],
+                    "traits": card.get("traits", []),
+                    "backstory": (card.get("backstory") or "")[:300],
+                    "speech_pattern": card.get("speech_pattern", {}),
+                    "race": card.get("race", ""),
+                    "class": card.get("class", ""),
+                })
+                found = True
+        except Exception:
+            pass
+        if found:
+            continue
+        # fallback YAML
         for p in _CHARS_DIR.glob("*.yaml"):
             if name.lower() in p.stem.lower():
                 try:
@@ -165,6 +199,8 @@ def create_app():
     app = Flask(__name__)
     register_character_routes(app)
     register_lore_routes(app)
+    register_scenes_db_routes(app)
+    register_arcs_db_routes(app)
 
     FLASK_PORT = os.getenv("FLASK_PORT", "5000")
     ST_URL = os.getenv("ST_URL", "http://localhost:8001")
@@ -1013,6 +1049,7 @@ def create_app():
         char = body.get("char", "").strip()
         last_msg = body.get("last_msg", "").strip()
         context_hint = body.get("context_hint", "").strip()
+        persist = bool(body.get("persist", False))
 
         if not char:
             return jsonify({"error": "char is required"}), 400
@@ -1026,16 +1063,17 @@ def create_app():
                 char_facts = [h["fact_text"] for h in hits[:3]]
             except Exception:
                 pass
+        # ChromaDB char-grounding (GO Step 1b): profilo char da .chroma_calliope (by-slug)
+        try:
+            from app.calliope_shell.char_grounding import retrieve_char_grounding  # noqa: PLC0415
+            char_facts.extend(retrieve_char_grounding(char))
+        except Exception:
+            pass
 
-        # Build scene context
-        scene_ctx = ""
-        if scene_id:
-            for p in _SCENES_DIR.glob("*.yaml"):
-                if scene_id in p.stem:
-                    d = _parse_scene_yaml(p)
-                    if d:
-                        scene_ctx = f"Scene: {d.get('title', scene_id)}\nSummary: {d.get('summary', '')}\nParticipants: {', '.join(d.get('participants', []))}"
-                    break
+        # Build scene context — DB-FIRST con fallback flat-YAML (VG-1b, chiude F1).
+        # Prima costruiva il contesto col glob _SCENES_DIR inline (il draft-gen non vedeva
+        # mai il DB scene-as-chat). Ora passa per resolve_scene_context.
+        scene_ctx = resolve_scene_context(scene_id, scenes_dir=_SCENES_DIR) if scene_id else ""
 
         # Compose prompt
         prompt_parts = [
@@ -1066,6 +1104,16 @@ def create_app():
             resp.raise_for_status()
             data = resp.json()
             next_msg = data.get("result") or data.get("text") or data.get("content", "")
+            if persist and scene_id:
+                try:
+                    from app.db import get_db as _get_db  # noqa: PLC0415
+                    from app.db.messages import add_message as _add_message  # noqa: PLC0415
+                    _pconn = _get_db()
+                    _add_message(_pconn, scene_id=scene_id, author_name=char, content_original=next_msg)
+                    _pconn.commit()
+                    _pconn.close()
+                except Exception as _exc:
+                    logger.warning("persist next_msg failed: %s", _exc)
             # Audit hook (Sprint C2).
             try:
                 from app.calliope_shell import audit_trail as _audit  # noqa: PLC0415
@@ -1102,26 +1150,32 @@ def create_app():
         intent_it = body.get("intent_it", "").strip()
         char_focus = body.get("char_focus", "").strip()
         style_hints = body.get("style_hints", "")
+        persist = bool(body.get("persist", False))
 
         if not intent_it:
             return jsonify({"error": "intent_it is required"}), 400
 
-        scene_ctx = ""
+        # DB-FIRST con fallback flat-YAML (VG-1b, chiude F1) — non più glob inline per scene_ctx.
+        scene_ctx = resolve_scene_context(scene_id, scenes_dir=_SCENES_DIR) if scene_id else ""
+        # participants: DB-FIRST via list_characters_in_scene, fallback YAML glob.
         participants = []
         if scene_id:
-            for p in _SCENES_DIR.glob("*.yaml"):
-                if scene_id in p.stem:
-                    d = _parse_scene_yaml(p)
-                    if d:
-                        participants = d.get("participants", [])
-                        scene_ctx = (
-                            f"Scene: {d.get('title', scene_id)}\n"
-                            f"Status: {d.get('status', 'unknown')}\n"
-                            f"Summary: {d.get('summary', '')}\n"
-                            f"Participants: {', '.join(participants)}\n"
-                            f"Last excerpt: {d.get('last_msg_excerpt', '')}"
-                        )
-                    break
+            try:
+                from app.db import get_db as _get_db  # noqa: PLC0415
+                from app.db.characters import list_characters_in_scene as _list_chars_scene  # noqa: PLC0415
+                _conn = _get_db()
+                _db_rows = _list_chars_scene(_conn, scene_id)
+                _conn.close()
+                participants = [r["name"] for r in _db_rows]
+            except Exception:
+                pass
+            if not participants:
+                for p in _SCENES_DIR.glob("*.yaml"):
+                    if scene_id in p.stem:
+                        d = _parse_scene_yaml(p)
+                        if d:
+                            participants = d.get("participants", [])
+                        break
 
         char_sheets = _load_char_sheets(
             [char_focus] if char_focus else participants[:5]
@@ -1138,6 +1192,12 @@ def create_app():
                 char_facts.extend(
                     f"{cn}: {h['fact_text']}" for h in hits[:2]
                 )
+            except Exception:
+                pass
+            # ChromaDB char-grounding (GO Step 1b): profilo char da .chroma_calliope (by-slug)
+            try:
+                from app.calliope_shell.char_grounding import retrieve_char_grounding  # noqa: PLC0415
+                char_facts.extend(f"{cn}: {g}" for g in retrieve_char_grounding(cn))
             except Exception:
                 pass
 
@@ -1184,8 +1244,11 @@ def create_app():
                     "provider": "cerebras",
                     "prompt": full_prompt,
                     "temperature": 0.7,
+                    # zai-glm-4.7 è un reasoning-model: serve budget ampio o il reasoning
+                    # esaurisce i token e la risposta non ha 'content' (era qwen-3-235b non-reasoning).
+                    "max_tokens": 4096,
                 },
-                timeout=60,
+                timeout=90,
             )
             resp.raise_for_status()
             data = resp.json()
@@ -1195,6 +1258,17 @@ def create_app():
         except Exception as exc:
             logger.warning("draft generation failed: %s", exc)
             return jsonify({"error": str(exc)}), 503
+
+        if persist and scene_id:
+            try:
+                from app.db import get_db as _get_db  # noqa: PLC0415
+                from app.db.messages import add_message as _add_message  # noqa: PLC0415
+                _pconn = _get_db()
+                _add_message(_pconn, scene_id=scene_id, author_name=char_focus, content_original=draft_text)
+                _pconn.commit()
+                _pconn.close()
+            except Exception as _exc:
+                logger.warning("persist draft failed: %s", _exc)
 
         lint_findings = []
         try:
@@ -1226,7 +1300,7 @@ def create_app():
 
         return jsonify({
             "draft_text": draft_text,
-            "model_used": "cerebras/gpt-oss-120b",
+            "model_used": "cerebras/zai-glm-4.7",
             "context_used": {
                 "scene": bool(scene_ctx),
                 "char_sheets": len(char_sheets),
