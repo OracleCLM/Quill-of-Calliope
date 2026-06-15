@@ -132,12 +132,14 @@ def register_messages_db_routes(app, db_path=None):
         if not author_name or content_original is None:
             conn.close()
             return jsonify({"error": "bad_request"}), 400
+        position_order = len(db_messages.list_messages_for_scene(conn, scene_id))
         mid = db_messages.add_message(conn, scene_id=scene_id,
             author_name=author_name, content_original=content_original,
             character_id=body.get("character_id"),
             content_enhanced=body.get("content_enhanced"),
             source=body.get("source", "manual"),
-            is_summary=body.get("is_summary", 0))
+            is_summary=body.get("is_summary", 0),
+            position_order=position_order)
         # traccia ultima attività scena per sorting recente nel dashboard (WI-48).
         # Precisione al ms (strftime %f) per ordinamento deterministico fra append ravvicinati.
         conn.execute(
