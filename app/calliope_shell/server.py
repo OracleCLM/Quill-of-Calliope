@@ -1049,6 +1049,7 @@ def create_app():
         char = body.get("char", "").strip()
         last_msg = body.get("last_msg", "").strip()
         context_hint = body.get("context_hint", "").strip()
+        persist = bool(body.get("persist", False))
 
         if not char:
             return jsonify({"error": "char is required"}), 400
@@ -1103,6 +1104,16 @@ def create_app():
             resp.raise_for_status()
             data = resp.json()
             next_msg = data.get("result") or data.get("text") or data.get("content", "")
+            if persist and scene_id:
+                try:
+                    from app.db import get_db as _get_db  # noqa: PLC0415
+                    from app.db.messages import add_message as _add_message  # noqa: PLC0415
+                    _pconn = _get_db()
+                    _add_message(_pconn, scene_id=scene_id, author_name=char, content_original=next_msg)
+                    _pconn.commit()
+                    _pconn.close()
+                except Exception as _exc:
+                    logger.warning("persist next_msg failed: %s", _exc)
             # Audit hook (Sprint C2).
             try:
                 from app.calliope_shell import audit_trail as _audit  # noqa: PLC0415
@@ -1139,6 +1150,7 @@ def create_app():
         intent_it = body.get("intent_it", "").strip()
         char_focus = body.get("char_focus", "").strip()
         style_hints = body.get("style_hints", "")
+        persist = bool(body.get("persist", False))
 
         if not intent_it:
             return jsonify({"error": "intent_it is required"}), 400
@@ -1246,6 +1258,17 @@ def create_app():
         except Exception as exc:
             logger.warning("draft generation failed: %s", exc)
             return jsonify({"error": str(exc)}), 503
+
+        if persist and scene_id:
+            try:
+                from app.db import get_db as _get_db  # noqa: PLC0415
+                from app.db.messages import add_message as _add_message  # noqa: PLC0415
+                _pconn = _get_db()
+                _add_message(_pconn, scene_id=scene_id, author_name=char_focus, content_original=draft_text)
+                _pconn.commit()
+                _pconn.close()
+            except Exception as _exc:
+                logger.warning("persist draft failed: %s", _exc)
 
         lint_findings = []
         try:
