@@ -21,15 +21,22 @@ def add_reaction(
     emoji: str = "",
 ) -> str:
     """
-    Inserisce una reazione in scene_reactions. Restituisce l'id TEXT generato.
+    Inserisce una reazione in scene_reactions (idempotente su message_id+character_id+emoji).
+    Restituisce l'id della riga esistente o di quella appena inserita.
     """
     reaction_id = new_id()
     conn.execute(
-        "INSERT INTO scene_reactions (id, message_id, character_id, emoji) VALUES (?, ?, ?, ?)",
+        "INSERT OR IGNORE INTO scene_reactions (id, message_id, character_id, emoji)"
+        " VALUES (?, ?, ?, ?)",
         (reaction_id, message_id, character_id, emoji),
     )
     conn.commit()
-    return reaction_id
+    cur = conn.execute(
+        "SELECT id FROM scene_reactions WHERE message_id=? AND character_id=? AND emoji=?",
+        (message_id, character_id, emoji),
+    )
+    row = cur.fetchone()
+    return row[0] if row else reaction_id
 
 
 def list_reactions(
