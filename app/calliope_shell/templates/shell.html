@@ -68,6 +68,16 @@
         .msg-narrator .msg-body { background:#0f1a14; border-color:#1e3a24; }
         .msg-narrator .msg-avatar { background:#1e3a24; color:#8f8; }
         .msg-narrator .msg-author { color:#7c7; }
+        /* R2: pulsante "raffina" + pannello originale/raffinato (toggle) */
+        .msg-actions { margin-top:5px; display:flex; gap:8px; align-items:center; }
+        .msg-refine-btn { background:#2a2440; color:#bba6ff; border:1px solid #443a6a; border-radius:5px; padding:3px 10px; cursor:pointer; font-size:.72em; }
+        .msg-refine-btn:hover { background:#3a3360; }
+        .msg-refine-btn:disabled { opacity:.5; cursor:wait; }
+        .msg-refined-tag { font-size:.7em; color:#7c7; }
+        .msg-refined { margin-top:7px; background:#0f1320; border:1px solid #2a3358; border-radius:6px; padding:8px 10px; }
+        .msg-refined-label { font-size:.74em; color:#bba6ff; margin-bottom:4px; }
+        .msg-refined-label a { color:#88aaff; }
+        .msg-refined-text { font-size:.88em; color:#dde; white-space:pre-wrap; line-height:1.5; }
         #scene-compose { margin-top:14px; border-top:1px solid #223; padding-top:12px; }
         .compose-role-row { display:flex; gap:14px; align-items:center; margin-bottom:8px; font-size:.85em; color:#aab; flex-wrap:wrap; }
         #compose-char-select { background:#111827; color:#eee; border:1px solid #2a3a5a; border-radius:6px; padding:6px 10px; font-size:.85em; }

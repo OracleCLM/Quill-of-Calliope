@@ -128,12 +128,19 @@ function _renderSceneThread(messages) {
         const isNarrator = !m.character_id;
         const text = (m.content_enhanced && m.content_enhanced.trim())
             ? m.content_enhanced : (m.content_original || '');
+        const mid = m.id || '';
+        const alreadyRefined = m.content_enhanced && m.content_enhanced.trim();
         return `
-        <div class="msg-bubble ${isNarrator ? 'msg-narrator' : ''}">
+        <div class="msg-bubble ${isNarrator ? 'msg-narrator' : ''}" data-mid="${_escapeHtml(mid)}">
             <div class="msg-avatar">${_escapeHtml(_msgAvatarChar(author))}</div>
             <div class="msg-body">
                 <div class="msg-author">${_escapeHtml(author)}</div>
                 <div class="msg-text">${_escapeHtml(text)}</div>
+                <div class="msg-actions">
+                    <button class="msg-refine-btn" onclick="_refineMessage('${_escapeHtml(mid)}', this)">✦ raffina</button>
+                    ${alreadyRefined ? '<span class="msg-refined-tag">✓ raffinato</span>' : ''}
+                </div>
+                <div class="msg-refined" style="display:none"></div>
             </div>
         </div>`;
     }).join('');
@@ -152,6 +159,55 @@ function _setComposeRole(role) {
     if (!composeSel) return;
     composeSel.disabled = (role !== 'character');
     if (role !== 'character') composeSel.value = '';
+}
+
+// R2: raffina un singolo messaggio via route E3 (POST .../<mid>/refine).
+// Mostra originale + raffinato con toggle; content_enhanced è già persistito server-side.
+async function _refineMessage(mid, btn) {
+    const sceneId = window._currentSceneId;
+    if (!sceneId || !mid) return;
+    const bubble = btn.closest('.msg-bubble');
+    const panel = bubble.querySelector('.msg-refined');
+    const oldLabel = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = '… raffino';
+    try {
+        const resp = await fetch('/api/db/scenes/' + encodeURIComponent(sceneId) +
+            '/messages/' + encodeURIComponent(mid) + '/refine', { method: 'POST' });
+        const data = await resp.json();
+        if (!resp.ok) throw new Error(data.error || ('HTTP ' + resp.status));
+        panel.dataset.original = data.content_original || '';
+        panel.dataset.refined = data.content_enhanced || '';
+        panel.dataset.showing = 'refined';
+        panel.innerHTML =
+            '<div class="msg-refined-label">✦ Raffinato (salvato) — ' +
+            '<a href="#" onclick="return _toggleRefined(this)">vedi originale</a></div>' +
+            '<div class="msg-refined-text">' + _escapeHtml(panel.dataset.refined) + '</div>';
+        panel.style.display = 'block';
+        btn.textContent = '✓ raffinato';
+    } catch (e) {
+        btn.textContent = oldLabel;
+        panel.style.display = 'block';
+        panel.innerHTML = '<div style="color:#f66;font-size:.8em">Errore: ' + _escapeHtml(e.message) + '</div>';
+    } finally {
+        btn.disabled = false;
+    }
+}
+
+function _toggleRefined(a) {
+    const panel = a.closest('.msg-refined');
+    const txt = panel.querySelector('.msg-refined-text');
+    const label = panel.querySelector('.msg-refined-label');
+    if (panel.dataset.showing === 'refined') {
+        txt.textContent = panel.dataset.original;
+        label.innerHTML = '◦ Originale — <a href="#" onclick="return _toggleRefined(this)">vedi raffinato</a>';
+        panel.dataset.showing = 'original';
+    } else {
+        txt.textContent = panel.dataset.refined;
+        label.innerHTML = '✦ Raffinato (salvato) — <a href="#" onclick="return _toggleRefined(this)">vedi originale</a>';
+        panel.dataset.showing = 'refined';
+    }
+    return false;
 }
 
 async function _sendSceneMessage() {

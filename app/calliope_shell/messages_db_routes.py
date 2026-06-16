@@ -150,6 +150,33 @@ def register_messages_db_routes(app, db_path=None):
         conn.close()
         return jsonify({"id": mid}), 201
 
+    @app.route("/api/db/scenes/<scene_id>/messages/<message_id>/refine", methods=["POST"])
+    def db_refine_message(scene_id, message_id):
+        # Wiring refine end-to-end: invoca la refine-fn E3 (gateway-strong +
+        # retrieval schede-attive+lore via build_refine_prompt) e ritorna
+        # content_original + content_enhanced (E3 popola gia content_enhanced nel DB).
+        conn = _conn(db_path)
+        if conn.execute("SELECT 1 FROM scenes WHERE id = ?", (scene_id,)).fetchone() is None:
+            conn.close()
+            return jsonify({"error": "not_found"}), 404
+        row = conn.execute(
+            "SELECT content_original FROM messages WHERE id = ? AND scene_id = ?",
+            (message_id, scene_id),
+        ).fetchone()
+        if row is None:
+            conn.close()
+            return jsonify({"error": "not_found"}), 404
+        from app.calliope_shell.lore_kb import LoreStore
+        from app.calliope_shell.scene_refine import refine_message
+        content_original = row[0]
+        enhanced = refine_message(message_id, scene_id, conn, LoreStore())
+        conn.close()
+        return jsonify({
+            "message_id": message_id,
+            "content_original": content_original,
+            "content_enhanced": enhanced,
+        }), 200
+
     @app.route("/api/db/scenes/<scene_id>/messages", methods=["GET"])
     def get_scene_messages_paginated(scene_id):
         conn = _conn(db_path)
