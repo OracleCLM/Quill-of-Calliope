@@ -63,6 +63,14 @@ def register_scenes_db_routes(app, db_path=None):
     register_messages_db_routes(app, db_path=db_path)
     register_scene_characters_db_routes(app, db_path=db_path)
 
+    @app.route("/api/db/health", methods=["GET"])
+    def db_health():
+        conn = _conn(db_path)
+        cur = conn.execute("SELECT COUNT(*) FROM scenes")
+        count = cur.fetchone()[0]
+        conn.close()
+        return jsonify({"status": "ok", "scenes": count}), 200
+
     @app.route("/api/db/scenes", methods=["GET"])
     def db_list_scenes():
         # WI-44: filtro opzionale ?arc_id=<id> (assente → tutte le scene).
