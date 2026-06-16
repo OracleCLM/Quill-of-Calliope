@@ -179,7 +179,10 @@ if health_ok "$FLASK_URL"; then
   SERVICE_STATUS["Flask shell"]="OK"
 else
   echo "[>>] Avvio Flask shell..."
-  nohup "$PY" -m app.calliope_shell.server >> "$LOG_DIR/flask.log" 2>&1 &
+  # FIX: `python -m app.calliope_shell.server` richiede la repo-root su sys.path.
+  # Senza cwd=repo-root né PYTHONPATH falliva con ModuleNotFoundError: No module named 'app'.
+  # server.py usa path assoluti (Path(__file__)), quindi PYTHONPATH="$REPO" è sufficiente.
+  PYTHONPATH="$REPO" nohup "$PY" -m app.calliope_shell.server >> "$LOG_DIR/flask.log" 2>&1 &
   disown
   sleep 3
   if health_ok "$FLASK_URL"; then
