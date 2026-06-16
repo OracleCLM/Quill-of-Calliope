@@ -118,6 +118,28 @@ def build_refine_prompt(
     return "\n\n".join(sections)
 
 
+def resolve_write_model() -> tuple[str, str]:
+    """Risolve (provider, model) del modello-scrittura scene-chat — CONFIGURABILE (C3).
+
+    Decisione VISION (LOCKED 2026-06-16): la scrittura passa per un gateway cloud
+    STRONG + UNCENSORED, configurabile (l'hardware NM-portatile è insufficiente per
+    un modello-forte locale). Lo switch cloud/locale avviene via env, senza tocco
+    al codice:
+
+    - ``CALLIOPE_WRITE_PROVIDER`` (default ``"cerebras"``): provider del gateway.
+    - ``CALLIOPE_WRITE_MODEL`` (default ``"zai-glm-4.7"``): modello forte.
+
+    Per un setup locale-uncensored (pod/SL futuro, o Ollama) basta esportare
+    ``CALLIOPE_WRITE_PROVIDER=ollama`` + ``CALLIOPE_WRITE_MODEL=<abliterated>``.
+
+    Returns:
+        Tupla ``(provider, model)``.
+    """
+    provider = os.getenv("CALLIOPE_WRITE_PROVIDER", "cerebras")
+    model = os.getenv("CALLIOPE_WRITE_MODEL", "zai-glm-4.7")
+    return provider, model
+
+
 def _default_ask(prompt: str, provider: str, model: str, timeout: int = 60) -> str:
     resp = requests.post(
         f"{GATEWAY_URL}/llm_ask",
@@ -136,8 +158,8 @@ def refine_message(
     conn,
     store,
     *,
-    provider: str = "cerebras",
-    model: str = "zai-glm-4.7",
+    provider: Optional[str] = None,
+    model: Optional[str] = None,
     ask=None,
     max_lore: int = 20,
 ) -> str:
@@ -147,6 +169,12 @@ def refine_message(
         retrieve_scene_lore,
         retrieve_scene_sheets,
     )
+
+    # C3: modello-scrittura configurabile via env (cloud-strong default / switch locale).
+    if provider is None or model is None:
+        _rp, _rm = resolve_write_model()
+        provider = provider or _rp
+        model = model or _rm
 
     msg = get_message_by_id(conn, message_id)
     if msg is None:
