@@ -46,6 +46,17 @@ completo+verde (`/api/db/scenes*`, `scenes.js` base), LLM gateway (`plot_arc._gr
 3. **UI chat JanitorAI minimal-first**. **Owner: Claude/NM** (UI + browser-verify + design-retrieval;
    instruction-heavy, non-Efesto).
 
+**Strategia-modello scrittura — SWITCH locale/cloud (nic 2026-06-16)**:
+Il modello-scrittura è **configurabile** tra due backend, selezionabili via switch:
+- **CLOUD** (default attuale): gateway **strong + uncensored**, **veloce**. Vedi decisione #4.
+- **LOCALE** (opzione-privacy, ceiling DA TESTARE): modelli grossi **quantizzati**
+  (**TurboQuant**) + **compressione KV-cache** + **caricamento layer-by-layer**. L'inferenza
+  **lenta è ACCETTABILE** perché la scrittura RP **non è real-time**. Uncensored via
+  **Obliteratus** (repo open in `~/Scrivania/Repo_open`) applicato ai modelli scaricati.
+  RAM liberata **on-demand** chiudendo i processi non-necessari prima dell'inferenza.
+  Onestà-hardware: NM-portatile **15GB-RAM / 2GB-VRAM** → locale **possibile ma lento/RAM-bound**;
+  il **ceiling reale va testato** (quale taglia-modello regge). pod/SL-hosted = scaling futuro.
+
 Piano-lavoro dettagliato: `.planning/SCENE_CHAT_WORKPLAN_2026-06-16.md`.
 
 ---
