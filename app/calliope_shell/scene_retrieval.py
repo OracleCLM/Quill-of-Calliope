@@ -1,6 +1,8 @@
 """Helper per il recupero del contesto lore nelle scene."""
+import json
 
 from app.calliope_shell.lore_kb import LoreEntry, LoreStore
+from app.db.characters import list_characters_in_scene
 
 
 def retrieve_scene_lore(
@@ -23,3 +25,34 @@ def retrieve_scene_lore(
     if not scene_text:
         return []
     return store.triggered_entries(scene_text, max_entries=max_entries)
+
+
+def retrieve_scene_sheets(scene_id: str, conn) -> list[dict]:
+    """
+    Recupera le schede compatte dei personaggi nel roster della scena.
+
+    Args:
+        scene_id: ID della scena.
+        conn: Connessione al database.
+
+    Returns:
+        Lista di dizionari con i dati della scheda.
+    """
+    sheets = []
+    for c in list_characters_in_scene(conn, scene_id):
+        try:
+            card = json.loads(c["card_json"] or "{}") or {}
+        except (TypeError, ValueError):
+            card = {}
+
+        sheets.append(
+            {
+                "character_id": c["id"],
+                "name": c["name"],
+                "role": c["role"],
+                "traits": card.get("traits", []),
+                "backstory": (card.get("backstory") or "")[:300],
+                "speech_pattern": card.get("speech_pattern", {}),
+            }
+        )
+    return sheets
