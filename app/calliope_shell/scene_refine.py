@@ -13,7 +13,13 @@ popolerà ``messages.content_enhanced``; qui NON avviene alcuna chiamata LLM.
 
 from __future__ import annotations
 
+import os
 from typing import Any, List, Mapping, Optional, Sequence
+
+import requests
+
+
+GATEWAY_URL = os.getenv("GATEWAY_URL", "http://localhost:8766")
 
 # Istruzione-sistema: postura editoriale del modello-scrittura. Allineata alla
 # VISION scene-chat (qualità letteraria inglese, uncensored se giustificato,
@@ -110,3 +116,55 @@ def build_refine_prompt(
     sections.append(f"## Testo da raffinare\n{content}")
 
     return "\n\n".join(sections)
+
+
+def _default_ask(prompt: str, provider: str, model: str, timeout: int = 60) -> str:
+    resp = requests.post(
+        f"{GATEWAY_URL}/llm_ask",
+        json={"provider": provider, "model": model, "prompt": prompt},
+        timeout=timeout,
+    )
+    if resp.ok:
+        data = resp.json()
+        return data.get("content") or data.get("result") or ""
+    return ""
+
+
+def refine_message(
+    message_id: str,
+    scene_id: str,
+    conn,
+    store,
+    *,
+    provider: str = "cerebras",
+    model: str = "zai-glm-4.7",
+    ask=None,
+    max_lore: int = 20,
+) -> str:
+    from app.db.messages import get_message_by_id
+
+    from app.calliope_shell.scene_retrieval import (
+        retrieve_scene_lore,
+        retrieve_scene_sheets,
+    )
+
+    msg = get_message_by_id(conn, message_id)
+    if msg is None:
+        return ""
+    content = msg["content_original"] or ""
+    speaker = msg["author_name"]
+    sheets = retrieve_scene_sheets(scene_id, conn)
+    lore = retrieve_scene_lore(content, store, max_entries=max_lore)
+    prompt = build_refine_prompt(
+        content, sheets=sheets, lore=lore, speaker=speaker
+    )
+    if ask is None:
+        enhanced = _default_ask(prompt, provider, model) or ""
+    else:
+        enhanced = ask(prompt) or ""
+    conn.execute(
+        "UPDATE messages SET content_enhanced = ? WHERE id = ?",
+        (enhanced, message_id),
+    )
+    conn.commit()
+    return enhanced
