@@ -132,7 +132,16 @@ def register_messages_db_routes(app, db_path=None):
         if not author_name or content_original is None:
             conn.close()
             return jsonify({"error": "bad_request"}), 400
-        position_order = len(db_messages.list_messages_for_scene(conn, scene_id))
+        # BUG-FIX (message-render): usare MAX(position_order)+1, NON len(messages).
+        # Le scene importate da Discord hanno position_order non-contigui (es. 66..16541);
+        # con len() il nuovo turno riceveva una position bassa e si ordinava a META'/IN-CIMA
+        # al thread invece che in fondo -> "il messaggio non appare nella scena" (era persistito
+        # ma sepolto in alto). MAX+1 garantisce l'append in coda con qualunque distribuzione.
+        row = conn.execute(
+            "SELECT COALESCE(MAX(position_order), -1) + 1 FROM messages WHERE scene_id = ?",
+            (scene_id,),
+        ).fetchone()
+        position_order = row[0]
         mid = db_messages.add_message(conn, scene_id=scene_id,
             author_name=author_name, content_original=content_original,
             character_id=body.get("character_id"),
@@ -167,9 +176,27 @@ def register_messages_db_routes(app, db_path=None):
             conn.close()
             return jsonify({"error": "not_found"}), 404
         from app.calliope_shell.lore_kb import LoreStore
-        from app.calliope_shell.scene_refine import refine_message
+        from app.calliope_shell.scene_refine import WriteModelError, refine_message
         content_original = row[0]
-        enhanced = refine_message(message_id, scene_id, conn, LoreStore())
+        try:
+            enhanced = refine_message(message_id, scene_id, conn, LoreStore())
+        except WriteModelError as exc:
+            # Resilienza-503: messaggio-utente pulito, NON errore grezzo, NON clobber.
+            conn.close()
+            if exc.kind == "bad_request":
+                return jsonify({
+                    "error": "bad_request",
+                    "message": "Il testo del messaggio non è valido per il raffinamento.",
+                }), 400
+            if exc.kind == "auth":
+                return jsonify({
+                    "error": "gateway_auth",
+                    "message": "Configurazione del modello di scrittura non valida (credenziali). Controlla il gateway.",
+                }), 502
+            return jsonify({
+                "error": "gateway_overloaded",
+                "message": "Il modello di scrittura è momentaneamente sovraccarico. Riprova tra qualche secondo.",
+            }), 503
         conn.close()
         return jsonify({
             "message_id": message_id,
