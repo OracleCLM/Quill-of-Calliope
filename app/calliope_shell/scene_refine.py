@@ -120,26 +120,53 @@ def build_refine_prompt(
     return "\n\n".join(sections)
 
 
+# Override runtime del profilo-scrittura (switch cloud/locale dalla UI, senza restart).
+# "" = nessun override (usa il default = cloud da env). Valori: "cloud" | "local".
+_write_profile_override: Dict[str, str] = {}
+
+
+def write_profiles() -> Dict[str, tuple]:
+    """I due profili-scrittura VISION (switch cloud/locale), configurabili via env.
+
+    - CLOUD (default): gateway strong+uncensored. ``CALLIOPE_WRITE_PROVIDER`` /
+      ``CALLIOPE_WRITE_MODEL`` (default ``cerebras`` / ``zai-glm-4.7``).
+    - LOCAL (opzione-privacy, ceiling da testare): ``CALLIOPE_WRITE_LOCAL_PROVIDER`` /
+      ``CALLIOPE_WRITE_LOCAL_MODEL`` (default ``ollama`` / ``dolphin-mistral:7b``).
+    """
+    return {
+        "cloud": (
+            os.getenv("CALLIOPE_WRITE_PROVIDER", "cerebras"),
+            os.getenv("CALLIOPE_WRITE_MODEL", "zai-glm-4.7"),
+        ),
+        "local": (
+            os.getenv("CALLIOPE_WRITE_LOCAL_PROVIDER", "ollama"),
+            os.getenv("CALLIOPE_WRITE_LOCAL_MODEL", "dolphin-mistral:7b"),
+        ),
+    }
+
+
+def active_write_profile() -> str:
+    """Nome del profilo attivo: override runtime se presente, altrimenti ``cloud``."""
+    return _write_profile_override.get("profile", "cloud")
+
+
+def set_write_profile(profile: str) -> None:
+    """Imposta il profilo-scrittura attivo a runtime (``cloud`` | ``local``)."""
+    if profile not in ("cloud", "local"):
+        raise ValueError("profile must be 'cloud' or 'local'")
+    _write_profile_override["profile"] = profile
+
+
 def resolve_write_model() -> tuple[str, str]:
-    """Risolve (provider, model) del modello-scrittura scene-chat — CONFIGURABILE (C3).
+    """Risolve (provider, model) del modello-scrittura attivo (profilo cloud/local).
 
-    Decisione VISION (LOCKED 2026-06-16): la scrittura passa per un gateway cloud
-    STRONG + UNCENSORED, configurabile (l'hardware NM-portatile è insufficiente per
-    un modello-forte locale). Lo switch cloud/locale avviene via env, senza tocco
-    al codice:
-
-    - ``CALLIOPE_WRITE_PROVIDER`` (default ``"cerebras"``): provider del gateway.
-    - ``CALLIOPE_WRITE_MODEL`` (default ``"zai-glm-4.7"``): modello forte.
-
-    Per un setup locale-uncensored (pod/SL futuro, o Ollama) basta esportare
-    ``CALLIOPE_WRITE_PROVIDER=ollama`` + ``CALLIOPE_WRITE_MODEL=<abliterated>``.
+    Default = profilo CLOUD (VISION decisione #4). Switch a runtime via
+    ``set_write_profile`` (UI) o via env per i default di ciascun profilo.
 
     Returns:
         Tupla ``(provider, model)``.
     """
-    provider = os.getenv("CALLIOPE_WRITE_PROVIDER", "cerebras")
-    model = os.getenv("CALLIOPE_WRITE_MODEL", "zai-glm-4.7")
-    return provider, model
+    return write_profiles()[active_write_profile()]
 
 
 def _default_ask(prompt: str, provider: str, model: str, timeout: int = 60) -> str:

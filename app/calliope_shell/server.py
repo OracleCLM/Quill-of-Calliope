@@ -290,6 +290,34 @@ def create_app():
             "uncensored_active": _llm_routing_state["uncensored"],
         })
 
+    @app.route("/api/scene-chat/write-model", methods=["GET"])
+    def scene_chat_write_model_get():
+        # GAP-5: switch modello-scrittura cloud/locale (VISION decisione #4 + strategia-switch).
+        from app.calliope_shell.scene_refine import (  # noqa: PLC0415
+            active_write_profile, resolve_write_model, write_profiles,
+        )
+        provider, model = resolve_write_model()
+        profiles = {k: {"provider": v[0], "model": v[1]} for k, v in write_profiles().items()}
+        return jsonify({
+            "profile": active_write_profile(), "provider": provider,
+            "model": model, "profiles": profiles,
+        })
+
+    @app.route("/api/scene-chat/write-model", methods=["POST"])
+    def scene_chat_write_model_post():
+        from app.calliope_shell.scene_refine import (  # noqa: PLC0415
+            active_write_profile, resolve_write_model, set_write_profile,
+        )
+        body = request.get_json(silent=True) or {}
+        try:
+            set_write_profile(body.get("profile"))
+        except ValueError:
+            return jsonify({"error": "profile must be 'cloud' or 'local'"}), 400
+        provider, model = resolve_write_model()
+        return jsonify({
+            "profile": active_write_profile(), "provider": provider, "model": model,
+        })
+
     @app.route("/api/dashboard/activity", methods=["GET"])
     def dashboard_activity():
         """Read audit_trail for the activity-feed panel (Sprint C3).

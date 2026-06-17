@@ -85,8 +85,37 @@ async function _loadSceneDetail(sceneId) {
         } catch (e) { /* roster opzionale */ }
         _renderRoster(sceneId, roster);
         await _populateRosterAddSelect(sceneId, roster);
+        _loadWriteModel();
     } catch(e) {
         document.getElementById('scene-detail-title').textContent = 'Errore: ' + e.message;
+    }
+}
+
+// ── GAP-5: switch modello-scrittura cloud/locale (VISION decisione #4) ──
+async function _loadWriteModel() {
+    const sel = document.getElementById('write-profile-select');
+    const lbl = document.getElementById('write-model-label');
+    if (!sel) return;
+    try {
+        const r = await fetch('/api/scene-chat/write-model');
+        const d = await r.json();
+        sel.value = d.profile || 'cloud';
+        if (lbl) lbl.textContent = '(' + (d.provider || '?') + '/' + (d.model || '?') + ')';
+    } catch (e) { /* non-fatale */ }
+}
+
+async function _setWriteProfile(profile) {
+    const lbl = document.getElementById('write-model-label');
+    try {
+        const r = await fetch('/api/scene-chat/write-model', {
+            method: 'POST', headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ profile }),
+        });
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.error || ('HTTP ' + r.status));
+        if (lbl) lbl.textContent = '(' + (d.provider || '?') + '/' + (d.model || '?') + ')';
+    } catch (e) {
+        if (lbl) lbl.textContent = '(errore)';
     }
 }
 

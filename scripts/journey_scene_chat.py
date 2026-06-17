@@ -302,6 +302,26 @@ def journey_binding_write_as_character(pg):
         _FAILS.append(f"{name}: {e}")
 
 
+def journey_write_model_switch(pg):
+    """Given scena aperta, When cambio Scrittura a 'Locale', Then l'etichetta modello cambia."""
+    name = "WRITE-MODEL-SWITCH"
+    pg.goto(f"http://127.0.0.1:{PORT}/", wait_until="domcontentloaded")
+    pg.evaluate("showView('scenes')")
+    pg.evaluate(f"_loadSceneDetail('{SID}')")
+    try:
+        pg.wait_for_selector("#write-profile-select", timeout=8000)
+        pg.wait_for_function(
+            "()=>{const l=document.getElementById('write-model-label');return l&&l.textContent.includes('cerebras');}",
+            timeout=8000)
+        pg.select_option("#write-profile-select", "local")
+        pg.wait_for_function(
+            "()=>{const l=document.getElementById('write-model-label');return l&&l.textContent.includes('ollama');}",
+            timeout=8000)
+        print(f"[PASS] {name}")
+    except Exception as e:
+        _FAILS.append(f"{name}: lo switch non aggiorna il modello mostrato ({e})")
+
+
 def main():
     seed()
     gw = HTTPServer(("127.0.0.1", GW_PORT), _GwHandler)
@@ -327,6 +347,7 @@ def main():
             journey_create_scene(pg)
             journey_create_character(pg)
             journey_binding_write_as_character(pg)
+            journey_write_model_switch(pg)
             br.close()
         if _FAILS:
             print("\n===== JOURNEY FAILURES =====")

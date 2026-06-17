@@ -99,6 +99,9 @@
         #scene-send-btn:hover { background:#2a6a2a; }
         #scene-send-btn:disabled { opacity:.4; cursor:not-allowed; }
         #scene-compose-status { font-size:.8em; color:#88aaff; margin-top:6px; min-height:1em; }
+        #write-model-ctl { margin-left:auto; font-size:.76em; color:#778; display:inline-flex; align-items:center; gap:5px; }
+        #write-profile-select { background:#111827; color:#cde; border:1px solid #2a3a5a; border-radius:5px; padding:3px 6px; font-size:.92em; }
+        #write-model-label { color:#556; }
 
         /* ── Messages panel ── */
         #messages-panel { display:none; flex-direction:column; padding:20px; max-width:900px; margin:0 auto; width:100%; height:calc(100vh - 60px); box-sizing:border-box; overflow-y:auto; }
@@ -570,6 +573,14 @@
                         <label><input type="radio" name="compose-role" value="narrator" checked onclick="_setComposeRole('narrator')"> Narratore</label>
                         <label><input type="radio" name="compose-role" value="character" onclick="_setComposeRole('character')"> Personaggio</label>
                         <select id="compose-char-select" disabled><option value="">— Personaggio —</option></select>
+                        <span id="write-model-ctl" title="Modello usato per la rifinitura (✦ raffina): Cloud=strong+veloce, Locale=privacy ma lento/da-testare">
+                            ✎ Scrittura:
+                            <select id="write-profile-select" onchange="_setWriteProfile(this.value)">
+                                <option value="cloud">Cloud</option>
+                                <option value="local">Locale</option>
+                            </select>
+                            <span id="write-model-label"></span>
+                        </span>
                     </div>
                     <textarea id="scene-compose-text" placeholder="Scrivi come narratore o personaggio…"></textarea>
                     <button id="scene-send-btn" onclick="_sendSceneMessage()">Invia</button>
