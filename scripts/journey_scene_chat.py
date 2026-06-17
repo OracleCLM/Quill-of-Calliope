@@ -22,6 +22,7 @@ REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PORT = "5079"
 GW_PORT = 8779
 SID = "scene-journey"
+SID_EMPTY = "scene-journey-empty"
 
 sys.path.insert(0, REPO)
 from app.db import get_db, init_schema, new_id  # noqa: E402
@@ -78,6 +79,14 @@ def seed():
     # Messaggio che forza il 503 del gateway (caso adversarial).
     add_message(conn, scene_id=SID, character_id=cid, author_name="Aria",
                 content_original="FORCE503 testo da raffinare", position_order=16542)
+    # Per il journey-binding: una scena VUOTA (roster vuoto) + un char DB NON bindato.
+    conn.execute(
+        "INSERT INTO scenes(id,title,created_at,updated_at) "
+        "VALUES(?,?,datetime('now'),datetime('now'))", (SID_EMPTY, "Scena Senza Roster"))
+    bid = new_id()
+    conn.execute(
+        "INSERT INTO characters(id,name,created_at,updated_at) "
+        "VALUES(?,?,datetime('now'),datetime('now'))", (bid, "Bruno Test"))
     conn.commit()
     conn.close()
 
@@ -250,6 +259,49 @@ def journey_create_character(pg):
         pg.remove_listener("dialog", _h)
 
 
+def journey_binding_write_as_character(pg):
+    """Given una scena SENZA roster + un char DB, When lo aggiungo e scrivo come lui,
+    Then il char compare come chip + opzione-compose E il turno è attribuito a LUI."""
+    name = "BINDING-WRITE-AS-CHARACTER"
+    pg.goto(f"http://127.0.0.1:{PORT}/", wait_until="domcontentloaded")
+    pg.evaluate("showView('scenes')")
+    pg.evaluate(f"_loadSceneDetail('{SID_EMPTY}')")
+    try:
+        pg.wait_for_selector("#roster-add-select", timeout=8000)
+        # roster inizialmente vuoto
+        n_opt = pg.evaluate("document.getElementById('roster-add-select').length")
+        if n_opt <= 1:
+            _FAILS.append(f"{name}: nessun char DB selezionabile (route /api/db/characters?)")
+            return
+        val = pg.evaluate("document.getElementById('roster-add-select').options[1].value")
+        cname = pg.evaluate("document.getElementById('roster-add-select').options[1].text")
+        pg.evaluate(f"_addCharToScene('{val}')")
+        pg.wait_for_function(
+            "(n)=>{const c=document.querySelectorAll('#scene-roster-chips .roster-chip');"
+            "return [...c].some(x=>x.textContent.includes(n));}", arg=cname, timeout=8000)
+        # scrivi come quel personaggio
+        pg.evaluate("_setComposeRole('character')")
+        pg.evaluate("document.querySelector(\"input[name='compose-role'][value='character']\").checked=true")
+        pg.eval_on_selector(
+            "#compose-char-select",
+            "(el,n)=>{el.value=[...el.options].find(o=>o.text===n).value;}", cname)
+        marker = "JBIND_AS_CHAR"
+        pg.fill("#scene-compose-text", marker)
+        pg.click("#scene-send-btn")
+        pg.wait_for_function(
+            "(m)=>{const b=document.querySelectorAll('#scene-thread .msg-bubble');"
+            "return b.length&&b[b.length-1].innerText.includes(m);}", arg=marker, timeout=8000)
+        author = pg.evaluate(
+            "()=>{const b=document.querySelectorAll('#scene-thread .msg-bubble');"
+            "return (b[b.length-1].querySelector('.msg-author')||{}).textContent;}")
+        if author == cname:
+            print(f"[PASS] {name}")
+        else:
+            _FAILS.append(f"{name}: turno non attribuito al personaggio (autore={author!r}, atteso {cname!r})")
+    except Exception as e:
+        _FAILS.append(f"{name}: {e}")
+
+
 def main():
     seed()
     gw = HTTPServer(("127.0.0.1", GW_PORT), _GwHandler)
@@ -274,6 +326,7 @@ def main():
             journey_refine_503_clean(pg)
             journey_create_scene(pg)
             journey_create_character(pg)
+            journey_binding_write_as_character(pg)
             br.close()
         if _FAILS:
             print("\n===== JOURNEY FAILURES =====")

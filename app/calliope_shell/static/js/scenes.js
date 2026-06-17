@@ -76,25 +76,89 @@ async function _loadSceneDetail(sceneId) {
         document.getElementById('scene-detail-first').textContent = messages[0] ? messages[0].content_original : '—';
         document.getElementById('scene-detail-last').textContent =
             messages.length ? messages[messages.length - 1].content_original : '—';
-        // Roster personaggi-in-scena -> popola il select del compose (personaggio mittente).
-        const composeSel = document.getElementById('compose-char-select');
-        if (composeSel) composeSel.innerHTML = '<option value="">— Personaggio —</option>';
+        // Roster personaggi-in-scena: chip + compose-select + add-select (binding manuale).
+        let roster = [];
         try {
             const rresp = await fetch('/api/db/scenes/' + encodeURIComponent(sceneId) + '/characters');
             const rdata = await rresp.json();
-            (rdata.characters || []).forEach(c => {
-                if (composeSel) {
-                    const o2 = document.createElement('option');
-                    o2.value = c.id;
-                    o2.textContent = c.name;
-                    o2.dataset.name = c.name;
-                    composeSel.appendChild(o2);
-                }
-            });
-        } catch (e) { /* roster opzionale: il dettaglio resta usabile senza */ }
+            roster = rdata.characters || [];
+        } catch (e) { /* roster opzionale */ }
+        _renderRoster(sceneId, roster);
+        await _populateRosterAddSelect(sceneId, roster);
     } catch(e) {
         document.getElementById('scene-detail-title').textContent = 'Errore: ' + e.message;
     }
+}
+
+// ── Roster scena (binding manuale personaggio↔scena) ──
+// Sblocca: scrivere COME un personaggio + retrieval delle schede-attive nel refine.
+function _renderRoster(sceneId, roster) {
+    const chips = document.getElementById('scene-roster-chips');
+    const composeSel = document.getElementById('compose-char-select');
+    if (composeSel) composeSel.innerHTML = '<option value="">— Personaggio —</option>';
+    if (chips) {
+        if (!roster.length) {
+            chips.innerHTML = '<span class="roster-empty">nessuno — aggiungine uno per scrivere come personaggio</span>';
+        } else {
+            chips.innerHTML = roster.map(c =>
+                '<span class="roster-chip">' + _escapeHtml(c.name) +
+                '<span class="chip-x" title="Rimuovi dalla scena" onclick="_removeCharFromScene(\'' +
+                _escapeHtml(c.id) + '\')">×</span></span>'
+            ).join('');
+        }
+    }
+    roster.forEach(c => {
+        if (composeSel) {
+            const o = document.createElement('option');
+            o.value = c.id; o.textContent = c.name; o.dataset.name = c.name;
+            composeSel.appendChild(o);
+        }
+    });
+}
+
+async function _populateRosterAddSelect(sceneId, roster) {
+    const sel = document.getElementById('roster-add-select');
+    if (!sel) return;
+    sel.innerHTML = '<option value="">＋ Aggiungi personaggio…</option>';
+    const inRoster = new Set(roster.map(c => c.id));
+    try {
+        const r = await fetch('/api/db/characters');
+        if (!r.ok) return;
+        const d = await r.json();
+        (d.characters || []).filter(c => !inRoster.has(c.id)).forEach(c => {
+            const o = document.createElement('option');
+            o.value = c.id; o.textContent = c.name;
+            sel.appendChild(o);
+        });
+    } catch (e) { /* lista opzionale */ }
+}
+
+async function _addCharToScene(charId) {
+    const sceneId = window._currentSceneId;
+    if (!sceneId || !charId) return;
+    try {
+        const r = await fetch('/api/db/scenes/' + encodeURIComponent(sceneId) + '/characters', {
+            method: 'POST', headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ character_id: charId }),
+        });
+        if (!r.ok && r.status !== 409) {
+            const d = await r.json().catch(() => ({}));
+            throw new Error(d.error || ('HTTP ' + r.status));
+        }
+        await _loadSceneDetail(sceneId);   // ricarica roster + compose-select
+    } catch (e) {
+        window.alert('Errore aggiunta personaggio: ' + e.message);
+    }
+}
+
+async function _removeCharFromScene(charId) {
+    const sceneId = window._currentSceneId;
+    if (!sceneId || !charId) return;
+    try {
+        await fetch('/api/db/scenes/' + encodeURIComponent(sceneId) + '/characters/' +
+            encodeURIComponent(charId), { method: 'DELETE' });
+        await _loadSceneDetail(sceneId);
+    } catch (e) { /* non-fatale */ }
 }
 
 // ── C1: chat-thread render + compose narratore/personaggio ──

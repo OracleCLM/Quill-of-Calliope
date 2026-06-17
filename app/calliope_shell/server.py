@@ -16,6 +16,7 @@ from app.calliope_shell.char_memory_tools import (
     char_memory_list_facts,
 )
 from app.calliope_shell.characters_routes import register_character_routes
+from app.calliope_shell.characters_db_routes import register_characters_db_routes
 from app.calliope_shell.lore_routes import register_lore_routes
 from app.calliope_shell.scenes_db_routes import register_scenes_db_routes
 from app.calliope_shell.arcs_db_routes import register_arcs_db_routes
@@ -198,6 +199,7 @@ def _load_emotion_map() -> dict:
 def create_app():
     app = Flask(__name__)
     register_character_routes(app)
+    register_characters_db_routes(app, db_path=None)
     register_lore_routes(app)
     register_scenes_db_routes(app)
     register_arcs_db_routes(app)
