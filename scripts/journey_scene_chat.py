@@ -23,6 +23,7 @@ PORT = "5079"
 GW_PORT = 8779
 SID = "scene-journey"
 SID_EMPTY = "scene-journey-empty"
+SID_SHEET = "scene-journey-sheet"
 
 sys.path.insert(0, REPO)
 from app.db import get_db, init_schema, new_id  # noqa: E402
@@ -47,7 +48,9 @@ class _GwHandler(BaseHTTPRequestHandler):
             body = json.dumps({"code": "queue_exceeded", "type": "too_many_requests_error"}).encode()
             status = 503
         else:
-            body = json.dumps({"content": "[REFINED] Una prosa raffinata."}).encode()
+            # Echo del prompt ricevuto: permette al journey di VERIFICARE cosa è stato
+            # iniettato (schede-attive + lore) nel prompt inviato al gateway (GAP-3).
+            body = json.dumps({"content": "[REFINED]\n" + prompt[:2000]}).encode()
             status = 200
         self.send_response(status)
         self.send_header("Content-Type", "application/json")
@@ -59,7 +62,7 @@ class _GwHandler(BaseHTTPRequestHandler):
         pass
 
 
-def seed():
+def seed(chars_dir):
     """Scena con position_order NON-contigui (come i dati Discord importati)."""
     conn = get_db(tmp_db)
     init_schema(conn)
@@ -87,8 +90,25 @@ def seed():
     conn.execute(
         "INSERT INTO characters(id,name,created_at,updated_at) "
         "VALUES(?,?,datetime('now'),datetime('now'))", (bid, "Bruno Test"))
+    # GAP-3: scena con un char (card_json VUOTO) la cui scheda RICCA è in YAML ->
+    # il refine deve iniettare la scheda ricca (backstory) nel prompt, non name-only.
+    conn.execute(
+        "INSERT INTO scenes(id,title,created_at,updated_at) "
+        "VALUES(?,?,datetime('now'),datetime('now'))", (SID_SHEET, "Scena Scheda Ricca"))
+    gid = new_id()
+    conn.execute(
+        "INSERT INTO characters(id,name,created_at,updated_at) "
+        "VALUES(?,?,datetime('now'),datetime('now'))", (gid, "Galad"))
+    conn.commit()
+    add_character_to_scene(conn, SID_SHEET, gid, role="protagonist")
+    add_message(conn, scene_id=SID_SHEET, character_id=gid, author_name="Galad",
+                content_original="Galad avanza nella sala.", position_order=0)
     conn.commit()
     conn.close()
+    # Scheda RICCA in YAML (fonte canonica) per Galad.
+    with open(os.path.join(chars_dir, "galad.draft.yaml"), "w", encoding="utf-8") as f:
+        f.write("name: Galad\nbackstory: Cresciuto tra i ghiacci del nord glaciale.\n"
+                "personality: stoico, leale\n")
 
 
 def wait_health():
@@ -322,11 +342,58 @@ def journey_write_model_switch(pg):
         _FAILS.append(f"{name}: lo switch non aggiorna il modello mostrato ({e})")
 
 
+def journey_refine_injects_rich_sheet(pg):
+    """Given un char col card_json vuoto ma scheda RICCA in YAML, When raffino un suo turno,
+    Then il prompt inviato al gateway (echo nel pannello) contiene la backstory ricca (GAP-3)."""
+    name = "REFINE-INJECTS-RICH-SHEET"
+    pg.goto(f"http://127.0.0.1:{PORT}/", wait_until="domcontentloaded")
+    pg.evaluate("showView('scenes')")
+    pg.evaluate(f"_loadSceneDetail('{SID_SHEET}')")
+    try:
+        pg.wait_for_selector("#scene-thread .msg-bubble .msg-refine-btn", timeout=8000)
+        pg.click("#scene-thread .msg-bubble .msg-refine-btn")
+        # lo stub fa echo del prompt: deve contenere la backstory ricca di Galad
+        pg.wait_for_function(
+            "()=>{const t=document.querySelector('#scene-thread .msg-refined-text');"
+            "return t && t.textContent.includes('ghiacci del nord');}", timeout=15000)
+        print(f"[PASS] {name}")
+    except Exception as e:
+        _FAILS.append(f"{name}: il refine NON inietta la scheda ricca nel prompt ({e})")
+
+
+def journey_created_char_is_bindable(pg):
+    """Given creo un personaggio dalla UI, Then è AGGIUNGIBILE al roster di una scena (GAP-6)."""
+    name = "CREATED-CHAR-BINDABLE"
+    cname = "Char Bindabile JZ"
+
+    def _h(d):
+        d.accept(cname) if d.type == "prompt" else d.accept()
+
+    pg.goto(f"http://127.0.0.1:{PORT}/", wait_until="domcontentloaded")
+    pg.evaluate("showView('characters')")
+    pg.wait_for_selector("#char-new-btn", timeout=8000)
+    pg.on("dialog", _h)
+    pg.click("#char-new-btn")
+    try:
+        # il char appena creato deve comparire tra le opzioni del roster-add-select di una scena
+        pg.evaluate("showView('scenes')")
+        pg.evaluate(f"_loadSceneDetail('{SID_EMPTY}')")
+        pg.wait_for_selector("#roster-add-select", timeout=8000)
+        pg.wait_for_function(
+            "(n)=>[...document.getElementById('roster-add-select').options].some(o=>o.text===n)",
+            arg=cname, timeout=8000)
+        print(f"[PASS] {name}")
+    except Exception as e:
+        _FAILS.append(f"{name}: il char creato-da-UI non è bindabile a una scena ({e})")
+    finally:
+        pg.remove_listener("dialog", _h)
+
+
 def main():
-    seed()
+    chars_dir = tempfile.mkdtemp(prefix="journey-chars-")
+    seed(chars_dir)
     gw = HTTPServer(("127.0.0.1", GW_PORT), _GwHandler)
     threading.Thread(target=gw.serve_forever, daemon=True).start()
-    chars_dir = tempfile.mkdtemp(prefix="journey-chars-")
     env = dict(os.environ, CALLIOPE_DB_PATH=tmp_db, FLASK_PORT=PORT,
                GATEWAY_URL=f"http://127.0.0.1:{GW_PORT}", CALLIOPE_WRITE_FALLBACKS="",
                CALLIOPE_CHARS_DIR=chars_dir)
@@ -348,6 +415,8 @@ def main():
             journey_create_character(pg)
             journey_binding_write_as_character(pg)
             journey_write_model_switch(pg)
+            journey_refine_injects_rich_sheet(pg)
+            journey_created_char_is_bindable(pg)
             br.close()
         if _FAILS:
             print("\n===== JOURNEY FAILURES =====")

@@ -38,6 +38,8 @@ def retrieve_scene_sheets(scene_id: str, conn) -> list[dict]:
     Returns:
         Lista di dizionari con i dati della scheda.
     """
+    from app.calliope_shell import characters_service  # noqa: PLC0415
+
     sheets = []
     for c in list_characters_in_scene(conn, scene_id):
         try:
@@ -45,14 +47,26 @@ def retrieve_scene_sheets(scene_id: str, conn) -> list[dict]:
         except (TypeError, ValueError):
             card = {}
 
+        traits = card.get("traits", [])
+        backstory = (card.get("backstory") or "")[:300]
+        speech = card.get("speech_pattern", {})
+        # GAP-3: se card_json è vuoto/povero, arricchisci dalla fonte-schede CANONICA
+        # (YAML draft/canon -> character_sheets) così il refine inietta schede RICCHE,
+        # non name-only.
+        if not traits and not backstory:
+            rich = characters_service.resolve_character_sheet(c["name"], conn=conn)
+            traits = rich["traits"] or traits
+            backstory = (rich["backstory"] or "")[:600]
+            speech = rich["speech_pattern"] or speech
+
         sheets.append(
             {
                 "character_id": c["id"],
                 "name": c["name"],
                 "role": c["role"],
-                "traits": card.get("traits", []),
-                "backstory": (card.get("backstory") or "")[:300],
-                "speech_pattern": card.get("speech_pattern", {}),
+                "traits": traits,
+                "backstory": backstory,
+                "speech_pattern": speech,
             }
         )
     return sheets

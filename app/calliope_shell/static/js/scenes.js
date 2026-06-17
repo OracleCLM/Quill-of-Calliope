@@ -369,16 +369,29 @@ async function _createCharacter() {
     const name = (window.prompt('Nome del nuovo personaggio (anche scheda di altro giocatore):') || '').trim();
     if (!name) return;
     try {
-        // POST /api/characters = stessa fonte della griglia Personaggi (così compare subito).
-        const r = await fetch('/api/characters', {
-            method: 'POST', headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ name }),
-        });
-        const d = await r.json();
-        if (!r.ok) throw new Error(d.error || ('HTTP ' + r.status));
+        // GAP-6 unify: crea in DB (identità/roster -> BINDABILE alla scena) E in YAML
+        // (griglia Personaggi + scheda-ricca editabile). Stesso nome = stesso personaggio.
+        const [rdb, ryaml] = await Promise.all([
+            fetch('/api/db/characters', {
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ name, kind: 'player' }),
+            }),
+            fetch('/api/characters', {
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ name }),
+            }),
+        ]);
+        if (!rdb.ok && rdb.status !== 409) {
+            const d = await rdb.json().catch(() => ({}));
+            throw new Error(d.error || ('HTTP ' + rdb.status));
+        }
+        if (!ryaml.ok) {
+            const d = await ryaml.json().catch(() => ({}));
+            throw new Error(d.error || ('HTTP ' + ryaml.status));
+        }
         if (typeof loadCharactersPanel === 'function') loadCharactersPanel();
         if (typeof loadCharList === 'function') loadCharList();
-        window.alert('Personaggio "' + name + '" creato. Aprilo per compilarne la scheda.');
+        window.alert('Personaggio "' + name + '" creato (visibile in griglia e aggiungibile alle scene). Aprilo per compilarne la scheda.');
     } catch (e) {
         window.alert('Errore creazione personaggio: ' + e.message);
     }

@@ -47,6 +47,50 @@ def create_draft(name: str) -> str:
     return stem
 
 
+def resolve_character_sheet(name: str, conn=None) -> Dict:
+    """GAP-3: scheda CANONICA RICCA di un personaggio (per il retrieval del refine).
+
+    Unifica le fonti-schede frammentate con una precedenza unica:
+    1. YAML draft/canon (card V3, la più ricca/strutturata) per stem = slug(name);
+    2. tabella ``character_sheets`` (``content``) per character_name, se ``conn`` fornito;
+    3. fallback name-only.
+
+    Returns:
+        dict con ``name, traits (list), backstory (str), speech_pattern (dict), source``.
+    """
+    sheet: Dict = {
+        "name": name, "traits": [], "backstory": "", "speech_pattern": {}, "source": "none",
+    }
+    card = get_card_v3(_slugify(name))
+    if card:
+        pers = card.get("personality") or ""
+        if isinstance(pers, str):
+            traits = [t.strip() for t in pers.split(",") if t.strip()]
+        else:
+            traits = [str(t) for t in (pers or [])]
+        example = (card.get("mes_example") or "").strip()
+        sheet.update({
+            "traits": traits,
+            "backstory": (card.get("description") or "").strip()[:600],
+            "speech_pattern": {"esempio": example[:300]} if example else {},
+            "source": "yaml",
+        })
+        return sheet
+    if conn is not None:
+        try:
+            row = conn.execute(
+                "SELECT content FROM character_sheets WHERE character_name=? "
+                "ORDER BY position_order LIMIT 1",
+                (name,),
+            ).fetchone()
+        except Exception:
+            row = None
+        if row and (row[0] or ""):
+            sheet.update({"backstory": str(row[0]).strip()[:600], "source": "character_sheets"})
+            return sheet
+    return sheet
+
+
 def _merged_legacy_dict(stem: str) -> Dict:
     """
     Load the ``<stem>.draft.yaml`` (if present) and, if a ``<stem>.canon.yaml`` exists,
