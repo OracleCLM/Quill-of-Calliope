@@ -132,7 +132,16 @@ def register_messages_db_routes(app, db_path=None):
         if not author_name or content_original is None:
             conn.close()
             return jsonify({"error": "bad_request"}), 400
-        position_order = len(db_messages.list_messages_for_scene(conn, scene_id))
+        # BUG-FIX (message-render): usare MAX(position_order)+1, NON len(messages).
+        # Le scene importate da Discord hanno position_order non-contigui (es. 66..16541);
+        # con len() il nuovo turno riceveva una position bassa e si ordinava a META'/IN-CIMA
+        # al thread invece che in fondo -> "il messaggio non appare nella scena" (era persistito
+        # ma sepolto in alto). MAX+1 garantisce l'append in coda con qualunque distribuzione.
+        row = conn.execute(
+            "SELECT COALESCE(MAX(position_order), -1) + 1 FROM messages WHERE scene_id = ?",
+            (scene_id,),
+        ).fetchone()
+        position_order = row[0]
         mid = db_messages.add_message(conn, scene_id=scene_id,
             author_name=author_name, content_original=content_original,
             character_id=body.get("character_id"),
