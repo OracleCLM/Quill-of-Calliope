@@ -14,7 +14,9 @@ popolerà ``messages.content_enhanced``; qui NON avviene alcuna chiamata LLM.
 from __future__ import annotations
 
 import os
-from typing import Any, List, Mapping, Optional, Sequence
+import random
+import time
+from typing import Any, Dict, List, Mapping, Optional, Sequence
 
 import requests
 
@@ -152,6 +154,176 @@ def _default_ask(prompt: str, provider: str, model: str, timeout: int = 60) -> s
     return ""
 
 
+# --------------------------------------------------------------------------- #
+# Resilienza-503 del gateway-scrittura (bug refine-503).
+#
+# Comportamento (equivalente Tenacity + PyBreaker, qui in stdlib per non aggiungere
+# dipendenze non installate a un'app già in produzione — swap-in banale in futuro):
+#   - RETRY con backoff esponenziale + jitter, onorando l'header Retry-After, SOLO su
+#     errori di throughput/overload (429-throughput, 5xx, timeout/connessione).
+#   - NESSUN retry su errori definitivi: 400 (bad request), 401 (auth), 429-quota.
+#   - FAILOVER lungo la chain di provider (primary -> fallback configurabili).
+#   - CIRCUIT-BREAKER per-provider: dopo N fallimenti il provider è "aperto" e saltato
+#     per un cooldown (evita di martellare un provider morto).
+#   - In caso di esaurimento totale: WriteModelError("overloaded") -> la route traduce
+#     in messaggio-utente pulito (NON errore grezzo, NON DOM rotto).
+# --------------------------------------------------------------------------- #
+
+_RETRYABLE_HTTP = {429, 500, 502, 503, 504}
+_BREAKER_THRESHOLD = 3
+_BREAKER_COOLDOWN_S = 30.0
+_circuit_breakers: Dict[str, Dict[str, float]] = {}
+
+
+class WriteModelError(Exception):
+    """Errore del modello-scrittura, con ``kind`` per il mapping a messaggio-utente.
+
+    kind: ``overloaded`` (riprova dopo) | ``auth`` | ``bad_request`` | ``unavailable``.
+    """
+
+    def __init__(self, kind: str, message: str) -> None:
+        self.kind = kind
+        super().__init__(message)
+
+
+def reset_circuit_breakers() -> None:
+    """Azzera lo stato dei breaker (usato dai test)."""
+    _circuit_breakers.clear()
+
+
+def _breaker_open(provider: str) -> bool:
+    st = _circuit_breakers.get(provider)
+    return bool(st and st.get("open_until", 0.0) > time.time())
+
+
+def _breaker_fail(provider: str) -> None:
+    st = _circuit_breakers.setdefault(provider, {"failures": 0.0, "open_until": 0.0})
+    st["failures"] += 1
+    if st["failures"] >= _BREAKER_THRESHOLD:
+        st["open_until"] = time.time() + _BREAKER_COOLDOWN_S
+
+
+def _breaker_ok(provider: str) -> None:
+    _circuit_breakers[provider] = {"failures": 0.0, "open_until": 0.0}
+
+
+def _parse_retry_after(resp: "requests.Response") -> Optional[float]:
+    val = resp.headers.get("Retry-After")
+    if not val:
+        return None
+    try:
+        return max(0.0, float(val))
+    except (TypeError, ValueError):
+        return None
+
+
+def _is_quota_error(status: int, code: str) -> bool:
+    """429 può essere throughput (retry) o quota giornaliera (NO-retry)."""
+    code = (code or "").lower()
+    return status == 429 and (
+        "quota" in code or "daily" in code or "tokens_per_day" in code or "insufficient" in code
+    )
+
+
+def write_model_chain() -> List[tuple]:
+    """Chain (provider, model): primary (resolve_write_model) + fallback da env.
+
+    ``CALLIOPE_WRITE_FALLBACKS`` = CSV ``provider:model`` (default groq -> openrouter).
+    """
+    chain: List[tuple] = [resolve_write_model()]
+    raw = os.getenv(
+        "CALLIOPE_WRITE_FALLBACKS",
+        "groq:llama-3.3-70b-versatile,openrouter:qwen/qwen3-coder:free",
+    )
+    for item in raw.split(","):
+        item = item.strip()
+        if not item or ":" not in item:
+            continue
+        prov, mod = item.split(":", 1)
+        pair = (prov.strip(), mod.strip())
+        if pair[0] and pair[1] and pair not in chain:
+            chain.append(pair)
+    return chain
+
+
+def _post_once(provider: str, model: str, prompt: str, timeout: int,
+               max_attempts: int = 3) -> str:
+    """Una POST al gateway con retry-backoff+jitter su errori di throughput.
+
+    Ritorna il contenuto (può essere stringa vuota se il gateway risponde ok-ma-vuoto).
+    Solleva WriteModelError su esito definitivo (auth/bad_request) o esaurimento retry.
+    """
+    last_kind, last_msg = "unavailable", "nessuna risposta"
+    for attempt in range(max_attempts):
+        # Backoff di default (esponenziale + jitter); sovrascritto da Retry-After se presente.
+        delay = min(0.5 * (2 ** attempt) + random.uniform(0.0, 0.3), 8.0)
+        try:
+            resp = requests.post(
+                f"{GATEWAY_URL}/llm_ask",
+                json={"provider": provider, "model": model, "prompt": prompt},
+                timeout=timeout,
+            )
+        except requests.RequestException as exc:
+            last_kind, last_msg = "unavailable", f"connessione: {exc}"
+        else:
+            if resp.ok:
+                try:
+                    data = resp.json()
+                except ValueError:
+                    data = {}
+                return data.get("content") or data.get("result") or ""
+            status = resp.status_code
+            try:
+                body = resp.json()
+            except ValueError:
+                body = {}
+            code = str(body.get("code") or body.get("type") or "")
+            # Errori definitivi: NO retry, NO senso-failover su input errato.
+            if status == 400:
+                raise WriteModelError("bad_request", f"{status} {code}")
+            if status in (401, 403):
+                raise WriteModelError("auth", f"{status} {code}")
+            if _is_quota_error(status, code):
+                # quota esaurita su QUESTO provider → fallisci subito (il failover proverà altri).
+                raise WriteModelError("overloaded", f"quota {status} {code}")
+            if status not in _RETRYABLE_HTTP:
+                raise WriteModelError("unavailable", f"{status} {code}")
+            last_kind, last_msg = "overloaded", f"{status} {code or 'throughput'}"
+            ra = _parse_retry_after(resp)
+            if ra is not None:
+                delay = min(ra + random.uniform(0.0, 0.3), 8.0)
+        if attempt < max_attempts - 1:
+            time.sleep(delay)
+    raise WriteModelError(last_kind, last_msg)
+
+
+def ask_with_failover(prompt: str, timeout: int = 60) -> str:
+    """Chiama il gateway lungo la chain con retry + circuit-breaker + failover.
+
+    Solleva WriteModelError se nessun provider risponde (la route lo traduce in 503-pulito).
+    """
+    errors: List[str] = []
+    for provider, model in write_model_chain():
+        if _breaker_open(provider):
+            errors.append(f"{provider}: breaker-aperto")
+            continue
+        try:
+            content = _post_once(provider, model, prompt, timeout)
+        except WriteModelError as exc:
+            if exc.kind == "bad_request":
+                raise  # input errato: il failover non aiuta
+            _breaker_fail(provider)
+            errors.append(f"{provider}: {exc.kind}")
+            continue
+        if content:
+            _breaker_ok(provider)
+            return content
+        # ok-ma-vuoto: tratta come fallimento di questo provider, prova il prossimo.
+        _breaker_fail(provider)
+        errors.append(f"{provider}: vuoto")
+    raise WriteModelError("overloaded", "tutti i provider non disponibili (" + "; ".join(errors) + ")")
+
+
 def refine_message(
     message_id: str,
     scene_id: str,
@@ -170,12 +342,6 @@ def refine_message(
         retrieve_scene_sheets,
     )
 
-    # C3: modello-scrittura configurabile via env (cloud-strong default / switch locale).
-    if provider is None or model is None:
-        _rp, _rm = resolve_write_model()
-        provider = provider or _rp
-        model = model or _rm
-
     msg = get_message_by_id(conn, message_id)
     if msg is None:
         return ""
@@ -186,10 +352,15 @@ def refine_message(
     prompt = build_refine_prompt(
         content, sheets=sheets, lore=lore, speaker=speaker
     )
-    if ask is None:
-        enhanced = _default_ask(prompt, provider, model) or ""
-    else:
+    if ask is not None:
         enhanced = ask(prompt) or ""
+    elif provider and model:
+        # Override esplicito: singolo provider, niente chain.
+        enhanced = _post_once(provider, model, prompt, 60) or ""
+    else:
+        # Default: chain resiliente (primary=resolve_write_model + fallback, retry+breaker).
+        # Può sollevare WriteModelError -> la route la traduce in messaggio-utente pulito.
+        enhanced = ask_with_failover(prompt) or ""
     conn.execute(
         "UPDATE messages SET content_enhanced = ? WHERE id = ?",
         (enhanced, message_id),

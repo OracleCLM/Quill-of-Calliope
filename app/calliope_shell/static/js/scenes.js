@@ -174,8 +174,17 @@ async function _refineMessage(mid, btn) {
     try {
         const resp = await fetch('/api/db/scenes/' + encodeURIComponent(sceneId) +
             '/messages/' + encodeURIComponent(mid) + '/refine', { method: 'POST' });
-        const data = await resp.json();
-        if (!resp.ok) throw new Error(data.error || ('HTTP ' + resp.status));
+        const data = await resp.json().catch(() => ({}));
+        if (!resp.ok) {
+            // Messaggio-utente PULITO (gateway sovraccarico ecc.) + affordance Riprova.
+            const userMsg = data.message || data.error || ('Errore di rete (' + resp.status + ')');
+            panel.style.display = 'block';
+            panel.innerHTML = '<div class="msg-refined-error">⚠ ' + _escapeHtml(userMsg) + ' ' +
+                '<button class="msg-refine-retry">Riprova</button></div>';
+            panel.querySelector('.msg-refine-retry').onclick = () => _refineMessage(mid, btn);
+            btn.textContent = oldLabel;
+            return;
+        }
         panel.dataset.original = data.content_original || '';
         panel.dataset.refined = data.content_enhanced || '';
         panel.dataset.showing = 'refined';
@@ -186,9 +195,12 @@ async function _refineMessage(mid, btn) {
         panel.style.display = 'block';
         btn.textContent = '✓ raffinato';
     } catch (e) {
-        btn.textContent = oldLabel;
+        // Errore imprevisto (rete): messaggio pulito, mai DOM rotto.
         panel.style.display = 'block';
-        panel.innerHTML = '<div style="color:#f66;font-size:.8em">Errore: ' + _escapeHtml(e.message) + '</div>';
+        panel.innerHTML = '<div class="msg-refined-error">⚠ Impossibile raffinare ora. ' +
+            '<button class="msg-refine-retry">Riprova</button></div>';
+        panel.querySelector('.msg-refine-retry').onclick = () => _refineMessage(mid, btn);
+        btn.textContent = oldLabel;
     } finally {
         btn.disabled = false;
     }

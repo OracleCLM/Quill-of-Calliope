@@ -176,9 +176,27 @@ def register_messages_db_routes(app, db_path=None):
             conn.close()
             return jsonify({"error": "not_found"}), 404
         from app.calliope_shell.lore_kb import LoreStore
-        from app.calliope_shell.scene_refine import refine_message
+        from app.calliope_shell.scene_refine import WriteModelError, refine_message
         content_original = row[0]
-        enhanced = refine_message(message_id, scene_id, conn, LoreStore())
+        try:
+            enhanced = refine_message(message_id, scene_id, conn, LoreStore())
+        except WriteModelError as exc:
+            # Resilienza-503: messaggio-utente pulito, NON errore grezzo, NON clobber.
+            conn.close()
+            if exc.kind == "bad_request":
+                return jsonify({
+                    "error": "bad_request",
+                    "message": "Il testo del messaggio non è valido per il raffinamento.",
+                }), 400
+            if exc.kind == "auth":
+                return jsonify({
+                    "error": "gateway_auth",
+                    "message": "Configurazione del modello di scrittura non valida (credenziali). Controlla il gateway.",
+                }), 502
+            return jsonify({
+                "error": "gateway_overloaded",
+                "message": "Il modello di scrittura è momentaneamente sovraccarico. Riprova tra qualche secondo.",
+            }), 503
         conn.close()
         return jsonify({
             "message_id": message_id,
