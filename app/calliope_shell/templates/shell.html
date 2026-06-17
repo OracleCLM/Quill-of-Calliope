@@ -476,10 +476,10 @@
                     <div class="wc-title">Nuovo personaggio</div>
                     <div class="wc-desc">Crea un PG/PNG o la scheda di altro giocatore</div>
                 </div>
-                <div class="welcome-card" onclick="_importInfo()">
+                <div class="welcome-card" onclick="showView('import')">
                     <div class="wc-icon">⇪</div>
                     <div class="wc-title">Importa da Discord</div>
-                    <div class="wc-desc">Scraping storico per-canale/data (come fare)</div>
+                    <div class="wc-desc">Export per-canale → seleziona → importa in scena</div>
                 </div>
                 <div class="welcome-card" onclick="showView('messages')">
                     <div class="wc-icon">◇</div>
@@ -637,6 +637,28 @@
         <div style="display:flex; gap:20px; flex:1; min-height:0;">
             <div id="characters-grid" style="flex:1.4; min-width:0;"></div>
             <div id="character-detail" style="flex:1; min-width:0; overflow-y:auto; background:#0d1117; border:1px solid #1a2a3a; border-radius:8px; padding:16px; color:#8899aa;">← Seleziona un personaggio</div>
+        </div>
+    </section>
+
+    <!-- ── IMPORT DISCORD PANEL (GAP-4) ── -->
+    <section id="import-panel" style="display:none; flex-direction:column; padding:24px; height:calc(100vh - 60px); box-sizing:border-box; overflow-y:auto;">
+        <h2>⇪ Importa storico Discord</h2>
+        <p style="color:#778; font-size:.85em; margin:0 0 12px;">Scansiona una cartella di export DiscordChatExporter (*.json), anteprima per-canale, seleziona i messaggi e importali in una scena.</p>
+        <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:12px;">
+            <input id="import-dir" placeholder="Percorso cartella export (es. /tmp/discord_import/raw)" style="flex:1; min-width:280px; background:#0d1117; color:#dde; border:1px solid #2a3a5a; border-radius:6px; padding:8px 12px; font-size:.88em;">
+            <button onclick="_importScan()" style="background:#1e2f5a; color:#cde; border:1px solid #2a4a7a; border-radius:6px; padding:8px 16px; cursor:pointer; font-size:.88em;">Scansiona</button>
+        </div>
+        <div id="import-files" style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px;"></div>
+        <div id="import-preview-area" style="display:none; flex:1; min-height:0; display:none; flex-direction:column;">
+            <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom:8px;">
+                <input id="import-filter" placeholder="Filtra (autore/testo)…" oninput="_importFilter()" style="flex:1; min-width:200px; background:#0d1117; color:#dde; border:1px solid #2a3a5a; border-radius:6px; padding:6px 10px; font-size:.84em;">
+                <button onclick="_importToggleAll(true)" style="background:#222b3a; color:#cde; border:1px solid #2a3a5a; border-radius:6px; padding:6px 10px; cursor:pointer; font-size:.8em;">Seleziona tutti</button>
+                <button onclick="_importToggleAll(false)" style="background:#222b3a; color:#cde; border:1px solid #2a3a5a; border-radius:6px; padding:6px 10px; cursor:pointer; font-size:.8em;">Nessuno</button>
+                <select id="import-target-scene" style="background:#111827; color:#cde; border:1px solid #2a4a7a; border-radius:6px; padding:6px 10px; font-size:.84em;"><option value="">— Scena destinazione —</option></select>
+                <button id="import-do-btn" onclick="_importSelected()" style="background:#1e4a1e; color:#8f8; border:none; border-radius:6px; padding:7px 16px; cursor:pointer; font-size:.85em;">Importa selezionati</button>
+            </div>
+            <div id="import-status" style="font-size:.82em; color:#88aaff; min-height:1em; margin-bottom:6px;"></div>
+            <div id="import-messages" style="flex:1; overflow-y:auto; border:1px solid #1a2a3a; border-radius:8px; padding:8px; background:#0d1117;"></div>
         </div>
     </section>
 
@@ -975,7 +997,7 @@
         }
 
         // ── View routing ──
-        const _ALL_PANELS = ['dashboard','main','characters','scenes','messages','translate','draft','refine','arc','smartdraft','summarize','lorekb','loresearch','lorecheck'];
+        const _ALL_PANELS = ['dashboard','main','characters','scenes','messages','translate','draft','refine','arc','smartdraft','summarize','lorekb','loresearch','lorecheck','import'];
         function showView(view) {
             _ALL_PANELS.forEach(v => {
                 const el = document.getElementById(v === 'main' ? 'main-view' : v + '-panel');

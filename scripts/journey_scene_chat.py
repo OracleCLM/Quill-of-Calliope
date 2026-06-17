@@ -389,6 +389,54 @@ def journey_created_char_is_bindable(pg):
         pg.remove_listener("dialog", _h)
 
 
+def journey_import_discord(pg):
+    """Given un export Discord (DCE json), When scansiono->seleziono->importo in una scena,
+    Then i messaggi importati COMPAIONO nel thread della scena (GAP-4, stato-risultante)."""
+    import json as _json
+    name = "IMPORT-DISCORD"
+    expdir = tempfile.mkdtemp(prefix="journey-dce-")
+    dce = {
+        "guild": {"id": "1"},
+        "channel": {"id": "10", "name": "canale-test", "type": "GuildTextChat"},
+        "messages": [
+            {"id": "100", "timestamp": "2024-01-01T10:00:00",
+             "author": {"id": "a1", "name": "Alice", "isBot": False},
+             "type": "Default", "content": "IMPORT_MSG_UNO dalla scena."},
+            {"id": "101", "timestamp": "2024-01-01T10:01:00",
+             "author": {"id": "a2", "name": "Bob", "isBot": False},
+             "type": "Default", "content": "IMPORT_MSG_DUE risposta."},
+        ],
+    }
+    with open(os.path.join(expdir, "canale.json"), "w", encoding="utf-8") as f:
+        _json.dump(dce, f)
+    try:
+        pg.goto(f"http://127.0.0.1:{PORT}/", wait_until="domcontentloaded")
+        pg.evaluate("showView('import')")
+        pg.wait_for_selector("#import-dir", timeout=8000)
+        pg.fill("#import-dir", expdir)
+        pg.evaluate("_importScan()")
+        pg.wait_for_selector("#import-files .import-file-chip", timeout=8000)
+        pg.click("#import-files .import-file-chip")
+        pg.wait_for_selector("#import-messages .import-msg", timeout=8000)
+        pg.select_option("#import-target-scene", SID_EMPTY)
+        pg.click("#import-do-btn")
+        pg.wait_for_function(
+            "()=>{const s=document.getElementById('import-status');return s&&s.textContent.includes('Importati');}",
+            timeout=8000)
+        # STATO-RISULTANTE: i messaggi importati compaiono nel thread della scena.
+        pg.evaluate("showView('scenes')")
+        pg.evaluate(f"_loadSceneDetail('{SID_EMPTY}')")
+        pg.wait_for_function(
+            "()=>{const b=document.querySelectorAll('#scene-thread .msg-bubble');"
+            "return [...b].some(x=>x.innerText.includes('IMPORT_MSG_UNO'));}", timeout=8000)
+        print(f"[PASS] {name}")
+    except Exception as e:
+        _FAILS.append(f"{name}: import non riflesso nella scena ({e})")
+    finally:
+        import shutil
+        shutil.rmtree(expdir, ignore_errors=True)
+
+
 def main():
     chars_dir = tempfile.mkdtemp(prefix="journey-chars-")
     seed(chars_dir)
@@ -417,6 +465,7 @@ def main():
             journey_write_model_switch(pg)
             journey_refine_injects_rich_sheet(pg)
             journey_created_char_is_bindable(pg)
+            journey_import_discord(pg)
             br.close()
         if _FAILS:
             print("\n===== JOURNEY FAILURES =====")

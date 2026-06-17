@@ -397,13 +397,113 @@ async function _createCharacter() {
     }
 }
 
-// Affordance informativa: import/scrape Discord (oggi via CLI — reso DISCOVERABILE).
+// ── GAP-4: importer Discord in-UI (scan -> preview per-canale -> selezione -> import in scena) ──
+let _importDir = '';
+
+async function _importScan() {
+    const dir = (document.getElementById('import-dir').value || '').trim();
+    const filesEl = document.getElementById('import-files');
+    if (!dir) { filesEl.innerHTML = '<span style="color:#a66;font-size:.82em">Indica una cartella.</span>'; return; }
+    _importDir = dir;
+    filesEl.innerHTML = '<span style="color:#556;font-size:.82em">Scansione…</span>';
+    try {
+        const r = await fetch('/api/import/discord/scan', {
+            method: 'POST', headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ dir }),
+        });
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.error || ('HTTP ' + r.status));
+        if (!d.files.length) { filesEl.innerHTML = '<span style="color:#556;font-size:.82em">Nessun *.json nella cartella.</span>'; return; }
+        filesEl.innerHTML = d.files.map(f =>
+            '<button class="import-file-chip" onclick="_importPreview(\'' + _escapeHtml(f.file).replace(/'/g, "\\'") + '\')" ' +
+            'style="background:#1a2440;color:#cde;border:1px solid #2a3a5a;border-radius:6px;padding:6px 10px;cursor:pointer;font-size:.8em;">' +
+            _escapeHtml(f.channel || f.file) + (f.count != null ? ' (' + f.count + ')' : '') + '</button>'
+        ).join('');
+    } catch (e) {
+        filesEl.innerHTML = '<span style="color:#f66;font-size:.82em">Errore: ' + _escapeHtml(e.message) + '</span>';
+    }
+}
+
+async function _importPreview(file) {
+    const area = document.getElementById('import-preview-area');
+    const msgsEl = document.getElementById('import-messages');
+    area.style.display = 'flex';
+    msgsEl.innerHTML = '<span style="color:#556;font-size:.82em">Caricamento anteprima…</span>';
+    // popola le scene-destinazione
+    const sceneSel = document.getElementById('import-target-scene');
+    try {
+        const sr = await fetch('/api/db/scenes'); const sd = await sr.json();
+        sceneSel.innerHTML = '<option value="">— Scena destinazione —</option>' +
+            (sd.scenes || []).map(s => '<option value="' + _escapeHtml(s.id) + '">' + _escapeHtml(s.title || s.id) + '</option>').join('');
+    } catch (e) { /* opzionale */ }
+    try {
+        const r = await fetch('/api/import/discord/preview', {
+            method: 'POST', headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ dir: _importDir, file }),
+        });
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.error || ('HTTP ' + r.status));
+        msgsEl.innerHTML = (d.messages || []).map((m, i) =>
+            '<label class="import-msg" data-search="' + _escapeHtml((m.author_name + ' ' + m.content).toLowerCase()) + '" ' +
+            'style="display:flex;gap:8px;align-items:flex-start;padding:4px 2px;border-bottom:1px solid #141c2c;font-size:.82em;">' +
+            '<input type="checkbox" class="import-cb" data-i="' + i + '" checked>' +
+            '<span><b style="color:#88aaff">' + _escapeHtml(m.author_name || '—') + '</b> ' +
+            '<span style="color:#566;font-size:.92em">' + _escapeHtml((m.timestamp || '').slice(0, 16)) + '</span><br>' +
+            '<span style="color:#cdd">' + _escapeHtml(m.content || '') + '</span></span></label>'
+        ).join('');
+        // tieni i dati per l'import
+        msgsEl._messages = d.messages || [];
+        document.getElementById('import-status').textContent = d.count + ' messaggi nel canale "' + (d.channel || '') + '"';
+    } catch (e) {
+        msgsEl.innerHTML = '<span style="color:#f66;font-size:.82em">Errore: ' + _escapeHtml(e.message) + '</span>';
+    }
+}
+
+function _importFilter() {
+    const f = (document.getElementById('import-filter').value || '').toLowerCase();
+    document.querySelectorAll('#import-messages .import-msg').forEach(el => {
+        el.style.display = (!f || (el.dataset.search || '').includes(f)) ? 'flex' : 'none';
+    });
+}
+
+function _importToggleAll(checked) {
+    document.querySelectorAll('#import-messages .import-msg').forEach(el => {
+        if (el.style.display !== 'none') el.querySelector('.import-cb').checked = checked;
+    });
+}
+
+async function _importSelected() {
+    const sceneId = document.getElementById('import-target-scene').value;
+    const statusEl = document.getElementById('import-status');
+    const msgsEl = document.getElementById('import-messages');
+    if (!sceneId) { statusEl.textContent = 'Scegli una scena destinazione.'; return; }
+    const all = msgsEl._messages || [];
+    const selected = [];
+    document.querySelectorAll('#import-messages .import-cb').forEach(cb => {
+        if (cb.checked) {
+            const m = all[parseInt(cb.dataset.i, 10)];
+            if (m) selected.push({ author_name: m.author_name, content: m.content, timestamp: m.timestamp });
+        }
+    });
+    if (!selected.length) { statusEl.textContent = 'Nessun messaggio selezionato.'; return; }
+    statusEl.textContent = 'Import in corso…';
+    try {
+        const r = await fetch('/api/import/discord/to-scene', {
+            method: 'POST', headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ scene_id: sceneId, messages: selected }),
+        });
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.error || ('HTTP ' + r.status));
+        statusEl.textContent = '✓ Importati ' + d.imported + ' messaggi nella scena.';
+    } catch (e) {
+        statusEl.textContent = 'Errore: ' + e.message;
+    }
+}
+
+// Affordance informativa legacy (non più usata in UI — tenuta per riferimento CLI).
 function _importInfo() {
     window.alert(
         'Importa storico Discord\n\n' +
-        'Lo scraping per-canale/data avviene da terminale (selezione manuale dei messaggi):\n\n' +
-        '  python scripts/import_discord_history.py\n\n' +
-        'I messaggi importati popolano le scene e compaiono qui nella Scene-Chat.\n' +
-        'In alternativa, per un estratto rapido usa il tab "∑ Summarize" incollando il log Discord.'
+        'CLI alternativa:\n  python scripts/import_discord_history.py\n'
     );
 }
