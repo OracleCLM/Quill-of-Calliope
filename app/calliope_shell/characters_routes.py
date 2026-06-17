@@ -8,6 +8,15 @@ def register_character_routes(app):
     def characters_list():
         return jsonify(characters_service.list_cards())
 
+    @app.route("/api/characters", methods=["POST"])
+    def characters_create():
+        body = request.get_json(silent=True) or {}
+        name = (body.get("name") or "").strip()
+        if not name:
+            return jsonify({"error": "name required"}), 400
+        stem = characters_service.create_draft(name)
+        return jsonify({"stem": stem, "name": name}), 201
+
     @app.route("/api/characters/<stem>", methods=["GET"])
     def characters_get(stem):
         card = characters_service.get_card_v3(stem)

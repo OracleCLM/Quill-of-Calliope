@@ -38,7 +38,9 @@
         /* ── Scenes panel ── */
         #scenes-panel { display:none; flex-direction:row; height:calc(100vh - 60px); overflow:hidden; }
         #scenes-list-col { width:320px; background:#111827; border-right:1px solid #223; display:flex; flex-direction:column; flex-shrink:0; }
-        #scenes-filter-bar { padding:10px 12px; border-bottom:1px solid #223; }
+        #scenes-filter-bar { padding:10px 12px; border-bottom:1px solid #223; display:flex; gap:8px; align-items:center; }
+        #scene-new-btn { background:#1e2f5a; color:#cde; border:1px solid #2a4a7a; border-radius:6px; padding:7px 10px; cursor:pointer; font-size:.8em; white-space:nowrap; }
+        #scene-new-btn:hover { background:#26407a; }
         #scene-filter { width:100%; background:#0d1117; color:#eee; border:1px solid #2a3a5a; border-radius:6px; padding:7px 10px; font-size:.88em; box-sizing:border-box; }
         #scenes-list { list-style:none; margin:0; padding:0; overflow-y:auto; flex:1; }
         #scenes-list li { padding:10px 12px; border-bottom:1px solid #1a2440; cursor:pointer; }
@@ -445,18 +447,33 @@
             <div style="text-align:center;">
                 <div style="font-size:2.5em; margin-bottom:8px;">✦</div>
                 <h2 style="margin:0; color:#aac; font-size:1.4em;">Quill of Calliope</h2>
-                <p style="color:#445; font-size:.9em; margin-top:6px;">SillyTavern non raggiungibile — usa i tab per accedere alle funzioni</p>
+                <p style="color:#8899bb; font-size:.92em; margin-top:6px;">Roleplay narrativo a scena-come-chat. Inizia da qui:</p>
             </div>
             <div class="welcome-cards">
+                <div class="welcome-card" onclick="showView('scenes')" style="border-color:#3a5a8a;">
+                    <div class="wc-icon">◆</div>
+                    <div class="wc-title">Apri Scene-Chat</div>
+                    <div class="wc-desc">Lista scene + thread + scrivi come narratore/personaggio</div>
+                </div>
+                <div class="welcome-card" onclick="showView('scenes'); _createScene()">
+                    <div class="wc-icon">＋</div>
+                    <div class="wc-title">Nuova scena</div>
+                    <div class="wc-desc">Crea una scena RP da zero</div>
+                </div>
+                <div class="welcome-card" onclick="showView('characters'); _createCharacter()">
+                    <div class="wc-icon">☺</div>
+                    <div class="wc-title">Nuovo personaggio</div>
+                    <div class="wc-desc">Crea un PG/PNG o la scheda di altro giocatore</div>
+                </div>
+                <div class="welcome-card" onclick="_importInfo()">
+                    <div class="wc-icon">⇪</div>
+                    <div class="wc-title">Importa da Discord</div>
+                    <div class="wc-desc">Scraping storico per-canale/data (come fare)</div>
+                </div>
                 <div class="welcome-card" onclick="showView('messages')">
                     <div class="wc-icon">◇</div>
                     <div class="wc-title">Messaggi recenti</div>
                     <div class="wc-desc">Recupera gli ultimi N messaggi</div>
-                </div>
-                <div class="welcome-card" onclick="showView('scenes')">
-                    <div class="wc-icon">◆</div>
-                    <div class="wc-title">Seleziona scena</div>
-                    <div class="wc-desc">Cerca e apri una scena RP</div>
                 </div>
                 <div class="welcome-card" onclick="showView('draft')">
                     <div class="wc-icon">✦</div>
@@ -521,6 +538,7 @@
         <div id="scenes-list-col">
             <div id="scenes-filter-bar">
                 <input id="scene-filter" placeholder="Filtra per titolo, personaggio..." oninput="_scenesFilter(this.value)">
+                <button id="scene-new-btn" onclick="_createScene()" title="Crea una nuova scena">＋ Nuova scena</button>
             </div>
             <ul id="scenes-list" data-empty-state="scenes"><li style="color:#334;padding:12px">Caricamento...</li></ul>
         </div>
@@ -548,15 +566,6 @@
                 <div style="font-size:.8em;color:#667;margin-top:4px">Ultimo messaggio:</div>
                 <div class="scene-excerpt" id="scene-detail-last"></div>
                 </details>
-                <div id="scenes-continue-area">
-                    <div style="font-size:.85em;color:#8899cc;margin-bottom:8px;font-weight:bold;">▶ Genera prossimo messaggio</div>
-                    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-                        <select id="scene-char-select"><option value="">— Seleziona personaggio —</option></select>
-                    </div>
-                    <input id="scene-ctx-hint" placeholder="Hint contestuale (opzionale)...">
-                    <div id="continue-status" style="font-size:.8em;color:#88aaff;margin-top:6px;min-height:1em;"></div>
-                    <div id="gen-output" class="gen-output"></div>
-                </div>
                 <div style="margin-top:14px; padding-top:10px; border-top:1px solid #1a2a3a;">
                     <button id="btn-scene-revive" onclick="_reviveScene()" style="background:#2a2a1e; color:#cc8; border:1px solid #3a3a2a; border-radius:6px; padding:8px 18px; cursor:pointer; font-size:.85em;">🔄 Revive Scene</button>
                     <button id="btn-scene-smartdraft" onclick="_smartDraftFromScene()" style="background:#1a2a4a; color:#aac; border:1px solid #2a3a5a; border-radius:6px; padding:8px 18px; cursor:pointer; font-size:.85em; margin-left:6px;">⚡ Smart Draft</button>
@@ -594,8 +603,9 @@
     <!-- ── CHARACTERS PANEL (P5a — redesign) ── -->
     <section id="characters-panel" style="display:none; flex-direction:column; padding:24px; height:calc(100vh - 60px); box-sizing:border-box;">
         <h2>☺ Personaggi</h2>
-        <div style="margin-bottom:12px;">
-            <input id="char-search" placeholder="Filtra per nome, persona, tag..." style="width:100%; max-width:420px; background:#0d1117; color:#dde; border:1px solid #2a3a5a; border-radius:6px; padding:8px 12px; font-size:.9em; box-sizing:border-box;">
+        <div style="margin-bottom:12px; display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+            <input id="char-search" placeholder="Filtra per nome, persona, tag..." style="flex:1; min-width:200px; max-width:420px; background:#0d1117; color:#dde; border:1px solid #2a3a5a; border-radius:6px; padding:8px 12px; font-size:.9em; box-sizing:border-box;">
+            <button id="char-new-btn" onclick="_createCharacter()" title="Crea un nuovo personaggio (anche scheda di altro giocatore)" style="background:#1e2f5a; color:#cde; border:1px solid #2a4a7a; border-radius:6px; padding:8px 16px; cursor:pointer; font-size:.88em; white-space:nowrap;">＋ Nuovo personaggio</button>
         </div>
         <div style="display:flex; gap:20px; flex:1; min-height:0;">
             <div id="characters-grid" style="flex:1.4; min-width:0;"></div>

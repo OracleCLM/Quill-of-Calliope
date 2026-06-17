@@ -185,12 +185,79 @@ def journey_refine_503_clean(pg):
     print(f"[PASS] {name}")
 
 
+def journey_home_landing(pg):
+    """Given apro la Home, Then vedo card d'ingresso chiare e NESSUN errore SillyTavern."""
+    name = "HOME-LANDING-AFFORDANCE"
+    pg.goto(f"http://127.0.0.1:{PORT}/", wait_until="domcontentloaded")
+    pg.evaluate("showView('home')")
+    try:
+        pg.wait_for_function(
+            """() => {
+                const v = document.getElementById('main-view');
+                if (!v) return false;
+                const t = v.innerText || '';
+                return t.includes('Apri Scene-Chat') && t.includes('Nuova scena')
+                    && t.includes('Nuovo personaggio') && !t.includes('non raggiungibile');
+            }""",
+            timeout=8000,
+        )
+        print(f"[PASS] {name}")
+    except Exception:
+        _FAILS.append(f"{name}: Home non mostra le card d'ingresso o mostra ancora l'errore SillyTavern")
+
+
+def journey_create_scene(pg):
+    """Given clic 'Nuova scena' con un titolo, Then la scena nuova si apre col suo titolo."""
+    name = "CREATE-SCENE"
+    title = "Scena Journey Nuova"
+    pg.goto(f"http://127.0.0.1:{PORT}/", wait_until="domcontentloaded")
+    pg.evaluate("showView('scenes')")
+    pg.wait_for_selector("#scene-new-btn", timeout=8000)
+    pg.once("dialog", lambda d: d.accept(title))
+    pg.click("#scene-new-btn")
+    try:
+        pg.wait_for_function(
+            "(t) => (document.getElementById('scene-detail-title')||{}).textContent === t",
+            arg=title, timeout=8000,
+        )
+        print(f"[PASS] {name}")
+    except Exception:
+        _FAILS.append(f"{name}: la scena creata non si è aperta col titolo atteso")
+
+
+def journey_create_character(pg):
+    """Given clic 'Nuovo personaggio' con un nome, Then compare nella griglia personaggi."""
+    name = "CREATE-CHARACTER"
+    cname = "Pers Journey XYZ"
+
+    def _h(d):
+        d.accept(cname) if d.type == "prompt" else d.accept()
+
+    pg.goto(f"http://127.0.0.1:{PORT}/", wait_until="domcontentloaded")
+    pg.evaluate("showView('characters')")
+    pg.wait_for_selector("#char-new-btn", timeout=8000)
+    pg.on("dialog", _h)
+    pg.click("#char-new-btn")
+    try:
+        pg.wait_for_function(
+            "(n) => (document.getElementById('characters-grid')||{}).innerText.includes(n)",
+            arg=cname, timeout=8000,
+        )
+        print(f"[PASS] {name}")
+    except Exception:
+        _FAILS.append(f"{name}: il personaggio creato non compare nella griglia")
+    finally:
+        pg.remove_listener("dialog", _h)
+
+
 def main():
     seed()
     gw = HTTPServer(("127.0.0.1", GW_PORT), _GwHandler)
     threading.Thread(target=gw.serve_forever, daemon=True).start()
+    chars_dir = tempfile.mkdtemp(prefix="journey-chars-")
     env = dict(os.environ, CALLIOPE_DB_PATH=tmp_db, FLASK_PORT=PORT,
-               GATEWAY_URL=f"http://127.0.0.1:{GW_PORT}", CALLIOPE_WRITE_FALLBACKS="")
+               GATEWAY_URL=f"http://127.0.0.1:{GW_PORT}", CALLIOPE_WRITE_FALLBACKS="",
+               CALLIOPE_CHARS_DIR=chars_dir)
     proc = subprocess.Popen([sys.executable, "-m", "app.calliope_shell.server"],
                             cwd=REPO, env=env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     try:
@@ -201,9 +268,12 @@ def main():
         with sync_playwright() as p:
             br = p.chromium.launch()
             pg = br.new_page()
+            journey_home_landing(pg)
             journey_message_appends_at_tail(pg)
             journey_refine(pg)
             journey_refine_503_clean(pg)
+            journey_create_scene(pg)
+            journey_create_character(pg)
             br.close()
         if _FAILS:
             print("\n===== JOURNEY FAILURES =====")
@@ -220,6 +290,12 @@ def main():
             proc.kill()
         gw.shutdown()
         os.unlink(tmp_db)
+        # crea-personaggio scrive in CALLIOPE_CHARS_DIR (temp isolata) → rimuovo la dir.
+        try:
+            import shutil
+            shutil.rmtree(chars_dir, ignore_errors=True)
+        except Exception:
+            pass
 
 
 if __name__ == "__main__":

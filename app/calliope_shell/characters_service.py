@@ -1,3 +1,6 @@
+import os
+import re
+
 import yaml
 from pathlib import Path
 from typing import Dict, List, Optional
@@ -7,11 +10,41 @@ from app.calliope_shell.scene_model import CharacterCard
 
 def _chars_dir() -> Path:
     """
-    Returns the absolute Path to the repository's top‑level ``characters`` directory.
+    Returns the absolute Path to the ``characters`` directory.
+
+    Override via ``CALLIOPE_CHARS_DIR`` (usato da test/journey per isolare il
+    filesystem). Default: directory ``characters`` alla repo-root.
     """
-    # __file__ -> app/calliope_shell/characters_service.py
-    # parents[2] -> repository root
+    env = os.getenv("CALLIOPE_CHARS_DIR")
+    if env:
+        return Path(env)
+    # __file__ -> app/calliope_shell/characters_service.py ; parents[2] -> repo root
     return Path(__file__).parents[2] / "characters"
+
+
+def _slugify(name: str) -> str:
+    """Slug filesystem-safe da un nome personaggio."""
+    s = re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-")
+    return s or "char"
+
+
+def create_draft(name: str) -> str:
+    """Crea un ``<stem>.draft.yaml`` minimale per un nuovo personaggio.
+
+    Non sovrascrive file esistenti (suffissa ``-1``, ``-2`` …). Ritorna lo ``stem``.
+    """
+    d = _chars_dir()
+    d.mkdir(parents=True, exist_ok=True)
+    stem = _slugify(name)
+    candidate = stem
+    idx = 1
+    while (d / f"{candidate}.draft.yaml").is_file() or (d / f"{candidate}.canon.yaml").is_file():
+        candidate = f"{stem}-{idx}"
+        idx += 1
+    stem = candidate
+    with (d / f"{stem}.draft.yaml").open("w", encoding="utf-8") as f:
+        yaml.safe_dump({"name": name}, f, allow_unicode=True, sort_keys=False)
+    return stem
 
 
 def _merged_legacy_dict(stem: str) -> Dict:

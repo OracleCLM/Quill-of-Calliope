@@ -55,8 +55,6 @@ async function _loadSceneDetail(sceneId) {
     document.getElementById('scene-empty-state').style.display = 'none';
     document.getElementById('scene-detail').style.display = 'block';
     document.getElementById('scene-detail-title').textContent = '…';
-    document.getElementById('gen-output').style.display = 'none';
-    document.getElementById('continue-status').textContent = '';
     try {
         // FE-1: dettaglio scena dal DB. GET /api/db/scenes/<id> -> {scene:{...}, messages:[...]}
         const resp = await fetch('/api/db/scenes/' + encodeURIComponent(sceneId));
@@ -78,20 +76,13 @@ async function _loadSceneDetail(sceneId) {
         document.getElementById('scene-detail-first').textContent = messages[0] ? messages[0].content_original : '—';
         document.getElementById('scene-detail-last').textContent =
             messages.length ? messages[messages.length - 1].content_original : '—';
-        // FE-2: roster personaggi-in-scena dal DB (GET /api/db/scenes/<id>/characters -> {characters:[{id,name,role}]})
-        const sel = document.getElementById('scene-char-select');
-        sel.innerHTML = '<option value="">— Seleziona personaggio —</option>';
-        // C1: popola anche il select del compose-chat (personaggio mittente).
+        // Roster personaggi-in-scena -> popola il select del compose (personaggio mittente).
         const composeSel = document.getElementById('compose-char-select');
         if (composeSel) composeSel.innerHTML = '<option value="">— Personaggio —</option>';
         try {
             const rresp = await fetch('/api/db/scenes/' + encodeURIComponent(sceneId) + '/characters');
             const rdata = await rresp.json();
             (rdata.characters || []).forEach(c => {
-                const opt = document.createElement('option');
-                opt.value = c.id;
-                opt.textContent = c.role ? `${c.name} (${c.role})` : c.name;
-                sel.appendChild(opt);
                 if (composeSel) {
                     const o2 = document.createElement('option');
                     o2.value = c.id;
@@ -101,7 +92,6 @@ async function _loadSceneDetail(sceneId) {
                 }
             });
         } catch (e) { /* roster opzionale: il dettaglio resta usabile senza */ }
-        sel.onchange = () => { document.getElementById('continue-btn').disabled = !sel.value; };
     } catch(e) {
         document.getElementById('scene-detail-title').textContent = 'Errore: ' + e.message;
     }
@@ -262,4 +252,52 @@ async function _sendSceneMessage() {
     } finally {
         btn.disabled = false;
     }
+}
+
+// ── Affordance: crea-scena / crea-personaggio (flussi resi visibili in UI) ──
+async function _createScene() {
+    const title = (window.prompt('Titolo della nuova scena:') || '').trim();
+    if (!title) return;
+    try {
+        const r = await fetch('/api/db/scenes', {
+            method: 'POST', headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ title }),
+        });
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.error || ('HTTP ' + r.status));
+        await _loadScenes();
+        _loadSceneDetail(d.id);   // apre subito la scena nuova
+    } catch (e) {
+        window.alert('Errore creazione scena: ' + e.message);
+    }
+}
+
+async function _createCharacter() {
+    const name = (window.prompt('Nome del nuovo personaggio (anche scheda di altro giocatore):') || '').trim();
+    if (!name) return;
+    try {
+        // POST /api/characters = stessa fonte della griglia Personaggi (così compare subito).
+        const r = await fetch('/api/characters', {
+            method: 'POST', headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ name }),
+        });
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.error || ('HTTP ' + r.status));
+        if (typeof loadCharactersPanel === 'function') loadCharactersPanel();
+        if (typeof loadCharList === 'function') loadCharList();
+        window.alert('Personaggio "' + name + '" creato. Aprilo per compilarne la scheda.');
+    } catch (e) {
+        window.alert('Errore creazione personaggio: ' + e.message);
+    }
+}
+
+// Affordance informativa: import/scrape Discord (oggi via CLI — reso DISCOVERABILE).
+function _importInfo() {
+    window.alert(
+        'Importa storico Discord\n\n' +
+        'Lo scraping per-canale/data avviene da terminale (selezione manuale dei messaggi):\n\n' +
+        '  python scripts/import_discord_history.py\n\n' +
+        'I messaggi importati popolano le scene e compaiono qui nella Scene-Chat.\n' +
+        'In alternativa, per un estratto rapido usa il tab "∑ Summarize" incollando il log Discord.'
+    );
 }
