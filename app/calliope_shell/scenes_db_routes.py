@@ -122,15 +122,27 @@ def register_scenes_db_routes(app, db_path=None):
 
     @app.route("/api/db/scenes/<scene_id>", methods=["GET"])
     def db_scene_detail(scene_id):
+        # ?limit=N: ultimi N messaggi (default 200). limit=0 → tutti (admin/debug).
+        limit = request.args.get("limit", default=200, type=int)
         conn = _conn(db_path)
         row = conn.execute("SELECT * FROM scenes WHERE id = ?", (scene_id,)).fetchone()
         if row is None:
             conn.close()
             return jsonify({"error": "not_found"}), 404
         scene = dict(row)
-        msgs = db_messages.list_messages_for_scene(conn, scene_id)
+        if limit > 0:
+            cur = conn.execute(
+                "SELECT * FROM messages WHERE scene_id = ? "
+                "ORDER BY position_order DESC LIMIT ?",
+                (scene_id, limit),
+            )
+            rows = cur.fetchall()
+            cols = [d[0] for d in cur.description]
+            msgs = list(reversed([dict(zip(cols, r)) for r in rows]))
+        else:
+            msgs = list(db_messages.list_messages_for_scene(conn, scene_id))
         conn.close()
-        return jsonify({"scene": scene, "messages": list(msgs)}), 200
+        return jsonify({"scene": scene, "messages": msgs, "limit": limit}), 200
 
     @app.route("/api/db/scenes", methods=["POST"])
     def db_create_scene():
