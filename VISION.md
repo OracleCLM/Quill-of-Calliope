@@ -2,7 +2,7 @@
 
 > Musa della poesia epica. Assistente AI per narrazione e gestione di giochi di ruolo testuali, con focus letterario, persistenza del contesto, e privacy locale.
 
-**Status**: 🟢 M0+M1+M2+M3.5+M4+Wave5+Sprint D+E+F (2026-05-24, ~20k LOC, 38 Flask routes, 11 dashboard tabs). Dashboard fully wired (Sprint E). Lore index 86 docs (Sprint F1). ChatGPT import parser (Sprint F3). Discord bot **codice pronto, attivazione operativa pending** (vedi M6). 596 unit tests passing.
+**Status**: 🟢 M0+M1+M2+M3.5+M4+Wave5+Sprint D+E+F+**M-A/B/C/D** (2026-06-18, ~22k LOC, 40+ Flask routes). Redesign scene-chat COMPLETO (M-A: SSOT Card V2 + M-B: assembler-prompt+/api/write + M-C: split Lore UI + M-D: pannello-azioni contestuale). 1104 unit tests passing. Discord bot **codice pronto, attivazione operativa pending** (vedi M6).
 
 ---
 
@@ -37,14 +37,10 @@ personaggi**; i messaggi degli **altri personaggi** sono **importati** dallo sto
 schema characters/sheets + lore-KB (`lore_kb.py`/`triggered_entries`), scene-as-chat backend
 completo+verde (`/api/db/scenes*`, `scenes.js` base), LLM gateway (`plot_arc._groq_ask`).
 
-**DA-COSTRUIRE (3 gap, owner-mapped)**:
-1. **Assistenza-scrittura con retrieval** (cuore-qualità): `summarizer.py` è deterministico,
-   `messages.content_enhanced` mai popolata, nessun context-injection. → retrieval-helper
-   (schede-attive + lore key-match) + refine-fn (chiama gateway-strong, popola `content_enhanced`).
-   **Owner: EFESTO** (pezzi single-function backend + gate).
-2. **Binding manuale** (nessuna automazione — chiuso per decisione).
-3. **UI chat JanitorAI minimal-first**. **Owner: Claude/NM** (UI + browser-verify + design-retrieval;
-   instruction-heavy, non-Efesto).
+**COSTRUITO (3 gap chiusi — 2026-06-18)**:
+1. ✅ **Assistenza-scrittura con retrieval** (M-B + GAP-2): `prompt_assembler.assemble()` SSOT Card V2 + lore key-match + char_memory, budget adattivo per-modello. `content_enhanced` popolato dal pulsante "✦ raffina" (bolla) e dal pannello M-D (verbo Rifinisci). `POST /api/write` + `scene_refine.refine_message()` convergenti su stesso assembler.
+2. ✅ **Binding manuale** (nessuna automazione — chiuso per decisione, confermato).
+3. ✅ **UI chat JanitorAI minimal-first** (M-C + M-D): split Lore Personaggi/DB vs Eventi, pannello write-actions contestuale su selezione (genera/continua/rifinisci/traduci/riassumi/coerenza), compose narratore/personaggio, thread bubble con "Aggiorna bolla" in-place.
 
 **Strategia-modello scrittura — SWITCH locale/cloud (nic 2026-06-16)**:
 Il modello-scrittura è **configurabile** tra due backend, selezionabili via switch:
