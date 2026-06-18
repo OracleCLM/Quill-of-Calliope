@@ -45,3 +45,6 @@ def test_refine_message(db_connection, tmp_path):
     assert "Aria" in captured["prompt"]
     assert "Drago" in captured["prompt"]
     assert "The drago appears." in captured["prompt"]
+    # GAP-2: il prompt è costruito da prompt_assembler (M-B), non da build_refine_prompt
+    assert "CHARACTERS" in captured["prompt"] or "[Aria]" in captured["prompt"]
+    assert "LORE" in captured["prompt"] or "Antico custode" in captured["prompt"]
