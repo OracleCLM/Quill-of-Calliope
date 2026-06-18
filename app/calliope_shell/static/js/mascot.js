@@ -65,24 +65,36 @@
             return;
         }
 
-        const key = selectedModelKey();
+        let key = selectedModelKey();
         window.MASCOT_ACTIVE = { key, ...MASCOT_MODELS[key] };
         window.MASCOT_MODELS = MASCOT_MODELS;
 
+        const _tryLoad = async (modelKey) => window.createMascotRenderer({
+            modelUrl: MASCOT_MODELS[modelKey].modelUrl,
+            canvasId: CANVAS_ID,
+            width: canvas.width || 320,
+            height: canvas.height || 440,
+            backgroundAlpha: 0,
+            fitWidth: (canvas.width || 320) - 40,
+            idleMotion: 'Idle',
+        });
+
         try {
-            await window.createMascotRenderer({
-                modelUrl: MASCOT_MODELS[key].modelUrl,
-                canvasId: CANVAS_ID,
-                width: canvas.width || 320,
-                height: canvas.height || 440,
-                backgroundAlpha: 0,
-                fitWidth: (canvas.width || 320) - 40,
-                idleMotion: 'Idle',
-            });
+            await _tryLoad(key);
             _restoreLastEmotion();
         } catch (err) {
-            // renderer.js surfaces its own banner; the rest of the shell stays usable.
-            console.warn('[mascot] shared renderer load failed:', err && err.message);
+            console.warn('[mascot] model', key, 'failed to load:', err && err.message);
+            if (key !== 'mao') {
+                console.warn('[mascot] fallback a mao (modello richiesto non disponibile)');
+                key = 'mao';
+                window.MASCOT_ACTIVE = { key, ...MASCOT_MODELS[key] };
+                try {
+                    await _tryLoad('mao');
+                    _restoreLastEmotion();
+                } catch (err2) {
+                    console.warn('[mascot] fallback mao fallito:', err2 && err2.message);
+                }
+            }
         }
 
         loadEmotionMap();
