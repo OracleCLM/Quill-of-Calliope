@@ -59,7 +59,11 @@ DEFAULT_CONTEXT_WINDOW = 32_000
 
 
 def _normalize(model: Optional[str]) -> str:
-    return (model or "").strip().lower()
+    # Rimuove suffissi OpenRouter (:free, :nitro, :beta, etc.) per il lookup.
+    s = (model or "").strip().lower()
+    if ":" in s:
+        s = s.rsplit(":", 1)[0]
+    return s
 
 
 def context_window_for(model: Optional[str]) -> int:
