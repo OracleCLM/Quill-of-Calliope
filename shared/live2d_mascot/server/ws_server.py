@@ -161,7 +161,7 @@ async def twitch_event(payload: dict) -> dict:
 def main() -> None:
     parser = argparse.ArgumentParser(description="Live2D mascot WebSocket server (shared)")
     parser.add_argument("--host", default="127.0.0.1")
-    parser.add_argument("--port", type=int, default=8767)
+    parser.add_argument("--port", type=int, default=9876)
     args = parser.parse_args()
     uvicorn.run(app, host=args.host, port=args.port, log_level="info")
 
