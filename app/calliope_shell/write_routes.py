@@ -53,11 +53,19 @@ def _gateway_url() -> str:
 
 
 def _active_model() -> str:
-    return os.getenv("CALLIOPE_LLM_MODEL", "gpt-oss-120b")
+    try:
+        from app.calliope_shell.scene_refine import resolve_write_model  # noqa: PLC0415
+        return resolve_write_model()[1]
+    except Exception:
+        return os.getenv("CALLIOPE_LLM_MODEL", "gpt-oss-120b")
 
 
 def _active_provider() -> str:
-    return os.getenv("CALLIOPE_LLM_PROVIDER", "cerebras")
+    try:
+        from app.calliope_shell.scene_refine import resolve_write_model  # noqa: PLC0415
+        return resolve_write_model()[0]
+    except Exception:
+        return os.getenv("CALLIOPE_LLM_PROVIDER", "cerebras")
 
 
 def _gateway_text(data: dict) -> str:
