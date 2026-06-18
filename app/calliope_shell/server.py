@@ -1654,12 +1654,27 @@ def create_app():
 
         search_query = text[:500]
         if scene_id:
-            for p in _SCENES_DIR.glob("*.yaml"):
-                if scene_id in p.stem:
-                    d = _parse_scene_yaml(p)
-                    if d:
-                        search_query = f"{d.get('title', '')} {text[:300]}"
-                    break
+            _scene_title = None
+            try:
+                from app.db import get_db as _get_db  # noqa: PLC0415
+                _lc_conn = _get_db()
+                _lc_row = _lc_conn.execute(
+                    "SELECT title FROM scenes WHERE id = ?", (scene_id,)
+                ).fetchone()
+                if _lc_row:
+                    _scene_title = _lc_row[0]
+                _lc_conn.close()
+            except Exception:
+                pass
+            if not _scene_title:
+                for p in _SCENES_DIR.glob("*.yaml"):
+                    if scene_id in p.stem:
+                        d = _parse_scene_yaml(p)
+                        if d:
+                            _scene_title = d.get("title", "")
+                        break
+            if _scene_title:
+                search_query = f"{_scene_title} {text[:300]}"
 
         lore_snippets = _search_lore(search_query, n=5)
 
