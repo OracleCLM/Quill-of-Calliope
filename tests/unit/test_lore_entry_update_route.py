@@ -64,3 +64,24 @@ def test_put_updates_content(client):
 def test_put_not_found_returns_404(client):
     r = client.put("/api/lore/entries/entry-inesistente", json={"title": "X"})
     assert r.status_code == 404
+
+
+# --- GAP-17: DELETE /api/lore/entries/<id> --------------------------------
+
+def test_delete_entry(client):
+    eid = _create(client, "Da Eliminare")
+    r = client.delete(f"/api/lore/entries/{eid}")
+    assert r.status_code == 200
+    assert r.get_json()["deleted"] is True
+
+
+def test_delete_removes_from_list(client):
+    eid = _create(client, "Temporanea")
+    client.delete(f"/api/lore/entries/{eid}")
+    entries = client.get("/api/lore/entries").get_json()["entries"]
+    assert all(e["id"] != eid for e in entries)
+
+
+def test_delete_not_found_returns_404(client):
+    r = client.delete("/api/lore/entries/non-esistente")
+    assert r.status_code == 404
