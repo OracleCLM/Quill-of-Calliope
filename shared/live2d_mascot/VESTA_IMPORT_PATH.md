@@ -41,6 +41,33 @@ from live2d_mascot.server.ws_server import app, main
 <script src="../shared/live2d_mascot/frontend/core/state_machine.js"></script>
 ```
 
+## Mascot model — Mao (shared shippable default)
+
+The shared package now ships a default Live2D model: **Mao** (Live2D official
+sample model, Free Material License — see `models/mao/README.md`). Vesta loads it
+through the same shared shell by pointing `MASCOT_CONFIG` at the shared model path:
+
+```html
+<script id="mascot-config">
+  window.MASCOT_CONFIG = {
+    // via the recommended symlink (../shared/live2d_mascot → shared package)
+    modelUrl: '../shared/live2d_mascot/models/mao/Mao.model3.json',
+    canvasId: 'live2d-canvas',
+    idleMotion: 'Idle',
+    // optional: override emotion→expression slots for a different model
+    // expressionMap: { neutral: {slot:'exp_01'}, joy: {slot:'exp_02'}, ... },
+  };
+</script>
+```
+
+`createMascotRenderer(window.MASCOT_CONFIG)` then mounts Mao with the shared
+renderer (idle motion + auto breath/blink fallback for motionless models).
+Mao's expressions are `exp_01..exp_08`; motions are `Idle` / `TapBody`.
+
+> Mao is the ONLY shippable model. `models/koko/` and `models/tingyun/` are
+> license-restricted dev-reference models (gitignored, NM-local only) for
+> aesthetic evaluation and must never ship.
+
 ## Inochi2D convergence note
 
 Vesta WAVE-M3-B is evaluating Inochi2D (alternative to Live2D Cubism).

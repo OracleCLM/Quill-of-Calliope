@@ -1,33 +1,80 @@
 /**
  * Calliope mascot bootstrap — thin config wrapper over the shared renderer.
  *
- * The rendering/engine logic now lives in the repo-agnostic factory
+ * The rendering/engine logic lives in the repo-agnostic factory
  * `createMascotRenderer` (shared/live2d_mascot/frontend/core/renderer.js).
- * This file only supplies Calliope's config and is the consumer that proves
- * the shared renderer reuse path (the same factory mounts the Vesta mascot).
+ * This file only supplies the model registry + selection, proving the shared
+ * renderer reuse path (the same factory mounts the Vesta mascot).
  *
- * MODEL ASSET — operator aesthetic choice: the real calliope.moc3 art does not
- * exist yet (see shared/live2d_mascot/models/calliope/README.md). Until it lands,
- * this falls back to a placeholder Cubism model so the dashboard renders. Override
- * by defining `window.MASCOT_CONFIG = { modelUrl, canvasId, idleMotion }` before
- * this script loads.
+ * MODEL CHOICE — operator aesthetic decision:
+ *   - mao     → SHIPPABLE DEFAULT. Live2D official sample model (Free Material
+ *               License). The only model committed to git / shippable open-source.
+ *   - koko    → dev-reference ONLY (license no-redistribute). gitignored.
+ *   - tingyun → dev-reference ONLY (fan-IP HoYoverse). gitignored. Chinese
+ *               filename → modelUrl built with encodeURI.
+ *
+ * Select a model with the `?model=` query param (default: mao):
+ *   index.html?model=koko
+ * Override entirely by defining `window.MASCOT_CONFIG` before this script loads.
  */
-document.addEventListener('DOMContentLoaded', () => {
-  const PLACEHOLDER_MODEL =
-    'https://cdn.jsdelivr.net/gh/guansss/pixi-live2d-display/test/assets/hiyori/hiyori_pro_t10.model3.json';
+(function () {
+  // Path from frontend/live2d/index.html to the shared models dir.
+  const MODELS_BASE = '../../shared/live2d_mascot/models';
 
-  const config = window.MASCOT_CONFIG || {
-    modelUrl: PLACEHOLDER_MODEL,
-    canvasId: 'live2d-canvas',
-    idleMotion: 'Idle',
+  // Per-model config. `expressions` lists the REAL expression names declared in
+  // each model3.json — used by the browser-verify harness to exercise ≥1 change.
+  const MASCOT_MODELS = {
+    mao: {
+      modelUrl: `${MODELS_BASE}/mao/Mao.model3.json`,
+      idleMotion: 'Idle',
+      expressions: ['exp_01', 'exp_02', 'exp_03', 'exp_04', 'exp_05', 'exp_06', 'exp_07', 'exp_08'],
+      shippable: true,
+    },
+    koko: {
+      // VTube-Studio export — Chinese-free path but expressions injected locally.
+      modelUrl: `${MODELS_BASE}/koko/KITU15.model3.json`,
+      idleMotion: 'Idle',
+      expressions: ['Kirakira', 'Scared', 'Shy', 'Angry', 'Cute'],
+      shippable: false,
+    },
+    tingyun: {
+      // Chinese model filename → encodeURI so the fetch URL is percent-encoded.
+      modelUrl: encodeURI(`${MODELS_BASE}/tingyun/停云.model3.json`),
+      idleMotion: 'Idle',
+      expressions: ['脸黑', '尾巴', '心心眼', '脸红'],
+      shippable: false,
+    },
   };
 
-  if (typeof createMascotRenderer !== 'function') {
-    console.error('[Calliope] shared renderer not loaded — check renderer.js script tag');
-    return;
+  function selectedModelKey() {
+    try {
+      const q = new URLSearchParams(window.location.search).get('model');
+      if (q && MASCOT_MODELS[q]) return q;
+    } catch (_) { /* file:// without search — fall through */ }
+    return 'mao';
   }
 
-  createMascotRenderer(config).catch((err) => {
-    console.error('[Calliope] mascot init failed:', err);
+  document.addEventListener('DOMContentLoaded', () => {
+    const key = selectedModelKey();
+    const model = MASCOT_MODELS[key];
+
+    const config = window.MASCOT_CONFIG || {
+      modelUrl: model.modelUrl,
+      canvasId: 'live2d-canvas',
+      idleMotion: model.idleMotion,
+    };
+
+    // Expose the active selection so the verify harness / UI can cycle expressions.
+    window.MASCOT_ACTIVE = { key, ...model };
+    window.MASCOT_MODELS = MASCOT_MODELS;
+
+    if (typeof createMascotRenderer !== 'function') {
+      console.error('[Calliope] shared renderer not loaded — check renderer.js script tag');
+      return;
+    }
+
+    createMascotRenderer(config).catch((err) => {
+      console.error('[Calliope] mascot init failed:', err);
+    });
   });
-});
+})();

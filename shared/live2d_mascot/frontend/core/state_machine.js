@@ -61,15 +61,15 @@ function setMascotState(newState) {
       break;
     case STATES.TALKING:
       model.motion('TapBody');
-      _tryExpression(model, 'f01');
+      _tryExpression(model, 'exp_02');
       break;
     case STATES.LISTENING:
       model.motion('Idle', 1);
-      _tryExpression(model, 'f02');
+      _tryExpression(model, 'exp_05');
       break;
     case STATES.THINKING:
       model.motion('Idle', 2);
-      _tryExpression(model, 'f03');
+      _tryExpression(model, 'exp_04');
       break;
   }
 

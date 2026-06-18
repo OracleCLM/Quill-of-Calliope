@@ -63,8 +63,14 @@ async function createMascotRenderer(config) {
 
     app.stage.addChild(model);
 
-    // Start idle motion.
+    // Start idle motion (no-op if the model declares no such group).
     model.motion(idleMotion);
+
+    // Fallback idle liveliness: some models (e.g. VTube-Studio exports) ship no
+    // Cubism motion3 files and pixi-live2d-display leaves breath/eye-blink
+    // unconfigured, so they render frozen. When the model has no motion groups,
+    // drive a gentle breath sway + periodic blink ourselves so idle looks alive.
+    _ensureIdleLiveliness(app, model);
 
     // Expose globally for state_machine.js, tts_sync.js, expressions.js (the contract).
     window.mascotApp = { app, model };
@@ -90,6 +96,58 @@ async function createMascotRenderer(config) {
     }
     throw err;
   }
+}
+
+/**
+ * Synthesize an idle breath/sway + blink when the model has no motion groups.
+ * Applied on the PIXI ticker at LOW priority so it runs AFTER the model's own
+ * per-frame update (otherwise the model would overwrite our parameter writes).
+ */
+function _ensureIdleLiveliness(app, model) {
+  const im = model.internalModel;
+  const groups = (im && im.motionManager && im.motionManager.definitions) || {};
+  if (Object.keys(groups).length > 0) return; // real motions present — nothing to do
+
+  const core = im && im.coreModel;
+  if (!core) return;
+
+  const has = (id) => {
+    try { core.getParameterValueById(id); return true; } catch (_) { return false; }
+  };
+  const set = (id, v) => { try { core.setParameterValueById(id, v); } catch (_) {} };
+
+  const canBreath = has('ParamBreath');
+  const canAngleX = has('ParamAngleX');
+  const canAngleY = has('ParamAngleY');
+  const canBody = has('ParamBodyAngleX');
+  const canEyeL = has('ParamEyeLOpen');
+  const canEyeR = has('ParamEyeROpen');
+
+  let t = 0;
+  let nextBlink = 1.5 + Math.random() * 3;
+  let blinkUntil = -1;
+
+  const prio = (typeof PIXI !== 'undefined' && PIXI.UPDATE_PRIORITY)
+    ? PIXI.UPDATE_PRIORITY.LOW : undefined;
+
+  app.ticker.add((dt) => {
+    t += dt / 60; // PIXI dt is frames (~1 @60fps) → seconds
+    if (canBreath) set('ParamBreath', 0.5 + 0.5 * Math.sin(t * 1.8));
+    if (canAngleX) set('ParamAngleX', 6 * Math.sin(t * 0.7));
+    if (canAngleY) set('ParamAngleY', 4 * Math.sin(t * 0.5));
+    if (canBody) set('ParamBodyAngleX', 4 * Math.sin(t * 0.7));
+
+    // Periodic blink: snap closed briefly, then reopen.
+    if (t >= nextBlink && blinkUntil < 0) blinkUntil = t + 0.12;
+    if (blinkUntil > 0) {
+      const open = t < blinkUntil ? 0 : 1;
+      if (canEyeL) set('ParamEyeLOpen', open);
+      if (canEyeR) set('ParamEyeROpen', open);
+      if (t >= blinkUntil) { blinkUntil = -1; nextBlink = t + 2 + Math.random() * 3; }
+    }
+  }, undefined, prio);
+
+  console.log('[renderer] idle liveliness fallback active (no motion groups)');
 }
 
 // UMD-ish export: browser global + CommonJS (for node-based structure tests).
