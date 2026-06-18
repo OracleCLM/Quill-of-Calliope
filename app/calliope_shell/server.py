@@ -1163,12 +1163,13 @@ def create_app():
             if persist and scene_id:
                 try:
                     from app.db import get_db as _get_db  # noqa: PLC0415
-                    from app.db.messages import (  # noqa: PLC0415
-                        add_message as _add_message,
-                        list_messages_for_scene as _list_msgs,
-                    )
+                    from app.db.messages import add_message as _add_message  # noqa: PLC0415
                     _pconn = _get_db()
-                    _pos = len(_list_msgs(_pconn, scene_id))
+                    _pos_row = _pconn.execute(
+                        "SELECT COALESCE(MAX(position_order), -1) + 1 FROM messages WHERE scene_id = ?",
+                        (scene_id,),
+                    ).fetchone()
+                    _pos = _pos_row[0] if _pos_row else 0
                     _add_message(_pconn, scene_id=scene_id, author_name=char,
                                  content_original=next_msg, position_order=_pos)
                     _pconn.commit()
@@ -1323,12 +1324,13 @@ def create_app():
         if persist and scene_id:
             try:
                 from app.db import get_db as _get_db  # noqa: PLC0415
-                from app.db.messages import (  # noqa: PLC0415
-                    add_message as _add_message,
-                    list_messages_for_scene as _list_msgs,
-                )
+                from app.db.messages import add_message as _add_message  # noqa: PLC0415
                 _pconn = _get_db()
-                _pos = len(_list_msgs(_pconn, scene_id))
+                _pos_row = _pconn.execute(
+                    "SELECT COALESCE(MAX(position_order), -1) + 1 FROM messages WHERE scene_id = ?",
+                    (scene_id,),
+                ).fetchone()
+                _pos = _pos_row[0] if _pos_row else 0
                 _add_message(_pconn, scene_id=scene_id, author_name=char_focus,
                              content_original=draft_text, position_order=_pos)
                 _pconn.commit()
