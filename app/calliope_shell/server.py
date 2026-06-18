@@ -1458,12 +1458,40 @@ def create_app():
         if not scene_id:
             return jsonify({"error": "scene_id is required"}), 400
 
+        # GAP-19: DB-FIRST — cerca nel DB SQLite prima del fallback YAML.
         scene_data = None
-        for p in _SCENES_DIR.glob("*.yaml"):
-            if scene_id in p.stem:
-                scene_data = _parse_scene_yaml(p)
-                if scene_data:
-                    break
+        try:
+            from app.db import get_db as _get_db  # noqa: PLC0415
+            from app.db.characters import list_characters_in_scene  # noqa: PLC0415
+            _db_conn = _get_db()
+            _row = _db_conn.execute("SELECT * FROM scenes WHERE id = ?", (scene_id,)).fetchone()
+            if _row:
+                _s = dict(_row)
+                _chars = [c["name"] for c in list_characters_in_scene(_db_conn, scene_id)]
+                _last = _db_conn.execute(
+                    "SELECT content_original FROM messages WHERE scene_id = ? "
+                    "ORDER BY position_order DESC LIMIT 1",
+                    (scene_id,),
+                ).fetchone()
+                scene_data = {
+                    "scene_id": scene_id,
+                    "title": _s.get("title", ""),
+                    "status": _s.get("status", "active"),
+                    "summary": _s.get("location", ""),
+                    "participants": _chars,
+                    "last_msg_excerpt": (_last[0][:200] if _last else ""),
+                    "operator_notes": None,
+                }
+            _db_conn.close()
+        except Exception:
+            pass
+
+        if not scene_data:
+            for p in _SCENES_DIR.glob("*.yaml"):
+                if scene_id in p.stem:
+                    scene_data = _parse_scene_yaml(p)
+                    if scene_data:
+                        break
 
         if not scene_data:
             return jsonify({"error": "scene not found"}), 404

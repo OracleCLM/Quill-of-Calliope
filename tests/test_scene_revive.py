@@ -123,3 +123,57 @@ def test_tr6_revive_audit(tmp_path):
 
     mock_audit.assert_called_once()
     assert mock_audit.call_args[0][0] == "scene.revive"
+
+
+# TR7 — GAP-19: DB-FIRST path (scena nel DB SQLite, non YAML)
+def test_tr7_revive_db_first(tmp_path):
+    """scene_revive trova scena nel DB anche senza file YAML."""
+    from unittest.mock import patch, MagicMock
+    from app.db import get_db, init_schema, new_id
+
+    db_file = tmp_path / "test.db"
+    conn = get_db(str(db_file))
+    init_schema(conn)
+    scene_id = new_id()
+    conn.execute(
+        "INSERT INTO scenes (id, title, location) VALUES (?, ?, ?)",
+        (scene_id, "Scena DB Revive", "Tempio antico"),
+    )
+    char_id = new_id()
+    conn.execute(
+        "INSERT INTO characters (id, name, kind) VALUES (?, ?, ?)",
+        (char_id, "AuroraDB", "npc"),
+    )
+    conn.execute(
+        "INSERT INTO scene_characters (scene_id, character_id) VALUES (?, ?)",
+        (scene_id, char_id),
+    )
+    conn.execute(
+        "INSERT INTO messages (id, scene_id, author_name, content_original, "
+        "ts, source, position_order) VALUES (?, ?, 'AuroraDB', 'Ultimo messaggio DB.', "
+        "'2024-01-01T00:00:00Z', 'manual', 0)",
+        (new_id(), scene_id),
+    )
+    conn.commit()
+    conn.close()
+
+    mock_resp = MagicMock()
+    mock_resp.status_code = 200
+    mock_resp.json.return_value = {"result": "Revival DB."}
+    mock_resp.raise_for_status = MagicMock()
+
+    # _SCENES_DIR punta a una dir VUOTA (nessun YAML) → deve trovare la scena nel DB
+    empty_dir = tmp_path / "empty_scenes"
+    empty_dir.mkdir()
+
+    with patch("requests.post", return_value=mock_resp), \
+         patch("app.calliope_shell.server._SCENES_DIR", empty_dir), \
+         patch("app.db.CALLIOPE_DB_PATH", str(db_file)):
+        app = _make_app()
+        with app.test_client() as c:
+            r = c.post("/api/scene/revive", json={"scene_id": scene_id})
+
+    assert r.status_code == 200
+    data = r.get_json()
+    assert data["scene_context"]["title"] == "Scena DB Revive"
+    assert "AuroraDB" in [p["name"] if isinstance(p, dict) else p for p in data["participants"]]
