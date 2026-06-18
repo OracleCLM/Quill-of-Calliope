@@ -131,6 +131,9 @@ def register_scenes_db_routes(app, db_path=None):
         title = body.get("title")
         if not title:
             return jsonify({"error": "title required"}), 400
+        title = title.strip()
+        if not title:
+            return jsonify({"error": "title required"}), 400
         location = body.get("location")
         scene_id = new_id()
         conn = _conn(db_path)
