@@ -72,3 +72,24 @@ def register_arcs_db_routes(app, *, db_path=None):
         scenes = db_arcs.list_scenes_for_arc(conn, arc_id)
         conn.close()
         return jsonify({"scenes": scenes, "arc_id": arc_id}), 200
+
+    @app.route("/api/db/arcs/<arc_id>", methods=["PATCH"])
+    def db_patch_arc(arc_id):
+        """Aggiorna title e/o description di un arco esistente."""
+        body = request.get_json(silent=True) or {}
+        # Verifica che ci sia almeno un campo aggiornabile
+        if not any(k in body for k in ("title", "description")):
+            return jsonify({"error": "no updatable fields"}), 400
+
+        conn = _conn(db_path)
+        updated = db_arcs.update_arc(conn, arc_id, **body)
+        if not updated:
+            # può significare arco non trovato oppure nessun campo valido
+            # in entrambi i casi restituiamo 404 per coerenza con il contratto
+            conn.close()
+            return jsonify({"error": "not_found"}), 404
+
+        # Restituiamo l'arco aggiornato
+        arc = db_arcs.get_arc(conn, arc_id)
+        conn.close()
+        return jsonify(arc), 200

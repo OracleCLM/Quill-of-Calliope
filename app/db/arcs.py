@@ -60,3 +60,29 @@ def list_scenes_for_arc(
         "SELECT * FROM scenes WHERE arc_id = ?", (arc_id,)
     ).fetchall()
     return [dict(r) for r in rows]
+
+
+def update_arc(
+    conn: sqlite3.Connection, arc_id: str, **fields: str
+) -> bool:
+    """Aggiorna i campi ``title`` e/o ``description`` di un arco.
+
+    Restituisce ``True`` se l'arco è stato aggiornato, ``False`` se l'arco
+    non esiste. Ignora eventuali chiavi non riconosciute.
+    """
+    allowed = {"title", "description"}
+    updates = {k: v for k, v in fields.items() if k in allowed}
+    if not updates:
+        # nessun campo aggiornabile fornito
+        return False
+
+    # Verifica che l'arco esista
+    cur = conn.execute("SELECT 1 FROM arcs WHERE id = ?", (arc_id,))
+    if cur.fetchone() is None:
+        return False
+
+    set_clause = ", ".join(f"{k} = ?" for k in updates)
+    params = list(updates.values()) + [arc_id]
+    conn.execute(f"UPDATE arcs SET {set_clause} WHERE id = ?", params)
+    conn.commit()
+    return True
