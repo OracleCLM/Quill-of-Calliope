@@ -65,3 +65,39 @@
 {"sprint_id":"GAP-45","status":"done","commit":"7d2b7f5","mcp_assisted":"no","mcp_provider":"skipped","mcp_tool":"skipped","skip_rationale":"scope<50t — write test file, funzioni pure testabili direttamente"}
 {"sprint_id":"GAP-46","status":"done","commit":"550ce2e","mcp_assisted":"no","mcp_provider":"skipped","mcp_tool":"skipped","skip_rationale":"scope<50t — write test file, CRUD puro"}
 {"sprint_id":"GAP-47","status":"done","commit":"844b3c4","mcp_assisted":"no","mcp_provider":"skipped","mcp_tool":"skipped","skip_rationale":"scope<50t — pure functions, nessuna analisi delegabile"}
+{"sprint_id":"GAP-48","status":"done","commit":"f05635c","mcp_assisted":"no","mcp_provider":"skipped","mcp_tool":"skipped","skip_rationale":"scope<50t — pure helper functions"}
+{"sprint_id":"GAP-49","status":"done","commit":"a91d930","mcp_assisted":"no","mcp_provider":"skipped","mcp_tool":"skipped","skip_rationale":"scope<50t — route test file"}
+{"sprint_id":"GAP-50","status":"done","commit":"6166345","mcp_assisted":"no","mcp_provider":"skipped","mcp_tool":"skipped","skip_rationale":"scope<50t — isolation test"}
+{"sprint_id":"GAP-51","status":"done","commit":"9f9bf36","mcp_assisted":"no","mcp_provider":"skipped","mcp_tool":"skipped","skip_rationale":"scope<50t — route test file"}
+{"sprint_id":"GAP-52","status":"done","commit":"9d7f2ef","mcp_assisted":"no","mcp_provider":"skipped","mcp_tool":"skipped","skip_rationale":"scope<50t — DB unit test"}
+{"sprint_id":"GAP-53","status":"done","commit":"fbc7265","mcp_assisted":"no","mcp_provider":"skipped","mcp_tool":"skipped","skip_rationale":"scope<50t — regex logic test"}
+{"sprint_id":"GAP-54","status":"done","commit":"9236b7d","mcp_assisted":"no","mcp_provider":"skipped","mcp_tool":"skipped","skip_rationale":"scope<50t — DB unit test"}
+{"sprint_id":"GAP-55","status":"done","commit":"9ead1a6","mcp_assisted":"no","mcp_provider":"skipped","mcp_tool":"skipped","skip_rationale":"scope<50t — pure function test"}
+{"sprint_id":"GAP-56","status":"done","commit":"caba002","mcp_assisted":"no","mcp_provider":"skipped","mcp_tool":"skipped","skip_rationale":"scope<50t — pure function test"}
+{"sprint_id":"GAP-57","status":"done","commit":"50296f5","mcp_assisted":"no","mcp_provider":"skipped","mcp_tool":"skipped","skip_rationale":"scope<50t — parsing logic test"}
+{"sprint_id":"GAP-58","status":"done","commit":"1968eda","mcp_assisted":"no","mcp_provider":"skipped","mcp_tool":"skipped","skip_rationale":"scope<50t — YAML loader test"}
+{"sprint_id":"GAP-59","status":"done","commit":"ecc8662","mcp_assisted":"no","mcp_provider":"skipped","mcp_tool":"skipped","skip_rationale":"scope<50t — pure function tests"}
+{"sprint_id":"GAP-60","status":"done","commit":"e441c43","mcp_assisted":"no","mcp_provider":"skipped","mcp_tool":"skipped","skip_rationale":"scope<50t — pure helper tests"}
+{"sprint_id":"GAP-61","status":"done","commit":"0924df2","mcp_assisted":"no","mcp_provider":"skipped","mcp_tool":"skipped","skip_rationale":"scope<50t — plot_arc unit tests"}
+{"sprint_id":"GAP-62","status":"done","commit":"52220c7","mcp_assisted":"no","mcp_provider":"skipped","mcp_tool":"skipped","skip_rationale":"scope<50t — server helper tests"}
+{"sprint_id":"GAP-63","status":"done","commit":"67fa454","mcp_assisted":"no","mcp_provider":"skipped","mcp_tool":"skipped","skip_rationale":"scope<50t — route test"}
+{"sprint_id":"GAP-64","status":"done","commit":"5184d18","mcp_assisted":"no","mcp_provider":"skipped","mcp_tool":"skipped","skip_rationale":"scope<50t — DB function tests"}
+{"sprint_id":"GAP-65","status":"done","commit":"60c03df","mcp_assisted":"no","mcp_provider":"skipped","mcp_tool":"skipped","skip_rationale":"scope<50t — DB function tests"}
+{"sprint_id":"GAP-66","status":"done","commit":"be9444e","mcp_assisted":"no","mcp_provider":"skipped","mcp_tool":"skipped","skip_rationale":"scope<50t — DB function tests insert_message_at"}
+{"sprint_id":"GAP-67","status":"done","commit":"019d764","mcp_assisted":"no","mcp_provider":"skipped","mcp_tool":"skipped","skip_rationale":"scope<50t — server helper tests _load_char_sheets"}
+{"sprint_id":"GAP-68","status":"done","commit":"01f0419","mcp_assisted":"no","mcp_provider":"skipped","mcp_tool":"skipped","skip_rationale":"scope<50t — security path helper tests"}
+{"sprint_id":"GAP-69","status":"done","commit":"a8bf212","mcp_assisted":"no","mcp_provider":"skipped","mcp_tool":"skipped","skip_rationale":"scope<50t — write_routes helper tests"}
+{"sprint_id":"GAP-70","status":"done","commit":"eb080aa","mcp_assisted":"no","mcp_provider":"skipped","mcp_tool":"skipped","skip_rationale":"scope<50t — _verb_continua specific tests"}
+{"sprint_id":"GAP-71","status":"done","commit":"93e2ebe","mcp_assisted":"no","mcp_provider":"skipped","mcp_tool":"skipped","skip_rationale":"scope<50t — arcs_db_routes GET/DELETE/scenes tests"}
+{"sprint_id":"GAP-72","status":"done","commit":"5114e51","mcp_assisted":"no","mcp_provider":"skipped","mcp_tool":"skipped","skip_rationale":"scope<50t — write_model_chain env-driven tests"}
+{"sprint_id":"GAP-73","status":"done","commit":"b1f8d37","mcp_assisted":"no","mcp_provider":"skipped","mcp_tool":"skipped","skip_rationale":"scope<50t — write verbs response shape tests"}
+{"sprint_id":"GAP-74","status":"done","commit":"150fbbc","mcp_assisted":"no","mcp_provider":"skipped","mcp_tool":"skipped","skip_rationale":"scope<50t — mascot route tests"}
+{"sprint_id":"GAP-75","status":"done","commit":"8b6afbf","mcp_assisted":"no","mcp_provider":"skipped","mcp_tool":"skipped","skip_rationale":"scope<50t — chars routes server tests"}
+{"sprint_id":"GAP-76","status":"done","commit":"89d19ff","mcp_assisted":"no","mcp_provider":"skipped","mcp_tool":"skipped","skip_rationale":"scope<50t — arc server routes tests"}
+{"sprint_id":"GAP-77","status":"done","commit":"708a319","mcp_assisted":"no","mcp_provider":"skipped","mcp_tool":"skipped","skip_rationale":"scope<50t — summarize+lore_check route tests"}
+{"sprint_id":"GAP-78","status":"done","commit":"1a5f581","mcp_assisted":"no","mcp_provider":"skipped","mcp_tool":"skipped","skip_rationale":"scope<50t — 13 test isolati, no analisi >500t"}
+{"sprint_id":"GAP-79","status":"done","commit":"df8fd9c","mcp_assisted":"no","mcp_provider":"skipped","mcp_tool":"skipped","skip_rationale":"scope<50t — 13 test isolati, no analisi >500t"}
+{"sprint_id":"GAP-80","status":"done","commit":"cf57dd1","mcp_assisted":"no","mcp_provider":"skipped","mcp_tool":"skipped","skip_rationale":"scope<50t — 12 test isolati, no analisi >500t"}
+{"sprint_id":"GAP-81","status":"done","commit":"a2e7674","mcp_assisted":"no","mcp_provider":"skipped","mcp_tool":"skipped","skip_rationale":"scope<50t — 9 test isolati, no analisi >500t"}
+{"sprint_id":"GAP-82","status":"done","commit":"16db069","mcp_assisted":"no","mcp_provider":"skipped","mcp_tool":"skipped","skip_rationale":"scope<50t — 11 test isolati, no analisi >500t"}
+{"sprint_id":"GAP-83","status":"done","commit":"1873e58","mcp_assisted":"no","mcp_provider":"skipped","mcp_tool":"skipped","skip_rationale":"scope<50t — 8 test isolati, no analisi >500t"}

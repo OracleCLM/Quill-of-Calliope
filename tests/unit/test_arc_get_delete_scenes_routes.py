@@ -1,4 +1,6 @@
-"""GAP-71: test per GET/DELETE arco singolo e GET /arcs/<id>/scenes."""
+"""GAP-71: test per GET /arcs/<id>/scenes e test unici GET/DELETE arco.
+GET/DELETE base coperta da test_arc_detail_route.py (acceptance padre).
+"""
 
 import sys
 from pathlib import Path
@@ -29,13 +31,7 @@ def _create(c, title="Arc Test"):
     return r.get_json()["id"]
 
 
-# ── GET /api/db/arcs/<arc_id> ─────────────────────────────────────────────────
-
-
-def test_get_arc_returns_200(client):
-    arc_id = _create(client, "Arc A")
-    r = client.get(f"/api/db/arcs/{arc_id}")
-    assert r.status_code == 200
+# ── GET /api/db/arcs/<arc_id> — solo test unici (200/404 base in test_arc_detail_route.py)
 
 
 def test_get_arc_returns_title(client):
@@ -44,31 +40,7 @@ def test_get_arc_returns_title(client):
     assert data["title"] == "Arc Visibile"
 
 
-def test_get_arc_not_found_returns_404(client):
-    r = client.get("/api/db/arcs/id-inesistente")
-    assert r.status_code == 404
-
-
-# ── DELETE /api/db/arcs/<arc_id> ──────────────────────────────────────────────
-
-
-def test_delete_arc_returns_204(client):
-    arc_id = _create(client, "Arc Cancellabile")
-    r = client.delete(f"/api/db/arcs/{arc_id}")
-    assert r.status_code == 204
-
-
-def test_delete_arc_removes_from_list(client):
-    arc_id = _create(client, "Arc Da Rimuovere")
-    client.delete(f"/api/db/arcs/{arc_id}")
-    arcs = client.get("/api/db/arcs").get_json()["arcs"]
-    ids = [a["id"] for a in arcs]
-    assert arc_id not in ids
-
-
-def test_delete_arc_not_found_returns_404(client):
-    r = client.delete("/api/db/arcs/id-inesistente")
-    assert r.status_code == 404
+# ── DELETE /api/db/arcs/<arc_id> — solo test unici ────────────────────────────
 
 
 def test_delete_arc_second_call_returns_404(client):

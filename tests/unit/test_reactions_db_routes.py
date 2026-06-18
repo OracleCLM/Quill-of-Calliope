@@ -1,4 +1,6 @@
-"""GAP-83: test per /api/db/messages/<id>/reactions (GET/POST/DELETE)."""
+"""GAP-83: test per /api/db/messages/<id>/reactions (GET/POST).
+DELETE coperta da test_reaction_delete_route.py (acceptance padre).
+"""
 
 import sys
 from pathlib import Path
@@ -89,22 +91,3 @@ def test_add_reaction_appears_in_list(client):
            json={"character_id": char_id, "emoji": "👍"})
     data = c.get(f"/api/db/messages/{msg_id}/reactions").get_json()
     assert len(data["reactions"]) == 1
-
-
-# ── DELETE /api/db/messages/<id>/reactions/<reaction_id> ─────────────────────
-
-
-def test_delete_reaction_returns_204(client):
-    c, db = client
-    msg_id, char_id = _setup(db)
-    reaction_id = c.post(f"/api/db/messages/{msg_id}/reactions",
-                         json={"character_id": char_id, "emoji": "❤️"}).get_json()["id"]
-    r = c.delete(f"/api/db/messages/{msg_id}/reactions/{reaction_id}")
-    assert r.status_code == 204
-
-
-def test_delete_reaction_not_found_returns_404(client):
-    c, db = client
-    msg_id, _ = _setup(db)
-    r = c.delete(f"/api/db/messages/{msg_id}/reactions/nonexistent-id")
-    assert r.status_code == 404

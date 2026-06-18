@@ -1,4 +1,6 @@
-"""GAP-81: test per /api/arc/<id>/append, /summary, /threads, /continue."""
+"""GAP-81: test per /api/arc/<id>/append, /summary, /continue.
+/threads coperto da test_arc_server_routes.py (GAP-76).
+"""
 
 import sys
 from pathlib import Path
@@ -66,27 +68,6 @@ def test_arc_summary_has_summary_key():
         data = c.post("/api/arc/arc-test-01/summary", json={}).get_json()
     assert "summary" in data
     assert data["arc_id"] == "arc-test-01"
-
-
-# ── GET /api/arc/<arc_id>/threads ─────────────────────────────────────────────
-
-
-def test_arc_threads_returns_200():
-    c = _client()
-    _make_arc(c)
-    with patch("app.calliope_shell.plot_arc.detect_open_threads", return_value=[]):
-        r = c.get("/api/arc/arc-test-01/threads")
-    assert r.status_code == 200
-
-
-def test_arc_threads_has_threads_key():
-    c = _client()
-    _make_arc(c)
-    fake_threads = [{"thread": "conflict A"}]
-    with patch("app.calliope_shell.plot_arc.detect_open_threads", return_value=fake_threads):
-        data = c.get("/api/arc/arc-test-01/threads").get_json()
-    assert "threads" in data
-    assert data["threads"] == fake_threads
 
 
 # ── POST /api/arc/<arc_id>/continue ──────────────────────────────────────────
