@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import http.server
-import subprocess
 import threading
 import time
 import urllib.request
@@ -51,11 +50,18 @@ class TestFrontendStructure:
         assert "ParamMouthOpenY" in js
         assert "requestAnimationFrame" in js
 
-    def test_app_js_loads_model(self):
+    def test_app_js_uses_shared_renderer(self):
+        """app.js is now a thin config wrapper delegating to the shared renderer."""
         js = (FRONTEND / "app.js").read_text()
-        assert "Live2DModel.from" in js
-        assert "mascotApp" in js
-        assert "hiyori" in js.lower() or "model3.json" in js
+        assert "createMascotRenderer" in js
+        assert "modelUrl" in js
+        assert "model3.json" in js  # placeholder/config model URL
+
+    def test_index_loads_shared_renderer(self):
+        html = (FRONTEND / "index.html").read_text()
+        assert "renderer.js" in html
+        # loaded before app.js so the factory is defined when app.js runs
+        assert html.index("renderer.js") < html.index("app.js")
 
     def test_http_server_serves_index(self):
         srv = _start_server()

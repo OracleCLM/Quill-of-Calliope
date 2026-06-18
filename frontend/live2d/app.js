@@ -1,48 +1,33 @@
-document.addEventListener('DOMContentLoaded', async () => {
-  const MODEL_URL =
+/**
+ * Calliope mascot bootstrap — thin config wrapper over the shared renderer.
+ *
+ * The rendering/engine logic now lives in the repo-agnostic factory
+ * `createMascotRenderer` (shared/live2d_mascot/frontend/core/renderer.js).
+ * This file only supplies Calliope's config and is the consumer that proves
+ * the shared renderer reuse path (the same factory mounts the Vesta mascot).
+ *
+ * MODEL ASSET — operator aesthetic choice: the real calliope.moc3 art does not
+ * exist yet (see shared/live2d_mascot/models/calliope/README.md). Until it lands,
+ * this falls back to a placeholder Cubism model so the dashboard renders. Override
+ * by defining `window.MASCOT_CONFIG = { modelUrl, canvasId, idleMotion }` before
+ * this script loads.
+ */
+document.addEventListener('DOMContentLoaded', () => {
+  const PLACEHOLDER_MODEL =
     'https://cdn.jsdelivr.net/gh/guansss/pixi-live2d-display/test/assets/hiyori/hiyori_pro_t10.model3.json';
 
-  try {
-    const app = new PIXI.Application({
-      view: document.getElementById('live2d-canvas'),
-      backgroundColor: 0x1a1a2e,
-      antialias: true,
-      resizeTo: window,
-    });
+  const config = window.MASCOT_CONFIG || {
+    modelUrl: PLACEHOLDER_MODEL,
+    canvasId: 'live2d-canvas',
+    idleMotion: 'Idle',
+  };
 
-    const { Live2DModel } = PIXI.live2d;
-
-    const model = await Live2DModel.from(MODEL_URL);
-
-    // Center and scale model
-    const scale = Math.min(window.innerWidth, window.innerHeight) / 1600;
-    model.scale.set(Math.max(0.3, scale));
-    model.anchor.set(0.5, 0.5);
-    model.position.set(app.screen.width / 2, app.screen.height / 2);
-
-    app.stage.addChild(model);
-
-    // Start idle
-    model.motion('Idle');
-
-    // Expose globally for state_machine.js and tts_sync.js
-    window.mascotApp = { app, model };
-
-    window.dispatchEvent(new CustomEvent('mascotReady'));
-    console.log('[Live2D] Mascot ready:', MODEL_URL);
-
-    // Reposition on window resize
-    window.addEventListener('resize', () => {
-      model.position.set(app.screen.width / 2, app.screen.height / 2);
-    });
-  } catch (err) {
-    console.error('[Live2D] Load failed:', err);
-    const banner = document.getElementById('error-banner');
-    if (banner) {
-      banner.style.display = 'block';
-      banner.textContent =
-        'Failed to load mascot model. Check console. ' +
-        'Ensure CDN is reachable and cubismcore script is loaded.';
-    }
+  if (typeof createMascotRenderer !== 'function') {
+    console.error('[Calliope] shared renderer not loaded — check renderer.js script tag');
+    return;
   }
+
+  createMascotRenderer(config).catch((err) => {
+    console.error('[Calliope] mascot init failed:', err);
+  });
 });
