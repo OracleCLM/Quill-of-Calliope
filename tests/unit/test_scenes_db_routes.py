@@ -93,6 +93,44 @@ def test_append_message_missing_scene_404(client):
     assert r.status_code == 404
 
 
+# --- GAP-27: DELETE /api/db/scenes/<id> + ?limit= su GET ------------------
+
+def test_delete_scene_returns_204(client):
+    c, s = client
+    r = c.delete(f"/api/db/scenes/{s['scene_id']}")
+    assert r.status_code == 204
+
+
+def test_delete_scene_not_found_returns_404(client):
+    c, _ = client
+    r = c.delete("/api/db/scenes/scena-inesistente")
+    assert r.status_code == 404
+
+
+def test_delete_scene_cascade_removes_messages(client):
+    c, s = client
+    c.delete(f"/api/db/scenes/{s['scene_id']}")
+    r = c.get(f"/api/db/scenes/{s['scene_id']}")
+    assert r.status_code == 404
+
+
+def test_scene_detail_limit_param(client):
+    c, s = client
+    r = c.get(f"/api/db/scenes/{s['scene_id']}?limit=1")
+    data = r.get_json()
+    assert r.status_code == 200
+    assert len(data["messages"]) == 1
+    assert data["limit"] == 1
+
+
+def test_scene_detail_limit_zero_returns_all(client):
+    c, s = client
+    r = c.get(f"/api/db/scenes/{s['scene_id']}?limit=0")
+    data = r.get_json()
+    assert r.status_code == 200
+    assert len(data["messages"]) == 2
+
+
 # --- WI-5: reactions roundtrip --------------------------------------------
 def test_reactions_add_and_list(client):
     c, s = client
