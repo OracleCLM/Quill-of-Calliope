@@ -85,3 +85,20 @@ def test_delete_removes_from_list(client):
 def test_delete_not_found_returns_404(client):
     r = client.delete("/api/lore/entries/non-esistente")
     assert r.status_code == 404
+
+
+# --- GAP-18: GET /api/lore/entries/<id> --------------------------------
+
+def test_get_entry_by_id(client):
+    eid = _create(client, "Voce Singola", category="places", content="contenuto")
+    r = client.get(f"/api/lore/entries/{eid}")
+    assert r.status_code == 200
+    body = r.get_json()
+    assert body["id"] == eid
+    assert body["title"] == "Voce Singola"
+    assert body["category"] == "places"
+
+
+def test_get_entry_not_found(client):
+    r = client.get("/api/lore/entries/inesistente")
+    assert r.status_code == 404
