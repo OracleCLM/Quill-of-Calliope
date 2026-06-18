@@ -631,20 +631,6 @@
                     <div id="revive-status" style="font-size:.8em; color:#88aaff; margin-top:6px; min-height:1em;"></div>
                     <div id="revive-output" style="display:none; margin-top:8px; background:#111827; border:1px solid #2a3a5a; border-radius:6px; padding:12px; font-size:.85em; color:#dde; white-space:pre-wrap; line-height:1.5; max-height:300px; overflow-y:auto;"></div>
                 </div>
-                <!-- P5c.2 scene-action fold: the tools removed from top-nav in P5b are
-                     surfaced HERE, in-scene. Each reuses its existing panel + endpoint,
-                     pre-filled with the active scene's context (see _sceneAction).
-                     Reversible: remove this block + the _sceneAction() function. -->
-                <div style="margin-top:14px; padding-top:10px; border-top:1px solid #1a2a3a;">
-                    <div style="font-size:.85em; color:#8899cc; margin-bottom:8px; font-weight:bold;">⚙ Azioni scena</div>
-                    <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                        <button onclick="_sceneAction('draft')" style="background:#16223a; color:#aac; border:1px solid #2a3a5a; border-radius:6px; padding:7px 14px; cursor:pointer; font-size:.82em;">✦ Draft</button>
-                        <button onclick="_sceneAction('refine')" style="background:#16223a; color:#aac; border:1px solid #2a3a5a; border-radius:6px; padding:7px 14px; cursor:pointer; font-size:.82em;">✎ Refine</button>
-                        <button onclick="_sceneAction('translate')" style="background:#16223a; color:#aac; border:1px solid #2a3a5a; border-radius:6px; padding:7px 14px; cursor:pointer; font-size:.82em;">⇄ Translate</button>
-                        <button onclick="_sceneAction('summarize')" style="background:#16223a; color:#aac; border:1px solid #2a3a5a; border-radius:6px; padding:7px 14px; cursor:pointer; font-size:.82em;">∑ Summarize</button>
-                        <button onclick="_sceneAction('lorecheck')" style="background:#16223a; color:#aac; border:1px solid #2a3a5a; border-radius:6px; padding:7px 14px; cursor:pointer; font-size:.82em;">⊘ Lore Check</button>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
@@ -1734,21 +1720,6 @@
             const charSel = document.getElementById('scene-char-select');
             if (charSel && charSel.value) document.getElementById('sd-char-focus').value = charSel.value;
             showView('smartdraft');
-        };
-
-        // ── P5c.2 scene-action fold: open a folded tool from the scene, pre-filled
-        //    with the active scene's context, reusing the tool's existing panel + JS.
-        window._sceneAction = function(tool) {
-            const sceneId = window._currentSceneId;
-            if (!sceneId) return;
-            const scene = (_allScenes || []).find(s => s.scene_id === sceneId) || {};
-            const sceneText = [scene.summary, scene.first_msg_excerpt, scene.last_msg_excerpt]
-                .filter(Boolean).join('\n\n');
-            const setVal = (id, v) => { const el = document.getElementById(id); if (el && v != null) el.value = v; };
-            if (tool === 'refine') setVal('refine-scene-input', scene.last_msg_excerpt || sceneText);
-            if (tool === 'summarize') setVal('sum-text', sceneText);
-            if (tool === 'lorecheck') { setVal('lc-text', scene.last_msg_excerpt || ''); setVal('lc-scene-id', sceneId); }
-            showView(tool);
         };
 
         // ── Summarize ──
