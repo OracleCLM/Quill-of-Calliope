@@ -349,7 +349,10 @@ def _verb_riassumi(body):
     text = (body.get("text") or "").strip()
     if not text:
         return jsonify({"error": "text is required"}), 400
-    max_length = min(int(body.get("max_length", 200)), 500)
+    try:
+        max_length = min(int(body.get("max_length", 200)), 500)
+    except (TypeError, ValueError):
+        max_length = 200
     prompt = (
         "Summarize the following roleplay / Discord conversation text.\n"
         "Output a JSON object with fields:\n"
