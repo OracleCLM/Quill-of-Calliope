@@ -86,21 +86,24 @@ def _active_char_names(scene_id: str, char_focus: str = "") -> list[str]:
         return []
 
 
-def _scene_history(scene_id: str) -> str:
-    """HISTORY-block: messaggi della scena formattati author: content."""
+def _scene_history(scene_id: str, max_msgs: int = 50) -> str:
+    """HISTORY-block: ultimi max_msgs messaggi della scena, formattati author: content."""
     if not scene_id:
         return ""
     try:
         from app.db import get_db  # noqa: PLC0415
-        from app.db.messages import list_messages_for_scene  # noqa: PLC0415
 
         conn = get_db()
-        msgs = list_messages_for_scene(conn, scene_id)
+        rows = conn.execute(
+            "SELECT author_name, content_original, content_enhanced FROM messages "
+            "WHERE scene_id = ? ORDER BY position_order DESC LIMIT ?",
+            (scene_id, max_msgs),
+        ).fetchall()
         conn.close()
         lines = []
-        for m in msgs:
-            author = m.get("author_name") or "?"
-            content = m.get("content_original") or m.get("content_enhanced") or ""
+        for author_name, content_original, content_enhanced in reversed(rows):
+            author = author_name or "?"
+            content = content_original or content_enhanced or ""
             if content:
                 lines.append(f"{author}: {content}")
         return "\n".join(lines)
