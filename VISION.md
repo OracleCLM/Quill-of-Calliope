@@ -2,7 +2,7 @@
 
 > Musa della poesia epica. Assistente AI per narrazione e gestione di giochi di ruolo testuali, con focus letterario, persistenza del contesto, e privacy locale.
 
-**Status**: 🟢 M0+M1+M2+M3.5+M4+Wave5+Sprint D+E+F+**M-A/B/C/D+GAP-13..16** (2026-06-18, ~22k LOC, 96 Flask routes). Redesign scene-chat COMPLETO (M-A: SSOT Card V2 + M-B: assembler-prompt+/api/write + M-C: split Lore UI + M-D: pannello-azioni contestuale). 1160 test raccolti, 1048 passano (2 failed pre-esistenti browser/e2e infra). Discord bot **codice pronto, attivazione operativa pending** (vedi M6).
+**Status**: 🟢 M0+M1+M2+M3.5+M4+Wave5+Sprint D+E+F+**M-A/B/C/D+GAP-13..23** (2026-06-18, ~22k LOC, 96 Flask routes). Redesign scene-chat COMPLETO (M-A: SSOT Card V2 + M-B: assembler-prompt+/api/write + M-C: split Lore UI + M-D: pannello-azioni contestuale). 791 test unit+calliope_shell passano, 1180 totali (2 failed pre-esistenti browser/e2e infra). Discord bot **codice pronto, attivazione operativa pending** (vedi M6).
 
 ---
 
