@@ -63,3 +63,5 @@
 {"sprint_id":"GAP-43","status":"done","commit":"5fd1481","mcp_assisted":"no","mcp_provider":"skipped","mcp_tool":"skipped","skip_rationale":"scope<50t — patch+write test file, nessuna analisi delegabile"}
 {"sprint_id":"GAP-44","status":"done","commit":"b6553a6","mcp_assisted":"no","mcp_provider":"skipped","mcp_tool":"skipped","skip_rationale":"scope<50t — write test file, nessuna analisi delegabile"}
 {"sprint_id":"GAP-45","status":"done","commit":"7d2b7f5","mcp_assisted":"no","mcp_provider":"skipped","mcp_tool":"skipped","skip_rationale":"scope<50t — write test file, funzioni pure testabili direttamente"}
+{"sprint_id":"GAP-46","status":"done","commit":"550ce2e","mcp_assisted":"no","mcp_provider":"skipped","mcp_tool":"skipped","skip_rationale":"scope<50t — write test file, CRUD puro"}
+{"sprint_id":"GAP-47","status":"done","commit":"844b3c4","mcp_assisted":"no","mcp_provider":"skipped","mcp_tool":"skipped","skip_rationale":"scope<50t — pure functions, nessuna analisi delegabile"}
