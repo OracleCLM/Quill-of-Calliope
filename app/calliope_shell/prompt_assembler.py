@@ -116,9 +116,12 @@ def collect_active_cards(conn, char_names: List[str]) -> List[Dict[str, Any]]:
         try:
             card = load_card_v2(conn, name)
         except Exception:  # pragma: no cover - difensivo
+            logger.warning("collect_active_cards: errore caricamento card per %r", name)
             card = None
         if card:
             out.append(card)
+        else:
+            logger.debug("collect_active_cards: card V2 non trovata per %r (skip)", name)
     return out
 
 
