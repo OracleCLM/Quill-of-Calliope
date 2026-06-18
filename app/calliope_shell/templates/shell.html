@@ -1122,7 +1122,7 @@
         }
         document.addEventListener('DOMContentLoaded', function() {
             const f = document.getElementById('msg-char-filter');
-            if (f) f.addEventListener('change', loadRecentMessages);
+            if (f) { f.addEventListener('input', loadRecentMessages); f.addEventListener('change', loadRecentMessages); }
         });
 
         // Scene/Messages panel JS → /static/js/scenes.js (FE-0 estratto 2026-06-11)

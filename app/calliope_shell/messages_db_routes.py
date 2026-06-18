@@ -35,8 +35,8 @@ def register_messages_db_routes(app, db_path=None):
         sql = "SELECT id, scene_id, author_name, content_original, ts FROM messages"
         params: list = []
         if char:
-            sql += " WHERE author_name = ?"
-            params.append(char)
+            sql += " WHERE author_name LIKE ? COLLATE NOCASE"
+            params.append(f"%{char}%")
         sql += " ORDER BY ts DESC LIMIT ?"
         params.append(limit)
         rows = conn.execute(sql, params).fetchall()

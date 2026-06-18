@@ -57,6 +57,21 @@ def test_recent_filters_by_char(client):
     assert all(m["author_name"] == "Kikyo" for m in msgs)
 
 
+def test_recent_filters_by_char_partial(client):
+    """GAP-9: filtro per stringa parziale (LIKE, non exact-match)."""
+    r = client.get("/api/db/messages/recent?char=kiky")
+    assert r.status_code == 200
+    msgs = r.get_json()["messages"]
+    assert len(msgs) == 2
+    assert all("Kikyo" in m["author_name"] for m in msgs)
+
+
+def test_recent_filters_by_char_case_insensitive(client):
+    r = client.get("/api/db/messages/recent?char=KIKYO")
+    assert r.status_code == 200
+    assert len(r.get_json()["messages"]) == 2
+
+
 def test_recent_message_shape(client):
     r = client.get("/api/db/messages/recent?limit=1")
     m = r.get_json()["messages"][0]
