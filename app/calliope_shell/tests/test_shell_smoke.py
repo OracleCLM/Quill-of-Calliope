@@ -17,18 +17,47 @@ def test_health_endpoint(client):
     assert response.get_json()["status"] == "ok"
 
 
-def test_root_renders_iframe(client, monkeypatch):
-    # Hermetic: force st_alive=True so the ST iframe renders without depending
-    # on a live SillyTavern at :8001 (the / route HEAD-probes ST_URL).
+def test_root_renders_iframe_when_embed_opted_in(client, monkeypatch):
+    # Reversibility guard (R-CALLIOPE-BUG-HOME-ST-IFRAME): the legacy ST iframe
+    # is OFF by default and only embeds when the operator opts in via
+    # CALLIOPE_EMBED_ST=1 AND ST responds <500. Hermetic: force both.
     class _Resp:
         status_code = 200
 
+    monkeypatch.setenv("CALLIOPE_EMBED_ST", "1")
     monkeypatch.setattr(
         "app.calliope_shell.server.requests.head", lambda *a, **k: _Resp()
     )
     response = client.get("/")
     assert response.status_code == 200
     assert b"localhost:8001" in response.data
+    assert b'id="st-iframe"' in response.data
+
+
+def test_root_renders_native_welcome_by_default(client, monkeypatch):
+    # Given-When-Then (resulting-state journey) for the home bug fix.
+    # GIVEN no CALLIOPE_EMBED_ST opt-in (default) and a SillyTavern that would
+    #       answer <500 (half-init, the exact bug trigger);
+    # WHEN  the operator opens the home;
+    # THEN  the native welcome-panel renders (scene-as-chat VISION), the dead
+    #       ST iframe is NOT embedded, and none of the ST init/error strings
+    #       ("inizializzazione", "Settings could not be saved") leak into the page.
+    class _Resp:
+        status_code = 200  # ST alive but irrelevant — gate is OFF
+
+    monkeypatch.delenv("CALLIOPE_EMBED_ST", raising=False)
+    monkeypatch.setattr(
+        "app.calliope_shell.server.requests.head", lambda *a, **k: _Resp()
+    )
+    html = client.get("/").data.decode("utf-8")
+    # Native welcome content present
+    assert "Quill of Calliope" in html
+    assert "Apri Scene-Chat" in html
+    # Dead ST iframe NOT embedded
+    assert 'id="st-iframe"' not in html
+    # No ST init/error toast strings leaked into the served HTML
+    assert "inizializzazione" not in html.lower()
+    assert "Settings could not be saved" not in html
 
 
 def test_mascot_state_get(client):

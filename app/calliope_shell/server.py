@@ -223,13 +223,22 @@ def create_app():
 
     @app.route("/")
     def index():
-        # Gap D: detect ST liveness for empty-state fallback
+        # VISION: scene-as-chat è nativo; SillyTavern è legacy "morto" → default
+        # disabilitato. L'iframe ST viene embeddato SOLO se l'operatore opta-in
+        # esplicitamente (CALLIOPE_EMBED_ST=1) E ST risponde <500. Senza opt-in,
+        # st_alive resta sempre False → render del welcome-panel nativo (ramo
+        # {% else %} in shell.html). Reversibile: nessun codice ST rimosso, solo
+        # gated. Bug R-CALLIOPE-BUG-HOME-ST-IFRAME: un ST half-init che rispondeva
+        # <500 faceva embeddare l'iframe rotto ("inizializzazione" + toast
+        # "Settings could not be saved") al posto della home nativa.
+        embed_st = os.getenv("CALLIOPE_EMBED_ST", "0") == "1"
         st_alive = False
-        try:
-            r = requests.head(ST_URL, timeout=1)
-            st_alive = r.status_code < 500
-        except Exception:
-            st_alive = False
+        if embed_st:
+            try:
+                r = requests.head(ST_URL, timeout=1)
+                st_alive = r.status_code < 500
+            except Exception:
+                st_alive = False
         return render_template("shell.html", ST_URL=ST_URL, MASCOT_WS_URL=MASCOT_WS_URL, st_alive=st_alive)
 
     @app.route("/shared/live2d_mascot/<path:filename>")
