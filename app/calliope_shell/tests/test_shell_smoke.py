@@ -72,3 +72,6 @@ def test_home_includes_shared_renderer_and_mascot(client, monkeypatch):
     assert 'canvas id="mascot"' in html
     # The 'home' nav alias must be handled in showView (else Home renders blank).
     assert "'home'" in html and "'main'" in html
+    # WS URL injected to the client must carry the /mascot path (daemon route),
+    # otherwise the emotion-sync handshake 403s.
+    assert "9876/mascot" in html

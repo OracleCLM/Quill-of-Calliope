@@ -213,7 +213,9 @@ def create_app():
 
     FLASK_PORT = os.getenv("FLASK_PORT", "5000")
     ST_URL = os.getenv("ST_URL", "http://localhost:8001")
-    MASCOT_WS_URL = os.getenv("MASCOT_WS_URL", "ws://localhost:9876")
+    # Must include the /mascot path: the WS daemon registers @app.websocket("/mascot")
+    # (shared/live2d_mascot/server/ws_server.py). A bare ws://host:9876 → 403 handshake.
+    MASCOT_WS_URL = os.getenv("MASCOT_WS_URL", "ws://localhost:9876/mascot")
     MASCOT_REST_URL = os.getenv("MASCOT_REST_URL", "http://localhost:9876")
     GATEWAY_URL = os.getenv("GATEWAY_URL", "http://localhost:8766")
 
