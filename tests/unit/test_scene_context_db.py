@@ -38,3 +38,25 @@ def test_context_includes_recent_messages(tmp_path):
 def test_unknown_scene_returns_empty(tmp_path):
     db, _ = _seed(tmp_path)
     assert build_scene_context("inesistente", db_path=db) == ""
+
+
+def test_max_msgs_limits_output(tmp_path):
+    """GAP-13: build_scene_context rispetta max_msgs — non carica infiniti messaggi."""
+    p = tmp_path / "t.db"
+    conn = get_db(p)
+    init_schema(conn)
+    sid = new_id()
+    conn.execute("INSERT INTO scenes (id, title) VALUES (?, ?)", (sid, "Scena Lunga"))
+    conn.commit()
+    for i in range(10):
+        add_message(conn, scene_id=sid, author_name=f"A{i}", content_original=f"msg{i}", position_order=i)
+    conn.close()
+
+    ctx_limited = build_scene_context(sid, db_path=str(p), max_msgs=3)
+    # Con max_msgs=3 otteniamo solo gli ultimi 3 (msg7, msg8, msg9)
+    assert "msg9" in ctx_limited
+    assert "msg7" in ctx_limited
+    assert "msg0" not in ctx_limited
+
+    ctx_all = build_scene_context(sid, db_path=str(p), max_msgs=0)
+    assert "msg0" in ctx_all and "msg9" in ctx_all

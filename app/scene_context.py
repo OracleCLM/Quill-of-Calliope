@@ -10,34 +10,39 @@ from pathlib import Path
 import yaml
 
 from app.db import get_db
-from app.db.messages import list_messages_for_scene
 
 
-def build_scene_context(scene_id: str, db_path: str | None = None) -> str:
+def build_scene_context(scene_id: str, db_path: str | None = None, max_msgs: int = 100) -> str:
     """
     Ritorna il contesto-scena dal DB per il draft-gen (vedi tests/unit/test_scene_context_db.py):
-      - "Scene: <titolo>" + gli ultimi messaggi ordinati come "<author>: <content>"
+      - "Scene: <titolo>" + gli ultimi max_msgs messaggi ordinati come "<author>: <content>"
       - scena inesistente -> "" (stringa vuota)
-    Usa app.db.get_db(db_path) + app.db.messages.get_scene_message_page / list_messages_for_scene.
+    max_msgs=0 carica tutti (admin/debug). Default: 100.
     """
     db = get_db(db_path)
 
-    # Recupera il titolo della scena per verificare l'esistenza
     row = db.execute("SELECT title FROM scenes WHERE id = ?", (scene_id,)).fetchone()
     if row is None:
         return ""
     title = row[0]
 
-    # Recupera i messaggi
-    messages = list_messages_for_scene(db, scene_id)
+    if max_msgs > 0:
+        rows = db.execute(
+            "SELECT author_name, content_original FROM messages "
+            "WHERE scene_id = ? ORDER BY position_order DESC LIMIT ?",
+            (scene_id, max_msgs),
+        ).fetchall()
+        rows = list(reversed(rows))
+    else:
+        rows = db.execute(
+            "SELECT author_name, content_original FROM messages "
+            "WHERE scene_id = ? ORDER BY position_order",
+            (scene_id,),
+        ).fetchall()
 
-    # Ordina i messaggi per position_order come richiesto
-    messages.sort(key=lambda m: m["position_order"])
-
-    # Costruisce la stringa di output
     lines = [f"Scene: {title}"]
-    for msg in messages:
-        lines.append(f"{msg['author_name']}: {msg['content_original']}")
+    for author_name, content_original in rows:
+        lines.append(f"{author_name}: {content_original}")
 
     return "\n".join(lines)
 
