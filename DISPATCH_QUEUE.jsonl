@@ -101,3 +101,4 @@
 {"sprint_id":"GAP-81","status":"done","commit":"a2e7674","mcp_assisted":"no","mcp_provider":"skipped","mcp_tool":"skipped","skip_rationale":"scope<50t — 9 test isolati, no analisi >500t"}
 {"sprint_id":"GAP-82","status":"done","commit":"16db069","mcp_assisted":"no","mcp_provider":"skipped","mcp_tool":"skipped","skip_rationale":"scope<50t — 11 test isolati, no analisi >500t"}
 {"sprint_id":"GAP-83","status":"done","commit":"1873e58","mcp_assisted":"no","mcp_provider":"skipped","mcp_tool":"skipped","skip_rationale":"scope<50t — 8 test isolati, no analisi >500t"}
+{"sprint_id":"test-review-calliope","status":"done","commit":"c353d51","mcp_assisted":"no","mcp_provider":"skipped","mcp_tool":"skipped","skip_rationale":"scope<50t — audit manuale dedup, no analisi >500t"}
