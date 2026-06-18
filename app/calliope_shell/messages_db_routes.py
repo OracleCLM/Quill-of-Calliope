@@ -91,13 +91,15 @@ def register_messages_db_routes(app, db_path=None):
         body = request.get_json(force=True) or {}
         content_original = body.get("content_original")
         author_name = body.get("author_name")
-        if content_original is None and author_name is None:
+        content_enhanced = body.get("content_enhanced")
+        if content_original is None and author_name is None and content_enhanced is None:
             return jsonify({"error": "bad_request"}), 400
         conn = _conn(db_path)
         updated = db_messages.update_message(
             conn, message_id,
             content_original=content_original,
             author_name=author_name,
+            content_enhanced=content_enhanced,
         )
         conn.close()
         if not updated:

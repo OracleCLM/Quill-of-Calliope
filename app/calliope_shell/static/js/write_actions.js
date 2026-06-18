@@ -120,7 +120,12 @@
             var el = node && (node.nodeType === 1 ? node : node.parentElement);
             if (el && el.closest && el.closest('#scene-thread')) {
                 var bt = ws.toString().trim();
-                if (bt.length >= 2) return { text: bt, source: 'bubble' };
+                if (bt.length >= 2) {
+                    // Cattura il mid della bolla per PATCH content_enhanced in-place.
+                    var bubble = el.closest('.msg-bubble');
+                    var mid = (bubble && bubble.dataset && bubble.dataset.mid) || '';
+                    return { text: bt, source: 'bubble', mid: mid };
+                }
             }
         }
         return null;
@@ -180,7 +185,10 @@
     function _renderResult(v, out) {
         if (!out) { _renderError(v, 'risposta vuota dal gateway'); return; }
         var fromBubble = (_sel.source === 'bubble');
-        var applyLabel = fromBubble ? '↧ Inserisci nel compositore'
+        // Per bolle con mid disponibile e verbo "replace": aggiorna la bolla in-place.
+        var canUpdateBubble = fromBubble && _sel.mid && v.apply === 'replace';
+        var applyLabel = canUpdateBubble ? '✓ Aggiorna bolla'
+                       : fromBubble      ? '↧ Inserisci nel compositore'
                        : (v.apply === 'replace' ? '✓ Sostituisci' : '✓ Inserisci');
         var res = _pop._res;
         res.innerHTML =
@@ -214,9 +222,35 @@
     // ── Applicazione del risultato ──────────────────────────────────────────
     function _apply(v, out) {
         var ta = document.getElementById('scene-compose-text');
+        if (_sel.source === 'bubble' && _sel.mid && v.apply === 'replace') {
+            // Bolla con mid: PATCH content_enhanced nel DB + aggiorna DOM in-place.
+            var mid = _sel.mid;
+            fetch('/api/db/messages/' + encodeURIComponent(mid), {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ content_enhanced: out })
+            }).then(function () {
+                var bbl = document.querySelector(
+                    '.msg-bubble[data-mid="' + mid.replace(/"/g, '\\"') + '"]'
+                );
+                if (bbl) {
+                    var txt = bbl.querySelector('.msg-text');
+                    if (txt) txt.textContent = out;
+                    var acts = bbl.querySelector('.msg-actions');
+                    if (acts && !acts.querySelector('.msg-refined-tag')) {
+                        var tag = document.createElement('span');
+                        tag.className = 'msg-refined-tag';
+                        tag.textContent = '✓ raffinato';
+                        acts.appendChild(tag);
+                    }
+                }
+            }).catch(function () {});
+            _hide();
+            return;
+        }
         if (!ta) { _hide(); return; }
         if (_sel.source === 'bubble') {
-            // Bolla read-only: append al compositore.
+            // Bolla senza mid (genera/continua): append al compositore.
             ta.value = (ta.value ? ta.value.replace(/\s*$/, '') + '\n\n' : '') + out;
         } else if (v.apply === 'replace') {
             var val = ta.value;

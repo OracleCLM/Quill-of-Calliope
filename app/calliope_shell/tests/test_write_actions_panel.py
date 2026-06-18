@@ -70,3 +70,29 @@ def test_panel_payloads_pass_schema(client, payload, monkeypatch):
     resp = client.post("/api/write", json=payload)
     assert resp.status_code != 400, resp.get_data(as_text=True)
     assert resp.status_code in (200, 503)
+
+
+def test_bubble_mid_capture_in_js(client):
+    """(e) GAP-3: JS cattura `mid` dalla bolla selezionata per PATCH in-place."""
+    js = client.get("/static/js/write_actions.js").data.decode("utf-8")
+    # _detectSelection deve leggere data-mid dalla bolla padre
+    assert "dataset.mid" in js or "data-mid" in js
+    # _apply deve fare PATCH /api/db/messages/<mid> con content_enhanced
+    assert "PATCH" in js
+    assert "/api/db/messages/" in js
+    assert "content_enhanced" in js
+    # Label "Aggiorna bolla" per verbi replace su bolla con mid
+    assert "Aggiorna bolla" in js
+
+
+def test_patch_message_content_enhanced_accepted(client):
+    """(f) PATCH /api/db/messages/<id> accetta content_enhanced senza 400.
+
+    Con DB vuoto (messaggio non trovato) l'endpoint risponde 404 — mai 400 (schema).
+    """
+    resp = client.patch(
+        "/api/db/messages/nonexistent-id",
+        json={"content_enhanced": "testo raffinato"},
+    )
+    # 404 = not found (ok), mai 400 (schema error) né 405 (method not allowed)
+    assert resp.status_code in (200, 404), resp.get_data(as_text=True)
