@@ -999,19 +999,25 @@
         // ── View routing ──
         const _ALL_PANELS = ['dashboard','main','characters','scenes','messages','translate','draft','refine','arc','smartdraft','summarize','lorekb','loresearch','lorecheck','import'];
         function showView(view) {
+            // 'home' is the nav label for the 'main' panel (#main-view: scene shell
+            // + mascot sidebar). Without this alias, showView('home') matches no
+            // panel and hides EVERYTHING — the Home renders blank (mascot included).
+            const panelKey = (view === 'home') ? 'main' : view;
             _ALL_PANELS.forEach(v => {
                 const el = document.getElementById(v === 'main' ? 'main-view' : v + '-panel');
-                const nav = document.getElementById('nav-' + v);
-                if (el) el.style.display = (v === view) ? 'flex' : 'none';
-                if (nav) nav.classList.toggle('active', v === view);
+                if (el) el.style.display = (v === panelKey) ? 'flex' : 'none';
             });
-            if (view === 'arc') loadArcList();
-            if (view === 'scenes') _loadScenes();
-            if (view === 'dashboard') loadDashboardSnapshot();
-            if (view === 'smartdraft') _loadCharDropdown();
-            if (view === 'characters') loadCharactersPanel();
-            if (view === 'lorekb') loadLoreKB();
-            if (view === 'messages') loadRecentMessages();
+            // Nav highlight by the clicked label (nav-home maps to the 'main' panel).
+            document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
+            const navEl = document.getElementById('nav-' + view);
+            if (navEl) navEl.classList.add('active');
+            if (panelKey === 'arc') loadArcList();
+            if (panelKey === 'scenes') _loadScenes();
+            if (panelKey === 'dashboard') loadDashboardSnapshot();
+            if (panelKey === 'smartdraft') _loadCharDropdown();
+            if (panelKey === 'characters') loadCharactersPanel();
+            if (panelKey === 'lorekb') loadLoreKB();
+            if (panelKey === 'messages') loadRecentMessages();
         }
 
         // nav-messages ricablato al DB (WI-NAVMSG-1, post-import): mostra i recent-messages reali.
@@ -1785,6 +1791,8 @@
     <script src="/static/js/vendor/live2dcubismcore.min.js"></script>
     <script src="/static/js/vendor/pixi.min.js"></script>
     <script src="/static/js/vendor/pixi-live2d-cubism4.min.js"></script>
+    <!-- Shared, repo-agnostic renderer factory (single source of truth, also used by the dev dashboard) -->
+    <script src="/shared/live2d_mascot/frontend/core/renderer.js"></script>
     <script src="/static/js/mascot.js"></script>
     <script src="/static/js/translate.js"></script>
     <script src="/static/js/scenes.js"></script>

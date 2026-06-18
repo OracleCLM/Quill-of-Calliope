@@ -6,7 +6,7 @@ from pathlib import Path
 import chromadb
 import requests
 import yaml
-from flask import Flask, jsonify, request, render_template
+from flask import Flask, jsonify, request, render_template, send_from_directory
 
 from app.calliope_shell.char_memory import get_char, list_chars, upsert_char
 from app.calliope_shell.char_memory_tools import (
@@ -26,6 +26,11 @@ from app.scene_context import resolve_scene_context
 logger = logging.getLogger(__name__)
 
 _mascot_state: dict = {"emotion": "neutral", "intensity": 1.0, "scene_id": None}
+
+# Shared Live2D mascot assets (renderer factory + model binaries) live outside the
+# Flask static dir so the dev dashboard and the product shell consume the SAME
+# single source of truth. Served read-only under /shared/live2d_mascot/...
+_SHARED_MASCOT_DIR = Path(__file__).parents[2] / "shared" / "live2d_mascot"
 
 _CHROMA_PATH = str(Path(__file__).parents[2] / ".chroma_calliope")
 _SCENES_DIR = Path(__file__).parents[2] / "scenes"
@@ -224,6 +229,12 @@ def create_app():
         except Exception:
             st_alive = False
         return render_template("shell.html", ST_URL=ST_URL, MASCOT_WS_URL=MASCOT_WS_URL, st_alive=st_alive)
+
+    @app.route("/shared/live2d_mascot/<path:filename>")
+    def shared_mascot(filename):
+        # Serves the shared renderer factory + Live2D model assets (mao/koko/tingyun).
+        # send_from_directory guards against path traversal.
+        return send_from_directory(_SHARED_MASCOT_DIR, filename)
 
     @app.route("/health")
     def health():

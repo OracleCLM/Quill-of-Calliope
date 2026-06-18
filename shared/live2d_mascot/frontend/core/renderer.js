@@ -27,8 +27,12 @@
  * @param {string} config.modelUrl        URL/path to a .model3.json (repo-specific).
  * @param {string} [config.canvasId='live2d-canvas']  Canvas element id.
  * @param {number} [config.backgroundColor=0x1a1a2e]
+ * @param {number} [config.backgroundAlpha]   Set 0 for a transparent sidebar canvas.
  * @param {string} [config.idleMotion='Idle']         Motion group played on load.
  * @param {string} [config.errorBannerId='error-banner']
+ * @param {number} [config.width]    Fixed canvas width (px). With height → embed mode (no resizeTo:window).
+ * @param {number} [config.height]   Fixed canvas height (px).
+ * @param {number} [config.fitWidth] Scale the model to this pixel width (best for narrow sidebars).
  * @returns {Promise<{app: any, model: any}>}  Resolves to window.mascotApp.
  */
 async function createMascotRenderer(config) {
@@ -36,28 +40,54 @@ async function createMascotRenderer(config) {
     modelUrl,
     canvasId = 'live2d-canvas',
     backgroundColor = 0x1a1a2e,
+    backgroundAlpha,
     idleMotion = 'Idle',
     errorBannerId = 'error-banner',
+    width,
+    height,
+    fitWidth,
   } = config || {};
 
   if (!modelUrl) {
     throw new Error('[renderer] config.modelUrl is required');
   }
 
+  // Fixed-size embed (e.g. the product-shell sidebar canvas) vs. the full-window
+  // dev dashboard. When width+height are given we size the app to the canvas and
+  // skip resizeTo:window; otherwise the dashboard fills the viewport.
+  const fixedSize = width != null && height != null;
+
   try {
-    const app = new PIXI.Application({
+    const appOpts = {
       view: document.getElementById(canvasId),
       backgroundColor,
       antialias: true,
-      resizeTo: window,
-    });
+    };
+    if (backgroundAlpha != null) appOpts.backgroundAlpha = backgroundAlpha;
+    if (fixedSize) {
+      appOpts.width = width;
+      appOpts.height = height;
+    } else {
+      appOpts.resizeTo = window;
+    }
+    const app = new PIXI.Application(appOpts);
 
     const { Live2DModel } = PIXI.live2d;
     const model = await Live2DModel.from(modelUrl);
 
-    // Center and scale model relative to viewport.
-    const scale = Math.min(window.innerWidth, window.innerHeight) / 1600;
-    model.scale.set(Math.max(0.3, scale));
+    // Center and scale model relative to its container. `fitWidth` (when given)
+    // scales the model to a target pixel width — the right fit for a narrow
+    // sidebar; otherwise scale relative to the viewport like the dashboard.
+    let scale;
+    if (fitWidth != null && model.width) {
+      scale = fitWidth / model.width;
+    } else {
+      const ref = fixedSize
+        ? Math.min(app.screen.width, app.screen.height)
+        : Math.min(window.innerWidth, window.innerHeight);
+      scale = Math.max(0.3, ref / 1600);
+    }
+    model.scale.set(scale);
     model.anchor.set(0.5, 0.5);
     model.position.set(app.screen.width / 2, app.screen.height / 2);
 
@@ -78,10 +108,12 @@ async function createMascotRenderer(config) {
     window.dispatchEvent(new CustomEvent('mascotReady'));
     console.log('[renderer] Mascot ready:', modelUrl);
 
-    // Reposition on window resize.
-    window.addEventListener('resize', () => {
-      model.position.set(app.screen.width / 2, app.screen.height / 2);
-    });
+    // Reposition on window resize (dashboard only — fixed-size embeds don't track the viewport).
+    if (!fixedSize) {
+      window.addEventListener('resize', () => {
+        model.position.set(app.screen.width / 2, app.screen.height / 2);
+      });
+    }
 
     return window.mascotApp;
   } catch (err) {
