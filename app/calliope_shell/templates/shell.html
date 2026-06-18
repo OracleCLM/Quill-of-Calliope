@@ -102,6 +102,34 @@
         #write-model-ctl { margin-left:auto; font-size:.76em; color:#778; display:inline-flex; align-items:center; gap:5px; }
         #write-profile-select { background:#111827; color:#cde; border:1px solid #2a3a5a; border-radius:5px; padding:3px 6px; font-size:.92em; }
         #write-model-label { color:#556; }
+        /* M-D: pannello-azioni CONTESTUALE su testo selezionato (composer/bolle) */
+        .write-actions-pop { position:absolute; z-index:9000; background:#0f1426; border:1px solid #34406a;
+            border-radius:8px; box-shadow:0 8px 28px rgba(0,0,0,.55); padding:7px; max-width:380px; }
+        .write-actions-pop .wa-bar { display:flex; flex-wrap:wrap; gap:5px; align-items:center; }
+        .wa-btn { background:#1a2444; color:#bcd; border:1px solid #2e3c66; border-radius:6px;
+            padding:4px 9px; cursor:pointer; font-size:.78em; white-space:nowrap; }
+        .wa-btn:hover { background:#26345e; color:#dfe7ff; }
+        .wa-dir { background:#111827; color:#9ab; border:1px solid #2a3a5a; border-radius:6px;
+            padding:3px 5px; font-size:.74em; cursor:pointer; }
+        .wa-result { margin-top:7px; border-top:1px solid #243056; padding-top:7px; }
+        .wa-status { font-size:.8em; color:#88aaff; }
+        .wa-error { font-size:.8em; color:#f3b0b0; }
+        .wa-retry { background:#3a2430; color:#ffc; border:1px solid #6a3a4a; border-radius:5px;
+            padding:2px 8px; cursor:pointer; font-size:.92em; margin-left:6px; }
+        .wa-preview { background:#0b0f1c; border:1px solid #243056; border-radius:6px; padding:8px 10px;
+            font-size:.84em; color:#dde; white-space:pre-wrap; line-height:1.5; max-height:240px;
+            overflow-y:auto; margin-bottom:7px; }
+        .wa-actions { display:flex; gap:8px; }
+        .wa-apply { background:#1e4a1e; color:#9f9; border:none; border-radius:6px; padding:5px 14px;
+            cursor:pointer; font-size:.82em; }
+        .wa-apply:hover { background:#2a6a2a; }
+        .wa-cancel { background:#2a2f3e; color:#bbc; border:none; border-radius:6px; padding:5px 12px;
+            cursor:pointer; font-size:.82em; }
+        .wa-coerenza { font-size:.84em; padding:4px 0; }
+        .wa-coerenza.ok { color:#8f8; }
+        .wa-coerenza.warn { color:#fc8; }
+        .wa-issues { margin:4px 0 7px; padding-left:18px; font-size:.8em; color:#dcc; }
+        .wa-issues li { margin-bottom:3px; }
 
         /* ── Messages panel ── */
         #messages-panel { display:none; flex-direction:column; padding:20px; max-width:900px; margin:0 auto; width:100%; height:calc(100vh - 60px); box-sizing:border-box; overflow-y:auto; }
@@ -1848,6 +1876,7 @@
     <script src="/static/js/mascot.js"></script>
     <script src="/static/js/translate.js"></script>
     <script src="/static/js/scenes.js"></script>
+    <script src="/static/js/write_actions.js"></script>
     <script src="/static/js/characters.js"></script>
     <script src="/static/js/lore_kb.js"></script>
     <script src="/static/js/lore_characters.js"></script>
