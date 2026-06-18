@@ -120,3 +120,37 @@ def test_missing_file_empty(tmp_path):
     # Il file non esiste
     store = LoreStore(str(tmp_path / "nonexistent.json"))
     assert store.list_by_category() == []
+
+
+@pytest.mark.unit
+def test_triggered_whole_word_no_false_positives(tmp_path):
+    """Whole-word match: chiave "Ra" NON deve matchare "narrator" (substring)."""
+    store = LoreStore(str(tmp_path / "kb.json"))
+
+    # Entry con chiave corta che è SOTTOSTRINGA di parole comuni
+    entry_ra = LoreEntry(id="ra", title="Ra-deity", keys=["Ra"], content="sun god")
+    store.add_entry(entry_ra)
+
+    # Testo che contiene "narrator" ma NON la parola isolata "Ra"
+    results = store.triggered_entries("the narrator speaks")
+    assert "ra" not in [e.id for e in results], (
+        '"Ra" matched "narrator" (substring false-positive)'
+    )
+
+    # Testo con "Ra" come parola isolata — deve matchare
+    results2 = store.triggered_entries("Ra descended from the sky")
+    assert "ra" in [e.id for e in results2]
+
+
+@pytest.mark.unit
+def test_triggered_whole_word_multi_word_key(tmp_path):
+    """Chiave multi-parola ("Bosco dei Silenti") matcha solo la sequenza esatta."""
+    store = LoreStore(str(tmp_path / "kb.json"))
+
+    entry = LoreEntry(id="bosco", title="Bosco", keys=["Bosco dei Silenti"], content="forest")
+    store.add_entry(entry)
+
+    # Sottostringa parziale NON deve matchare
+    assert "bosco" not in [e.id for e in store.triggered_entries("un bosco antico")]
+    # Sequenza esatta deve matchare
+    assert "bosco" in [e.id for e in store.triggered_entries("nel Bosco dei Silenti")]
