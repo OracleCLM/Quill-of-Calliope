@@ -21,6 +21,7 @@ from app.calliope_shell.import_routes import register_import_routes
 from app.calliope_shell.lore_routes import register_lore_routes
 from app.calliope_shell.scenes_db_routes import register_scenes_db_routes
 from app.calliope_shell.arcs_db_routes import register_arcs_db_routes
+from app.calliope_shell.write_routes import register_write_routes
 from app.scene_context import resolve_scene_context
 
 logger = logging.getLogger(__name__)
@@ -210,6 +211,7 @@ def create_app():
     register_lore_routes(app)
     register_scenes_db_routes(app)
     register_arcs_db_routes(app)
+    register_write_routes(app)
 
     FLASK_PORT = os.getenv("FLASK_PORT", "5000")
     ST_URL = os.getenv("ST_URL", "http://localhost:8001")
