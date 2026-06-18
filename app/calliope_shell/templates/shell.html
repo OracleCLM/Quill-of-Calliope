@@ -98,6 +98,9 @@
         #scene-send-btn { margin-top:8px; background:#1e4a1e; color:#8f8; border:none; border-radius:6px; padding:9px 22px; cursor:pointer; font-size:.9em; }
         #scene-send-btn:hover { background:#2a6a2a; }
         #scene-send-btn:disabled { opacity:.4; cursor:not-allowed; }
+        #scene-generate-btn { margin-top:8px; margin-left:8px; background:#1a2a4a; color:#aac; border:1px solid #2a3a6a; border-radius:6px; padding:9px 18px; cursor:pointer; font-size:.9em; }
+        #scene-generate-btn:hover { background:#2a3a6a; }
+        #scene-generate-btn:disabled { opacity:.4; cursor:not-allowed; }
         #scene-compose-status { font-size:.8em; color:#88aaff; margin-top:6px; min-height:1em; }
         #write-model-ctl { margin-left:auto; font-size:.76em; color:#778; display:inline-flex; align-items:center; gap:5px; }
         #write-profile-select { background:#111827; color:#cde; border:1px solid #2a3a5a; border-radius:5px; padding:3px 6px; font-size:.92em; }
@@ -612,6 +615,7 @@
                     </div>
                     <textarea id="scene-compose-text" placeholder="Scrivi come narratore o personaggio…"></textarea>
                     <button id="scene-send-btn" onclick="_sendSceneMessage()">Invia</button>
+                    <button id="scene-generate-btn" onclick="_generateFromCompose()" title="Genera il prossimo turno narrativo via /api/write (usa il testo come intent, lascia vuoto per continua)">✦ Genera</button>
                     <div id="scene-compose-status"></div>
                 </div>
                 <details style="margin-top:10px"><summary style="cursor:pointer;font-size:.78em;color:#556">Dettagli scena (sommario / primo / ultimo)</summary>

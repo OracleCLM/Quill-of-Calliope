@@ -96,3 +96,13 @@ def test_patch_message_content_enhanced_accepted(client):
     )
     # 404 = not found (ok), mai 400 (schema error) né 405 (method not allowed)
     assert resp.status_code in (200, 404), resp.get_data(as_text=True)
+
+
+def test_generate_btn_and_fn_present(client):
+    """(g) GAP-6: il bottone '#scene-generate-btn' e la funzione '_generateFromCompose' sono presenti."""
+    html = client.get("/").data.decode("utf-8")
+    assert "scene-generate-btn" in html
+    js = client.get("/static/js/scenes.js").data.decode("utf-8")
+    assert "_generateFromCompose" in js
+    assert "/api/write" in js
+    assert "intent_it" in js

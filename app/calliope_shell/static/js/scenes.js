@@ -305,6 +305,52 @@ function _toggleRefined(a) {
     return false;
 }
 
+async function _generateFromCompose() {
+    const sceneId = window._currentSceneId;
+    if (!sceneId) return;
+    const textEl = document.getElementById('scene-compose-text');
+    const statusEl = document.getElementById('scene-compose-status');
+    const btn = document.getElementById('scene-generate-btn');
+    const intent = (textEl.value || '').trim();
+    // char_focus: prende il nome dal select personaggio se disponibile
+    const composeSel = document.getElementById('compose-char-select');
+    let charFocus = '';
+    if (composeSel && composeSel.value) {
+        const opt = composeSel.options[composeSel.selectedIndex];
+        charFocus = (opt && opt.dataset.name) ? opt.dataset.name : (opt ? opt.textContent : '');
+    }
+    const payload = {
+        action: intent ? 'genera' : 'continua',
+        scene_id: sceneId,
+        char_focus: charFocus,
+        intent_it: intent || 'Continua la scena dal punto in cui si è fermata.',
+    };
+    btn.disabled = true;
+    statusEl.textContent = '… genero';
+    try {
+        const caller = (typeof window.cloudCall === 'function') ? window.cloudCall : window.fetch;
+        const r = await caller('/api/write', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(payload),
+        }, {kind: 'write_genera'});
+        const data = await r.json();
+        if (!r.ok) {
+            statusEl.textContent = '✗ ' + (data.error || data.message || 'errore gateway');
+            return;
+        }
+        const out = (data.draft_text || '').trim();
+        if (!out) { statusEl.textContent = '✗ risposta vuota'; return; }
+        textEl.value = (textEl.value ? textEl.value.replace(/\s*$/, '') + '\n\n' : '') + out;
+        textEl.dispatchEvent(new Event('input', {bubbles: true}));
+        statusEl.textContent = '✓ generato';
+    } catch (e) {
+        statusEl.textContent = '✗ ' + (e.message || 'errore di rete');
+    } finally {
+        btn.disabled = false;
+    }
+}
+
 async function _sendSceneMessage() {
     const sceneId = window._currentSceneId;
     if (!sceneId) return;
