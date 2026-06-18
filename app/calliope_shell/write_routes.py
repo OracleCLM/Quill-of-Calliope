@@ -119,7 +119,10 @@ def _lore_blocks(query: str) -> list[str]:
 
         store = LoreStore()
         entries = store.triggered_entries(query, max_entries=5)
-        return [e.content for e in entries if e.content]
+        return [
+            (f"[{e.title}] {e.content}" if getattr(e, "title", None) else e.content)
+            for e in entries if e.content
+        ]
     except Exception:
         return []
 
