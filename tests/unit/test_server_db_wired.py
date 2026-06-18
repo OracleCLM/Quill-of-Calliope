@@ -13,7 +13,7 @@ from app.calliope_shell.server import create_app
 
 # Route DB-backed che DEVONO essere registrate da create_app() (campione
 # rappresentativo che copre scene-CRUD, messaggi, roster, arc — incluse le
-# route aggiunte 2026-06-11: move, arc-assign, role PATCH).
+# route aggiunte 2026-06-11: move, arc-assign, role PATCH, arcs CRUD, /api/write).
 _REQUIRED_DB_RULES = {
     "/api/db/scenes",
     "/api/db/scenes/<scene_id>",
@@ -25,6 +25,11 @@ _REQUIRED_DB_RULES = {
     "/api/db/scenes/merge",
     "/api/db/messages/<message_id>",
     "/api/db/messages/<message_id>/move",
+    "/api/db/arcs",
+    "/api/db/arcs/<arc_id>",
+    "/api/db/arcs/<arc_id>/scenes",
+    "/api/write",
+    "/api/db/messages/recent",
 }
 
 
