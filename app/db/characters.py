@@ -7,8 +7,9 @@ associazioni con le scene tramite ``scene_characters``.
 
 from __future__ import annotations
 
+import json
 import sqlite3
-from typing import List, Mapping, Optional
+from typing import Any, Dict, List, Mapping, Optional
 
 # Importiamo utility generiche dal package ``app.db``.
 try:
@@ -226,6 +227,129 @@ def delete_character(
     )
     conn.commit()
     return cur.rowcount > 0
+
+
+# =========================================================================== #
+# SSOT — Character Card V2 loader/saver (R-CALLIOPE-MA-CHAR-SSOT-MIGRATION)
+# =========================================================================== #
+
+CARD_V2_SPEC = "chara_card_v2"
+CARD_V2_VERSION = "2.0"
+
+# Campi-prompt canonici dello spec Character Card V2 (data.*)
+_CARD_V2_DATA_STR_FIELDS = (
+    "name",
+    "description",
+    "personality",
+    "scenario",
+    "first_mes",
+    "mes_example",
+    "system_prompt",
+    "post_history_instructions",
+    "creator_notes",
+)
+_CARD_V2_DATA_LIST_FIELDS = ("tags",)
+
+
+def empty_card_v2(name: str = "") -> Dict[str, Any]:
+    """Restituisce uno scheletro Card V2 vuoto (nessun campo inventato)."""
+    return {
+        "spec": CARD_V2_SPEC,
+        "spec_version": CARD_V2_VERSION,
+        "data": {
+            "name": name,
+            "description": "",
+            "personality": "",
+            "scenario": "",
+            "first_mes": "",
+            "mes_example": "",
+            "system_prompt": "",
+            "post_history_instructions": "",
+            "creator_notes": "",
+            "tags": [],
+            "character_book": None,
+            "extensions": {"calliope": {}},
+        },
+    }
+
+
+def load_card_v2(conn: sqlite3.Connection, name: str) -> Optional[Dict[str, Any]]:
+    """Carica la Card V2 canonica dalla colonna ``characters.card_json`` by name.
+
+    Ritorna il dict ``{spec, spec_version, data{...}}`` oppure ``None`` se il
+    personaggio non esiste. Se la riga esiste ma ``card_json`` è vuoto/non-JSON,
+    ritorna uno scheletro Card V2 vuoto col nome popolato (non-distruttivo).
+    """
+    cur = conn.cursor()
+    cur.execute(
+        "SELECT card_json FROM characters WHERE name = ? LIMIT 1",
+        (name,),
+    )
+    row = cur.fetchone()
+    if row is None:
+        return None
+    raw = row[0]
+    if not raw:
+        return empty_card_v2(name)
+    try:
+        card = json.loads(raw)
+    except (ValueError, TypeError):
+        return empty_card_v2(name)
+    if not isinstance(card, dict):
+        return empty_card_v2(name)
+    # Normalizza spec/version se assenti, senza distruggere il resto
+    card.setdefault("spec", CARD_V2_SPEC)
+    card.setdefault("spec_version", CARD_V2_VERSION)
+    card.setdefault("data", {})
+    return card
+
+
+def save_card_v2(conn: sqlite3.Connection, name: str, card: Dict[str, Any]) -> bool:
+    """Persiste una Card V2 in ``characters.card_json`` per il personaggio ``name``.
+
+    Aggiorna la riga esistente (match by name). Ritorna True se aggiornata,
+    False se nessuna riga con quel nome esiste (NON crea la riga: l'inserimento
+    passa da :func:`add_character`).
+    """
+    cur = conn.cursor()
+    cur.execute("SELECT 1 FROM characters WHERE name = ? LIMIT 1", (name,))
+    if cur.fetchone() is None:
+        return False
+    payload = json.dumps(card, ensure_ascii=False)
+    cur.execute(
+        "UPDATE characters SET card_json = ?, "
+        "updated_at = strftime('%Y-%m-%dT%H:%M:%SZ','now') WHERE name = ?",
+        (payload, name),
+    )
+    conn.commit()
+    return True
+
+
+def card_get(card: Mapping[str, Any], field: str, default: Any = None) -> Any:
+    """Helper get su ``card['data'][field]`` con default sicuro."""
+    data = card.get("data") if isinstance(card, Mapping) else None
+    if not isinstance(data, Mapping):
+        return default
+    val = data.get(field, default)
+    return val if val is not None else default
+
+
+def card_set(card: Dict[str, Any], field: str, value: Any) -> None:
+    """Helper set su ``card['data'][field]`` (crea ``data`` se assente)."""
+    data = card.setdefault("data", {})
+    data[field] = value
+
+
+def card_ext(card: Mapping[str, Any], ns: str = "calliope") -> Dict[str, Any]:
+    """Restituisce ``card['data']['extensions'][ns]`` (dict, eventualmente vuoto)."""
+    data = card.get("data") if isinstance(card, Mapping) else None
+    if not isinstance(data, Mapping):
+        return {}
+    ext = data.get("extensions")
+    if not isinstance(ext, Mapping):
+        return {}
+    sub = ext.get(ns)
+    return dict(sub) if isinstance(sub, Mapping) else {}
 
 
 def add_character_to_scene(
