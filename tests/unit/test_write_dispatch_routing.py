@@ -84,3 +84,44 @@ def test_verb_coerenza_routes(client):
             "text": "testo da verificare",
         })
     assert r.status_code == 200
+
+
+# --- validazione input per singoli verbi (GAP-24) -------------------------
+
+
+def test_verb_genera_missing_intent_returns_400(client):
+    r = client.post("/api/write", json={"action": "genera", "scene_id": "x"})
+    assert r.status_code == 400
+    assert "intent_it" in r.get_json()["error"]
+
+
+def test_verb_rifinisci_missing_text_returns_400(client):
+    r = client.post("/api/write", json={"action": "rifinisci", "scene_id": "x"})
+    assert r.status_code == 400
+    assert "text" in r.get_json()["error"]
+
+
+def test_verb_traduci_missing_text_returns_400(client):
+    r = client.post("/api/write", json={"action": "traduci"})
+    assert r.status_code == 400
+    assert "text" in r.get_json()["error"]
+
+
+def test_verb_traduci_invalid_direction_returns_400(client):
+    r = client.post("/api/write", json={
+        "action": "traduci", "text": "testo", "direction": "IT_to_FR"
+    })
+    assert r.status_code == 400
+    assert "direction" in r.get_json()["error"]
+
+
+def test_verb_coerenza_missing_text_returns_400(client):
+    r = client.post("/api/write", json={"action": "coerenza"})
+    assert r.status_code == 400
+    assert "text" in r.get_json()["error"]
+
+
+def test_verb_riassumi_missing_text_returns_400(client):
+    r = client.post("/api/write", json={"action": "riassumi"})
+    assert r.status_code == 400
+    assert "text" in r.get_json()["error"]
