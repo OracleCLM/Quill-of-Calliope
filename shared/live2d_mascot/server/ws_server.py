@@ -39,6 +39,7 @@ from typing import List
 
 import uvicorn
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 # Configurable — consuming repo can override before import
@@ -102,6 +103,18 @@ class ConnectionManager:
 
 manager = ConnectionManager()
 app = FastAPI(title="live2d-mascot-ws", version="1.0")
+
+# CORS: il frontend Live2D è servito da un altro origin (l'asset-server in-process
+# del desktop-pet, 127.0.0.1:<porta-effimera>) e fa fetch verso questo WS-server
+# (es. /tts-status). Senza Access-Control-Allow-Origin, QtWebEngine/Chromium blocca
+# ogni fetch cross-origin → flood-CORS in console e fetch falliti (causa-codice G1).
+# Servizio puramente LOCALE single-operator → allow_origins="*" è accettabile.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 # ── Routes ────────────────────────────────────────────────────────────────────
