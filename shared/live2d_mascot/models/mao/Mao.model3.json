@@ -1,0 +1,18 @@
+{
+  "Version": 3,
+  "FileReferences": {
+    "Moc": "Mao.moc3",
+    "Textures": [
+      "Mao.2048/texture_00.png"
+    ]
+  },
+  "Groups": [
+    {
+      "Target": "Parameter",
+      "Name": "LipSync",
+      "Ids": [
+        "ParamA"
+      ]
+    }
+  ]
+}
