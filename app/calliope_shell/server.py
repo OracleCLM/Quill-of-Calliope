@@ -32,8 +32,39 @@ _VALID_DIRECTIONS = {"IT_to_EN", "EN_to_IT"}
 
 
 def _load_char_sheets(names: list[str]) -> list[dict]:
+    import json as _json  # noqa: PLC0415
     sheets = []
     for name in names:
+        found = False
+        try:
+            from app.db import get_db as _get_db  # noqa: PLC0415
+            _conn = _get_db()
+            cur = _conn.execute(
+                "SELECT name, card_json FROM characters WHERE name = ? LIMIT 1",
+                (name,),
+            )
+            row = cur.fetchone()
+            _conn.close()
+            if row:
+                card: dict = {}
+                try:
+                    card = _json.loads(row["card_json"] or "{}") or {}
+                except Exception:
+                    pass
+                sheets.append({
+                    "name": row["name"],
+                    "traits": card.get("traits", []),
+                    "backstory": (card.get("backstory") or "")[:300],
+                    "speech_pattern": card.get("speech_pattern", {}),
+                    "race": card.get("race", ""),
+                    "class": card.get("class", ""),
+                })
+                found = True
+        except Exception:
+            pass
+        if found:
+            continue
+        # fallback YAML
         for p in _CHARS_DIR.glob("*.yaml"):
             if name.lower() in p.stem.lower():
                 try:
@@ -1018,6 +1049,7 @@ def create_app():
         char = body.get("char", "").strip()
         last_msg = body.get("last_msg", "").strip()
         context_hint = body.get("context_hint", "").strip()
+        persist = bool(body.get("persist", False))
 
         if not char:
             return jsonify({"error": "char is required"}), 400
@@ -1072,6 +1104,16 @@ def create_app():
             resp.raise_for_status()
             data = resp.json()
             next_msg = data.get("result") or data.get("text") or data.get("content", "")
+            if persist and scene_id:
+                try:
+                    from app.db import get_db as _get_db  # noqa: PLC0415
+                    from app.db.messages import add_message as _add_message  # noqa: PLC0415
+                    _pconn = _get_db()
+                    _add_message(_pconn, scene_id=scene_id, author_name=char, content_original=next_msg)
+                    _pconn.commit()
+                    _pconn.close()
+                except Exception as _exc:
+                    logger.warning("persist next_msg failed: %s", _exc)
             # Audit hook (Sprint C2).
             try:
                 from app.calliope_shell import audit_trail as _audit  # noqa: PLC0415
@@ -1108,21 +1150,32 @@ def create_app():
         intent_it = body.get("intent_it", "").strip()
         char_focus = body.get("char_focus", "").strip()
         style_hints = body.get("style_hints", "")
+        persist = bool(body.get("persist", False))
 
         if not intent_it:
             return jsonify({"error": "intent_it is required"}), 400
 
         # DB-FIRST con fallback flat-YAML (VG-1b, chiude F1) — non più glob inline per scene_ctx.
         scene_ctx = resolve_scene_context(scene_id, scenes_dir=_SCENES_DIR) if scene_id else ""
-        # participants restano dal YAML (compat) per il wiring downstream del continue.
+        # participants: DB-FIRST via list_characters_in_scene, fallback YAML glob.
         participants = []
         if scene_id:
-            for p in _SCENES_DIR.glob("*.yaml"):
-                if scene_id in p.stem:
-                    d = _parse_scene_yaml(p)
-                    if d:
-                        participants = d.get("participants", [])
-                    break
+            try:
+                from app.db import get_db as _get_db  # noqa: PLC0415
+                from app.db.characters import list_characters_in_scene as _list_chars_scene  # noqa: PLC0415
+                _conn = _get_db()
+                _db_rows = _list_chars_scene(_conn, scene_id)
+                _conn.close()
+                participants = [r["name"] for r in _db_rows]
+            except Exception:
+                pass
+            if not participants:
+                for p in _SCENES_DIR.glob("*.yaml"):
+                    if scene_id in p.stem:
+                        d = _parse_scene_yaml(p)
+                        if d:
+                            participants = d.get("participants", [])
+                        break
 
         char_sheets = _load_char_sheets(
             [char_focus] if char_focus else participants[:5]
@@ -1205,6 +1258,17 @@ def create_app():
         except Exception as exc:
             logger.warning("draft generation failed: %s", exc)
             return jsonify({"error": str(exc)}), 503
+
+        if persist and scene_id:
+            try:
+                from app.db import get_db as _get_db  # noqa: PLC0415
+                from app.db.messages import add_message as _add_message  # noqa: PLC0415
+                _pconn = _get_db()
+                _add_message(_pconn, scene_id=scene_id, author_name=char_focus, content_original=draft_text)
+                _pconn.commit()
+                _pconn.close()
+            except Exception as _exc:
+                logger.warning("persist draft failed: %s", _exc)
 
         lint_findings = []
         try:
