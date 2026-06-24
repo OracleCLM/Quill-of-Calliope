@@ -123,9 +123,13 @@ def register_messages_db_routes(app, db_path=None):
     @app.route("/api/db/scenes/<scene_id>/messages", methods=["POST"])
     def db_append_message(scene_id):
         conn = _conn(db_path)
-        if conn.execute("SELECT 1 FROM scenes WHERE id = ?", (scene_id,)).fetchone() is None:
+        scene_row = conn.execute("SELECT is_readonly FROM scenes WHERE id = ?", (scene_id,)).fetchone()
+        if scene_row is None:
             conn.close()
             return jsonify({"error": "not_found"}), 404
+        if scene_row[0]:
+            conn.close()
+            return jsonify({"error": "readonly"}), 403
         body = request.get_json(force=True) or {}
         author_name = body.get("author_name", "").strip()
         content_original = body.get("content_original")

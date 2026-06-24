@@ -5,6 +5,12 @@ from pathlib import Path
 import pandas as pd
 import numpy as np
 
+try:
+    pd.Series({"_test": "ok"})
+    _PANDAS_SERIES_OK = True
+except Exception:
+    _PANDAS_SERIES_OK = False
+
 sys.path.insert(0, str(Path(__file__).parents[2] / "scripts"))
 from import_excel_history import normalize_character_name, safe_str, classify_row, ts_to_iso
 
@@ -30,14 +36,17 @@ def test_safe_str_string():
 def test_safe_str_nan():
     assert safe_str(np.nan) is None
 
+@pytest.mark.skipif(not _PANDAS_SERIES_OK, reason="pd.Series({}) rotto: numpy/pandas incompatibili su py3.13")
 def test_classify_row_ic():
     row = pd.Series({"player": "Horo", "character": "Aurora", "message": "She walks", "type": "message"})
     assert classify_row(row) == "IC"
 
+@pytest.mark.skipif(not _PANDAS_SERIES_OK, reason="pd.Series({}) rotto: numpy/pandas incompatibili su py3.13")
 def test_classify_row_ooc():
     row = pd.Series({"player": "Horo", "character": None, "message": "(Let's break)", "type": "message"})
     assert classify_row(row) == "OOC"
 
+@pytest.mark.skipif(not _PANDAS_SERIES_OK, reason="pd.Series({}) rotto: numpy/pandas incompatibili su py3.13")
 def test_classify_row_system():
     row = pd.Series({"system message": "Server joined", "character": None})
     assert classify_row(row) == "system"

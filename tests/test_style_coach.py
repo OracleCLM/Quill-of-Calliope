@@ -1,9 +1,17 @@
 import sys
 from pathlib import Path
 
+import pytest
+
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from app.calliope_shell.style_coach import LintReport, lint_scene_output, _load_lexicon
+
+try:
+    import sklearn  # noqa: F401
+    _HAS_SKLEARN = True
+except Exception:
+    _HAS_SKLEARN = False
 
 
 # TSC1 — lexicon loads and has minimum phrases
@@ -56,6 +64,7 @@ def test_tsc6_foreign_language():
 
 
 # TSC7 — operator centroid: style drift computed when samples provided
+@pytest.mark.skipif(not _HAS_SKLEARN, reason="sklearn non disponibile in questo env (scipy/py3.13)")
 def test_tsc7_style_drift_with_samples():
     samples = [
         "Aurora si mosse senza fretta, la mano sulla guardia.",
