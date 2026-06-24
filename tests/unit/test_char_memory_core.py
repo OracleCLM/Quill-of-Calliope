@@ -121,3 +121,36 @@ def test_upsert_traits_stored(db):
     char_memory.upsert_char("Mallory", traits={"personality": ["brave"]})
     result = char_memory.get_char("Mallory")
     assert result["traits"]["personality"] == ["brave"]
+
+
+# ── replace_fact ──────────────────────────────────────────────────────────────
+
+def test_replace_fact_l0_blocked(db):
+    result = char_memory.replace_fact("Nav", "old", "new", scope="L0")
+    assert result["success"] is False
+    assert "L0" in result["error"]
+
+
+def test_replace_fact_invalid_scope(db):
+    result = char_memory.replace_fact("Nav", "old", "new", scope="INVALID")
+    assert result["success"] is False
+
+
+def test_replace_fact_replaces_text(db):
+    with patch("app.calliope_shell.entity_linker.extract_entities_for_fact", return_value=[]):
+        char_memory.upsert_char("Nav")
+        char_memory.append_fact("Nav", "Nav wears a red cloak", scope="L1")
+    result = char_memory.replace_fact("Nav", "red cloak", "blue cloak", scope="L1")
+    assert result["success"] is True
+    assert result["replaced"] == 1
+    facts = char_memory.get_facts("Nav")
+    assert "blue cloak" in facts[0]["fact_text"]
+
+
+def test_replace_fact_no_match_returns_zero(db):
+    with patch("app.calliope_shell.entity_linker.extract_entities_for_fact", return_value=[]):
+        char_memory.upsert_char("Nav")
+        char_memory.append_fact("Nav", "Nav wears a red cloak", scope="L1")
+    result = char_memory.replace_fact("Nav", "green hat", "blue hat", scope="L1")
+    assert result["success"] is True
+    assert result["replaced"] == 0
