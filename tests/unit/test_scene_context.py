@@ -1,13 +1,17 @@
 """
-Unit test E1+E2 — lore_retrieval_for_scene + sheet_retrieval_for_scene.
+Unit test E1+E2+E3 — scene_context helpers.
 
-Gate: pytest puro, no LLM, no Flask, no network.
+Gate: pytest puro, no LLM live, no Flask, no network (gateway mockato).
 """
 import pytest
+from unittest.mock import MagicMock, patch
 
 from app.calliope_shell.lore_kb import LoreEntry, LoreStore
 from app.calliope_shell.scene_context import (
+    apply_refine_to_message,
+    build_refine_prompt,
     lore_retrieval_for_scene,
+    refine_message_via_gateway,
     sheet_retrieval_for_scene,
 )
 from app.db import get_db, init_schema
@@ -137,3 +141,55 @@ def test_e2_empty_scene_returns_empty(db_with_roster):
     db_with_roster.commit()
     result = sheet_retrieval_for_scene(db_with_roster, "sc_empty")
     assert result == []
+
+
+# ── E3 — refine-fn (gateway mockato) ─────────────────────────────────────────
+
+def _mock_gateway(text: str = "Testo raffinato."):
+    resp = MagicMock()
+    resp.status_code = 200
+    resp.json.return_value = {"result": text}
+    resp.raise_for_status = lambda: None
+    return resp
+
+
+def test_e3_prompt_contains_sheets_and_lore(lore_store):
+    entry = LoreEntry(id="e1", title="Drago", keys=["drago"], content="Il drago abita il nord.", insertion_order=0)
+    sheets = [{"name": "Aurora", "role": "narrator", "sheets": ["Aurora è una guerriera."]}]
+
+    prompt = build_refine_prompt("Il drago attacca.", [entry], sheets)
+    assert "Aurora" in prompt
+    assert "guerriera" in prompt
+    assert "Drago" in prompt
+    assert "Il drago attacca." in prompt
+
+
+def test_e3_refine_message_via_gateway_returns_refined():
+    with patch("app.calliope_shell.scene_context.requests.post", return_value=_mock_gateway("The refined text.")):
+        result = refine_message_via_gateway(
+            "Raw text", lore_entries=[], char_sheets=[], gateway_url="http://test"
+        )
+    assert result == "The refined text."
+
+
+def test_e3_apply_refine_writes_content_enhanced(db_with_roster, lore_store):
+    # Inserisce un messaggio nella scena sc1
+    db_with_roster.execute(
+        "INSERT INTO messages (id, scene_id, author_name, content_original, ts)"
+        " VALUES ('m1','sc1','Nic','Il drago attacca.','2026-06-24T00:00:00')"
+    )
+    db_with_roster.commit()
+
+    with patch("app.calliope_shell.scene_context.requests.post", return_value=_mock_gateway("Testo raffinato.")):
+        refined = apply_refine_to_message(
+            db_with_roster, "m1", lore_store=lore_store, gateway_url="http://test"
+        )
+
+    assert refined == "Testo raffinato."
+    row = db_with_roster.execute("SELECT content_enhanced FROM messages WHERE id='m1'").fetchone()
+    assert row[0] == "Testo raffinato."
+
+
+def test_e3_apply_refine_raises_on_missing_message(db_with_roster):
+    with pytest.raises(ValueError, match="non trovato"):
+        apply_refine_to_message(db_with_roster, "msg_nonexistent", gateway_url="http://test")
