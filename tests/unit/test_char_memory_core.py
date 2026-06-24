@@ -1,8 +1,12 @@
 """Unit test per le funzioni SQLite core di app/calliope_shell/char_memory.py."""
+import sqlite3 as _sqlite3
+
 import pytest
 from unittest.mock import patch
 
 from app.calliope_shell import char_memory
+
+_CM = "app.calliope_shell.char_memory"
 
 
 @pytest.fixture
@@ -154,3 +158,105 @@ def test_replace_fact_no_match_returns_zero(db):
     result = char_memory.replace_fact("Nav", "green hat", "blue hat", scope="L1")
     assert result["success"] is True
     assert result["replaced"] == 0
+
+
+# ── coverage gaps: scope filter + exception branches ─────────────────────────
+
+
+def test_get_facts_with_scope_filter(db):
+    with patch("app.calliope_shell.entity_linker.extract_entities_for_fact", return_value=[]):
+        char_memory.upsert_char("Sam")
+        char_memory.append_fact("Sam", "Fact A", scope="L1")
+        char_memory.append_fact("Sam", "Fact B", scope="L2")
+    facts = char_memory.get_facts("Sam", scope="L1")
+    assert len(facts) == 1
+    assert facts[0]["fact_text"] == "Fact A"
+
+
+def test_get_char_db_error_returns_none(db):
+    with patch(f"{_CM}._conn", side_effect=_sqlite3.OperationalError("fake")):
+        assert char_memory.get_char("X") is None
+
+
+def test_list_chars_db_error_returns_empty(db):
+    with patch(f"{_CM}._conn", side_effect=_sqlite3.OperationalError("fake")):
+        assert char_memory.list_chars() == []
+
+
+def test_delete_char_db_error_returns_false(db):
+    with patch(f"{_CM}._conn", side_effect=_sqlite3.OperationalError("fake")):
+        assert char_memory.delete_char("X") is False
+
+
+def test_append_fact_db_error_returns_none(db):
+    with patch(f"{_CM}._conn", side_effect=_sqlite3.OperationalError("fake")):
+        assert char_memory.append_fact("X", "y", scope="L1") is None
+
+
+def test_replace_fact_db_error_returns_error_dict(db):
+    with patch(f"{_CM}._conn", side_effect=_sqlite3.OperationalError("fake")):
+        result = char_memory.replace_fact("X", "old", "new", scope="L1")
+        assert result["success"] is False
+        assert "error" in result
+
+
+def test_get_facts_db_error_returns_empty(db):
+    with patch(f"{_CM}._conn", side_effect=_sqlite3.OperationalError("fake")):
+        assert char_memory.get_facts("X") == []
+
+
+def test_init_db_exception_doesnt_propagate(tmp_path, monkeypatch):
+    db_path = tmp_path / "bad.db"
+    monkeypatch.setattr(char_memory, "_DB_PATH", db_path)
+    with patch(f"{_CM}._conn", side_effect=_sqlite3.OperationalError("disk full")):
+        char_memory.init_db()
+
+
+def test_upsert_char_db_error_doesnt_raise(db):
+    with patch(f"{_CM}._conn", side_effect=_sqlite3.OperationalError("disk full")):
+        char_memory.upsert_char("Victim", traits={"x": 1})
+
+
+def test_retrieve_multi_signal_entity_overlap_runs(db):
+    with patch("app.calliope_shell.entity_linker.extract_entities_for_fact", return_value=[]):
+        char_memory.upsert_char("Hero")
+        char_memory.append_fact("Hero", "Hero coordinated with NATO", scope="L1")
+    result = char_memory.retrieve_multi_signal("Hero", "NATO alliance", top_k=3)
+    assert isinstance(result, list)
+
+
+def test_retrieve_multi_signal_bm25_exception_continues(db):
+    call_count = [0]
+    real_conn = char_memory._conn
+
+    def maybe_fail():
+        call_count[0] += 1
+        if call_count[0] == 1:
+            raise _sqlite3.OperationalError("BM25 fake fail")
+        return real_conn()
+
+    with patch(f"{_CM}._conn", side_effect=maybe_fail):
+        result = char_memory.retrieve_multi_signal("X", "query")
+    assert isinstance(result, list)
+
+
+def test_retrieve_multi_signal_entity_hits_branch(db):
+    char_memory.upsert_char("Heroine")
+    char_memory.append_fact("Heroine", "Heroine deployed with NATO", scope="L1")
+    result = char_memory.retrieve_multi_signal("Heroine", "NATO operation", top_k=3)
+    assert isinstance(result, list)
+
+
+def test_retrieve_multi_signal_entity_overlap_exception(db):
+    call_count = [0]
+    real_conn = char_memory._conn
+
+    def fail_on_second():
+        call_count[0] += 1
+        if call_count[0] == 2:
+            raise _sqlite3.OperationalError("entity overlap fake fail")
+        return real_conn()
+
+    with patch(f"{_CM}._conn", side_effect=fail_on_second):
+        result = char_memory.retrieve_multi_signal("X", "NATO forces")
+    assert isinstance(result, list)
