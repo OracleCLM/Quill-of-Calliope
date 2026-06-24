@@ -66,3 +66,20 @@ def test_check_channel_rate_allows_after_stale_eviction(monkeypatch):
     # tutti i timestamp sono scaduti (>60s)
     discord_bot._CHANNEL_MSG_RATE[444] = [now - 120, now - 90, now - 75]
     assert discord_bot._check_channel_rate(444) is True
+
+
+# ── get_state_path ────────────────────────────────────────────────────────────
+
+def test_get_state_path_returns_path_with_guild_id():
+    from pathlib import Path
+    result = discord_bot.get_state_path(12345)
+    assert isinstance(result, Path)
+    assert result.stem == "12345"
+    assert result.suffix == ".json"
+
+
+def test_get_state_path_str_guild_id():
+    from pathlib import Path
+    result = discord_bot.get_state_path("guild_abc")
+    assert isinstance(result, Path)
+    assert result.stem == "guild_abc"
