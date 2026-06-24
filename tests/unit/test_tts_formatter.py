@@ -85,3 +85,9 @@ def test_to_speakable_strips_all():
     out = to_speakable("# Titolo\n```\ncode\n```\n- **uno** & due")
     assert "```" not in out and "#" not in out and "**" not in out and "&" not in out
     assert "uno" in out and "due" in out
+
+
+def test_flatten_list_with_mixed_non_list_line():
+    result = lists_to_sentences("Intro.\n- mela\n- pera")
+    assert "mela." in result
+    assert "Intro." in result

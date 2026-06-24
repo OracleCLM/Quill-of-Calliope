@@ -182,3 +182,54 @@ def test_lint_real_lexicon_known_cliche():
         operator_corpus_features=[],
     )
     assert report.high_count >= 1
+
+
+# ── coverage gaps ─────────────────────────────────────────────────────────────
+
+def test_lint_real_lexicon_med_severity():
+    """'an air of mystery' è MED nel lexicon reale."""
+    report = lint_scene_output(
+        "The room had an air of mystery that no one could explain.",
+        operator_corpus_features=[],
+    )
+    assert report.med_count >= 1
+
+
+def test_load_voice_samples_with_existing_file(tmp_path):
+    from app.calliope_shell import style_coach
+    samples_file = tmp_path / "voice.txt"
+    samples_file.write_text("Sample one.\n---\nSample two.\n")
+    monkeypatch_path = tmp_path / "voice.txt"
+    original = style_coach._VOICE_SAMPLES_PATH
+    try:
+        style_coach._VOICE_SAMPLES_PATH = monkeypatch_path
+        from app.calliope_shell.style_coach import _load_voice_samples
+        result = _load_voice_samples()
+    finally:
+        style_coach._VOICE_SAMPLES_PATH = original
+    assert len(result) == 2
+
+
+def test_lint_style_drift_score_set_when_compute_returns_value():
+    with patch(f"{_MOD}._load_lexicon", return_value=_FAKE_LEXICON), \
+         patch(f"{_MOD}._compute_style_drift", return_value=0.5):
+        report = lint_scene_output("Testo qualsiasi.", operator_corpus_features=["x"])
+    assert report.style_drift_score == 0.5
+
+
+def test_lint_style_drift_above_threshold_adds_finding():
+    with patch(f"{_MOD}._load_lexicon", return_value=_FAKE_LEXICON), \
+         patch(f"{_MOD}._compute_style_drift", return_value=0.85):
+        report = lint_scene_output("Testo qualsiasi.", operator_corpus_features=["x"])
+    assert report.style_drift_score == 0.85
+    assert any(f.type == "style_drift" for f in report.findings)
+
+
+def test_main_cli_prints_report(tmp_path, capsys):
+    from app.calliope_shell.style_coach import _main
+    scene_file = tmp_path / "scene.md"
+    scene_file.write_text("Una scena normale senza cliché.")
+    with patch("sys.argv", ["style_coach", str(scene_file)]):
+        _main()
+    out = capsys.readouterr().out
+    assert "findings" in out.lower() or "no findings" in out.lower()

@@ -283,3 +283,11 @@ def test_assemble_context_history_budget_clamped_to_zero(tmp_path):
     )
     msg_blocks = [b for b in bundle.blocks if b.kind == "message"]
     assert len(msg_blocks) == 0 or bundle.ghosted_count >= 0
+
+
+def test_assemble_context_lore_non_dict_entry():
+    scene = _make_scene(msgs=[])
+    bundle = assemble_context(scene, {}, model_window=2000, reply_reserve=256,
+                              lore_entries=["raw string lore entry"])
+    lore_blocks = [b for b in bundle.blocks if b.kind == "lore"]
+    assert any("raw string lore entry" in b.text for b in lore_blocks)

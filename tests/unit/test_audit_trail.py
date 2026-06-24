@@ -119,3 +119,10 @@ def test_recent_events_db_error_returns_empty(fresh_db, monkeypatch):
     monkeypatch.setattr(audit_trail, "_DB_PATH", fresh_db / "nonexistent_dir" / "bad.db")
     result = audit_trail.recent_events(limit=5)
     assert result == []
+
+
+def test_init_db_exception_doesnt_propagate(tmp_path, monkeypatch):
+    from unittest.mock import patch
+    monkeypatch.setattr(audit_trail, "_DB_PATH", tmp_path / "bad.db")
+    with patch("app.calliope_shell.audit_trail._conn", side_effect=RuntimeError("disk full")):
+        audit_trail.init_db()
