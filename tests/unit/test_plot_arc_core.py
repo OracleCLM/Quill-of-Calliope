@@ -296,3 +296,9 @@ def test_search_arcs_by_topic_result_loop_covered(db):
     assert len(result) == 1
     assert result[0]["arc_id"] == "a1"
     assert "Dragon" in result[0]["summary_excerpt"]
+
+
+def test_propose_next_scene_arc_not_found_returns_empty(db):
+    """Line 288: propose_next_scene con arc_id inesistente → {}."""
+    result = plot_arc.propose_next_scene("nonexistent-arc-id")
+    assert result == {}

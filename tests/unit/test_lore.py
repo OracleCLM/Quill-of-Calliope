@@ -176,3 +176,14 @@ def test_update_lore_entry_category(db_connection):
     entry_id = _add(conn, title="Loc", category="other")
     update_lore_entry(conn, entry_id, category="places")
     assert get_lore_entry(conn, entry_id)["category"] == "places"
+
+
+# ── coverage gap: new_id=None guard (line 69) ─────────────────────────────────
+
+def test_add_lore_entry_raises_when_new_id_none(db_connection):
+    from unittest.mock import patch
+    import app.db.lore as _lore_mod
+    conn = db_connection["conn"]
+    with patch.object(_lore_mod, "new_id", None):
+        with pytest.raises(RuntimeError, match="new_id function not available"):
+            add_lore_entry(conn, title="Ghost", content_text="x")

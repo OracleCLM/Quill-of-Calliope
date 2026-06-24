@@ -233,3 +233,14 @@ def test_main_cli_prints_report(tmp_path, capsys):
         _main()
     out = capsys.readouterr().out
     assert "findings" in out.lower() or "no findings" in out.lower()
+
+
+def test_main_cli_prints_findings_when_cliche_found(tmp_path, capsys):
+    """Lines 189-195: findings block in _main() output."""
+    from app.calliope_shell.style_coach import _main
+    scene_file = tmp_path / "scene.md"
+    scene_file.write_text("The room had an air of mystery and danger.")
+    with patch("sys.argv", ["style_coach", str(scene_file), "--threshold", "LOW"]):
+        _main()
+    out = capsys.readouterr().out
+    assert "[MED]" in out or "[LOW]" in out or "[HIGH]" in out

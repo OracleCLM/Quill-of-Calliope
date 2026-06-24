@@ -218,3 +218,14 @@ def test_update_character_image_path(db_connection):
     char_id = _add(conn, name="Img")
     update_character(conn, char_id, image_path="/media/img.jpg")
     assert get_character(conn, char_id)["image_path"] == "/media/img.jpg"
+
+
+# ── coverage gap: new_id=None guard (line 61) ─────────────────────────────────
+
+def test_add_character_raises_when_new_id_none(db_connection):
+    from unittest.mock import patch
+    import app.db.characters as _chars_mod
+    conn = db_connection["conn"]
+    with patch.object(_chars_mod, "new_id", None):
+        with pytest.raises(RuntimeError, match="new_id function not available"):
+            add_character(conn, name="Ghost")
