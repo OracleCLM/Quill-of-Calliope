@@ -159,3 +159,33 @@ def test_main_produces_jsonl(tmp_path):
     assert len(lines) == 1
     record = json.loads(lines[0])
     assert record["source"] == "chatgpt"
+
+
+# ── coverage gaps ─────────────────────────────────────────────────────────────
+
+def test_parse_conversations_node_without_message_skipped():
+    """Nodo senza messaggio (line 76: if not msg: continue)."""
+    data = [{
+        "id": "c1", "title": "T", "create_time": 1,
+        "mapping": {"node-1": {"message": None}},
+    }]
+    records = parse_conversations(data)
+    assert records == []
+
+
+def test_main_invalid_json_returns_1(tmp_path):
+    """File JSON malformato → JSONDecodeError handler (lines 123-125)."""
+    inp = tmp_path / "bad.json"
+    inp.write_text("{not valid json", encoding="utf-8")
+    out = tmp_path / "out.jsonl"
+    ret = main(["--input", str(inp), "--output", str(out)])
+    assert ret == 1
+
+
+def test_main_json_not_list_returns_1(tmp_path):
+    """JSON che non è una lista → type check handler (lines 128-129)."""
+    inp = tmp_path / "obj.json"
+    inp.write_text('{"key": "value"}', encoding="utf-8")
+    out = tmp_path / "out.jsonl"
+    ret = main(["--input", str(inp), "--output", str(out)])
+    assert ret == 1
