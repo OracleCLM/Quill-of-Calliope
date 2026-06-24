@@ -20,9 +20,11 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from scripts.calliope_cli import (
     build_parser,
     cmd_facts,
+    cmd_forget,
     cmd_list,
     cmd_recall,
     cmd_remember,
+    main,
 )
 
 _CLI = "scripts.calliope_cli"
@@ -190,3 +192,80 @@ def test_cmd_list_with_chars(capsys):
     assert ret == 0
     assert "Aurora" in out
     assert "Luna" in out
+
+
+# ── coverage gaps: cmd_forget + main() ───────────────────────────────────────
+
+
+def _forget_ns(name="Alice", old_fact="old", new_fact="new", scope="L1"):
+    return SimpleNamespace(name=name, old_fact=old_fact, new_fact=new_fact, scope=scope)
+
+
+def test_cmd_forget_success(capsys):
+    ns = _forget_ns()
+    with patch(f"{_CLI}.char_memory_replace",
+               return_value={"success": True, "replaced": 1}):
+        ret = cmd_forget(ns)
+    assert ret == 0
+    assert "Replaced" in capsys.readouterr().out
+
+
+def test_cmd_forget_failure_returns_1(capsys):
+    ns = _forget_ns()
+    with patch(f"{_CLI}.char_memory_replace",
+               return_value={"success": False, "error": "not found"}):
+        ret = cmd_forget(ns)
+    assert ret == 1
+
+
+def test_cmd_forget_requires_approval_confirm_y(capsys):
+    ns = _forget_ns()
+    call_count = [0]
+    def replace_side_effect(*a, approved=False, **kw):
+        call_count[0] += 1
+        if not approved:
+            return {"requires_approval": True, "message": "Approval needed"}
+        return {"success": True, "replaced": 1}
+    with patch(f"{_CLI}.char_memory_replace", side_effect=replace_side_effect), \
+         patch("builtins.input", return_value="y"):
+        ret = cmd_forget(ns)
+    assert ret == 0
+    assert call_count[0] == 2
+
+
+def test_cmd_forget_requires_approval_confirm_no(capsys):
+    ns = _forget_ns()
+    with patch(f"{_CLI}.char_memory_replace",
+               return_value={"requires_approval": True, "message": "Approval needed"}), \
+         patch("builtins.input", return_value="n"):
+        ret = cmd_forget(ns)
+    assert ret == 0
+    assert "Aborted" in capsys.readouterr().out
+
+
+def test_cmd_forget_interactive_input_empty_aborts(capsys):
+    """No --new arg: input() chiamato; stringa vuota → Aborted."""
+    ns = _forget_ns(new_fact="")
+    with patch("builtins.input", return_value=""):
+        ret = cmd_forget(ns)
+    assert ret == 1
+
+
+def test_cmd_forget_interactive_input_used(capsys):
+    """No --new arg: input() fornisce il nuovo fatto."""
+    ns = _forget_ns(new_fact="")
+    with patch("builtins.input", return_value="nuovo fatto"), \
+         patch(f"{_CLI}.char_memory_replace",
+               return_value={"success": True, "replaced": 1}):
+        ret = cmd_forget(ns)
+    assert ret == 0
+
+
+def test_main_dispatches_remember(capsys):
+    with patch("sys.argv", ["calliope_cli", "char", "remember", "Alice", "Fact"]), \
+         patch(f"{_CLI}.char_memory_append",
+               return_value={"success": True, "scope": "L1", "fact_id": "abc123xyz", "fact_preview": "Fact"}):
+        try:
+            main()
+        except SystemExit as e:
+            assert e.code == 0
