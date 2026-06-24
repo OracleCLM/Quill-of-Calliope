@@ -110,3 +110,56 @@ def test_get_character_not_found_404(client):
 def test_add_character_missing_name_400(client):
     r = client.post("/api/db/characters", json={"kind": "npc"})
     assert r.status_code == 400
+
+
+# --- PATCH /api/db/characters/<char_id> -------------------------------------
+
+def test_patch_character_name_200(client):
+    char_id = client.post("/api/db/characters", json={"name": "Vecchio"}).get_json()["id"]
+    r = client.patch(f"/api/db/characters/{char_id}", json={"name": "Nuovo"})
+    assert r.status_code == 200
+    assert r.get_json() == {}
+
+
+def test_patch_character_kind_200(client):
+    char_id = client.post("/api/db/characters", json={"name": "K", "kind": "npc"}).get_json()["id"]
+    r = client.patch(f"/api/db/characters/{char_id}", json={"kind": "player"})
+    assert r.status_code == 200
+
+
+def test_patch_character_empty_body_400(client):
+    char_id = client.post("/api/db/characters", json={"name": "X"}).get_json()["id"]
+    r = client.patch(f"/api/db/characters/{char_id}", json={})
+    assert r.status_code == 400
+
+
+def test_patch_character_invalid_kind_400(client):
+    char_id = client.post("/api/db/characters", json={"name": "Y"}).get_json()["id"]
+    r = client.patch(f"/api/db/characters/{char_id}", json={"kind": "villain"})
+    assert r.status_code == 400
+
+
+def test_patch_character_not_found_404(client):
+    r = client.patch("/api/db/characters/nonexistent-id", json={"name": "Z"})
+    assert r.status_code == 404
+
+
+# --- DELETE /api/db/characters/<char_id> ------------------------------------
+
+def test_delete_character_204(client):
+    char_id = client.post("/api/db/characters", json={"name": "ToDelete"}).get_json()["id"]
+    r = client.delete(f"/api/db/characters/{char_id}")
+    assert r.status_code == 204
+    assert r.data == b""
+
+
+def test_delete_character_not_found_404(client):
+    r = client.delete("/api/db/characters/nonexistent-id")
+    assert r.status_code == 404
+
+
+def test_delete_character_removes_from_list(client):
+    char_id = client.post("/api/db/characters", json={"name": "Gone"}).get_json()["id"]
+    client.delete(f"/api/db/characters/{char_id}")
+    ids = [c["id"] for c in client.get("/api/db/characters").get_json()["characters"]]
+    assert char_id not in ids
