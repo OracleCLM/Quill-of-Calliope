@@ -275,3 +275,43 @@ def test_triggered_entries_max_entries(tmp_path):
         store.add_entry(LoreEntry(id=f"c{i}", title=f"C{i}", constant=True, insertion_order=i))
     result = store.triggered_entries("x", max_entries=3)
     assert len(result) == 3
+
+
+# ── coverage gaps: default path, non-list JSON, unknown field ─────────────────
+
+def test_default_store_path_is_json():
+    from app.calliope_shell.lore_kb import _default_store_path
+    p = _default_store_path()
+    assert p.name == "lore_kb.json"
+    assert "data" in str(p)
+
+
+def test_store_init_none_path_uses_default(tmp_path, monkeypatch):
+    monkeypatch.setattr(
+        "app.calliope_shell.lore_kb._default_store_path",
+        lambda: tmp_path / "default_lore.json",
+    )
+    store = LoreStore(path=None)
+    assert store.path == tmp_path / "default_lore.json"
+
+
+def test_store_load_non_list_json_resets(tmp_path):
+    import json as _json
+    p = tmp_path / "lore.json"
+    p.write_text(_json.dumps({"key": "value"}))
+    store = LoreStore(path=p)
+    assert store.list_by_category() == []
+
+
+def test_update_entry_ignores_unknown_field(tmp_path):
+    store = _store(tmp_path)
+    store.add_entry(LoreEntry(id="e1", title="E", content="old"))
+    updated = store.update_entry("e1", content="new", nonexistent_field="ignored")
+    assert updated is not None
+    assert updated.content == "new"
+
+
+def test_lore_entry_to_dict_includes_extensions_when_set():
+    e = LoreEntry(id="x", title="T", extensions={"color": "red"})
+    d = e.to_dict()
+    assert d["extensions"] == {"color": "red"}
