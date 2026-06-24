@@ -134,3 +134,11 @@ def test_list_facts_no_scope_filter():
     mock_g.assert_called_once_with("Aurora", scope=None)
     assert result["success"]
     assert result["count"] == 0
+
+
+def test_replace_approved_no_match_still_returns_result():
+    mock_result = {"success": True, "replaced": 0, "old": "nonexistent", "new": "x"}
+    with patch(f"{_MOD}.replace_fact", return_value=mock_result):
+        result = char_memory_replace("Aurora", "nonexistent", "x", scope="L1", approved=True)
+    assert result["replaced"] == 0
+    assert result["success"] is True

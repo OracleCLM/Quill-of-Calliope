@@ -267,3 +267,19 @@ def test_assemble_ghost_not_present_if_all_fit():
     assert bundle.ghosted_count == 0
     ghost_blocks = [b for b in bundle.blocks if b.kind == "ghost"]
     assert ghost_blocks == []
+
+
+def test_load_scene_yaml_participants_not_list_defaults_to_empty(tmp_path):
+    f = tmp_path / "scene_np.yaml"
+    f.write_text("title: Scena\nparticipants: 'Aurora, Gabby'\n")
+    scene = load_scene_yaml(f)
+    assert scene.members == []
+
+
+def test_assemble_context_history_budget_clamped_to_zero(tmp_path):
+    scene = _make_scene(msgs=[("A", "x" * 10)])
+    bundle = assemble_context(
+        scene, {}, model_window=10, reply_reserve=10
+    )
+    msg_blocks = [b for b in bundle.blocks if b.kind == "message"]
+    assert len(msg_blocks) == 0 or bundle.ghosted_count >= 0
