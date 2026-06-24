@@ -1,30 +1,12 @@
-"""
-REST endpoints scene-as-chat su DB SQLite (app.db).
-
-GAP WIRING (CALLIOPE_GAP_NIGHT_2026-06-08, WI-3/WI-4/WI-5/WI-9):
-`server.py:create_app()` NON importava mai `app.db` -> la dashboard serviva ancora
-il vecchio modello scene flat-YAML. Questo modulo cabla il layer DB GIA' testato
-(`app/db/messages.py`, `app/db/reactions.py`, migration 001/002) dentro Flask.
+"""REST endpoints scene-as-chat su DB SQLite (app.db).
 
 Route (tutte sotto /api/db):
-  GET  /api/db/scenes                            -> lista scene            (WI-3)
-  GET  /api/db/scenes/<scene_id>                 -> dettaglio + messaggi    (WI-3)
-  POST /api/db/scenes/<scene_id>/messages        -> append messaggio        (WI-4)
-  GET  /api/db/scenes/<scene_id>/messages        -> paginazione messaggi    (WI-12)
-  GET  /api/db/messages/<message_id>/reactions   -> lista reazioni          (WI-5)
-  POST /api/db/messages/<message_id>/reactions   -> aggiungi reazione       (WI-5)
-
-SPLIT DI RUOLO (operator-mandate orch-efesto):
-  - FORNITO dal father (questo file): la WIRING mancante = funzione
-    `register_scenes_db_routes(app, db_path=None)` + registrazione route +
-    firme. Questo era il gap critico.
-  - DA COMPLETARE dal worker Efesto: i CORPI delle route (marcati `TODO(WI-n)`),
-    usando ESCLUSIVAMENTE l'API gia' testata di `app.db`. NON inventare schema,
-    NON creare nuove migration: le tabelle scenes/messages/scene_reactions
-    esistono gia'.
-
-ACCETTAZIONE: `pytest tests/unit/test_scenes_db_routes.py -q` deve passare.
-NON modificare le assertion del test: e' il contratto.
+  GET  /api/db/scenes                            -> lista scene
+  GET  /api/db/scenes/<scene_id>                 -> dettaglio + messaggi
+  POST /api/db/scenes/<scene_id>/messages        -> append messaggio
+  GET  /api/db/scenes/<scene_id>/messages        -> paginazione messaggi
+  GET  /api/db/messages/<message_id>/reactions   -> lista reazioni
+  POST /api/db/messages/<message_id>/reactions   -> aggiungi reazione
 """
 from __future__ import annotations
 
