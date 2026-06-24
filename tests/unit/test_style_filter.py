@@ -107,3 +107,14 @@ def test_mixed_severities_high_stripped_low_kept():
     actions = {f["action"] for f in findings}
     assert "stripped" in actions
     assert "warned" in actions
+
+
+# ── coverage gap: load_blacklist() lines 20-21 ───────────────────────────────
+
+def test_load_blacklist_returns_list():
+    """Chiama load_blacklist() con file reale (no mock) — copre lines 20-21."""
+    from scripts.style_filter import load_blacklist
+    result = load_blacklist()
+    assert isinstance(result, list)
+    assert len(result) > 0
+    assert "pattern" in result[0]
