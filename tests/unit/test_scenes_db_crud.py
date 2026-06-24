@@ -150,3 +150,27 @@ def test_duplicate_scene_missing_name_400(client):
     c, s = client
     r = c.post(f"/api/db/scenes/{s['scene_id']}/duplicate", json={})
     assert r.status_code == 400
+
+
+# ── GET /api/db/scenes?title= (title_contains filter) ────────────────────────
+
+def test_list_scenes_with_title_filter(client):
+    c, s = client
+    r = c.get("/api/db/scenes?title=Scene+A")
+    assert r.status_code == 200
+    data = r.get_json()
+    assert "scenes" in data
+    titles = [sc["title"] for sc in data["scenes"]]
+    assert "Test Scene A" in titles
+
+
+# ── POST /api/db/scenes/merge — scene_id_a not found ─────────────────────────
+
+def test_merge_unknown_scene_id_a_404(client):
+    c, s = client
+    r = c.post("/api/db/scenes/merge", json={
+        "scene_id_a": "nonexistent-scene-id",
+        "scene_id_b": s["scene_id"],
+        "new_name": "M",
+    })
+    assert r.status_code == 404
