@@ -164,3 +164,11 @@ def test_detect_open_threads_finds_unresolved_keyword(db):
     threads = plot_arc.detect_open_threads("a1")
     thread_texts = [t["thread"] for t in threads]
     assert any("missing" in t.lower() or "quest" in t.lower() for t in thread_texts)
+
+
+# ── search_arcs_by_topic ──────────────────────────────────────────────────────
+
+def test_search_arcs_by_topic_chromadb_unavailable_returns_empty(db):
+    with patch("app.calliope_shell.plot_arc._arc_chroma_client", side_effect=Exception("ChromaDB not available")):
+        result = plot_arc.search_arcs_by_topic("battle")
+    assert result == []

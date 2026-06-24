@@ -64,3 +64,17 @@ def test_put_updates_content(client):
 def test_put_not_found_returns_404(client):
     r = client.put("/api/lore/entries/entry-inesistente", json={"title": "X"})
     assert r.status_code == 404
+
+
+def test_put_updates_extensions_dict(client):
+    eid = _create(client, "Ext Entry")
+    r = client.put(f"/api/lore/entries/{eid}", json={"extensions": {"color": "blue"}})
+    assert r.status_code == 200
+    assert r.get_json()["extensions"]["color"] == "blue"
+
+
+def test_put_non_dict_extensions_defaults_to_empty(client):
+    eid = _create(client, "BadExt")
+    r = client.put(f"/api/lore/entries/{eid}", json={"extensions": "not-a-dict"})
+    assert r.status_code == 200
+    assert r.get_json().get("extensions", {}) == {}
