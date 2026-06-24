@@ -182,3 +182,37 @@ def test_export_card_v3_alias(tmp_path):
     (tmp_path / "aurora.draft.yaml").write_text("name: Aurora\n")
     with patch(f"{_MOD}._chars_dir", return_value=tmp_path):
         assert export_card_v3("aurora") == get_card_v3("aurora")
+
+
+def test_merged_corrupt_canon_ignored(tmp_path):
+    (tmp_path / "hero.draft.yaml").write_text("name: Hero\n")
+    (tmp_path / "hero.canon.yaml").write_text(": {{INVALID")
+    with patch(f"{_MOD}._chars_dir", return_value=tmp_path):
+        result = _merged_legacy_dict("hero")
+    assert result.get("name") == "Hero"
+
+
+def test_list_cards_load_exception_skips_stem(tmp_path):
+    (tmp_path / "boom.draft.yaml").write_text("name: Boom\n")
+    (tmp_path / "ok.draft.yaml").write_text("name: OK\n")
+    original_load = __import__("app.calliope_shell.characters_service", fromlist=["load_card"]).load_card
+
+    def _failing_load(stem):
+        if stem == "boom":
+            raise RuntimeError("forced failure")
+        return original_load(stem)
+
+    with patch(f"{_MOD}._chars_dir", return_value=tmp_path):
+        with patch(f"{_MOD}.load_card", side_effect=_failing_load):
+            result = list_cards()
+    names = [r["name"] for r in result]
+    assert "OK" in names
+    assert "Boom" not in names
+
+
+def test_get_card_v3_load_exception_returns_none(tmp_path):
+    (tmp_path / "crash.draft.yaml").write_text("name: Crash\n")
+    with patch(f"{_MOD}._chars_dir", return_value=tmp_path):
+        with patch(f"{_MOD}.load_card", side_effect=RuntimeError("boom")):
+            result = get_card_v3("crash")
+    assert result is None
