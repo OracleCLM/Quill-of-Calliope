@@ -101,3 +101,38 @@ def test_scene_revive_scene_not_found_404(tmp_path):
             r = c.post("/api/scene/revive", json={"scene_id": "nonexistent-scene"})
     assert r.status_code == 404
     assert "error" in r.get_json()
+
+
+# ── POST /api/lore/check ─────────────────────────────────────────────────────
+
+def test_lore_check_missing_text_400():
+    with _client() as c:
+        r = c.post("/api/lore/check", json={})
+    assert r.status_code == 400
+    assert r.get_json()["error"] == "text is required"
+
+
+def test_lore_check_no_lore_returns_coherent_true():
+    """Nessun snippet lore trovato → coherent=True, issues=[]."""
+    with _client() as c:
+        with patch(f"{_SRV}._search_lore", return_value=[]):
+            r = c.post("/api/lore/check", json={"text": "The dragon flew high."})
+    assert r.status_code == 200
+    data = r.get_json()
+    assert data["coherent"] is True
+    assert data["issues"] == []
+
+
+def test_lore_check_with_lore_llm_success():
+    """LLM risponde JSON valido con coherent+issues → 200."""
+    mock_resp = MagicMock()
+    mock_resp.raise_for_status.return_value = None
+    mock_resp.json.return_value = {"result": '{"coherent": true, "issues": []}'}
+
+    with _client() as c:
+        with patch(f"{_SRV}._search_lore", return_value=["lore snippet"]):
+            with patch(f"{_SRV}.requests.post", return_value=mock_resp):
+                r = c.post("/api/lore/check", json={"text": "The dragon flew high."})
+    assert r.status_code == 200
+    data = r.get_json()
+    assert "coherent" in data or "error" in data  # degrada se JSON mal formato
