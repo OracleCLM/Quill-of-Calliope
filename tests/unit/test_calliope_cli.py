@@ -15,6 +15,8 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
 
+import pytest
+
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from scripts.calliope_cli import (
@@ -269,3 +271,17 @@ def test_main_dispatches_remember(capsys):
             main()
         except SystemExit as e:
             assert e.code == 0
+
+
+def test_main_unknown_action_exits_1():
+    """Lines 149-150: azione non nel dispatch → print_help + sys.exit(1).
+
+    Argparse valida le scelte, quindi si bypassa parse_args per simulare
+    un'azione futura non ancora aggiunta al dispatch dict.
+    """
+    with patch("argparse.ArgumentParser.parse_args",
+               return_value=SimpleNamespace(action="future_unknown_action")), \
+         patch("argparse.ArgumentParser.print_help"):
+        with pytest.raises(SystemExit) as exc:
+            main()
+    assert exc.value.code == 1
