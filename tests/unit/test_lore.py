@@ -169,3 +169,10 @@ def test_link_lore_to_arc_and_list(db_connection):
 def test_list_lore_for_nonexistent_arc(db_connection):
     conn = db_connection["conn"]
     assert list_lore_for_arc(conn, "no-arc") == []
+
+
+def test_update_lore_entry_category(db_connection):
+    conn = db_connection["conn"]
+    entry_id = _add(conn, title="Loc", category="other")
+    update_lore_entry(conn, entry_id, category="places")
+    assert get_lore_entry(conn, entry_id)["category"] == "places"

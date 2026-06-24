@@ -211,3 +211,10 @@ def test_remove_character_from_scene_found(db_connection):
 def test_remove_character_from_scene_not_found(db_connection):
     conn = db_connection["conn"]
     assert remove_character_from_scene(conn, "no-scene", "no-char") is False
+
+
+def test_update_character_image_path(db_connection):
+    conn = db_connection["conn"]
+    char_id = _add(conn, name="Img")
+    update_character(conn, char_id, image_path="/media/img.jpg")
+    assert get_character(conn, char_id)["image_path"] == "/media/img.jpg"
