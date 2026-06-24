@@ -78,3 +78,45 @@ def test_put_non_dict_extensions_defaults_to_empty(client):
     r = client.put(f"/api/lore/entries/{eid}", json={"extensions": "not-a-dict"})
     assert r.status_code == 200
     assert r.get_json().get("extensions", {}) == {}
+
+
+def test_put_updates_category(client):
+    eid = _create(client, "Cat Entry")
+    r = client.put(f"/api/lore/entries/{eid}", json={"category": "places"})
+    assert r.status_code == 200
+    assert r.get_json()["category"] == "places"
+
+
+def test_put_updates_keys_list(client):
+    eid = _create(client, "Keys Entry")
+    r = client.put(f"/api/lore/entries/{eid}", json={"keys": ["alpha", "beta"]})
+    assert r.status_code == 200
+    assert "alpha" in r.get_json()["keys"]
+
+
+def test_put_updates_insertion_order_valid(client):
+    eid = _create(client, "Ord Entry")
+    r = client.put(f"/api/lore/entries/{eid}", json={"insertion_order": 42})
+    assert r.status_code == 200
+    assert r.get_json()["insertion_order"] == 42
+
+
+def test_put_bad_insertion_order_defaults_to_100(client):
+    eid = _create(client, "Bad Ord")
+    r = client.put(f"/api/lore/entries/{eid}", json={"insertion_order": "nope"})
+    assert r.status_code == 200
+    assert isinstance(r.get_json()["insertion_order"], int)
+
+
+def test_put_updates_scope(client):
+    eid = _create(client, "Scope Entry")
+    r = client.put(f"/api/lore/entries/{eid}", json={"scope": "character"})
+    assert r.status_code == 200
+    assert r.get_json()["scope"] == "character"
+
+
+def test_put_updates_constant(client):
+    eid = _create(client, "Const Entry")
+    r = client.put(f"/api/lore/entries/{eid}", json={"constant": True})
+    assert r.status_code == 200
+    assert r.get_json()["constant"] is True

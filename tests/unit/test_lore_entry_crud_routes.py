@@ -116,3 +116,9 @@ def test_delete_lore_entry_then_get_404(client):
     client.delete(f"/api/lore/entries/{eid}")
     r = client.get(f"/api/lore/entries/{eid}")
     assert r.status_code == 404
+
+
+def test_post_lore_entry_bad_insertion_order_uses_default(client):
+    r = client.post("/api/lore/entries", json={"title": "T", "insertion_order": "bad"})
+    assert r.status_code == 201
+    assert isinstance(r.get_json()["insertion_order"], int)
