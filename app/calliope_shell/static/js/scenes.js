@@ -112,7 +112,8 @@ async function _loadSceneDetail(sceneId) {
                 sel.appendChild(opt);
             });
         } catch (e) { /* roster opzionale: il dettaglio resta usabile senza */ }
-        sel.onchange = () => { document.getElementById('continue-btn').disabled = !sel.value; };
+        const contBtn = document.getElementById('continue-btn');
+        sel.onchange = () => { if (contBtn) contBtn.disabled = !sel.value; };
     } catch(e) {
         document.getElementById('scene-detail-title').textContent = 'Errore: ' + e.message;
     }
