@@ -140,3 +140,120 @@ def test_count_messages_200(client):
     data = r.get_json()
     assert data["count"] == 1
     assert data["scene_id"] == s["scene_id"]
+
+
+# ── PATCH /api/db/messages/<message_id>/position ─────────────────────────────
+
+def test_patch_position_200_success(client):
+    c, s = client
+    r = c.patch(f"/api/db/messages/{s['msg_id']}/position", json={"position": 0})
+    assert r.status_code == 200
+    assert r.get_json() == {}
+
+
+def test_patch_position_400_missing(client):
+    c, s = client
+    r = c.patch(f"/api/db/messages/{s['msg_id']}/position", json={})
+    assert r.status_code == 400
+
+
+def test_patch_position_400_negative(client):
+    c, s = client
+    r = c.patch(f"/api/db/messages/{s['msg_id']}/position", json={"position": -1})
+    assert r.status_code == 400
+
+
+def test_patch_position_404_not_found(client):
+    c, _ = client
+    r = c.patch("/api/db/messages/nonexistent/position", json={"position": 0})
+    assert r.status_code == 404
+
+
+# ── POST /api/db/messages/<message_id>/move ───────────────────────────────────
+
+def test_move_to_scene_200_success(client):
+    c, s = client
+    r = c.post(
+        f"/api/db/messages/{s['msg_id']}/move",
+        json={"target_scene_id": s["scene_id"], "position": 0},
+    )
+    assert r.status_code == 200
+    assert r.get_json() == {}
+
+
+def test_move_to_scene_400_missing_target(client):
+    c, s = client
+    r = c.post(f"/api/db/messages/{s['msg_id']}/move", json={"position": 0})
+    assert r.status_code == 400
+
+
+def test_move_to_scene_400_missing_position(client):
+    c, s = client
+    r = c.post(
+        f"/api/db/messages/{s['msg_id']}/move",
+        json={"target_scene_id": s["scene_id"]},
+    )
+    assert r.status_code == 400
+
+
+def test_move_to_scene_404_not_found(client):
+    c, s = client
+    r = c.post(
+        "/api/db/messages/nonexistent/move",
+        json={"target_scene_id": s["scene_id"], "position": 0},
+    )
+    assert r.status_code == 404
+
+
+# ── POST /api/db/scenes/<scene_id>/messages/insert ───────────────────────────
+
+def test_insert_message_201_success(client):
+    c, s = client
+    r = c.post(
+        f"/api/db/scenes/{s['scene_id']}/messages/insert",
+        json={"author_name": "Bob", "content_original": "Hi", "position_order": 0},
+    )
+    assert r.status_code == 201
+    assert "id" in r.get_json()
+
+
+def test_insert_message_400_missing_field(client):
+    c, s = client
+    r = c.post(
+        f"/api/db/scenes/{s['scene_id']}/messages/insert",
+        json={"author_name": "Bob", "position_order": 0},
+    )
+    assert r.status_code == 400
+
+
+def test_insert_message_400_negative_position(client):
+    c, s = client
+    r = c.post(
+        f"/api/db/scenes/{s['scene_id']}/messages/insert",
+        json={"author_name": "Bob", "content_original": "Hi", "position_order": -1},
+    )
+    assert r.status_code == 400
+
+
+def test_insert_message_404_scene_not_found(client):
+    c, _ = client
+    r = c.post(
+        "/api/db/scenes/nonexistent/messages/insert",
+        json={"author_name": "Bob", "content_original": "Hi", "position_order": 0},
+    )
+    assert r.status_code == 404
+
+
+# ── POST /api/db/scenes/<scene_id>/messages/compact ──────────────────────────
+
+def test_compact_200_success(client):
+    c, s = client
+    r = c.post(f"/api/db/scenes/{s['scene_id']}/messages/compact")
+    assert r.status_code == 200
+    assert "count" in r.get_json()
+
+
+def test_compact_404_scene_not_found(client):
+    c, _ = client
+    r = c.post("/api/db/scenes/nonexistent/messages/compact")
+    assert r.status_code == 404
