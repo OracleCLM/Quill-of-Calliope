@@ -166,3 +166,36 @@ def test_main_empty_dir(tmp_db, tmp_path, capsys):
     main(["--scenes-dir", str(tmp_path), "--db-path", db_path])
     out = capsys.readouterr().out
     assert "Nessun" in out or "0" in out
+
+
+# ── coverage gaps (lines 78-79, 99-103) ──────────────────────────────────────
+
+def test_main_nonexistent_dir_exits_1(tmp_db, capsys):
+    """scenes-dir non trovata → lines 78-79: print stderr + sys.exit(1)."""
+    _, db_path = tmp_db
+    with pytest.raises(SystemExit) as exc_info:
+        main(["--scenes-dir", "/tmp/no_such_dir_calliope_test", "--db-path", db_path])
+    assert exc_info.value.code == 1
+    assert "ERRORE" in capsys.readouterr().err
+
+
+def test_main_skip_branch_covered(tmp_db, tmp_path, capsys):
+    """_migrate_scene torna (False, reason) → lines 99-100: SKIP printed."""
+    _, db_path = tmp_db
+    scene_file = tmp_path / "no_title.yaml"
+    scene_file.write_text(yaml.dump({"participants": ["Alice"]}), encoding="utf-8")
+    main(["--scenes-dir", str(tmp_path), "--db-path", db_path])
+    out = capsys.readouterr().out
+    assert "SKIP" in out
+
+
+def test_main_exception_branch_covered(tmp_db, tmp_path, capsys):
+    """yaml.safe_load lancia eccezione → lines 102-103: ERRORE su stderr."""
+    from unittest.mock import patch
+    _, db_path = tmp_db
+    scene_file = tmp_path / "bad.yaml"
+    scene_file.write_text(yaml.dump({"title": "Test"}), encoding="utf-8")
+    with patch("scripts.migrate_scenes_yaml_to_db.yaml.safe_load", side_effect=ValueError("yaml broken")):
+        main(["--scenes-dir", str(tmp_path), "--db-path", db_path])
+    err = capsys.readouterr().err
+    assert "ERRORE" in err
