@@ -248,3 +248,21 @@ def test_main_parser_list(monkeypatch):
         pa.list_arcs.return_value = []
         ret = cli_main()
     assert ret == 0
+
+
+# ── _print_arc: scenes + summary branches (lines 33-34, 37) ──────────────────
+
+def test_cmd_get_prints_scenes_and_summary(capsys):
+    arc_with_data = {
+        **_ARC,
+        "scenes": [{"scene_order": 1, "scene_summary": "La battaglia finale"}],
+        "summary": "Un arco epico sulla caduta di Aetheron.",
+    }
+    ns = SimpleNamespace(arc_id="arc-01")
+    with patch(_PA) as pa:
+        pa.get_arc.return_value = arc_with_data
+        ret = cmd_get(ns)
+    assert ret == 0
+    out = capsys.readouterr().out
+    assert "La battaglia finale" in out
+    assert "Un arco epico" in out

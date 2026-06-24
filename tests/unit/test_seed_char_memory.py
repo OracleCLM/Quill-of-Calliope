@@ -103,3 +103,16 @@ def test_seed_passes_traits_dict_to_upsert(tmp_path, monkeypatch):
     assert traits["personality"] == ["courageous"]
     assert traits["quirks"] == ["talks to sword"]
     assert traits["speech_pattern"] == "terse"
+
+
+# ── coverage gap: except branch (lines 37-38) ────────────────────────────────
+
+def test_seed_exception_skips_file(tmp_path, monkeypatch, capsys):
+    """upsert_char lancia eccezione → except branch lines 37-38: file skippato, count=0."""
+    monkeypatch.setattr(_mod, "CHARS_DIR", tmp_path)
+    _write_char_yaml(tmp_path, "bad.yaml", {"name": "Broken", "traits": []})
+    with patch(f"{_SEED}.upsert_char", side_effect=RuntimeError("db error")):
+        n = _mod.seed()
+    assert n == 0
+    out = capsys.readouterr().out
+    assert "skip" in out

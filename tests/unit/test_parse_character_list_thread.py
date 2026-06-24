@@ -4,9 +4,12 @@ from __future__ import annotations
 import json
 import sys
 from pathlib import Path
+from unittest.mock import patch
+
+import pytest
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "scripts"))
-from parse_character_list_thread import parse_threads  # noqa: E402
+from parse_character_list_thread import main, parse_threads  # noqa: E402
 
 CHANNEL_ID = "1320529977732632697"
 
@@ -150,3 +153,37 @@ class TestEdgeCases:
         record = json.loads(out.read_text().splitlines()[0])
         # max ts is the edited timestamp 2024-06-01
         assert "2024-06-01" in record["last_updated"]
+
+
+# ── main() coverage (lines 89-100) ───────────────────────────────────────────
+
+def test_main_success(tmp_path, monkeypatch):
+    """main() happy path: parse_threads chiamato senza eccezioni."""
+    out = tmp_path / "out.jsonl"
+    monkeypatch.setattr(
+        "sys.argv",
+        ["parse_character_list_thread.py",
+         "--raw-dir", str(tmp_path),
+         "--channel-id", CHANNEL_ID,
+         "--output", str(out)],
+    )
+    with patch("parse_character_list_thread.parse_threads") as mock_pt:
+        main()
+    mock_pt.assert_called_once()
+
+
+def test_main_exception_exits_1(tmp_path, monkeypatch, capsys):
+    """main() con parse_threads che lancia → stderr + sys.exit(1)."""
+    out = tmp_path / "out.jsonl"
+    monkeypatch.setattr(
+        "sys.argv",
+        ["parse_character_list_thread.py",
+         "--raw-dir", str(tmp_path),
+         "--channel-id", CHANNEL_ID,
+         "--output", str(out)],
+    )
+    with patch("parse_character_list_thread.parse_threads", side_effect=OSError("disk full")):
+        with pytest.raises(SystemExit) as exc_info:
+            main()
+    assert exc_info.value.code == 1
+    assert "disk full" in capsys.readouterr().err
