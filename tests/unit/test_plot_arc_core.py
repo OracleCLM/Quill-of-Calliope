@@ -120,3 +120,47 @@ def test_append_scene_file_not_found_returns_empty(db):
     plot_arc.create_arc("a1", "Titolo", [])
     result = plot_arc.append_scene("a1", "/nonexistent/scene.md")
     assert result == {}
+
+
+# ── regenerate_summary ────────────────────────────────────────────────────────
+
+def test_regenerate_summary_arc_not_found_returns_empty(db):
+    result = plot_arc.regenerate_summary("nonexistent-arc")
+    assert result == ""
+
+
+def test_regenerate_summary_arc_no_scenes_returns_empty(db):
+    plot_arc.create_arc("a1", "Titolo", [])
+    result = plot_arc.regenerate_summary("a1")
+    assert result == ""
+
+
+def test_regenerate_summary_with_scenes_calls_groq(db):
+    plot_arc.create_arc("a1", "Titolo", [])
+    f = _scene_file(db)
+    plot_arc.append_scene("a1", f, scene_summary="Battaglia epica.")
+    with patch(_GROQ, return_value="Arc summary here") as mock_groq:
+        result = plot_arc.regenerate_summary("a1")
+    mock_groq.assert_called_once()
+    assert result == "Arc summary here"
+
+
+# ── detect_open_threads ───────────────────────────────────────────────────────
+
+def test_detect_open_threads_no_arc_returns_empty(db):
+    assert plot_arc.detect_open_threads("nonexistent") == []
+
+
+def test_detect_open_threads_no_scenes_returns_empty(db):
+    plot_arc.create_arc("a1", "Titolo", [])
+    assert plot_arc.detect_open_threads("a1") == []
+
+
+def test_detect_open_threads_finds_unresolved_keyword(db):
+    plot_arc.create_arc("a1", "Titolo", [])
+    f_path = db / "s2.md"
+    f_path.write_text("Alice is missing and the quest continues.")
+    plot_arc.append_scene("a1", str(f_path), scene_summary="Alice is missing and the quest continues.")
+    threads = plot_arc.detect_open_threads("a1")
+    thread_texts = [t["thread"] for t in threads]
+    assert any("missing" in t.lower() or "quest" in t.lower() for t in thread_texts)
