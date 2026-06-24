@@ -9,7 +9,7 @@ let _allScenes = [];
 
 async function _loadScenes() {
     const ul = document.getElementById('scenes-list');
-    ul.innerHTML = '<li style="color:#334;padding:12px">Caricamento 332 scene...</li>';
+    ul.innerHTML = '<li style="color:#334;padding:12px">Caricamento scene...</li>';
     try {
         const resp = await fetch('/api/db/scenes');
         const data = await resp.json();
@@ -35,7 +35,8 @@ function _renderSceneList(scenes) {
         const col = _statusColor[st] || '#556';
         return `
         <li onclick="_loadSceneDetail('${s.id}')">
-            <div class="scene-item-title">${s.title || s.id}</div>
+            <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${col};margin-right:6px;vertical-align:middle"></span>
+            <span class="scene-item-title">${s.title || s.id}</span>
         </li>`;
     }).join('');
 }
@@ -92,7 +93,7 @@ async function _loadSceneDetail(sceneId) {
         const messages = data.messages || [];
         document.getElementById('scene-detail-title').textContent = s.title || sceneId;
         document.getElementById('scene-detail-meta').textContent =
-            `ID: ${s.id} | ${s.location || ''} | ${messages.length} msg`;
+            `ID: ${s.id} | ${s.location || '(nessuna location)'} | ${messages.length} msg`;
         document.getElementById('scene-detail-summary').textContent =
             messages.map(m => `${m.author_name}: ${m.content_original}`).join('\n') || '(nessun messaggio)';
         document.getElementById('scene-detail-first').textContent = messages[0] ? messages[0].content_original : '—';
