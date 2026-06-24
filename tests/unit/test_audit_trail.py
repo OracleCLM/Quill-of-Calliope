@@ -113,3 +113,9 @@ def test_log_event_no_exception_on_db_failure(fresh_db, monkeypatch):
     monkeypatch.setattr(audit_trail, "_conn", boom)
     # Must not raise
     audit_trail.log_event("char.create", subject="x")
+
+
+def test_recent_events_db_error_returns_empty(fresh_db, monkeypatch):
+    monkeypatch.setattr(audit_trail, "_DB_PATH", fresh_db / "nonexistent_dir" / "bad.db")
+    result = audit_trail.recent_events(limit=5)
+    assert result == []

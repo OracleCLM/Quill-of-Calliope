@@ -110,3 +110,11 @@ def test_extract_entities_for_fact_attaches_id():
     assert all(e["fact_id"] == "f1" for e in persons)
     names = [e["name"] for e in persons]
     assert "Aurora" in names
+
+
+# ── ORG pattern ───────────────────────────────────────────────────────────────
+
+def test_org_pattern_extracted(linker):
+    result = linker.extract_entities("The SHIELD agents stormed the NATO compound.")
+    orgs = [e["name"] for e in result if e["label"] == "ORG"]
+    assert "SHIELD" in orgs or "NATO" in orgs
