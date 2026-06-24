@@ -50,6 +50,32 @@ function _scenesFilter(val) {
     ));
 }
 
+// FE-3: append nuovo messaggio → POST /api/db/scenes/<id>/messages
+async function _appendMessage() {
+    const sceneId = window._currentSceneId;
+    if (!sceneId) return;
+    const author = (document.getElementById('compose-author').value || '').trim();
+    const content = (document.getElementById('compose-content').value || '').trim();
+    const status = document.getElementById('compose-status');
+    if (!author || !content) { status.textContent = '⚠ Autore e testo obbligatori.'; return; }
+    status.textContent = 'Invio…';
+    try {
+        const resp = await fetch('/api/db/scenes/' + encodeURIComponent(sceneId) + '/messages', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({author_name: author, content_original: content}),
+        });
+        const data = await resp.json();
+        if (!resp.ok) { status.textContent = '✗ ' + (data.error || resp.status); return; }
+        status.textContent = '✓ Messaggio inviato (id=' + data.id + ')';
+        document.getElementById('compose-content').value = '';
+        // Aggiorna la vista della scena
+        await _loadSceneDetail(sceneId);
+    } catch(e) {
+        status.textContent = '✗ ' + e.message;
+    }
+}
+
 async function _loadSceneDetail(sceneId) {
     window._currentSceneId = sceneId;
     document.getElementById('scene-empty-state').style.display = 'none';
