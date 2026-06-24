@@ -1,7 +1,11 @@
 """Unit test per scripts/merge_delta_messages.py (generato zai-glm, verificato)."""
 from __future__ import annotations
 
-from scripts.merge_delta_messages import load_existing_ids, transform_message
+import json
+
+import pytest
+
+from scripts.merge_delta_messages import load_existing_ids, main, read_delta_files, transform_message
 
 
 def test_transform_message_standard():
@@ -103,4 +107,130 @@ def test_load_existing_ids_missing_key_skipped(tmp_path, capsys):
     f.write_text('{"message_id": "x"}\n{"other": "y"}\n{"message_id": "z"}', encoding="utf-8")
     result = load_existing_ids(f)
     assert result == {"x", "z"}
+    assert "Warning" in capsys.readouterr().out
+
+
+# ── coverage gaps: read_delta_files + main() ─────────────────────────────────
+
+def _make_dce_msg(msg_id="1", content="Hello", author_id="99"):
+    return {
+        "ID": msg_id,
+        "Timestamp": f"2024-01-0{msg_id}T00:00:00+00:00",
+        "Author": {"ID": author_id, "Name": "User"},
+        "Content": content,
+        "Attachments": [],
+    }
+
+
+def test_read_delta_files_empty_dir(tmp_path, capsys):
+    result = read_delta_files(str(tmp_path))
+    assert result == []
+    assert "No JSON" in capsys.readouterr().out
+
+
+def test_read_delta_files_valid_list(tmp_path):
+    msg = _make_dce_msg()
+    (tmp_path / "delta1.json").write_text(json.dumps([msg]), encoding="utf-8")
+    result = read_delta_files(str(tmp_path))
+    assert len(result) == 1
+
+
+def test_read_delta_files_dict_not_list_warns(tmp_path, capsys):
+    (tmp_path / "bad.json").write_text(json.dumps({"key": "val"}), encoding="utf-8")
+    result = read_delta_files(str(tmp_path))
+    assert result == []
+    assert "Warning" in capsys.readouterr().out
+
+
+def test_read_delta_files_exception_warns(tmp_path, capsys):
+    (tmp_path / "corrupt.json").write_text("{not valid json", encoding="utf-8")
+    result = read_delta_files(str(tmp_path))
+    assert result == []
+    assert "Error" in capsys.readouterr().out
+
+
+def test_main_no_delta_messages_exits_0(tmp_path, monkeypatch, capsys):
+    delta_dir = tmp_path / "delta"
+    delta_dir.mkdir()
+    output = tmp_path / "out.jsonl"
+    monkeypatch.setattr("sys.argv", [
+        "merge_delta_messages.py",
+        "--delta-dir", str(delta_dir),
+        "--main-output", str(output),
+    ])
+    with pytest.raises(SystemExit) as exc:
+        main()
+    assert exc.value.code == 0
+    assert "No delta" in capsys.readouterr().out
+
+
+def test_main_classify_flag_prints_message(tmp_path, monkeypatch, capsys):
+    delta_dir = tmp_path / "delta"
+    delta_dir.mkdir()
+    output = tmp_path / "out.jsonl"
+    monkeypatch.setattr("sys.argv", [
+        "merge_delta_messages.py",
+        "--delta-dir", str(delta_dir),
+        "--main-output", str(output),
+        "--classify",
+    ])
+    with pytest.raises(SystemExit):
+        main()
+    assert "Classification not implemented" in capsys.readouterr().out
+
+
+def test_main_full_merge_deduplicates(tmp_path, monkeypatch, capsys):
+    delta_dir = tmp_path / "delta"
+    delta_dir.mkdir()
+    msg1 = _make_dce_msg("1", "First")
+    msg2 = _make_dce_msg("2", "Second")
+    (delta_dir / "msgs.json").write_text(json.dumps([msg1, msg2, msg1]), encoding="utf-8")
+    output = tmp_path / "out.jsonl"
+    monkeypatch.setattr("sys.argv", [
+        "merge_delta_messages.py",
+        "--delta-dir", str(delta_dir),
+        "--main-output", str(output),
+    ])
+    main()
+    lines = output.read_text(encoding="utf-8").strip().splitlines()
+    assert len(lines) == 2
+    out = capsys.readouterr().out
+    assert "1 duplicates" in out
+
+
+def test_main_sorts_by_timestamp(tmp_path, monkeypatch):
+    delta_dir = tmp_path / "delta"
+    delta_dir.mkdir()
+    msg1 = _make_dce_msg("1", content="Early")
+    msg2 = _make_dce_msg("2", content="Late")
+    msg1["Timestamp"] = "2024-01-02T00:00:00+00:00"
+    msg2["Timestamp"] = "2024-01-01T00:00:00+00:00"
+    (delta_dir / "msgs.json").write_text(json.dumps([msg1, msg2]), encoding="utf-8")
+    output = tmp_path / "out.jsonl"
+    monkeypatch.setattr("sys.argv", [
+        "merge_delta_messages.py",
+        "--delta-dir", str(delta_dir),
+        "--main-output", str(output),
+    ])
+    main()
+    lines = output.read_text(encoding="utf-8").strip().splitlines()
+    records = [json.loads(line) for line in lines]
+    assert records[0]["content"] == "Late"
+    assert records[1]["content"] == "Early"
+
+
+def test_main_malformed_line_during_sort(tmp_path, monkeypatch, capsys):
+    """Line 109: malformed JSON durante la fase sort → Warning."""
+    delta_dir = tmp_path / "delta"
+    delta_dir.mkdir()
+    msg = _make_dce_msg("1")
+    (delta_dir / "msgs.json").write_text(json.dumps([msg]), encoding="utf-8")
+    output = tmp_path / "out.jsonl"
+    output.write_text('{"message_id":"existing"}\nnot_json\n', encoding="utf-8")
+    monkeypatch.setattr("sys.argv", [
+        "merge_delta_messages.py",
+        "--delta-dir", str(delta_dir),
+        "--main-output", str(output),
+    ])
+    main()
     assert "Warning" in capsys.readouterr().out
