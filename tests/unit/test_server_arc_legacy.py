@@ -142,3 +142,23 @@ def test_arc_search_missing_query_400(client):
     r = client.post("/api/arc/search", json={})
     assert r.status_code == 400
     assert "error" in r.get_json()
+
+
+# ── POST /api/arc ─────────────────────────────────────────────────────────────
+
+def test_arc_create_success_201(client):
+    with patch(f"{_PA}.create_arc", return_value=_ARC):
+        r = client.post("/api/arc", json={"arc_id": "arc-01", "title": "L'alba del drago"})
+    assert r.status_code == 201
+    assert r.get_json()["arc_id"] == "arc-01"
+
+
+def test_arc_create_missing_arc_id_400(client):
+    r = client.post("/api/arc", json={"title": "Senza ID"})
+    assert r.status_code == 400
+    assert "error" in r.get_json()
+
+
+def test_arc_create_missing_title_400(client):
+    r = client.post("/api/arc", json={"arc_id": "arc-02"})
+    assert r.status_code == 400
