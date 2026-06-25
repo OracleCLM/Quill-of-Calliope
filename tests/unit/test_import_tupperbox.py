@@ -92,3 +92,96 @@ def test_tupper_to_yaml_defaults():
 def test_tupper_to_yaml_empty_avatar_url_to_none():
     tupper = {"id": 10, "name": "Test", "avatar_url": "", "brackets": []}
     assert tupper_to_yaml(tupper, {})["avatar_url"] is None
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Extended tests — setup_logging, main()
+# ─────────────────────────────────────────────────────────────────────────────
+
+import json  # noqa: E402
+import sys  # noqa: E402
+
+import pytest  # noqa: E402
+import yaml  # noqa: E402
+
+from scripts.import_tupperbox import main, setup_logging  # noqa: E402
+
+
+def test_setup_logging_runs_without_error():
+    # Just verify it doesn't raise; reconfiguring basicConfig is idempotent
+    setup_logging()
+
+
+def test_main_missing_input_exits(monkeypatch, tmp_path):
+    monkeypatch.setattr(sys, "argv", ["prog", "--input", str(tmp_path / "missing.json")])
+    with pytest.raises(SystemExit) as exc:
+        main()
+    assert exc.value.code == 1
+
+
+def test_main_writes_yaml_files(monkeypatch, tmp_path):
+    data = {
+        "groups": [{"id": 1, "name": "GroupA"}],
+        "tuppers": [
+            {"id": 10, "name": "Alice", "group_id": 1, "brackets": ["<", ">"],
+             "description": "A char", "avatar_url": None, "posts": 3, "last_used": "2024-01-01"},
+        ],
+    }
+    input_path = tmp_path / "tuppers.json"
+    input_path.write_text(json.dumps(data), encoding="utf-8")
+    out_dir = tmp_path / "out"
+    monkeypatch.setattr(sys, "argv", [
+        "prog", "--input", str(input_path), "--output-dir", str(out_dir)
+    ])
+    main()
+    assert (out_dir / "alice.yaml").exists()
+    record = yaml.safe_load((out_dir / "alice.yaml").read_text(encoding="utf-8"))
+    assert record["name"] == "Alice"
+    assert record["group"] == "GroupA"
+    assert record["slug"] == "alice"
+
+
+def test_main_writes_multiple_tuppers(monkeypatch, tmp_path):
+    data = {
+        "groups": [],
+        "tuppers": [
+            {"id": 1, "name": "Aurora", "brackets": ["[", "]"]},
+            {"id": 2, "name": "Philip", "brackets": ["{", "}"]},
+        ],
+    }
+    input_path = tmp_path / "t.json"
+    input_path.write_text(json.dumps(data), encoding="utf-8")
+    out_dir = tmp_path / "chars"
+    monkeypatch.setattr(sys, "argv", ["prog", "--input", str(input_path), "--output-dir", str(out_dir)])
+    main()
+    assert (out_dir / "aurora.yaml").exists()
+    assert (out_dir / "philip.yaml").exists()
+
+
+def test_main_slug_collision_appends_id(monkeypatch, tmp_path):
+    data = {
+        "groups": [],
+        "tuppers": [
+            {"id": 1, "name": "Alice", "brackets": ["<", ">"]},
+            {"id": 2, "name": "Alice", "brackets": ["[", "]"]},  # same slug → collision
+        ],
+    }
+    input_path = tmp_path / "t.json"
+    input_path.write_text(json.dumps(data), encoding="utf-8")
+    out_dir = tmp_path / "chars"
+    monkeypatch.setattr(sys, "argv", ["prog", "--input", str(input_path), "--output-dir", str(out_dir)])
+    main()
+    assert (out_dir / "alice.yaml").exists()
+    assert (out_dir / "alice-2.yaml").exists()
+    record = yaml.safe_load((out_dir / "alice-2.yaml").read_text(encoding="utf-8"))
+    assert record["slug"] == "alice-2"
+
+
+def test_main_empty_tuppers(monkeypatch, tmp_path):
+    data = {"groups": [], "tuppers": []}
+    input_path = tmp_path / "t.json"
+    input_path.write_text(json.dumps(data), encoding="utf-8")
+    out_dir = tmp_path / "out"
+    monkeypatch.setattr(sys, "argv", ["prog", "--input", str(input_path), "--output-dir", str(out_dir)])
+    main()  # should complete without error
+    assert out_dir.exists()
