@@ -71,6 +71,8 @@ def bucket_durations(durations: list[float]) -> dict[str, int]:
 
 
 def fmt_stats_row(label: str, s: dict) -> str:
+    if not s:
+        return f"| {label} | — | — | — | — | — | — | — |"
     return (
         f"| {label} | {s['n']} | {s['min']} | {s['max']} | "
         f"{s['mean']} | {s['median']} | {s['p25']} | {s['p75']} |"

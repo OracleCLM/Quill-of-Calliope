@@ -5,10 +5,13 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
+import yaml
+
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "scripts"))
 from analyze_scene_clustering import (  # noqa: E402
     bucket_durations,
     fmt_stats_row,
+    main,
     parse_duration_real,
     stats_dict,
     ts_to_dt,
@@ -139,3 +142,152 @@ class TestFmtStatsRow:
         row = fmt_stats_row("single", s)
         assert "single" in row
         assert "99" in row
+
+
+# ── main() — copertura righe 85-242 ──────────────────────────────────────────
+
+def _draft_scene(scene_id: str, ts_start: str, ts_end: str, msg_count: int = 20,
+                 participants: list | None = None) -> dict:
+    return {
+        "scene_id": scene_id,
+        "timestamp_start": ts_start,
+        "timestamp_end": ts_end,
+        "message_count": msg_count,
+        "participants": participants or ["Alice", "Bob"],
+    }
+
+
+def _write_draft(directory: Path, name: str, data: dict) -> Path:
+    p = directory / f"{name}.draft.yaml"
+    p.write_text(yaml.dump(data), encoding="utf-8")
+    return p
+
+
+def test_main_empty_directory(tmp_path, monkeypatch, capsys):
+    """Lines 98-101: nessun *.draft.yaml → stampa messaggio e return."""
+    scenes_dir = tmp_path / "scenes"
+    scenes_dir.mkdir()
+    out = tmp_path / "report.md"
+    monkeypatch.setattr("sys.argv", [
+        "analyze_scene_clustering.py",
+        "--scenes-dir", str(scenes_dir),
+        "--output", str(out),
+    ])
+    main()
+    assert "No *.draft.yaml" in capsys.readouterr().out
+    assert not out.exists()
+
+
+def test_main_one_valid_scene(tmp_path, monkeypatch, capsys):
+    """Lines 104-242: 1 scena con timestamp → report markdown scritto."""
+    scenes_dir = tmp_path / "scenes"
+    scenes_dir.mkdir()
+    _write_draft(scenes_dir, "s01", _draft_scene("s01", "2024-01-01T20:00:00+00:00", "2024-01-01T21:30:00+00:00"))
+    out = tmp_path / "report.md"
+    monkeypatch.setattr("sys.argv", [
+        "analyze_scene_clustering.py",
+        "--scenes-dir", str(scenes_dir),
+        "--output", str(out),
+    ])
+    main()
+    stdout = capsys.readouterr().out
+    assert "Loaded 1 scenes" in stdout
+    assert "Report written to" in stdout
+    assert out.exists()
+    content = out.read_text(encoding="utf-8")
+    assert "Scene Clustering Review" in content
+    assert "Statistics Table" in content
+
+
+def test_main_yaml_error_skipped(tmp_path, monkeypatch, capsys):
+    """Lines 108-111: YAML invalido → parse_errors++, continua con scena valida."""
+    scenes_dir = tmp_path / "scenes"
+    scenes_dir.mkdir()
+    _write_draft(scenes_dir, "good", _draft_scene("good", "2024-01-01T10:00:00+00:00", "2024-01-01T11:30:00+00:00"))
+    (scenes_dir / "bad.draft.yaml").write_text("invalid: yaml: [", encoding="utf-8")
+    out = tmp_path / "report.md"
+    monkeypatch.setattr("sys.argv", [
+        "analyze_scene_clustering.py",
+        "--scenes-dir", str(scenes_dir),
+        "--output", str(out),
+    ])
+    main()
+    assert "Loaded 1 scenes" in capsys.readouterr().out
+
+
+def test_main_non_dict_yaml_skipped(tmp_path, monkeypatch, capsys):
+    """Line 112-113: YAML valido ma non dict → skip, scena non aggiunta."""
+    scenes_dir = tmp_path / "scenes"
+    scenes_dir.mkdir()
+    _write_draft(scenes_dir, "valid", _draft_scene("v01", "2024-01-01T10:00:00+00:00", "2024-01-01T11:30:00+00:00"))
+    (scenes_dir / "nondict.draft.yaml").write_text("- item1\n- item2", encoding="utf-8")
+    out = tmp_path / "report.md"
+    monkeypatch.setattr("sys.argv", [
+        "analyze_scene_clustering.py",
+        "--scenes-dir", str(scenes_dir),
+        "--output", str(out),
+    ])
+    main()
+    assert "Loaded 1 scenes" in capsys.readouterr().out
+
+
+def test_main_two_scenes_gap_calculated(tmp_path, monkeypatch, capsys):
+    """Lines 148-156: 2 scene con timestamp → gap calcolato e stampato."""
+    scenes_dir = tmp_path / "scenes"
+    scenes_dir.mkdir()
+    _write_draft(scenes_dir, "s01", _draft_scene("s01", "2024-01-01T20:00:00+00:00", "2024-01-01T21:00:00+00:00"))
+    _write_draft(scenes_dir, "s02", _draft_scene("s02", "2024-01-01T22:00:00+00:00", "2024-01-01T23:00:00+00:00"))
+    out = tmp_path / "report.md"
+    monkeypatch.setattr("sys.argv", [
+        "analyze_scene_clustering.py",
+        "--scenes-dir", str(scenes_dir),
+        "--output", str(out),
+    ])
+    main()
+    stdout = capsys.readouterr().out
+    assert "Loaded 2 scenes" in stdout
+    assert "Gap stats" in stdout
+
+
+def test_main_duration_real_fallback(tmp_path, monkeypatch, capsys):
+    """Lines 131-133: nessun timestamp, usa duration_real string."""
+    scenes_dir = tmp_path / "scenes"
+    scenes_dir.mkdir()
+    _write_draft(scenes_dir, "s01", {
+        "scene_id": "s01",
+        "duration_real": "1h 30m",
+        "message_count": 40,
+        "participants": ["Alice"],
+    })
+    out = tmp_path / "report.md"
+    monkeypatch.setattr("sys.argv", [
+        "analyze_scene_clustering.py",
+        "--scenes-dir", str(scenes_dir),
+        "--output", str(out),
+    ])
+    main()
+    stdout = capsys.readouterr().out
+    assert "Loaded 1 scenes" in stdout
+    assert "Duration stats" in stdout
+
+
+def test_main_no_duration_info(tmp_path, monkeypatch, capsys):
+    """Line 136: scena senza timestamp e senza duration_real → duration_min=None."""
+    scenes_dir = tmp_path / "scenes"
+    scenes_dir.mkdir()
+    # Scene con solo message_count (no timestamps, no duration_real)
+    _write_draft(scenes_dir, "s01", {
+        "scene_id": "s01",
+        "message_count": 15,
+        "participants": ["Alice"],
+    })
+    # Serve una seconda scena con duration per evitare ZeroDivisionError in histogram
+    _write_draft(scenes_dir, "s02", _draft_scene("s02", "2024-01-02T10:00:00+00:00", "2024-01-02T11:00:00+00:00"))
+    out = tmp_path / "report.md"
+    monkeypatch.setattr("sys.argv", [
+        "analyze_scene_clustering.py",
+        "--scenes-dir", str(scenes_dir),
+        "--output", str(out),
+    ])
+    main()
+    assert "Loaded 2 scenes" in capsys.readouterr().out
