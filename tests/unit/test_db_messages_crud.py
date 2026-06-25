@@ -46,3 +46,16 @@ def test_update_message_raises_when_no_fields(conn):
 def test_move_message_to_scene_returns_false_when_not_found(conn):
     result = move_message_to_scene(conn, "nonexistent-id", "s1", 0)
     assert result is False
+
+
+def test_move_message_to_scene_pos_row_none_returns_false():
+    """Line 544: TOCTOU — messaggio esiste al primo SELECT ma sparisce prima del secondo."""
+    from unittest.mock import MagicMock
+    mock_conn = MagicMock()
+    mock_cur = MagicMock()
+    mock_conn.cursor.return_value = mock_cur
+    # Prima fetchone: messaggio trovato in scena diversa dalla target
+    # Seconda fetchone: position_order non trovato (TOCTOU)
+    mock_cur.fetchone.side_effect = [("other-scene",), None]
+    result = move_message_to_scene(mock_conn, "any-msg-id", "target-scene", 0)
+    assert result is False
