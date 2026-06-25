@@ -400,9 +400,13 @@
                 </div>
             </div>
 
-            <div class="dash-card" id="dash-card-recent-scenes" style="grid-column:1/-1;">
+            <div class="dash-card" id="dash-card-recent-scenes">
                 <h3>Scene recenti</h3>
                 <ul id="dash-recent-scenes-list" style="margin:0;padding:0;list-style:none;"></ul>
+            </div>
+            <div class="dash-card" id="dash-card-recent-discord">
+                <h3>Messaggi Discord recenti <span style="font-size:.75em;color:#556;font-weight:normal">(source=discord)</span></h3>
+                <ul id="dash-recent-discord-list" style="margin:0;padding:0;list-style:none;"></ul>
             </div>
         </div>
         <div class="dash-snapshot-meta">
@@ -925,7 +929,7 @@
             });
             if (view === 'arc') loadArcList();
             if (view === 'scenes') _loadScenes();
-            if (view === 'dashboard') { loadDashboardSnapshot(); _loadRecentScenes(); }
+            if (view === 'dashboard') { loadDashboardSnapshot(); _loadRecentScenes(); _loadRecentDiscordMsgs(); }
             if (view === 'smartdraft') _loadCharDropdown();
             if (view === 'characters') loadCharactersPanel();
             if (view === 'lorekb') loadLoreKB();
@@ -1370,6 +1374,30 @@
                 }
             }, 30000);
         });
+
+        async function _loadRecentDiscordMsgs() {
+            const ul = document.getElementById('dash-recent-discord-list');
+            if (!ul) return;
+            ul.innerHTML = '<li style="color:#334;font-size:.82em;padding:4px 0">Caricamento…</li>';
+            try {
+                const resp = await fetch('/api/db/messages/recent?source=discord&limit=5');
+                const data = await resp.json();
+                const msgs = (data.messages || []);
+                if (!msgs.length) {
+                    ul.innerHTML = '<li style="color:#334;font-size:.82em;padding:4px 0">Nessun messaggio Discord importato</li>';
+                    return;
+                }
+                const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;');
+                ul.innerHTML = msgs.map(m =>
+                    `<li style="padding:5px 0;border-bottom:1px solid #1a2440;font-size:.82em;">` +
+                    `<span style="color:#7788cc;font-weight:bold">${esc(m.author_name)}</span>` +
+                    ` <span style="color:#445;font-size:.78em">${esc((m.ts||'').slice(0,16))}</span><br>` +
+                    `<span style="color:#889;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block;max-width:100%">${esc((m.content_original||'').slice(0,80))}</span></li>`
+                ).join('');
+            } catch(e) {
+                ul.innerHTML = `<li style="color:#f66;font-size:.82em">✗ ${e.message}</li>`;
+            }
+        }
 
         async function _loadRecentScenes() {
             const ul = document.getElementById('dash-recent-scenes-list');
