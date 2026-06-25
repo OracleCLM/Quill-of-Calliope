@@ -5,7 +5,7 @@
 
 ---
 
-## [GATED-1] UI chat JanitorAI — C1 (design + layout)
+## ✅ [DONE] GATED-1 — UI chat JanitorAI lista-flat (commit 0e15464, 5473e16)
 
 **Blocco**: `scenes.js` ha già lista/detail base. Manca la vera UI-chat stile JanitorAI:
 - render-thread ordinato (bolle/lista?)
@@ -21,7 +21,7 @@
 
 ---
 
-## [GATED-2] Config gateway-strong-uncensored — C3
+## ✅ [DONE] GATED-2 — Config gateway-strong-uncensored (commit 0e15464)
 
 **Blocco**: `apply_refine_to_message` usa di default Groq `llama-3.3-70b-versatile`. Per scene sensibili (raffinamento dark/erotico) il workplan prevede un modello-strong uncensored configurabile (Ollama abliterated o OpenRouter).
 
@@ -45,14 +45,14 @@ Impatto: basta una variabile env `REFINE_PROVIDER` / `REFINE_MODEL` configurabil
 
 ---
 
-## [GATED-4] Redesign JanitorAI P0-P6 strutturale
+## ✅ [DONE] GATED-4 — Redesign JanitorAI P0-P6 strutturale (parziale)
 
 **Blocco**: VISION menziona "restructure JanitorAI P0-P6". La spec `CALLIOPE_REDESIGN_SPEC.md` è in `.planning/`. Toca:
 - paradigma scene=chat (backend DONE, frontend mancante → vedi GATED-1)
 - widget/overlay audio-visivi (Live2D mascot DONE, TTS attivo)
 - future abliteration locale (OBLITERATUS)
 
-**Gate**: non strutturare finché operatore non ha confermato approccio su GATED-1.
+**Completato (2026-06-25)**: chat lista-flat, _sceneAction bugfix, scene list message_count+is_readonly, revive DB fallback. P6/P7 restano GATED.
 
 ---
 
@@ -270,6 +270,20 @@ Impatto: basta una variabile env `REFINE_PROVIDER` / `REFINE_MODEL` configurabil
 
 ---
 
+## Completato sprint redesign#257 (2026-06-25 — [father-GO] da nic)
+
+| Item | Dettaglio | Commit |
+|------|-----------|--------|
+| GATED-1: UI chat lista-flat | scenes.js _renderChatThread, XSS-safe, scroll-to-bottom | 0e15464 |
+| GATED-1: bugfix _sceneAction | s.id vs s.scene_id, window._currentSceneMessages | 5473e16 |
+| GATED-2: REFINE_PROVIDER/MODEL | env vars + test_refine_uses_env_provider_model | 0e15464 |
+| scene list: message_count + is_readonly | LEFT JOIN COUNT, status dot verde/grigio | 5764563 |
+| fix revive: DB fallback | UUID scene_id → query DB → scene_data fallback | 72c5d80 |
+
+**Suite: 2034 test verdi. GATED-3 (Discord bot token) e GATED-5 (/api/messages/next) restano pending.**
+
+---
+
 ## Completato ciclo gap-review finale (2026-06-25 — ripresa post-compact)
 
 | Item | Copertura prima→dopo | Test aggiunti | Commit |
@@ -285,3 +299,20 @@ Impatto: basta una variabile env `REFINE_PROVIDER` / `REFINE_MODEL` configurabil
 - `server.py` 1593 → `app.run()` (unreachable in test)
 - `style_coach.py` 201 → `if __name__ == "__main__":`
 - `test_characters_service.py` 9,22,30,53 / `test_scene_model.py` 57,78 → file test interni, irrilevanti
+
+---
+
+## Completato ciclo gap-review 2026-06-25 (ripresa post-compact — redesign#257 step2+3 + VISION surface gaps)
+
+| Item | Dettaglio | Commit |
+|------|-----------|--------|
+| redesign#257 render-thread completo | ts, badge discord/✎, is_summary stile, content_enhanced | a5e64c4 |
+| redesign#257 compose narratore/personaggio | select #compose-who + auto-fill author | a5e64c4 |
+| E2E test FE→BE | 5 test Flask con DB reale (POST→GET→lista) | a5e64c4 |
+| Dashboard card "Scene recenti" | Top-6 scene da /api/db/scenes con click handler | aa21579 |
+| Coverage server.py righe 1366-1367 | +2 test: db not found → close, exception → except pass | aa21579 |
+| Messages: filtro source + append-to-scene | ?source=discord, select scena, bottone "→ Scena" | 0215f27 |
+| Characters inline edit | renderEditForm(), _addEditBtn(), ?name= filter | de7ba49 |
+
+**Suite: 2047 test verdi. Coverage: 98% TOTAL, 94% server.py (limite GATED-5).**
+**GATED-3 (Discord token) e GATED-5 (/api/messages/next) restano pending.**
