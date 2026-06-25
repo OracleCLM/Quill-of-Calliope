@@ -262,10 +262,13 @@ def test_handle_persona_message_not_text_channel(tmp_path) -> None:
     msg = MagicMock()
     msg.author.bot = False
     msg.content = "Alice: She drew her sword"
-    msg.channel.id = 77777
-    msg.channel = MagicMock()  # not spec=discord.TextChannel
+    msg.channel = MagicMock()  # channel.id è MagicMock auto
+    _UniqueClass = type("_UniqueTextChannelClass", (), {})
     with patch("scripts.discord_persona_binder._CHARS_DIR", tmp_path), \
-         patch("scripts.discord_persona_binder._is_known_char", return_value=True):
+         patch("scripts.discord_persona_binder._is_known_char", return_value=True), \
+         patch("scripts.discord_persona_binder.discord") as md:
+        md.TextChannel = _UniqueClass  # isinstance(MagicMock(), _UniqueClass) = False
+        md.DiscordException = Exception
         result = asyncio.run(handle_persona_message(msg, MagicMock()))
     assert result is False
 
