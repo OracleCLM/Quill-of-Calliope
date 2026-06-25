@@ -350,8 +350,13 @@ Impatto: basta una variabile env `REFINE_PROVIDER` / `REFINE_MODEL` configurabil
 
 | Item | Dettaglio | Commit |
 |------|-----------|--------|
-| fix(scene/revive UI) | mostra anche `recent_messages` ChromaDB nel pannello revival | TBD |
-| doc(GATED-6) | Arc YAML vs DB discrepancy documentata come GATED | TBD |
+| fix(scene/revive UI) | mostra anche `recent_messages` ChromaDB nel pannello revival | c7e8651 |
+| doc(GATED-6) | Arc YAML vs DB discrepancy documentata come GATED | c7e8651 |
+| fix(scene/actions) | `_sceneAction('translate')` pre-compila translate-input con lastMsg | 64be733 |
+| feat(scene/copy) | pulsante `📋 Copia ultimo` copia last message negli appunti (Step 7 user flow) | 64be733 |
+| fix(characters) | `renderEditForm` auto-ritorno a detail view dopo salvataggio (800ms) | ed86b69 |
+| feat(scenes/roster) | pulsante `+ Roster` per aggiungere personaggi al roster di scena | 78345e7 |
 
+**Suite: 2059 test verdi. Coverage: 98% TOTAL.**
 **Scripts residui a 0% non testabili**: tutti `__main__` guards (già documentati come skip legittimi ciclo 13-16).
-**Prossimo gap reale**: GATED-3 (Discord token) sblocca P6 (scrape wiring UI).
+**GATED pendenti**: GATED-3 (Discord token), GATED-5 (/api/messages/next), GATED-6 (Arc YAML vs DB).
