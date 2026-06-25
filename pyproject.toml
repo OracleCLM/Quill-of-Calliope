@@ -7,4 +7,5 @@ markers = [
 filterwarnings = [
     "ignore::pytest.PytestDeprecationWarning",
     "ignore::DeprecationWarning",
+    "ignore::ResourceWarning",
 ]

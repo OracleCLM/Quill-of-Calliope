@@ -131,3 +131,15 @@ def test_translate_generic_exception(client):
     assert r.status_code == 503
     data = r.get_json()
     assert "error" in data
+
+
+def test_translate_audit_exception_silenced(client):
+    """Lines 550-551: audit_trail.log_event che lancia → silenziato, risposta ok."""
+    with patch("app.calliope_shell.server.requests.post",
+               return_value=_mock_gateway_response("Hello.")), \
+         patch("app.calliope_shell.audit_trail.log_event", side_effect=RuntimeError("db")):
+        r = client.post("/api/translate", json={
+            "text": "Ciao.",
+            "direction": "IT_to_EN",
+        })
+    assert r.status_code == 200

@@ -62,6 +62,13 @@ def test_llm_routing_post_missing_key_400(client):
     assert rv.get_json() == {"error": "missing 'uncensored' (bool) in body"}
 
 
+def test_llm_routing_post_audit_exception_silenced(client):
+    """Lines 283-284: audit_trail.log_event che lancia → except silenziato."""
+    with patch("app.calliope_shell.audit_trail.log_event", side_effect=RuntimeError("db full")):
+        rv = client.post("/api/dashboard/llm_routing", json={"uncensored": True})
+    assert rv.status_code == 200
+
+
 # ── GET /api/dashboard/activity ───────────────────────────────────────────────
 
 def test_activity_default_params(client):
