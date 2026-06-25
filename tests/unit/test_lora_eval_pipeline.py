@@ -10,7 +10,7 @@ import sys
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+import pytest
 
 from scripts.lora_eval_pipeline import _check_hardware, _step_prep
 
@@ -56,7 +56,6 @@ def test_check_hardware_exception_returns_note():
     assert "nvidia-smi" in hw["note"]
 
 
-import pytest  # noqa: E402 (after the functions above that use pytest.approx)
 
 
 # ── _step_prep ────────────────────────────────────────────────────────────────
@@ -127,3 +126,119 @@ def test_step_prep_corpus_not_found_exits(tmp_path):
     out = tmp_path / "train.jsonl"
     with pytest.raises(SystemExit):
         _step_prep(missing, out)
+
+
+def test_step_prep_skips_blank_lines(tmp_path):
+    corpus = tmp_path / "corpus"
+    corpus.mkdir()
+    (corpus / "a.jsonl").write_text(
+        '\n{"message": "Testo abbastanza lungo per passare il filtro!", "context": ""}\n\n',
+        encoding="utf-8",
+    )
+    out = tmp_path / "train.jsonl"
+    _step_prep(corpus, out)
+    lines = [row for row in out.read_text().splitlines() if row.strip()]
+    assert len(lines) == 1
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Extended tests — _step_train (hardware paths), _step_eval, main()
+# ─────────────────────────────────────────────────────────────────────────────
+
+from scripts.lora_eval_pipeline import _step_train, _step_eval, main  # noqa: E402
+
+_LPL = "scripts.lora_eval_pipeline"
+
+
+# ── _step_train ───────────────────────────────────────────────────────────────
+
+def test_step_train_insufficient_hardware_exits(tmp_path):
+    insufficient = {"gpu_available": True, "vram_gb": 2.0, "sufficient": False,
+                    "note": "VRAM 2.0GB < 8GB required"}
+    with patch(f"{_LPL}._check_hardware", return_value=insufficient):
+        with pytest.raises(SystemExit) as exc:
+            _step_train(tmp_path / "train.jsonl", tmp_path / "adapter")
+    assert exc.value.code == 3
+
+
+def test_step_train_unsloth_not_installed_exits(tmp_path):
+    sufficient = {"gpu_available": True, "vram_gb": 10.0, "sufficient": True, "note": ""}
+    with patch(f"{_LPL}._check_hardware", return_value=sufficient):
+        with patch.dict(sys.modules, {"unsloth": None}):
+            with pytest.raises(SystemExit) as exc:
+                _step_train(tmp_path / "train.jsonl", tmp_path / "adapter")
+    assert exc.value.code == 2
+
+
+# ── _step_eval ────────────────────────────────────────────────────────────────
+
+def test_step_eval_writes_report(tmp_path):
+    mock_report = MagicMock(cliche_count=2, style_drift_score=0.3)
+    mock_style_coach = MagicMock()
+    mock_style_coach.lint_scene_output = MagicMock(return_value=mock_report)
+    mock_app_shell = MagicMock()
+    mock_app_shell.style_coach = mock_style_coach
+    mock_app = MagicMock()
+    mock_app.calliope_shell = mock_app_shell
+    with patch.dict(sys.modules, {
+        "app": mock_app,
+        "app.calliope_shell": mock_app_shell,
+        "app.calliope_shell.style_coach": mock_style_coach,
+    }):
+        report_path = tmp_path / "report.md"
+        _step_eval(tmp_path / "adapter", report_path)
+    assert report_path.exists()
+    content = report_path.read_text(encoding="utf-8")
+    assert "LoRA Voice Eval Report" in content
+    assert "N/A (deferred)" in content
+
+
+# ── main() ────────────────────────────────────────────────────────────────────
+
+def test_main_check_hardware(monkeypatch, capsys):
+    monkeypatch.setattr(sys, "argv", ["prog", "--check-hardware"])
+    hw = {"gpu_available": False, "vram_gb": 0.0, "sufficient": False, "note": "no nvidia-smi"}
+    with patch(f"{_LPL}._check_hardware", return_value=hw):
+        main()
+    out = capsys.readouterr().out
+    assert "GPU" in out
+    assert "no nvidia-smi" in out
+
+
+def test_main_check_hardware_sufficient_no_note(monkeypatch, capsys):
+    monkeypatch.setattr(sys, "argv", ["prog", "--check-hardware"])
+    hw = {"gpu_available": True, "vram_gb": 10.0, "sufficient": True, "note": ""}
+    with patch(f"{_LPL}._check_hardware", return_value=hw):
+        main()
+    out = capsys.readouterr().out
+    assert "10.0" in out
+
+
+def test_main_step_prep(monkeypatch, tmp_path):
+    monkeypatch.setattr(sys, "argv", [
+        "prog", "--step", "prep",
+        "--corpus-dir", str(tmp_path / "corpus"),
+        "--dataset", str(tmp_path / "train.jsonl"),
+    ])
+    with patch(f"{_LPL}._step_prep") as mock_prep:
+        main()
+    mock_prep.assert_called_once()
+
+
+def test_main_step_train(monkeypatch, tmp_path):
+    monkeypatch.setattr(sys, "argv", ["prog", "--step", "train"])
+    with patch(f"{_LPL}._step_train") as mock_train:
+        main()
+    mock_train.assert_called_once()
+
+
+def test_main_step_eval(monkeypatch, tmp_path):
+    monkeypatch.setattr(sys, "argv", ["prog", "--step", "eval"])
+    with patch(f"{_LPL}._step_eval") as mock_eval:
+        main()
+    mock_eval.assert_called_once()
+
+
+def test_main_no_step_prints_help(monkeypatch, capsys):
+    monkeypatch.setattr(sys, "argv", ["prog"])
+    main()  # prints help, does not raise
