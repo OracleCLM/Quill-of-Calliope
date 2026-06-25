@@ -264,7 +264,7 @@
 
     const kindSel = document.createElement('select');
     kindSel.style.cssText = 'background:#111827;color:#aab;border:1px solid #2a3a5a;border-radius:6px;padding:6px 8px;font-size:.85em;margin-bottom:10px;cursor:pointer;';
-    ['npc','player','system'].forEach(k => {
+    ['npc','player','operator'].forEach(k => {
       const opt = document.createElement('option');
       opt.value = k; opt.textContent = k;
       if (k === data.kind) opt.selected = true;
