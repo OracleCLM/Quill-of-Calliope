@@ -1554,13 +1554,13 @@
         window._sceneAction = function(tool) {
             const sceneId = window._currentSceneId;
             if (!sceneId) return;
-            const scene = (_allScenes || []).find(s => s.scene_id === sceneId) || {};
-            const sceneText = [scene.summary, scene.first_msg_excerpt, scene.last_msg_excerpt]
-                .filter(Boolean).join('\n\n');
+            const msgs = window._currentSceneMessages || [];
+            const sceneText = msgs.map(m => (m.author_name || '?') + ': ' + (m.content_original || '')).join('\n\n');
+            const lastMsg = msgs.length ? (msgs[msgs.length - 1].content_original || '') : '';
             const setVal = (id, v) => { const el = document.getElementById(id); if (el && v != null) el.value = v; };
-            if (tool === 'refine') setVal('refine-scene-input', scene.last_msg_excerpt || sceneText);
+            if (tool === 'refine') setVal('refine-scene-input', lastMsg || sceneText);
             if (tool === 'summarize') setVal('sum-text', sceneText);
-            if (tool === 'lorecheck') { setVal('lc-text', scene.last_msg_excerpt || ''); setVal('lc-scene-id', sceneId); }
+            if (tool === 'lorecheck') { setVal('lc-text', lastMsg || ''); setVal('lc-scene-id', sceneId); }
             showView(tool);
         };
 

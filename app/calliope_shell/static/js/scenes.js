@@ -114,6 +114,8 @@ async function _loadSceneDetail(sceneId) {
         if (data.error) throw new Error(data.error);
         const s = data.scene || {};
         const messages = data.messages || [];
+        window._currentScene = s;
+        window._currentSceneMessages = messages;
         document.getElementById('scene-detail-title').textContent = s.title || sceneId;
         document.getElementById('scene-detail-meta').textContent =
             `${s.location || ''} · ${messages.length} messaggi`;
