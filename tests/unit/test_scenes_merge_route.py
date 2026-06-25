@@ -100,3 +100,17 @@ def test_merge_unknown_scene_404(client):
                json={"scene_id_a": s["sid_a"], "scene_id_b": "scena-inesistente",
                      "new_name": "Merged"})
     assert r.status_code == 404
+
+
+def test_merge_value_error_from_db_function_404(client):
+    """Lines 195-197: merge_scenes lancia ValueError → 404 not_found."""
+    from unittest.mock import patch
+    import app.db.messages as db_messages
+
+    c, s = client
+    with patch.object(db_messages, "merge_scenes", side_effect=ValueError("conflict")):
+        r = c.post("/api/db/scenes/merge",
+                   json={"scene_id_a": s["sid_a"], "scene_id_b": s["sid_b"],
+                         "new_name": "Merged"})
+    assert r.status_code == 404
+    assert r.get_json()["error"] == "not_found"
