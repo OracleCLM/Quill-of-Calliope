@@ -1,7 +1,7 @@
 """Unit test per route GET/POST /api/dashboard/* di server.py."""
 from __future__ import annotations
 
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -121,3 +121,56 @@ def test_counts_scenes_is_dict(client):
     assert isinstance(data["scenes"], dict)
     assert "db" in data["scenes"]
     assert "disk" in data["scenes"]
+
+
+def test_counts_list_chars_fail(client):
+    """Lines 431-432: list_chars lancia → warning, chars_db=0."""
+    with patch(f"{_SRV}.list_chars", side_effect=RuntimeError("db full")), \
+         patch(f"{_SRV}._chroma_client", side_effect=Exception("down")):
+        rv = client.get("/api/dashboard/counts")
+    assert rv.status_code == 200
+    assert rv.get_json()["chars"]["db"] == 0
+
+
+def test_counts_list_arcs_fail(client):
+    """Lines 448-449: list_arcs lancia → warning, arcs=0."""
+    with patch("app.calliope_shell.plot_arc.list_arcs", side_effect=RuntimeError("no arcs")), \
+         patch(f"{_SRV}._chroma_client", side_effect=Exception("down")):
+        rv = client.get("/api/dashboard/counts")
+    assert rv.status_code == 200
+    assert rv.get_json()["arcs"] == 0
+
+
+# ── GET /api/dashboard/snapshot ───────────────────────────────────────────────
+
+def test_snapshot_200_all_subqueries_fail(client):
+    """Lines 348-400: /api/dashboard/snapshot con tutti i servizi down → 200 degradato."""
+    with patch(f"{_SRV}.requests.get", side_effect=Exception("network")), \
+         patch(f"{_SRV}._chroma_client", side_effect=Exception("chroma down")), \
+         patch(f"{_SRV}.list_chars", side_effect=RuntimeError("db")), \
+         patch("app.calliope_shell.plot_arc.list_arcs", side_effect=RuntimeError("arcs")), \
+         patch("app.calliope_shell.audit_trail.recent_events", side_effect=RuntimeError("audit")):
+        rv = client.get("/api/dashboard/snapshot")
+    assert rv.status_code == 200
+    data = rv.get_json()
+    assert "daemons" in data
+    assert "counts" in data
+    assert data["daemons"]["flask"]["up"] is True
+    assert data["daemons"]["chromadb"]["up"] is False
+
+
+def test_snapshot_200_ping_success_branch(client):
+    """Line 333: _ping riesce → code + latency_ms presenti."""
+    mock_response = MagicMock()
+    mock_response.status_code = 200
+    mock_response.elapsed.total_seconds.return_value = 0.01
+    with patch(f"{_SRV}.requests.get", return_value=mock_response), \
+         patch(f"{_SRV}._chroma_client", side_effect=Exception("down")), \
+         patch(f"{_SRV}.list_chars", return_value=[]), \
+         patch("app.calliope_shell.plot_arc.list_arcs", return_value=[]):
+        rv = client.get("/api/dashboard/snapshot")
+    assert rv.status_code == 200
+    data = rv.get_json()
+    llm_gw = data["daemons"]["llm_gateway"]
+    assert llm_gw["up"] is True
+    assert llm_gw["code"] == 200
