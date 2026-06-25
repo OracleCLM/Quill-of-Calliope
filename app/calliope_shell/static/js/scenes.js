@@ -141,10 +141,15 @@ async function _appendMessage() {
     if (!author || !content) { status.textContent = '⚠ Autore e testo obbligatori.'; return; }
     status.textContent = 'Invio…';
     try {
+        const composeWho = document.getElementById('compose-who');
+        const selectedOpt = composeWho && composeWho.options[composeWho.selectedIndex];
+        const charId = (selectedOpt && selectedOpt.dataset.charId) || undefined;
+        const msgBody = {author_name: author, content_original: content};
+        if (charId) msgBody.character_id = charId;
         const resp = await fetch('/api/db/scenes/' + encodeURIComponent(sceneId) + '/messages', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({author_name: author, content_original: content}),
+            body: JSON.stringify(msgBody),
         });
         const data = await resp.json();
         if (!resp.ok) { status.textContent = '✗ ' + (data.error || resp.status); return; }
@@ -193,6 +198,7 @@ async function _loadSceneDetail(sceneId) {
                 if (composeWho) {
                     const opt2 = document.createElement('option');
                     opt2.value = c.name; opt2.textContent = label;
+                    opt2.dataset.charId = c.id;
                     composeWho.appendChild(opt2);
                 }
             });
