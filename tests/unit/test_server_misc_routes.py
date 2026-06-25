@@ -5,6 +5,9 @@ Test per route miscellanee di server.py non ancora coperte:
   GET  /api/mascot/state                → 200 con ws_url
   POST /api/mascot/state                → aggiorna stato (requests.post mockato)
   GET  /api/mascot/emotion_map          → 200 con dict
+  GET  /health                          → 200 {"status": "ok"}
+  GET  /                                → 200 (ST vivo o giù, mocked)
+  _load_emotion_map()                   → successo reale + fallback eccezione
 """
 from __future__ import annotations
 
@@ -134,3 +137,46 @@ def test_mascot_emotion_map_200(client):
     assert r.status_code == 200
     data = r.get_json()
     assert "happy" in data
+
+
+# ── GET /health (riga 226 server.py) ──────────────────────────────────────────
+
+def test_health_200(client):
+    r = client.get("/health")
+    assert r.status_code == 200
+    assert r.get_json() == {"status": "ok"}
+
+
+# ── GET / index (righe 216-222 server.py) ─────────────────────────────────────
+
+def test_index_200_st_down(client):
+    """ST non raggiungibile → st_alive=False, ma pagina risponde 200."""
+    with patch(f"{_SRV}.requests.head", side_effect=Exception("refused")):
+        r = client.get("/")
+    assert r.status_code == 200
+
+
+def test_index_200_st_alive(client):
+    """ST risponde 200 → st_alive=True, pagina risponde 200."""
+    mock_head = MagicMock()
+    mock_head.status_code = 200
+    with patch(f"{_SRV}.requests.head", return_value=mock_head):
+        r = client.get("/")
+    assert r.status_code == 200
+
+
+# ── _load_emotion_map() (righe 190-195 server.py) ─────────────────────────────
+
+def test_load_emotion_map_real_file():
+    """Il file data/calliope_emotion_map.yaml esiste: ritorna dict non vuoto."""
+    from app.calliope_shell.server import _load_emotion_map
+    result = _load_emotion_map()
+    assert isinstance(result, dict)
+
+
+def test_load_emotion_map_fallback_on_ioerror():
+    """File non leggibile → except branch → ritorna {} senza sollevare."""
+    from app.calliope_shell.server import _load_emotion_map
+    with patch("pathlib.Path.read_text", side_effect=OSError("no file")):
+        result = _load_emotion_map()
+    assert result == {}
