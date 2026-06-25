@@ -247,3 +247,23 @@ Impatto: basta una variabile env `REFINE_PROVIDER` / `REFINE_MODEL` configurabil
 - `build_chromadb_index.py` (12%, 243r): chromadb-heavy, richiede istanza reale
 - `discord_bot.py` (34%, 205r): discord.py client events — non testabili senza test integrazioni
 - `test_narrative_continuity.py` (0%, 98r): script di test E2E (non un test pytest)
+
+---
+
+## Completato in ciclo gap-review 17-18 (ripresa post-compattazione 2026-06-25)
+
+| Item | Copertura prima→dopo | Test aggiunti | Commit |
+|------|---------------------|---------------|--------|
+| style_coach._compute_style_drift (argomenti invertiti) | 67%→**99%** | fix test esistente | 5d6ad4a |
+| entity_linker.py (spacy nlp path) | 86%→**100%** | +1 (mock spacy dedup+stop) | 8c3d8c9 |
+| merge_delta_messages.py (blank line sort) | 98%→**99%** | +1 | 8c3d8c9 |
+| merge_char_sources.py (blank line corpus) | 99%→**99%** | +1 | 8c3d8c9 |
+
+**Totale**: 1918 test passano. Gap residui = solo `__main__` guards e dead code irraggiungibili.
+
+**Stato finale copertura** (non raggiungibile unitariamente):
+- `server.py` 63% — GATED (Flask integration)
+- `app/db/messages.py` line 544 — dead code (concurrent race tra 2 SELECT)
+- `scenes_db_routes.py` lines 195-197 — dead code (ValueError mai sollevata da merge_scenes)
+- `lore_kb.py` lines 174-177 — `finally` IO cleanup (difficile simulare senza risorse reali)
+- Tutti gli `if __name__ == "__main__":` guards in ogni script

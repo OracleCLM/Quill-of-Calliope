@@ -315,3 +315,36 @@ def test_lore_entry_to_dict_includes_extensions_when_set():
     e = LoreEntry(id="x", title="T", extensions={"color": "red"})
     d = e.to_dict()
     assert d["extensions"] == {"color": "red"}
+
+
+def test_save_finally_cleans_tmp_on_replace_failure(tmp_path):
+    """Lines 174-175: finally cleanup eseguito quando replace fallisce."""
+    import pathlib
+    from unittest.mock import patch
+    import pytest
+
+    store = _store(tmp_path)
+    store.add_entry(LoreEntry(id="t1", title="Test", content="ok"))
+
+    with patch.object(pathlib.Path, "replace", side_effect=OSError("disk full")):
+        with pytest.raises(OSError):
+            store.save()
+
+    tmp_file = store.path.with_suffix(".tmp")
+    assert not tmp_file.exists()
+
+
+def test_save_finally_unlink_oserror_silenced(tmp_path):
+    """Lines 176-177: OSError in unlink durante cleanup è silenziata."""
+    import pathlib
+    from unittest.mock import patch
+    import pytest
+
+    store = _store(tmp_path)
+    store.add_entry(LoreEntry(id="t1", title="Test", content="ok"))
+
+    with patch.object(pathlib.Path, "replace", side_effect=OSError("disk full")), \
+         patch.object(pathlib.Path, "unlink", side_effect=OSError("permission denied")):
+        with pytest.raises(OSError):
+            store.save()
+    # OSError da unlink è silenziosamente ignorata — nessuna eccezione qui
