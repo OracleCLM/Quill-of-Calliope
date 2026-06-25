@@ -399,6 +399,11 @@
                     <span id="dash-discord-cta-text"></span>
                 </div>
             </div>
+
+            <div class="dash-card" id="dash-card-recent-scenes" style="grid-column:1/-1;">
+                <h3>Scene recenti</h3>
+                <ul id="dash-recent-scenes-list" style="margin:0;padding:0;list-style:none;"></ul>
+            </div>
         </div>
         <div class="dash-snapshot-meta">
             <span id="dash-snapshot-status">…</span>
@@ -911,7 +916,7 @@
             });
             if (view === 'arc') loadArcList();
             if (view === 'scenes') _loadScenes();
-            if (view === 'dashboard') loadDashboardSnapshot();
+            if (view === 'dashboard') { loadDashboardSnapshot(); _loadRecentScenes(); }
             if (view === 'smartdraft') _loadCharDropdown();
             if (view === 'characters') loadCharactersPanel();
             if (view === 'lorekb') loadLoreKB();
@@ -1310,6 +1315,30 @@
                 }
             }, 30000);
         });
+
+        async function _loadRecentScenes() {
+            const ul = document.getElementById('dash-recent-scenes-list');
+            if (!ul) return;
+            ul.innerHTML = '<li style="color:#334;font-size:.82em;padding:4px 0">Caricamento…</li>';
+            try {
+                const resp = await fetch('/api/db/scenes');
+                const data = await resp.json();
+                const scenes = (data.scenes || []).slice(0, 6);
+                if (!scenes.length) {
+                    ul.innerHTML = '<li style="color:#334;font-size:.82em;padding:4px 0">Nessuna scena nel DB</li>';
+                    return;
+                }
+                ul.innerHTML = scenes.map(s => {
+                    const col = s.is_readonly ? '#556' : '#4c8';
+                    const cnt = s.message_count != null ? ` <span style="color:#445;font-size:.78em">· ${s.message_count} msg</span>` : '';
+                    return `<li onclick="showView('scenes');_loadSceneDetail('${s.id}')" style="padding:5px 0;border-bottom:1px solid #1a2440;cursor:pointer;display:flex;align-items:center;gap:6px;">
+                        <span style="width:7px;height:7px;border-radius:50%;background:${col};flex-shrink:0;display:inline-block;"></span>
+                        <span style="font-size:.83em;color:#ccd;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${s.title || s.id}</span>${cnt}</li>`;
+                }).join('');
+            } catch(e) {
+                ul.innerHTML = `<li style="color:#f66;font-size:.82em">✗ ${e.message}</li>`;
+            }
+        }
 
         function _startDashSnapshotPoll() {
             if (_dashSnapshotTimer) clearInterval(_dashSnapshotTimer);

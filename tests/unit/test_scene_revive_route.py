@@ -118,3 +118,27 @@ def test_revive_partial_scene_id_match(tmp_path):
     assert r.status_code == 200
     data = r.get_json()
     assert data["scene_context"]["scene_id"] == "act1_forest_hunt_opening"
+
+
+def test_revive_db_fallback_scene_not_in_db_returns_404(tmp_path):
+    """DB trovato ma scene_id non presente → _dconn.close() + 404 (riga 1366)."""
+    mock_conn = MagicMock()
+    mock_conn.execute.return_value.fetchone.return_value = None
+
+    with _client() as c:
+        with patch(f"{_SRV}._SCENES_DIR", tmp_path), \
+             patch("app.db.get_db", return_value=mock_conn):
+            r = c.post("/api/scene/revive", json={"scene_id": "ghost-uuid"})
+
+    assert r.status_code == 404
+    mock_conn.close.assert_called_once()
+
+
+def test_revive_db_fallback_exception_returns_404(tmp_path):
+    """get_db lancia eccezione → except Exception: pass → 404 (riga 1367)."""
+    with _client() as c:
+        with patch(f"{_SRV}._SCENES_DIR", tmp_path), \
+             patch("app.db.get_db", side_effect=RuntimeError("db error")):
+            r = c.post("/api/scene/revive", json={"scene_id": "any-uuid"})
+
+    assert r.status_code == 404
