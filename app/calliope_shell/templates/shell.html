@@ -539,7 +539,10 @@
                         <button onclick="document.getElementById('add-roster-form').style.display='none'" style="background:#1a2a3a;color:#aab;border:1px solid #2a3a5a;border-radius:5px;padding:4px 8px;cursor:pointer;font-size:.78em;">✕</button>
                         <span id="add-roster-status" style="font-size:.75em;color:#88aaff;"></span>
                     </div>
-                    <input id="scene-ctx-hint" placeholder="Hint contestuale (opzionale)...">
+                    <div style="display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap;">
+                        <input id="scene-ctx-hint" placeholder="Intento / hint contestuale (opzionale)..." style="flex:1;min-width:180px;">
+                        <button id="continue-btn" onclick="_smartDraftFromScene()" disabled style="white-space:nowrap;">▶ Genera</button>
+                    </div>
                     <div id="continue-status" style="font-size:.8em;color:#88aaff;margin-top:6px;min-height:1em;"></div>
                     <div id="gen-output" class="gen-output"></div>
                 </div>
@@ -732,9 +735,11 @@
         <div id="sd-context-info" style="display:none; font-size:.8em; color:#667; margin-bottom:8px; padding:6px 10px; background:#0d1117; border-radius:4px;"></div>
         <div id="sd-output" style="display:none; background:#111827; border:1px solid #2a3a5a; border-radius:6px; padding:14px; font-size:.9em; color:#dde; white-space:pre-wrap; line-height:1.6;"></div>
         <div id="sd-lint" style="display:none; font-size:.78em; color:#c90; margin-top:6px;"></div>
-        <div id="sd-actions" style="display:none; margin-top:10px; display:flex; gap:8px;">
+        <div id="sd-actions" style="display:none; margin-top:10px; display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
             <button id="btn-sd-copy" style="background:#1a2a4a; color:#aac; border:1px solid #2a3a5a; border-radius:4px; padding:6px 14px; cursor:pointer; font-size:.82em;">📋 Copy</button>
+            <button id="btn-sd-save-scene" style="background:#1a3a1a; color:#8f8; border:1px solid #2a5a2a; border-radius:4px; padding:6px 14px; cursor:pointer; font-size:.82em;">→ Salva in scena</button>
             <button id="btn-sd-lorecheck" style="background:#2a1a1a; color:#c99; border:1px solid #3a2a2a; border-radius:4px; padding:6px 14px; cursor:pointer; font-size:.82em;">⊘ Lore Check</button>
+            <span id="sd-save-status" style="font-size:.78em;color:#88aaff;"></span>
         </div>
     </section>
 
@@ -1652,6 +1657,29 @@
             navigator.clipboard.writeText(text).then(() => { this.textContent = '✓ Copied!'; setTimeout(() => { this.textContent = '📋 Copy'; }, 1500); });
         });
 
+        // Salva draft in scena
+        const saveSceneBtn = document.getElementById('btn-sd-save-scene');
+        if (saveSceneBtn) saveSceneBtn.addEventListener('click', async function() {
+            const sceneId = (document.getElementById('sd-scene-id').value || '').trim();
+            const statusEl = document.getElementById('sd-save-status');
+            if (!sceneId) { if (statusEl) statusEl.textContent = '⚠ Imposta Scene ID prima'; return; }
+            const text = document.getElementById('sd-output').textContent;
+            if (!text) return;
+            const charSel = document.getElementById('sd-char-focus');
+            const authorName = (charSel && charSel.value) ? charSel.options[charSel.selectedIndex].textContent : 'Calliope';
+            if (statusEl) statusEl.textContent = 'Salvataggio…';
+            try {
+                const r = await fetch('/api/db/scenes/' + encodeURIComponent(sceneId) + '/messages', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({author_name: authorName, content_original: text, content_enhanced: text}),
+                });
+                if (statusEl) statusEl.textContent = r.ok ? '✓ Salvato in scena' : '✗ Errore ' + r.status;
+            } catch(e) {
+                if (statusEl) statusEl.textContent = '✗ ' + e.message;
+            }
+        });
+
         // Lore check from smart draft
         const lcFromDraft = document.getElementById('btn-sd-lorecheck');
         if (lcFromDraft) lcFromDraft.addEventListener('click', function() {
@@ -1731,6 +1759,8 @@
             if (sceneId) document.getElementById('sd-scene-id').value = sceneId;
             const charSel = document.getElementById('scene-char-select');
             if (charSel && charSel.value) document.getElementById('sd-char-focus').value = charSel.value;
+            const hintEl = document.getElementById('scene-ctx-hint');
+            if (hintEl && hintEl.value.trim()) document.getElementById('sd-intent').value = hintEl.value.trim();
             showView('smartdraft');
         };
 
