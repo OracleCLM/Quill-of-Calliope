@@ -502,6 +502,16 @@
         <div id="scenes-list-col">
             <div id="scenes-filter-bar">
                 <input id="scene-filter" placeholder="Filtra per titolo, personaggio..." oninput="_scenesFilter(this.value)">
+                <button onclick="_newSceneInline()" style="margin-top:6px;width:100%;background:#1a3a1a;color:#8f8;border:1px solid #2a5a2a;border-radius:6px;padding:6px 10px;cursor:pointer;font-size:.82em;">+ Nuova scena</button>
+                <div id="new-scene-form" style="display:none;margin-top:6px;">
+                    <input id="new-scene-title" placeholder="Titolo scena..." style="width:100%;box-sizing:border-box;background:#111827;color:#eee;border:1px solid #2a3a5a;border-radius:6px;padding:6px 10px;font-size:.85em;">
+                    <input id="new-scene-location" placeholder="Location (opzionale)..." style="width:100%;box-sizing:border-box;background:#111827;color:#aab;border:1px solid #2a3a5a;border-radius:6px;padding:6px 10px;font-size:.83em;margin-top:4px;">
+                    <div style="display:flex;gap:6px;margin-top:6px;">
+                        <button onclick="_submitNewScene()" style="flex:1;background:#1a3a1a;color:#8f8;border:1px solid #2a5a2a;border-radius:6px;padding:5px;cursor:pointer;font-size:.82em;">✓ Crea</button>
+                        <button onclick="_cancelNewScene()" style="flex:1;background:#1a2a3a;color:#aab;border:1px solid #2a3a5a;border-radius:6px;padding:5px;cursor:pointer;font-size:.82em;">✕</button>
+                    </div>
+                    <div id="new-scene-status" style="font-size:.78em;color:#88aaff;min-height:1em;margin-top:4px;"></div>
+                </div>
             </div>
             <ul id="scenes-list" data-empty-state="scenes"><li style="color:#334;padding:12px">Caricamento...</li></ul>
         </div>

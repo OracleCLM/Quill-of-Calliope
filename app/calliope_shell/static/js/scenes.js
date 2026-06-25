@@ -57,6 +57,40 @@ function _scenesFilter(val) {
     ));
 }
 
+function _newSceneInline() {
+    document.getElementById('new-scene-form').style.display = 'block';
+    document.getElementById('new-scene-title').focus();
+}
+
+function _cancelNewScene() {
+    document.getElementById('new-scene-form').style.display = 'none';
+    document.getElementById('new-scene-title').value = '';
+    document.getElementById('new-scene-location').value = '';
+    document.getElementById('new-scene-status').textContent = '';
+}
+
+async function _submitNewScene() {
+    const title = (document.getElementById('new-scene-title').value || '').trim();
+    const location = (document.getElementById('new-scene-location').value || '').trim() || undefined;
+    const status = document.getElementById('new-scene-status');
+    if (!title) { status.textContent = '⚠ Titolo obbligatorio.'; return; }
+    status.textContent = 'Creazione…';
+    try {
+        const resp = await fetch('/api/db/scenes', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({title, location}),
+        });
+        const data = await resp.json();
+        if (!resp.ok) { status.textContent = '✗ ' + (data.error || resp.status); return; }
+        _cancelNewScene();
+        await _loadScenes();
+        _loadSceneDetail(data.id);
+    } catch(e) {
+        status.textContent = '✗ ' + e.message;
+    }
+}
+
 // ── Chat thread renderer ──────────────────────────────────────────────────────
 
 function _fmtTs(ts) {
