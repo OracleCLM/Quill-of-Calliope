@@ -111,3 +111,28 @@ def test_summarize_200_success(client):
     assert data["summary"] == "short"
     assert data["key_facts"] == ["a", "b"]
     assert "word_count" in data
+
+
+# ── POST /api/scene/blend ─────────────────────────────────────────────────────
+
+def test_scene_blend_400_missing_variants_file(client):
+    """Lines 831-832: variants_file_path mancante → 400."""
+    r = client.post("/api/scene/blend", json={})
+    assert r.status_code == 400
+    assert "error" in r.get_json()
+
+
+def test_scene_blend_400_path_traversal(client):
+    """Lines 834-835: path fuori da /tmp o scenes/ → 400."""
+    r = client.post("/api/scene/blend", json={"variants_file_path": "/etc/calliope_x.variants.md"})
+    assert r.status_code == 400
+    assert "error" in r.get_json()
+
+
+def test_scene_blend_404_file_not_found(client):
+    """Lines 836-837: path valido ma file inesistente → 404."""
+    r = client.post("/api/scene/blend", json={
+        "variants_file_path": "/tmp/calliope_nonexistent_test.variants.md",
+    })
+    assert r.status_code == 404
+    assert "error" in r.get_json()
