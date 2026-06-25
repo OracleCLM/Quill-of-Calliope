@@ -190,6 +190,36 @@ def test_get_phonemes_piper_exception_returns_empty():
     assert result == []
 
 
+def test_get_phonemes_piper_isalpha_non_dict_phoneme(monkeypatch, tmp_path):
+    """Lines 90-91: phonema alfa non in PHONEME_DURATION_MS → 'default'."""
+    voices = tmp_path / ".local" / "share" / "piper" / "voices"
+    voices.mkdir(parents=True)
+    (voices / "en_US-amy-medium.onnx").touch()
+    (voices / "en_US-amy-medium.onnx.json").touch()
+
+    mock_voice = MagicMock()
+    mock_voice.phonemize.return_value = [["p"]]  # 'p' not in PHONEME_DURATION_MS
+
+    mock_piper = MagicMock()
+    mock_piper.PiperVoice.load.return_value = mock_voice
+
+    with patch.dict(sys.modules, {"piper": mock_piper}):
+        with patch.object(pe.Path, "home", return_value=tmp_path):
+            result = pe.get_phonemes_piper("pee")
+
+    assert result == ["default"]
+
+
+def test_get_phonemes_espeak_stripped_empty_skipped(monkeypatch):
+    """Line 126: char ridotto a '' da _STRIP_RE → continue (branch not-stripped)."""
+    # IPA stress mark ˈ (U+02C8) viene rimosso da _STRIP_RE → stripped=""
+    mock_run = MagicMock()
+    mock_run.return_value.stdout = "ˈ"   # solo stress mark → stripped=""
+    monkeypatch.setattr(pe.subprocess, "run", mock_run)
+    result = pe.get_phonemes_espeak("stress")
+    assert result == []
+
+
 # ── generate_wav_espeak ───────────────────────────────────────────────────────
 
 def test_generate_wav_espeak_success(monkeypatch):

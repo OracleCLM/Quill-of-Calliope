@@ -355,6 +355,24 @@ def test_tts_speak_bilingual_play(monkeypatch):
     mock_play.assert_called_once_with("/tmp/bili_test.wav")
 
 
+def test_tts_speak_bilingual_unlink_oserror_silenced(monkeypatch):
+    """Lines 250-251: OSError in unlink durante finally di tts_speak_bilingual → silenziata."""
+    monkeypatch.setattr(tts_module, "_split_sentences", MagicMock(return_value=["Hi."]))
+    monkeypatch.setattr(tts_module, "_majority_lang", MagicMock(return_value="en"))
+    monkeypatch.setattr(tts_module, "_detect_lang", MagicMock(return_value="en"))
+    monkeypatch.setattr(tts_module, "tts_speak", MagicMock(return_value=b"WAV"))
+    monkeypatch.setattr(tts_module, "_concat_wav_chunks", MagicMock(return_value=b"WAV"))
+    mock_play = MagicMock()
+    monkeypatch.setattr(tts_module, "_play_wav", mock_play)
+    mock_tmp = MagicMock()
+    mock_tmp.name = "/tmp/bili_oserr.wav"
+    monkeypatch.setattr(tts_module.tempfile, "NamedTemporaryFile", MagicMock(return_value=mock_tmp))
+    monkeypatch.setattr(tts_module.os, "unlink", MagicMock(side_effect=OSError("busy")))
+    with patch.object(Path, "write_bytes", MagicMock()):
+        tts_module.tts_speak_bilingual("Hi.", play=True)  # non deve sollevare
+    mock_play.assert_called_once()
+
+
 # ── main() ────────────────────────────────────────────────────────────────────
 
 def test_main_text_with_output(monkeypatch, capsys, tmp_path):
@@ -392,3 +410,39 @@ def test_main_detect_language_with_output(monkeypatch, capsys, tmp_path):
     monkeypatch.setattr(tts_module, "tts_speak_bilingual", MagicMock(return_value=b"WAV"))
     tts_module.main()
     assert "Saved:" in capsys.readouterr().out
+
+
+def test_main_detect_language_no_output(monkeypatch, capsys):
+    """Line 287: detect_language + no-play + no-output → bilingual via tmp file."""
+    monkeypatch.setattr(sys, "argv", ["prog", "--text", "Ciao mondo", "--no-play", "--detect-language"])
+    mock_tmp = MagicMock()
+    mock_tmp.name = "/tmp/calliope_tts_bili.wav"
+    monkeypatch.setattr(tts_module.tempfile, "NamedTemporaryFile", MagicMock(return_value=mock_tmp))
+    monkeypatch.setattr(tts_module, "tts_speak_bilingual", MagicMock(return_value=b"WAV"))
+    monkeypatch.setattr(tts_module.os, "unlink", MagicMock())
+    tts_module.main()
+    out = capsys.readouterr().out
+    assert "Generated" in out
+
+
+def test_main_no_output_unlink_oserror_silenced(monkeypatch):
+    """Lines 295-296: OSError in unlink durante cleanup main → silenziosamente ignorata."""
+    monkeypatch.setattr(sys, "argv", ["prog", "--text", "Hello", "--no-play"])
+    mock_tmp = MagicMock()
+    mock_tmp.name = "/tmp/calliope_tts_oserr.wav"
+    monkeypatch.setattr(tts_module.tempfile, "NamedTemporaryFile", MagicMock(return_value=mock_tmp))
+    monkeypatch.setattr(tts_module, "tts_speak", MagicMock(return_value=b"WAV"))
+    monkeypatch.setattr(tts_module.os, "unlink", MagicMock(side_effect=OSError("busy")))
+    tts_module.main()  # non deve sollevare
+
+
+def test_tts_speak_unlink_oserror_silenced(monkeypatch):
+    """Lines 147-148: OSError in unlink durante cleanup tts_speak → silenziata."""
+    mock_tmp = MagicMock()
+    mock_tmp.name = "/tmp/calliope_tts_speak_oserr.wav"
+    monkeypatch.setattr(tts_module.tempfile, "NamedTemporaryFile", MagicMock(return_value=mock_tmp))
+    monkeypatch.setattr(tts_module, "_piper_model_path", MagicMock(return_value=None))
+    monkeypatch.setattr(tts_module, "_synth_pyttsx3", MagicMock())
+    monkeypatch.setattr(tts_module.os, "unlink", MagicMock(side_effect=OSError("busy")))
+    with patch.object(Path, "read_bytes", return_value=b"WAV"):
+        tts_module.tts_speak("hello")  # non deve sollevare
