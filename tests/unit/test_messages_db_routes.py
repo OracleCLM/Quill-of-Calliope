@@ -257,3 +257,43 @@ def test_compact_404_scene_not_found(client):
     c, _ = client
     r = c.post("/api/db/scenes/nonexistent/messages/compact")
     assert r.status_code == 404
+
+
+# ── GET /api/db/messages/recent?source= ──────────────────────────────────────
+
+def test_recent_messages_source_filter_discord(client):
+    """?source=discord filtra solo messaggi da Discord."""
+    c, s = client
+    scene_id = s["scene_id"]
+    c.post(f"/api/db/scenes/{scene_id}/messages",
+           json={"author_name": "A", "content_original": "discord msg", "source": "discord"})
+    c.post(f"/api/db/scenes/{scene_id}/messages",
+           json={"author_name": "B", "content_original": "manual msg"})
+    r = c.get("/api/db/messages/recent?source=discord&limit=50")
+    assert r.status_code == 200
+    msgs = r.get_json()["messages"]
+    assert all(m["source"] == "discord" for m in msgs)
+
+
+def test_recent_messages_source_filter_excludes_manual(client):
+    """?source=discord non restituisce messaggi manual."""
+    c, s = client
+    scene_id = s["scene_id"]
+    c.post(f"/api/db/scenes/{scene_id}/messages",
+           json={"author_name": "A", "content_original": "only manual"})
+    r = c.get("/api/db/messages/recent?source=discord&limit=50")
+    assert r.status_code == 200
+    msgs = r.get_json()["messages"]
+    assert not any(m["content_original"] == "only manual" for m in msgs)
+
+
+def test_recent_messages_source_field_in_response(client):
+    """La risposta include il campo source."""
+    c, s = client
+    c.post(f"/api/db/scenes/{s['scene_id']}/messages",
+           json={"author_name": "X", "content_original": "test"})
+    r = c.get("/api/db/messages/recent?limit=5")
+    assert r.status_code == 200
+    msgs = r.get_json()["messages"]
+    if msgs:
+        assert "source" in msgs[0]

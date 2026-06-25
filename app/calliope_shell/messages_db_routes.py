@@ -31,17 +31,24 @@ def register_messages_db_routes(app, db_path=None):
         if limit <= 0:
             return jsonify({"error": "bad_request"}), 400
         char = request.args.get("char")
+        source = request.args.get("source")
         conn = _conn(db_path)
-        sql = "SELECT id, scene_id, author_name, content_original, ts FROM messages"
+        sql = "SELECT id, scene_id, author_name, content_original, ts, source FROM messages"
+        where: list[str] = []
         params: list = []
         if char:
-            sql += " WHERE author_name = ?"
+            where.append("author_name = ?")
             params.append(char)
+        if source:
+            where.append("source = ?")
+            params.append(source)
+        if where:
+            sql += " WHERE " + " AND ".join(where)
         sql += " ORDER BY ts DESC LIMIT ?"
         params.append(limit)
         rows = conn.execute(sql, params).fetchall()
         conn.close()
-        cols = ("id", "scene_id", "author_name", "content_original", "ts")
+        cols = ("id", "scene_id", "author_name", "content_original", "ts", "source")
         messages = [dict(zip(cols, tuple(r))) for r in rows]
         return jsonify({"messages": messages}), 200
 
