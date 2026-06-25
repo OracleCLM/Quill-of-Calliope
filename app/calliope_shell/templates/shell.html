@@ -1698,6 +1698,10 @@
                     text += '\n--- Lore References ---\n';
                     data.lore_refs.forEach(l => { text += `• ${l.slice(0,150)}\n`; });
                 }
+                if (data.recent_messages && data.recent_messages.length) {
+                    text += '\n--- Ultimi scambi (ChromaDB) ---\n';
+                    data.recent_messages.forEach(m => { text += `• ${m.slice(0,200)}\n`; });
+                }
                 output.textContent = text;
                 output.style.display = 'block';
                 status.textContent = '✓ Scene revived — context loaded.';

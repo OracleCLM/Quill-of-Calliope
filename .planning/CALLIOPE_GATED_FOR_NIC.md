@@ -66,6 +66,19 @@ Impatto: basta una variabile env `REFINE_PROVIDER` / `REFINE_MODEL` configurabil
 
 ---
 
+## [GATED-6] Arc panel: YAML vs DB — quale sistema è canonical?
+
+**Blocco**: Il pannello Arc (shell.html) usa il sistema YAML/SQLite legacy (`/api/arc`, `plot_arc.py`). In parallelo esiste `/api/db/arcs` (DB-based, referenzia scene per DB scene_id). La UI del "+Nuovo arco" crea archi via `/api/arc` (YAML). La dashboard conta gli archi via `plot_arc.list_arcs()` (YAML). I due sistemi non sincronizzano.
+
+**Domanda**:
+- (a) Mantenere il sistema YAML (`plot_arc.py`) come canonical per gli archi e deprecare `/api/db/arcs`?
+- (b) Migrare il pannello Arc a `/api/db/arcs` (scene referenziate per DB id, non YAML path)?
+- (c) Lasciare i due sistemi coesistenti (archi "narrativi" YAML + "strutturali" DB)?
+
+**Impatto scelta (b)**: richiede migrazione archi YAML→DB + cambio JS del pannello Arc + adeguamento dashboard counter.
+
+---
+
 ## Completato in sessione 2026-06-24 (continua — ciclo gap-review 3)
 
 | Item | Test aggiunti | Commit |
@@ -330,3 +343,15 @@ Impatto: basta una variabile env `REFINE_PROVIDER` / `REFINE_MODEL` configurabil
 
 **Suite: 2060 test verdi. Coverage: 98% TOTAL, server.py 94%.**
 **Residui definitivi**: solo GATED-5 (984-1079), app.run() (1626), __main__ guards.
+
+---
+
+## Completato ciclo gap-review 2026-06-25 (scope allargato — GATED e UX)
+
+| Item | Dettaglio | Commit |
+|------|-----------|--------|
+| fix(scene/revive UI) | mostra anche `recent_messages` ChromaDB nel pannello revival | TBD |
+| doc(GATED-6) | Arc YAML vs DB discrepancy documentata come GATED | TBD |
+
+**Scripts residui a 0% non testabili**: tutti `__main__` guards (già documentati come skip legittimi ciclo 13-16).
+**Prossimo gap reale**: GATED-3 (Discord token) sblocca P6 (scrape wiring UI).
