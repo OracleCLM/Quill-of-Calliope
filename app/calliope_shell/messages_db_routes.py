@@ -37,7 +37,7 @@ def register_messages_db_routes(app, db_path=None):
         where: list[str] = []
         params: list = []
         if char:
-            where.append("author_name = ?")
+            where.append("LOWER(author_name) = LOWER(?)")
             params.append(char)
         if source:
             where.append("source = ?")
