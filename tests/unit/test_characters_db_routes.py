@@ -188,3 +188,16 @@ def test_list_characters_name_filter_no_match(client):
     client.post("/api/db/characters", json={"name": "Zelda"})
     r = client.get("/api/db/characters?name=nonexistent")
     assert r.get_json()["characters"] == []
+
+
+def test_add_character_invalid_kind_400(client):
+    r = client.post("/api/db/characters", json={"name": "X", "kind": "villain"})
+    assert r.status_code == 400
+    assert "error" in r.get_json()
+
+
+def test_add_character_name_too_long_400(client):
+    long_name = "A" * 256
+    r = client.post("/api/db/characters", json={"name": long_name})
+    assert r.status_code == 400
+    assert "error" in r.get_json()
