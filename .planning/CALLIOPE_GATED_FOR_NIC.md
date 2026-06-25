@@ -1,6 +1,6 @@
 # Calliope — Decisioni GATED per operatore (nic)
 
-> Aggiornato: 2026-06-24 (ciclo 8-10) da sonnet-orch-calliope.
+> Aggiornato: 2026-06-25 (ciclo finale coverage) da sonnet-orch-calliope.
 > File accumulativo: ogni sessione appende le decisioni bloccanti. Rimuovi la riga dopo che hai dato il via libera.
 
 ---
@@ -267,3 +267,21 @@ Impatto: basta una variabile env `REFINE_PROVIDER` / `REFINE_MODEL` configurabil
 - `scenes_db_routes.py` lines 195-197 — dead code (ValueError mai sollevata da merge_scenes)
 - `lore_kb.py` lines 174-177 — `finally` IO cleanup (difficile simulare senza risorse reali)
 - Tutti gli `if __name__ == "__main__":` guards in ogni script
+
+---
+
+## Completato ciclo gap-review finale (2026-06-25 — ripresa post-compact)
+
+| Item | Copertura prima→dopo | Test aggiunti | Commit |
+|------|---------------------|---------------|--------|
+| server.py flask routes (lore_search, lore_check, draft, dashboard) | 71%→**93%** | +90 test | c23f885 |
+| scenes_db_routes.py lines 195-197 (ValueError→404) | 98%→**100%** | +1 test | c23f885 |
+| db/messages.py line 544 (TOCTOU pos_row mock) | 99%→**100%** | +1 test | e14094f |
+
+**TOTAL: 98% (2029 test verdi)**
+
+**Residui finali copertura (non testabili senza infra):**
+- `server.py` 982-1077 → **GATED-5** (decision operatore: keep `/api/messages/next`?)
+- `server.py` 1593 → `app.run()` (unreachable in test)
+- `style_coach.py` 201 → `if __name__ == "__main__":`
+- `test_characters_service.py` 9,22,30,53 / `test_scene_model.py` 57,78 → file test interni, irrilevanti

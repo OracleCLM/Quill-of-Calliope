@@ -1,7 +1,11 @@
-// Scene/Messages panel — estratto da templates/shell.html (FE-0 enablement 2026-06-11).
+// Scene/Messages panel — redesign lista-flat stile JanitorAI (GATED-1, 2026-06-25).
 // Classic script (NON module): le function declarations restano globali e sono
 // invocate da showView()/onclick inline. Dipendenze globali definite in shell.html
 // (renderEmptyState, cloudCall, showView) sono disponibili a runtime (script caricato dopo).
+
+function _escHtml(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
 
 // ── Scenes panel (Gap B) ──
 window._currentSceneId = null;
@@ -33,10 +37,12 @@ function _renderSceneList(scenes) {
     ul.innerHTML = scenes.map(s => {
         const st = s.status || 'draft';
         const col = _statusColor[st] || '#556';
+        const msgCount = s.message_count != null ? ` · ${s.message_count} msg` : '';
         return `
         <li onclick="_loadSceneDetail('${s.id}')">
             <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${col};margin-right:6px;vertical-align:middle"></span>
-            <span class="scene-item-title">${s.title || s.id}</span>
+            <span class="scene-item-title">${_escHtml(s.title || s.id)}</span>
+            <div class="scene-item-meta">${_escHtml(st)}${msgCount}</div>
         </li>`;
     }).join('');
 }
@@ -49,6 +55,23 @@ function _scenesFilter(val) {
         (s.summary||'').toLowerCase().includes(f) ||
         (s.participants||[]).some(p => p.toLowerCase().includes(f))
     ));
+}
+
+// ── Chat thread renderer ──────────────────────────────────────────────────────
+
+function _renderChatThread(messages) {
+    const thread = document.getElementById('chat-thread');
+    if (!messages.length) {
+        thread.innerHTML = '<div style="color:#334;padding:16px;text-align:center;font-size:.85em;">Nessun messaggio in questa scena</div>';
+        return;
+    }
+    thread.innerHTML = messages.map(m => `
+        <div class="chat-msg">
+            <div class="chat-msg-author">${_escHtml(m.author_name || '?')}</div>
+            <div class="chat-msg-content">${_escHtml(m.content_original || '')}</div>
+        </div>
+    `).join('');
+    thread.scrollTop = thread.scrollHeight;
 }
 
 // FE-3: append nuovo messaggio → POST /api/db/scenes/<id>/messages
@@ -68,9 +91,8 @@ async function _appendMessage() {
         });
         const data = await resp.json();
         if (!resp.ok) { status.textContent = '✗ ' + (data.error || resp.status); return; }
-        status.textContent = '✓ Messaggio inviato (id=' + data.id + ')';
+        status.textContent = '✓ Inviato';
         document.getElementById('compose-content').value = '';
-        // Aggiorna la vista della scena
         await _loadSceneDetail(sceneId);
     } catch(e) {
         status.textContent = '✗ ' + e.message;
@@ -84,8 +106,9 @@ async function _loadSceneDetail(sceneId) {
     document.getElementById('scene-detail-title').textContent = '…';
     document.getElementById('gen-output').style.display = 'none';
     document.getElementById('continue-status').textContent = '';
+    document.getElementById('chat-thread').innerHTML = '<div style="color:#334;padding:12px">Caricamento messaggi...</div>';
     try {
-        // FE-1: dettaglio scena dal DB. GET /api/db/scenes/<id> -> {scene:{...}, messages:[...]}
+        // GET /api/db/scenes/<id> → {scene:{...}, messages:[...]}
         const resp = await fetch('/api/db/scenes/' + encodeURIComponent(sceneId));
         const data = await resp.json();
         if (data.error) throw new Error(data.error);
@@ -93,13 +116,9 @@ async function _loadSceneDetail(sceneId) {
         const messages = data.messages || [];
         document.getElementById('scene-detail-title').textContent = s.title || sceneId;
         document.getElementById('scene-detail-meta').textContent =
-            `ID: ${s.id} | ${s.location || '(nessuna location)'} | ${messages.length} msg`;
-        document.getElementById('scene-detail-summary').textContent =
-            messages.map(m => `${m.author_name}: ${m.content_original}`).join('\n') || '(nessun messaggio)';
-        document.getElementById('scene-detail-first').textContent = messages[0] ? messages[0].content_original : '—';
-        document.getElementById('scene-detail-last').textContent =
-            messages.length ? messages[messages.length - 1].content_original : '—';
-        // FE-2: roster personaggi-in-scena dal DB (GET /api/db/scenes/<id>/characters -> {characters:[{id,name,role}]})
+            `${s.location || ''} · ${messages.length} messaggi`;
+        _renderChatThread(messages);
+        // FE-2: roster personaggi-in-scena dal DB
         const sel = document.getElementById('scene-char-select');
         sel.innerHTML = '<option value="">— Seleziona personaggio —</option>';
         try {
@@ -111,10 +130,11 @@ async function _loadSceneDetail(sceneId) {
                 opt.textContent = c.role ? `${c.name} (${c.role})` : c.name;
                 sel.appendChild(opt);
             });
-        } catch (e) { /* roster opzionale: il dettaglio resta usabile senza */ }
+        } catch (e) { /* roster opzionale */ }
         const contBtn = document.getElementById('continue-btn');
         sel.onchange = () => { if (contBtn) contBtn.disabled = !sel.value; };
     } catch(e) {
         document.getElementById('scene-detail-title').textContent = 'Errore: ' + e.message;
+        document.getElementById('chat-thread').innerHTML = '';
     }
 }

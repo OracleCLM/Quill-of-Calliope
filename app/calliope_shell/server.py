@@ -689,10 +689,12 @@ def create_app():
             "Be concise and direct."
         )
 
+        _refine_provider = os.getenv("REFINE_PROVIDER", "groq")
+        _refine_model = os.getenv("REFINE_MODEL", "llama-3.3-70b-versatile")
         try:
             resp = requests.post(
                 f"{GATEWAY_URL}/llm_ask",
-                json={"provider": "groq", "model": "llama-3.3-70b-versatile", "prompt": refine_prompt},
+                json={"provider": _refine_provider, "model": _refine_model, "prompt": refine_prompt},
                 timeout=45,
             )
             resp.raise_for_status()

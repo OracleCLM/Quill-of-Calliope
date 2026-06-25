@@ -62,6 +62,19 @@ def test_refine_200_success(client):
     assert "diff" in data
 
 
+def test_refine_uses_env_provider_model(client):
+    """GATED-2: REFINE_PROVIDER/REFINE_MODEL env → passati al gateway."""
+    mock_resp = MagicMock()
+    mock_resp.json.return_value = {"result": "abliterated output"}
+    with patch(f"{_SRV}.requests.post", return_value=mock_resp) as mock_post, \
+         patch.dict("os.environ", {"REFINE_PROVIDER": "ollama", "REFINE_MODEL": "dolphin-mistral"}):
+        r = client.post("/api/scene/refine", json={"scene_text": "original", "feedback": "dark"})
+    assert r.status_code == 200
+    call_body = mock_post.call_args[1]["json"]
+    assert call_body["provider"] == "ollama"
+    assert call_body["model"] == "dolphin-mistral"
+
+
 # ── POST /api/scene/variants ──────────────────────────────────────────────────
 
 def test_variants_400_no_prompt(client):
