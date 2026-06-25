@@ -1,5 +1,10 @@
 [tool.pytest.ini_options]
+testpaths = ["tests/unit", "app/calliope_shell/tests"]
 markers = [
     "unit: fast unit tests (no external deps)",
     "integration: requires live services (gateway, APIs)",
+]
+filterwarnings = [
+    "ignore::pytest.PytestDeprecationWarning",
+    "ignore::DeprecationWarning",
 ]
