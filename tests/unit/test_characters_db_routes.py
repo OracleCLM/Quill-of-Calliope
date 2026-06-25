@@ -163,3 +163,28 @@ def test_delete_character_removes_from_list(client):
     client.delete(f"/api/db/characters/{char_id}")
     ids = [c["id"] for c in client.get("/api/db/characters").get_json()["characters"]]
     assert char_id not in ids
+
+
+# --- GET /api/db/characters?name= -------------------------------------------
+
+def test_list_characters_name_filter_exact(client):
+    client.post("/api/db/characters", json={"name": "Aurora"})
+    client.post("/api/db/characters", json={"name": "Kael"})
+    r = client.get("/api/db/characters?name=Aurora")
+    assert r.status_code == 200
+    chars = r.get_json()["characters"]
+    assert len(chars) == 1
+    assert chars[0]["name"] == "Aurora"
+
+
+def test_list_characters_name_filter_case_insensitive(client):
+    client.post("/api/db/characters", json={"name": "Borea"})
+    r = client.get("/api/db/characters?name=borea")
+    chars = r.get_json()["characters"]
+    assert len(chars) == 1
+
+
+def test_list_characters_name_filter_no_match(client):
+    client.post("/api/db/characters", json={"name": "Zelda"})
+    r = client.get("/api/db/characters?name=nonexistent")
+    assert r.get_json()["characters"] == []

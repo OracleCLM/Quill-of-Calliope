@@ -15,9 +15,14 @@ def register_characters_db_routes(app, *, db_path: str) -> None:
     def list_characters_db():
         conn = _conn(db_path)
         kind = request.args.get("kind")
+        name = request.args.get("name")
         chars = db_chars.list_characters(conn, kind=kind)
         conn.close()
-        return jsonify({"characters": [dict(c) for c in chars]}), 200
+        result = [dict(c) for c in chars]
+        if name:
+            nl = name.lower()
+            result = [c for c in result if c.get("name", "").lower() == nl]
+        return jsonify({"characters": result}), 200
 
     @app.route("/api/db/characters", methods=["POST"])
     def add_character_db():

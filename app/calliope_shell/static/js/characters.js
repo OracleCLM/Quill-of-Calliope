@@ -248,6 +248,98 @@
       .catch(err => showError(grid, err.message));
   };
 
+  function renderEditForm(container, data, dbId) {
+    container.textContent = '';
+    const fields = [
+      ['description', 'Description', 'textarea'],
+      ['personality', 'Personality', 'textarea'],
+      ['scenario', 'Scenario', 'textarea'],
+      ['first_mes', 'First Message', 'textarea'],
+    ];
+    const nameIn = document.createElement('input');
+    nameIn.value = data.name || '';
+    nameIn.placeholder = 'Nome';
+    nameIn.style.cssText = 'width:100%;background:#111827;color:#eee;border:1px solid #2a3a5a;border-radius:6px;padding:6px 10px;font-size:.9em;box-sizing:border-box;margin-bottom:10px;';
+    container.appendChild(nameIn);
+
+    const kindSel = document.createElement('select');
+    kindSel.style.cssText = 'background:#111827;color:#aab;border:1px solid #2a3a5a;border-radius:6px;padding:6px 8px;font-size:.85em;margin-bottom:10px;cursor:pointer;';
+    ['npc','player','system'].forEach(k => {
+      const opt = document.createElement('option');
+      opt.value = k; opt.textContent = k;
+      if (k === data.kind) opt.selected = true;
+      kindSel.appendChild(opt);
+    });
+    container.appendChild(kindSel);
+
+    const inputs = {};
+    fields.forEach(([key, label]) => {
+      const lbl = document.createElement('div');
+      lbl.textContent = label + ':';
+      lbl.style.cssText = 'color:#88aaff;font-size:.8em;font-weight:bold;margin-top:8px;';
+      container.appendChild(lbl);
+      const ta = document.createElement('textarea');
+      ta.value = data[key] || '';
+      ta.rows = 3;
+      ta.style.cssText = 'width:100%;box-sizing:border-box;background:#111827;color:#eee;border:1px solid #2a3a5a;border-radius:6px;padding:6px 10px;font-size:.83em;resize:vertical;margin-bottom:4px;';
+      container.appendChild(ta);
+      inputs[key] = ta;
+    });
+
+    const statusEl = document.createElement('div');
+    statusEl.style.cssText = 'font-size:.8em;color:#88aaff;min-height:1.2em;margin:6px 0;';
+    container.appendChild(statusEl);
+
+    const btnRow = document.createElement('div');
+    btnRow.style.cssText = 'display:flex;gap:8px;margin-top:6px;';
+
+    const saveBtn = document.createElement('button');
+    saveBtn.textContent = '✓ Salva';
+    saveBtn.style.cssText = 'background:#1a3a1a;color:#8f8;border:1px solid #2a5a2a;border-radius:6px;padding:6px 16px;cursor:pointer;font-size:.85em;';
+    saveBtn.onclick = async () => {
+      saveBtn.disabled = true;
+      statusEl.textContent = 'Salvataggio…';
+      const card = Object.assign({}, data);
+      fields.forEach(([key]) => { card[key] = inputs[key].value; });
+      card.name = nameIn.value.trim();
+      const body = {name: card.name, kind: kindSel.value, card_json: JSON.stringify(card)};
+      try {
+        const r = await fetch('/api/db/characters/' + encodeURIComponent(dbId), {
+          method: 'PATCH',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify(body),
+        });
+        if (r.ok) { statusEl.textContent = '✓ Salvato'; statusEl.style.color = '#8f8'; }
+        else { statusEl.textContent = '✗ Errore ' + r.status; saveBtn.disabled = false; }
+      } catch(e) { statusEl.textContent = '✗ ' + e.message; saveBtn.disabled = false; }
+    };
+
+    const cancelBtn = document.createElement('button');
+    cancelBtn.textContent = 'Annulla';
+    cancelBtn.style.cssText = 'background:#1a2a3a;color:#aab;border:1px solid #2a3a5a;border-radius:6px;padding:6px 14px;cursor:pointer;font-size:.85em;';
+    cancelBtn.onclick = () => { container.textContent = ''; renderDetail(container, data); _addEditBtn(container, data); };
+
+    btnRow.appendChild(saveBtn);
+    btnRow.appendChild(cancelBtn);
+    container.appendChild(btnRow);
+  }
+
+  function _addEditBtn(container, data) {
+    fetch('/api/db/characters?name=' + encodeURIComponent(data.name || ''))
+      .then(r => r.json())
+      .then(d => {
+        const chars = d.characters || [];
+        if (!chars.length) return;
+        const dbId = chars[0].id;
+        const btn = document.createElement('button');
+        btn.textContent = '✎ Modifica';
+        btn.style.cssText = 'background:#1a2a4a;color:#aac;border:1px solid #2a3a5a;border-radius:6px;padding:5px 14px;cursor:pointer;font-size:.8em;margin-top:10px;';
+        btn.onclick = () => { container.textContent = ''; renderEditForm(container, data, dbId); };
+        container.appendChild(btn);
+      })
+      .catch(() => {});
+  }
+
   window.openCharacterDetail = function(stem) {
     if (!detail) return;
     detail.textContent = '';
@@ -263,6 +355,7 @@
       .then(data => {
         if (data && data.error) throw new Error(data.error);
         renderDetail(detail, data);
+        _addEditBtn(detail, data);
       })
       .catch(err => showError(detail, err.message));
   };
