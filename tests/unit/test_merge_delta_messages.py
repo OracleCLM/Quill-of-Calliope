@@ -234,3 +234,21 @@ def test_main_malformed_line_during_sort(tmp_path, monkeypatch, capsys):
     ])
     main()
     assert "Warning" in capsys.readouterr().out
+
+
+def test_main_blank_lines_in_output_skipped(tmp_path, monkeypatch):
+    """Line 105: blank line nel file output durante fase sort → continue."""
+    delta_dir = tmp_path / "delta"
+    delta_dir.mkdir()
+    msg = _make_dce_msg("99")
+    (delta_dir / "msgs.json").write_text(json.dumps([msg]), encoding="utf-8")
+    output = tmp_path / "out.jsonl"
+    output.write_text('\n\n{"message_id":"existing"}\n\n', encoding="utf-8")
+    monkeypatch.setattr("sys.argv", [
+        "merge_delta_messages.py",
+        "--delta-dir", str(delta_dir),
+        "--main-output", str(output),
+    ])
+    main()
+    lines = [ln for ln in output.read_text().splitlines() if ln.strip()]
+    assert len(lines) >= 1

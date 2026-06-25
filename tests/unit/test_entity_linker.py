@@ -4,7 +4,9 @@ Unit test entity_linker.py — regex fallback (spacy opzionale).
 Tutti i test usano il fallback regex (spacy non installato o modello assente)
 che è il path di produzione in questo environment.
 """
+import sys
 import warnings
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -118,3 +120,34 @@ def test_org_pattern_extracted(linker):
     result = linker.extract_entities("The SHIELD agents stormed the NATO compound.")
     orgs = [e["name"] for e in result if e["label"] == "ORG"]
     assert "SHIELD" in orgs or "NATO" in orgs
+
+
+# ── spacy nlp path (lines 52-60) ─────────────────────────────────────────────
+
+def test_extract_entities_with_mock_spacy_deduplicates():
+    """Lines 52-60: nlp path quando spacy è disponibile — dedup e stop_token skip."""
+    mock_ent_aurora = MagicMock()
+    mock_ent_aurora.text = "Aurora"
+    mock_ent_aurora.label_ = "PERSON"
+
+    mock_ent_the = MagicMock()
+    mock_ent_the.text = "The"   # stop token → must be excluded
+    mock_ent_the.label_ = "PERSON"
+
+    mock_doc = MagicMock()
+    mock_doc.ents = [mock_ent_aurora, mock_ent_aurora, mock_ent_the]  # Aurora duplicata
+
+    mock_nlp = MagicMock(return_value=mock_doc)
+    mock_spacy = MagicMock()
+    mock_spacy.load = MagicMock(return_value=mock_nlp)
+
+    with patch.dict(sys.modules, {"spacy": mock_spacy}):
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            el = EntityLinker()
+
+    result = el.extract_entities("Aurora e The camminano.")
+    names = [e["name"] for e in result]
+    assert "Aurora" in names
+    assert names.count("Aurora") == 1  # dedup
+    assert "The" not in names          # stop token escluso

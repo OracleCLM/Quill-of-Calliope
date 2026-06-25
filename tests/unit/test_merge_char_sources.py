@@ -221,6 +221,18 @@ def test_load_corpus_samples_skips_missing_char_or_msg(tmp_path):
     assert result["Alice"]["messages"] == ["Good"]
 
 
+def test_load_corpus_samples_skips_blank_lines(tmp_path):
+    """Line 101: blank line nel file JSONL → continue."""
+    p = tmp_path / "corpus.jsonl"
+    p.write_text(
+        '\n{"character":"Bob","message":"Ciao mondo valido","timestamp":"2024-01-01"}\n\n',
+        encoding="utf-8",
+    )
+    result = mcs.load_corpus_samples(str(p))
+    assert "Bob" in result
+    assert result["Bob"]["messages"] == ["Ciao mondo valido"]
+
+
 # ── llm_intelligent_merge ─────────────────────────────────────────────────────
 
 @patch("scripts.merge_char_sources.requests.post")
