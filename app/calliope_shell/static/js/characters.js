@@ -341,6 +341,74 @@
       .catch(() => {});
   }
 
+  window.createCharacterInline = function() {
+    if (!detail) return;
+    detail.textContent = '';
+    const emptyData = {name: '', kind: 'npc', compact: '', persona: '', traits: '', backstory: ''};
+    const fields = [['compact','Compact'],['persona','Persona'],['traits','Tratti'],['backstory','Backstory']];
+
+    const h = document.createElement('div');
+    h.textContent = '+ Nuovo personaggio';
+    h.style.cssText = 'font-weight:bold;color:#aac;margin-bottom:10px;font-size:.95em;';
+    detail.appendChild(h);
+
+    const nameIn = document.createElement('input');
+    nameIn.placeholder = 'Nome';
+    nameIn.style.cssText = 'width:100%;background:#111827;color:#eee;border:1px solid #2a3a5a;border-radius:6px;padding:6px 10px;font-size:.9em;box-sizing:border-box;margin-bottom:10px;';
+    detail.appendChild(nameIn);
+
+    const kindSel = document.createElement('select');
+    kindSel.style.cssText = 'background:#111827;color:#aab;border:1px solid #2a3a5a;border-radius:6px;padding:6px 8px;font-size:.85em;margin-bottom:10px;cursor:pointer;';
+    ['npc','player','operator'].forEach(k => {
+      const opt = document.createElement('option'); opt.value = k; opt.textContent = k;
+      kindSel.appendChild(opt);
+    });
+    detail.appendChild(kindSel);
+
+    const statusEl = document.createElement('div');
+    statusEl.style.cssText = 'font-size:.8em;color:#88aaff;min-height:1.2em;margin:6px 0;';
+    detail.appendChild(statusEl);
+
+    const btnRow = document.createElement('div');
+    btnRow.style.cssText = 'display:flex;gap:8px;margin-top:6px;';
+
+    const saveBtn = document.createElement('button');
+    saveBtn.textContent = '+ Crea';
+    saveBtn.style.cssText = 'background:#1a3a1a;color:#8f8;border:1px solid #2a5a2a;border-radius:6px;padding:6px 16px;cursor:pointer;font-size:.85em;';
+    saveBtn.onclick = async () => {
+      const name = nameIn.value.trim();
+      if (!name) { statusEl.textContent = '⚠ Nome obbligatorio.'; return; }
+      saveBtn.disabled = true;
+      statusEl.textContent = 'Creazione…';
+      try {
+        const r = await fetch('/api/db/characters', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({name, kind: kindSel.value}),
+        });
+        const d = await r.json();
+        if (r.ok) {
+          statusEl.textContent = '✓ Creato (id: ' + d.id + ')';
+          statusEl.style.color = '#8f8';
+          setTimeout(() => { if (detail) detail.innerHTML = '← Seleziona un personaggio'; }, 2000);
+        } else {
+          statusEl.textContent = '✗ ' + (d.error || r.status);
+          saveBtn.disabled = false;
+        }
+      } catch(e) { statusEl.textContent = '✗ ' + e.message; saveBtn.disabled = false; }
+    };
+
+    const cancelBtn = document.createElement('button');
+    cancelBtn.textContent = 'Annulla';
+    cancelBtn.style.cssText = 'background:#1a2a3a;color:#aab;border:1px solid #2a3a5a;border-radius:6px;padding:6px 14px;cursor:pointer;font-size:.85em;';
+    cancelBtn.onclick = () => { if (detail) detail.innerHTML = '← Seleziona un personaggio'; };
+
+    btnRow.appendChild(saveBtn);
+    btnRow.appendChild(cancelBtn);
+    detail.appendChild(btnRow);
+    nameIn.focus();
+  };
+
   window.openCharacterDetail = function(stem) {
     if (!detail) return;
     detail.textContent = '';
