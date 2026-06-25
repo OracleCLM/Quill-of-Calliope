@@ -807,6 +807,17 @@
     <div id="arc-panel">
         <div id="arc-list-col">
             <h3>◈ Plot Arcs</h3>
+            <button onclick="_arcNewInline()" style="width:100%;background:#1a3a1a;color:#8f8;border:1px solid #2a5a2a;border-radius:6px;padding:6px 10px;cursor:pointer;font-size:.8em;margin-bottom:8px;">+ Nuovo arco</button>
+            <div id="arc-new-form" style="display:none;margin-bottom:10px;">
+                <input id="arc-new-id" placeholder="ID (es. arc_001)" style="width:100%;box-sizing:border-box;background:#111827;color:#eee;border:1px solid #2a3a5a;border-radius:6px;padding:5px 8px;font-size:.82em;margin-bottom:5px;">
+                <input id="arc-new-title" placeholder="Titolo" style="width:100%;box-sizing:border-box;background:#111827;color:#eee;border:1px solid #2a3a5a;border-radius:6px;padding:5px 8px;font-size:.82em;margin-bottom:5px;">
+                <input id="arc-new-chars" placeholder="Personaggi (Aurora,Philly,...)" style="width:100%;box-sizing:border-box;background:#111827;color:#eee;border:1px solid #2a3a5a;border-radius:6px;padding:5px 8px;font-size:.82em;margin-bottom:5px;">
+                <div style="display:flex;gap:5px;">
+                    <button onclick="_arcSubmitNew()" style="flex:1;background:#1a3a1a;color:#8f8;border:1px solid #2a5a2a;border-radius:5px;padding:5px 8px;cursor:pointer;font-size:.78em;">✓ Crea</button>
+                    <button onclick="_arcCancelNew()" style="flex:1;background:#1a2a3a;color:#aab;border:1px solid #2a3a5a;border-radius:5px;padding:5px 8px;cursor:pointer;font-size:.78em;">✕</button>
+                </div>
+                <div id="arc-new-status" style="font-size:.75em;color:#88aaff;min-height:1em;margin-top:4px;"></div>
+            </div>
             <ul id="arc-ul" data-empty-state="arc"><li style="color:#555">Caricamento...</li></ul>
         </div>
         <div id="arc-detail-col">
@@ -1450,6 +1461,37 @@
 
         // ── Arc panel logic ──
         let _currentArcId = null;
+
+        function _arcNewInline() {
+            document.getElementById('arc-new-form').style.display = 'block';
+            document.getElementById('arc-new-id').focus();
+        }
+        function _arcCancelNew() {
+            document.getElementById('arc-new-form').style.display = 'none';
+            ['arc-new-id','arc-new-title','arc-new-chars'].forEach(id => { const el = document.getElementById(id); if(el) el.value=''; });
+            document.getElementById('arc-new-status').textContent = '';
+        }
+        async function _arcSubmitNew() {
+            const arcId = (document.getElementById('arc-new-id').value||'').trim();
+            const title = (document.getElementById('arc-new-title').value||'').trim();
+            const charsRaw = (document.getElementById('arc-new-chars').value||'').trim();
+            const statusEl = document.getElementById('arc-new-status');
+            if (!arcId || !title) { statusEl.textContent = '⚠ ID e titolo obbligatori.'; return; }
+            const chars = charsRaw ? charsRaw.split(',').map(c=>c.trim()).filter(Boolean) : [];
+            statusEl.textContent = 'Creazione…';
+            try {
+                const r = await fetch('/api/arc', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({arc_id: arcId, title, chars}),
+                });
+                const d = await r.json();
+                if (!r.ok) { statusEl.textContent = '✗ ' + (d.error || r.status); return; }
+                _arcCancelNew();
+                await loadArcList();
+                loadArcDetail(arcId);
+            } catch(e) { statusEl.textContent = '✗ ' + e.message; }
+        }
 
         async function loadArcList() {
             const ul = document.getElementById('arc-ul');
