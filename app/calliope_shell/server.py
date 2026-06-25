@@ -1337,6 +1337,37 @@ def create_app():
                     break
 
         if not scene_data:
+            try:
+                from app.db import get_db as _get_db  # noqa: PLC0415
+                from app.db import messages as _db_msg  # noqa: PLC0415
+                _dconn = _get_db()
+                _sc = _dconn.execute(
+                    "SELECT title, location FROM scenes WHERE id = ?", (scene_id,)
+                ).fetchone()
+                if _sc:
+                    _pcur = _dconn.execute(
+                        "SELECT c.name FROM characters c "
+                        "JOIN scene_characters sc ON sc.character_id = c.id "
+                        "WHERE sc.scene_id = ?",
+                        (scene_id,),
+                    )
+                    _parts = [r[0] for r in _pcur.fetchall()]
+                    _msgs = list(_db_msg.list_messages_for_scene(_dconn, scene_id))
+                    _last = " ".join(
+                        m.get("content_original", "")[:100] for m in _msgs[-3:]
+                    )
+                    scene_data = {
+                        "title": _sc[0],
+                        "location": _sc[1] or "",
+                        "participants": _parts,
+                        "summary": f"{len(_msgs)} messaggi in {_sc[1] or 'location sconosciuta'}",
+                        "last_msg_excerpt": _last,
+                    }
+                _dconn.close()
+            except Exception:
+                pass
+
+        if not scene_data:
             return jsonify({"error": "scene not found"}), 404
 
         participants = scene_data.get("participants", [])

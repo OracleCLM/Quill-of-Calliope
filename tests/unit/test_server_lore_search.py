@@ -436,3 +436,40 @@ def test_lore_check_audit_exception_silenced():
              patch("app.calliope_shell.audit_trail.log_event", side_effect=RuntimeError("db")):
             r = c.post("/api/lore/check", json={"text": "Some text."})
     assert r.status_code == 200
+
+
+# ── POST /api/scene/revive — DB fallback (GATED-4 fix) ───────────────────────
+
+def test_scene_revive_db_fallback_200(tmp_path):
+    """YAML dir vuota → DB fallback → 200 con scene da DB."""
+    from app.db import get_db, init_schema, new_id
+    from app.db.messages import add_message
+
+    db_path = tmp_path / "revive.db"
+    conn = get_db(db_path)
+    init_schema(conn)
+    scene_id = new_id()
+    conn.execute("INSERT INTO scenes (id, title, location) VALUES (?, ?, ?)",
+                 (scene_id, "Scena DB Test", "Bosco"))
+    conn.commit()
+    add_message(conn, scene_id=scene_id, author_name="Alice",
+                content_original="msg1", position_order=0)
+    conn.close()
+
+    mock_llm = MagicMock()
+    mock_llm.raise_for_status.return_value = None
+    mock_llm.json.return_value = {"result": "Revival text from DB scene."}
+
+    import os
+    with _client() as c:
+        with patch(f"{_SRV}._SCENES_DIR", tmp_path), \
+             patch("app.db.CALLIOPE_DB_PATH", db_path), \
+             patch.dict(os.environ, {"CALLIOPE_DB_PATH": str(db_path)}), \
+             patch(f"{_SRV}._chroma_client", side_effect=Exception("down")), \
+             patch(f"{_SRV}._search_lore", return_value=[]), \
+             patch(f"{_SRV}.requests.post", return_value=mock_llm):
+            r = c.post("/api/scene/revive", json={"scene_id": scene_id})
+    assert r.status_code == 200
+    data = r.get_json()
+    assert "suggested_reentry" in data
+    assert data["scene_context"]["scene_id"] == scene_id
