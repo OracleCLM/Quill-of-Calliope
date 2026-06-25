@@ -297,3 +297,45 @@ def test_recent_messages_source_field_in_response(client):
     msgs = r.get_json()["messages"]
     if msgs:
         assert "source" in msgs[0]
+
+
+# ── Regression: position_order su append ────────────────────────────────────
+
+def test_append_uses_max_position_order(tmp_path):
+    """Append su scena con messaggi Discord (pos alti) deve mettere nuovo msg in CODA."""
+    from app.db import get_db, init_schema, new_id
+    from app.db.messages import add_message, list_messages_for_scene
+
+    p = tmp_path / "pos.db"
+    conn = get_db(p)
+    init_schema(conn)
+    scene_id = new_id()
+    conn.execute("INSERT INTO scenes (id, title) VALUES (?, ?)", (scene_id, "S"))
+    conn.commit()
+    # Simula messaggi importati da Discord con position_order alti (non contigui)
+    add_message(conn, scene_id=scene_id, author_name="A",
+                content_original="discord 1", position_order=100, source="discord")
+    add_message(conn, scene_id=scene_id, author_name="B",
+                content_original="discord 2", position_order=200, source="discord")
+    conn.commit()
+    conn.close()
+
+    app = __import__("flask").Flask(__name__)
+    app.config["TESTING"] = True
+    from app.calliope_shell.messages_db_routes import register_messages_db_routes
+    register_messages_db_routes(app, db_path=str(p))
+
+    with app.test_client() as c:
+        r = c.post(f"/api/db/scenes/{scene_id}/messages",
+                   json={"author_name": "C", "content_original": "manuale"})
+        assert r.status_code == 201
+        assert "id" in r.get_json()
+
+    # Verifica che il nuovo messaggio sia in fondo (position_order > 200)
+    conn2 = get_db(p)
+    msgs = list_messages_for_scene(conn2, scene_id)
+    conn2.close()
+    positions = {m["content_original"]: m["position_order"] for m in msgs}
+    assert positions["manuale"] > positions["discord 2"], (
+        f"Nuovo messaggio in posizione {positions['manuale']} invece di > {positions['discord 2']}"
+    )
