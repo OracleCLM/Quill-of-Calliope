@@ -244,3 +244,40 @@ def test_main_cli_prints_findings_when_cliche_found(tmp_path, capsys):
         _main()
     out = capsys.readouterr().out
     assert "[MED]" in out or "[LOW]" in out or "[HIGH]" in out
+
+
+def test_compute_style_drift_with_mock_sklearn():
+    """Lines 60-69: sklearn TF-IDF branch — mocked to avoid broken scipy on Py3.13."""
+    import sys
+    from unittest.mock import MagicMock
+    import numpy as np
+
+    row_mock = MagicMock()
+    row_mock.mean.return_value = np.array([[0.5, 0.3, 0.2]])
+    row_mock.toarray.return_value = np.array([[0.4, 0.3, 0.3]])
+    mock_tfidf_matrix = MagicMock()
+    mock_tfidf_matrix.__getitem__.return_value = row_mock
+
+    mock_vec_instance = MagicMock()
+    mock_vec_instance.fit_transform.return_value = mock_tfidf_matrix
+
+    mock_tfidf_cls = MagicMock(return_value=mock_vec_instance)
+    mock_cosine = MagicMock(return_value=np.array([[0.95]]))
+
+    mock_fe = MagicMock()
+    mock_fe.TfidfVectorizer = mock_tfidf_cls
+    mock_pairwise = MagicMock()
+    mock_pairwise.cosine_similarity = mock_cosine
+
+    with patch.dict(sys.modules, {
+        "sklearn": MagicMock(),
+        "sklearn.feature_extraction": MagicMock(),
+        "sklearn.feature_extraction.text": mock_fe,
+        "sklearn.metrics": MagicMock(),
+        "sklearn.metrics.pairwise": mock_pairwise,
+    }):
+        from app.calliope_shell.style_coach import _compute_style_drift
+        # Signature: _compute_style_drift(text, samples)
+        result = _compute_style_drift("test scene text", ["sample one", "sample two"])
+    assert result is not None
+    assert 0.0 <= result <= 1.0

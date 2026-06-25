@@ -219,3 +219,31 @@ Impatto: basta una variabile env `REFINE_PROVIDER` / `REFINE_MODEL` configurabil
 
 **Totale cicli 11-12**: +8 test. Suite: 1510 verdi, 3 skipped.
 **Residui legittimi (skip)**: tutti `__main__` guard (plot_arc_cli:169, seed_char:43-46, parse_char:104, migrate_char_multi:71-72, migrate_scenes:111).
+
+---
+
+## Completato in ciclo gap-review 13-16 (2026-06-25 — sessione continua)
+
+| Item | Copertura prima→dopo | Test aggiunti | Commit |
+|------|---------------------|---------------|--------|
+| test_tts_phoneme_export.py | 23%→**95%** | +24 | 66daefd |
+| test_extract_member_list.py | 0%→**99%** | +14 | 29b5235 |
+| test_import_tupperbox.py | 40%→**98%** | +9 | cff345f |
+| test_repair_yaml_quotes.py | 54%→**97%** | +8 | e061e72 |
+| test_style_voice_guide.py | 39%→**86%** | +9 | e061e72 |
+| test_lora_eval_pipeline.py | 47%→**94%** | +10 | 5c1d455 |
+| generate_scene.py | 17%→**99%** | +49 | 8c6ed69 |
+| narrative_state.py | 80%→**99%** | +12 | 6ab16cc |
+| import_excel_history.py | 94%→**99%** | +1 | c6c154c |
+| lora_eval_pipeline.py | 94%→**99%** | +1 | c6c154c |
+
+**Totale cicli 13-16**: +137 test. Suite: ~1650+ verdi.
+
+**Scripts a 0% non testabili (GATED)**:
+- `grab_discord_token.py` (91r): usa playwright/browser-automation interattivo
+- `llm_gateway_http.py` (58r): dipende da path esterno `/home/nic/Scrivania/Workspace/mcp_servers/llm_gateway`
+- `mascot_ws_server.py` (29r): import `live2d_mascot.server.ws_server` (package shared)
+- `run_e2e_demo.py` (114r): E2E demo che richiede servizi attivi (LLM gateway, WS server)
+- `build_chromadb_index.py` (12%, 243r): chromadb-heavy, richiede istanza reale
+- `discord_bot.py` (34%, 205r): discord.py client events — non testabili senza test integrazioni
+- `test_narrative_continuity.py` (0%, 98r): script di test E2E (non un test pytest)
