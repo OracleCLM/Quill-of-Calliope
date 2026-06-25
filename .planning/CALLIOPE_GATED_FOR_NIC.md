@@ -1,6 +1,6 @@
 # Calliope — Decisioni GATED per operatore (nic)
 
-> Aggiornato: 2026-06-25 (ciclo finale coverage) da sonnet-orch-calliope.
+> Aggiornato: 2026-06-25 (ciclo gap-review ripreso, coverage 98%) da sonnet-orch-calliope.
 > File accumulativo: ogni sessione appende le decisioni bloccanti. Rimuovi la riga dopo che hai dato il via libera.
 
 ---
@@ -316,3 +316,17 @@ Impatto: basta una variabile env `REFINE_PROVIDER` / `REFINE_MODEL` configurabil
 
 **Suite: 2047 test verdi. Coverage: 98% TOTAL, 94% server.py (limite GATED-5).**
 **GATED-3 (Discord token) e GATED-5 (/api/messages/next) restano pending.**
+
+---
+
+## Completato ciclo gap-review 2026-06-25 (continuazione post-compact)
+
+| Item | Dettaglio | Commit |
+|------|-----------|--------|
+| fix(_sceneAction 'draft') | pre-compila draft-prompt con contesto scena | 155f5b0 |
+| test(translate context=plain) | copri righe 512, 523 (branch non-fantasy_rp) | ad290f0 |
+| test(server) /health, GET /, _load_emotion_map | copri righe 190-195, 216-226 | 056b989 |
+| test(translate exceptions) | copri righe 550-551, 557-559 | 09e2610 |
+
+**Suite: 2060 test verdi. Coverage: 98% TOTAL, server.py 94%.**
+**Residui definitivi**: solo GATED-5 (984-1079), app.run() (1626), __main__ guards.
