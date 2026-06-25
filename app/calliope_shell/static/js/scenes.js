@@ -59,18 +59,41 @@ function _scenesFilter(val) {
 
 // ── Chat thread renderer ──────────────────────────────────────────────────────
 
+function _fmtTs(ts) {
+    if (!ts) return '';
+    try {
+        const d = new Date(ts.includes('T') ? ts : ts + 'Z');
+        return d.toLocaleTimeString('it-IT', {hour:'2-digit', minute:'2-digit'});
+    } catch (_) { return ''; }
+}
+
 function _renderChatThread(messages) {
     const thread = document.getElementById('chat-thread');
     if (!messages.length) {
         thread.innerHTML = '<div style="color:#334;padding:16px;text-align:center;font-size:.85em;">Nessun messaggio in questa scena</div>';
         return;
     }
-    thread.innerHTML = messages.map(m => `
-        <div class="chat-msg">
-            <div class="chat-msg-author">${_escHtml(m.author_name || '?')}</div>
-            <div class="chat-msg-content">${_escHtml(m.content_original || '')}</div>
-        </div>
-    `).join('');
+    thread.innerHTML = messages.map(m => {
+        const isSummary = m.is_summary === 1 || m.is_summary === true;
+        const isDiscord = (m.source || '') === 'discord';
+        const body = (m.content_enhanced && m.content_enhanced !== m.content_original)
+            ? m.content_enhanced : (m.content_original || '');
+        const hasEnhanced = m.content_enhanced && m.content_enhanced !== m.content_original;
+        const msgStyle = isSummary
+            ? 'background:#111d11;border:1px solid #2a442a;'
+            : 'background:#111827;border:1px solid #1e2f4a;';
+        const srcBadge = isDiscord
+            ? '<span style="font-size:.7em;color:#7788cc;margin-left:6px;vertical-align:middle">discord</span>'
+            : '';
+        const enhBadge = hasEnhanced
+            ? '<span style="font-size:.7em;color:#aa88cc;margin-left:6px;vertical-align:middle" title="testo raffinato">✎</span>'
+            : '';
+        const ts = _fmtTs(m.ts);
+        return `<div class="chat-msg">
+            <div class="chat-msg-author">${_escHtml(m.author_name || '?')}${srcBadge}${enhBadge}<span style="float:right;font-size:.72em;color:#445;font-weight:normal">${_escHtml(ts)}</span></div>
+            <div class="chat-msg-content" style="${msgStyle}border-radius:8px;padding:8px 12px;font-size:.87em;color:#ccd;white-space:pre-wrap;line-height:1.5;">${_escHtml(body)}</div>
+        </div>`;
+    }).join('');
     thread.scrollTop = thread.scrollHeight;
 }
 
@@ -122,19 +145,32 @@ async function _loadSceneDetail(sceneId) {
         _renderChatThread(messages);
         // FE-2: roster personaggi-in-scena dal DB
         const sel = document.getElementById('scene-char-select');
+        const composeWho = document.getElementById('compose-who');
         sel.innerHTML = '<option value="">— Seleziona personaggio —</option>';
+        if (composeWho) composeWho.innerHTML = '<option value="">— Chi scrive —</option><option value="Narratore">Narratore</option>';
         try {
             const rresp = await fetch('/api/db/scenes/' + encodeURIComponent(sceneId) + '/characters');
             const rdata = await rresp.json();
             (rdata.characters || []).forEach(c => {
+                const label = c.role ? `${c.name} (${c.role})` : c.name;
                 const opt = document.createElement('option');
-                opt.value = c.id;
-                opt.textContent = c.role ? `${c.name} (${c.role})` : c.name;
+                opt.value = c.id; opt.textContent = label;
                 sel.appendChild(opt);
+                if (composeWho) {
+                    const opt2 = document.createElement('option');
+                    opt2.value = c.name; opt2.textContent = label;
+                    composeWho.appendChild(opt2);
+                }
             });
         } catch (e) { /* roster opzionale */ }
         const contBtn = document.getElementById('continue-btn');
         sel.onchange = () => { if (contBtn) contBtn.disabled = !sel.value; };
+        if (composeWho) {
+            composeWho.onchange = () => {
+                const authorEl = document.getElementById('compose-author');
+                if (authorEl && composeWho.value) authorEl.value = composeWho.value;
+            };
+        }
     } catch(e) {
         document.getElementById('scene-detail-title').textContent = 'Errore: ' + e.message;
         document.getElementById('chat-thread').innerHTML = '';
