@@ -334,7 +334,8 @@
         const btn = document.createElement('button');
         btn.textContent = '✎ Modifica';
         btn.style.cssText = 'background:#1a2a4a;color:#aac;border:1px solid #2a3a5a;border-radius:6px;padding:5px 14px;cursor:pointer;font-size:.8em;margin-top:10px;';
-        btn.onclick = () => { container.textContent = ''; renderEditForm(container, data, dbId); };
+        const mergedData = Object.assign({}, data, {kind: chars[0].kind});
+        btn.onclick = () => { container.textContent = ''; renderEditForm(container, mergedData, dbId); };
         container.appendChild(btn);
       })
       .catch(() => {});
