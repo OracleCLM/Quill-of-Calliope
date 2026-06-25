@@ -12,6 +12,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from app.db.arcs import create_arc
 from app.db.scenes import assign_scene_to_arc, list_scenes
+from app.db.messages import add_message
 from tests.unit.conftest import add_scene
 
 
@@ -102,3 +103,28 @@ def test_assign_scene_to_arc_none_removes(db_connection):
     assign_scene_to_arc(conn, scene_id, None)
     scenes = list_scenes(conn)
     assert scenes[0]["arc_id"] is None
+
+
+# ── nuovi campi message_count + is_readonly ───────────────────────────────────
+
+def test_list_scenes_message_count_zero_when_no_messages(db_connection):
+    conn = db_connection["conn"]
+    add_scene(conn, title="Scena vuota")
+    result = list_scenes(conn)
+    assert result[0]["message_count"] == 0
+
+
+def test_list_scenes_message_count_reflects_messages(db_connection):
+    conn = db_connection["conn"]
+    scene_id = add_scene(conn, title="Scena piena")
+    add_message(conn, scene_id=scene_id, author_name="Alice", content_original="ciao", position_order=0)
+    add_message(conn, scene_id=scene_id, author_name="Bob", content_original="hi", position_order=1)
+    result = list_scenes(conn)
+    assert result[0]["message_count"] == 2
+
+
+def test_list_scenes_is_readonly_default_false(db_connection):
+    conn = db_connection["conn"]
+    add_scene(conn, title="Scena normale")
+    result = list_scenes(conn)
+    assert result[0]["is_readonly"] == 0

@@ -33,16 +33,16 @@ function _renderSceneList(scenes) {
         });
         return;
     }
-    const _statusColor = {'active':'#4c8','draft':'#c90','dormant':'#667'};
     ul.innerHTML = scenes.map(s => {
-        const st = s.status || 'draft';
-        const col = _statusColor[st] || '#556';
+        const readonly = s.is_readonly === 1;
+        const col = readonly ? '#667' : '#4c8';
+        const label = readonly ? 'legacy' : 'active';
         const msgCount = s.message_count != null ? ` · ${s.message_count} msg` : '';
         return `
         <li onclick="_loadSceneDetail('${s.id}')">
             <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${col};margin-right:6px;vertical-align:middle"></span>
             <span class="scene-item-title">${_escHtml(s.title || s.id)}</span>
-            <div class="scene-item-meta">${_escHtml(st)}${msgCount}</div>
+            <div class="scene-item-meta">${label}${msgCount}</div>
         </li>`;
     }).join('');
 }

@@ -57,14 +57,16 @@ def register_scenes_db_routes(app, db_path=None):
             return jsonify({"scenes": scenes}), 200
         arc_id = request.args.get("arc_id")
         select = (
-            "SELECT id, title, arc_id, location, last_activity_at, updated_at "
-            "FROM scenes"
+            "SELECT s.id, s.title, s.arc_id, s.location, s.is_readonly, "
+            "s.last_activity_at, s.updated_at, COUNT(m.id) AS message_count "
+            "FROM scenes s LEFT JOIN messages m ON m.scene_id = s.id"
         )
-        order = " ORDER BY COALESCE(last_activity_at, updated_at) DESC"
+        group = " GROUP BY s.id"
+        order = " ORDER BY COALESCE(s.last_activity_at, s.updated_at) DESC"
         if arc_id is not None:
-            cur = conn.execute(select + " WHERE arc_id = ?" + order, (arc_id,))
+            cur = conn.execute(select + " WHERE s.arc_id = ?" + group + order, (arc_id,))
         else:
-            cur = conn.execute(select + order)
+            cur = conn.execute(select + group + order)
         scenes = [dict(zip([d[0] for d in cur.description], r)) for r in cur.fetchall()]
         conn.close()
         return jsonify({"scenes": scenes}), 200
