@@ -557,7 +557,9 @@
                         <button onclick="_sceneAction('translate')" style="background:#16223a; color:#aac; border:1px solid #2a3a5a; border-radius:6px; padding:7px 14px; cursor:pointer; font-size:.82em;">⇄ Translate</button>
                         <button onclick="_sceneAction('summarize')" style="background:#16223a; color:#aac; border:1px solid #2a3a5a; border-radius:6px; padding:7px 14px; cursor:pointer; font-size:.82em;">∑ Summarize</button>
                         <button onclick="_sceneAction('lorecheck')" style="background:#16223a; color:#aac; border:1px solid #2a3a5a; border-radius:6px; padding:7px 14px; cursor:pointer; font-size:.82em;">⊘ Lore Check</button>
+                        <button onclick="_copyLastMsg()" id="btn-copy-last" style="background:#162216; color:#8f8; border:1px solid #2a5a2a; border-radius:6px; padding:7px 14px; cursor:pointer; font-size:.82em;">📋 Copia ultimo</button>
                     </div>
+                    <span id="copy-last-status" style="font-size:.76em;color:#88aaff;margin-top:4px;display:block;min-height:1em;"></span>
                 </div>
             </div>
         </div>
@@ -1731,8 +1733,23 @@
             if (tool === 'draft') setVal('draft-prompt', lastMsg || sceneText);
             if (tool === 'refine') setVal('refine-scene-input', lastMsg || sceneText);
             if (tool === 'summarize') setVal('sum-text', sceneText);
+            if (tool === 'translate') setVal('translate-input', lastMsg || sceneText);
             if (tool === 'lorecheck') { setVal('lc-text', lastMsg || ''); setVal('lc-scene-id', sceneId); }
             showView(tool);
+        };
+
+        window._copyLastMsg = function() {
+            const msgs = window._currentSceneMessages || [];
+            if (!msgs.length) return;
+            const last = msgs[msgs.length - 1];
+            const text = (last.content_enhanced && last.content_enhanced !== last.content_original)
+                ? last.content_enhanced : (last.content_original || '');
+            const statusEl = document.getElementById('copy-last-status');
+            navigator.clipboard.writeText(text).then(() => {
+                if (statusEl) { statusEl.textContent = '✓ Copiato negli appunti'; setTimeout(() => { statusEl.textContent = ''; }, 2000); }
+            }).catch(() => {
+                if (statusEl) statusEl.textContent = '✗ Clipboard non disponibile';
+            });
         };
 
         // ── Summarize ──
