@@ -10,11 +10,8 @@ Contratto:
   - Dry-run → nessuna scrittura
 """
 import sys
-from pathlib import Path
 
 import yaml
-
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from scripts.repair_yaml_quotes import _fix_line, _repair_text, _verify, repair_file
 
@@ -58,6 +55,16 @@ def test_both_quote_types_uses_escape():
     result = _fix_line(line.strip())
     # Quando c'è sia ' che " nel contenuto, usa \\"
     assert '\\"' in result or "'" in result
+
+
+def test_fix_line_both_quotes_explicit_escape():
+    # Content: it's "in" — has both ' and "  → escape branch (lines 32-33)
+    line = "  - \"it's \\\"in\\\"\""
+    # Build via concatenation to be unambiguous
+    line = '  - "' + "it's " + '"in"' + '"'
+    # content after regex: it's "in" — has ' (from it's) and " (from "in")
+    result = _fix_line(line)
+    assert '\\"' in result
 
 
 # ── _repair_text ──────────────────────────────────────────────────────────────
@@ -116,3 +123,92 @@ def test_repair_file_dry_run_no_write(tmp_path):
     status, _ = repair_file(f, dry_run=True)
     assert status == "ok"
     assert f.read_text() == original  # Non modificato
+
+
+def test_repair_file_irrecoverable_returns_failed(tmp_path):
+    f = tmp_path / "bad.yaml"
+    # YAML so broken that _repair_text cannot fix it
+    f.write_text('key: {unclosed: [bracket\n', encoding="utf-8")
+    status, detail = repair_file(f, dry_run=False)
+    # Either 'skip' (already valid somehow) or 'failed' — not 'ok'
+    assert status in ("skip", "failed")
+
+
+# ── main() ────────────────────────────────────────────────────────────────────
+
+from scripts.repair_yaml_quotes import main  # noqa: E402
+
+
+def test_main_no_dirs_exits(monkeypatch, tmp_path):
+    monkeypatch.setattr(sys, "argv", [
+        "prog",
+        "--scenes-dir", str(tmp_path / "no_scenes"),
+        "--chars-dir", str(tmp_path / "no_chars"),
+    ])
+    with __import__("pytest").raises(SystemExit) as exc:
+        main()
+    assert exc.value.code == 1
+
+
+def test_main_dry_run_reports(monkeypatch, tmp_path, capsys):
+    scenes_dir = tmp_path / "scenes"
+    scenes_dir.mkdir()
+    # One valid YAML (→ skip) and one broken (→ ok dry-run)
+    (scenes_dir / "clean.yaml").write_text("title: clean\nstatus: draft\n", encoding="utf-8")
+    (scenes_dir / "broken.yaml").write_text('title: "Scene "X""\nstatus: draft\n', encoding="utf-8")
+    monkeypatch.setattr(sys, "argv", [
+        "prog",
+        "--scenes-dir", str(scenes_dir),
+        "--chars-dir", str(tmp_path / "no_chars"),
+        "--dry-run",
+    ])
+    main()
+    out = capsys.readouterr().out
+    assert "dry-run" in out.lower() or "DRY-RUN" in out
+
+
+def test_main_chars_dir_also_scanned(monkeypatch, tmp_path, capsys):
+    scenes_dir = tmp_path / "scenes"
+    chars_dir = tmp_path / "chars"
+    scenes_dir.mkdir()
+    chars_dir.mkdir()
+    (chars_dir / "char.yaml").write_text('name: "Alice "Al""\n', encoding="utf-8")
+    monkeypatch.setattr(sys, "argv", [
+        "prog",
+        "--scenes-dir", str(scenes_dir),
+        "--chars-dir", str(chars_dir),
+    ])
+    main()
+    out = capsys.readouterr().out
+    assert "char.yaml" in out
+
+
+def test_main_real_write(monkeypatch, tmp_path, capsys):
+    scenes_dir = tmp_path / "scenes"
+    scenes_dir.mkdir()
+    broken = scenes_dir / "s.yaml"
+    broken.write_text('title: "Scene "X""\nstatus: draft\n', encoding="utf-8")
+    monkeypatch.setattr(sys, "argv", [
+        "prog",
+        "--scenes-dir", str(scenes_dir),
+        "--chars-dir", str(tmp_path / "no_chars"),
+    ])
+    main()
+    # File should now be valid YAML
+    import yaml as _yaml
+    _yaml.safe_load(broken.read_text(encoding="utf-8"))  # no exception
+
+
+def test_main_exception_in_repair_counted(monkeypatch, tmp_path, capsys):
+    scenes_dir = tmp_path / "scenes"
+    scenes_dir.mkdir()
+    (scenes_dir / "ok.yaml").write_text("title: clean\n", encoding="utf-8")
+    monkeypatch.setattr(sys, "argv", [
+        "prog", "--scenes-dir", str(scenes_dir), "--chars-dir", str(tmp_path / "nope"),
+    ])
+    with __import__("unittest.mock", fromlist=["patch"]).patch(
+        "scripts.repair_yaml_quotes.repair_file", side_effect=OSError("permission denied")
+    ):
+        main()
+    out = capsys.readouterr()
+    assert "errori" in out.out

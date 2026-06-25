@@ -4,11 +4,7 @@ load_samples e build_style_prefix — nessun ChromaDB, nessun filesystem reale.
 """
 from __future__ import annotations
 
-import sys
-from pathlib import Path
 from unittest.mock import patch
-
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from scripts.style_voice_guide import (
     _STUB_SAMPLES,
@@ -75,3 +71,82 @@ def test_build_style_prefix_example_passages_label():
     with patch(f"{_SVG}.load_samples", return_value=["X"]):
         prefix = build_style_prefix(k=1)
     assert "Example passages" in prefix
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Extended tests — _load_samples_from_chromadb, build_samples_file
+# ─────────────────────────────────────────────────────────────────────────────
+
+import sys  # noqa: E402
+
+from scripts.style_voice_guide import _load_samples_from_chromadb, build_samples_file  # noqa: E402
+
+
+# ── _load_samples_from_chromadb ───────────────────────────────────────────────
+
+def test_load_from_chromadb_success():
+    mock_col = __import__("unittest.mock", fromlist=["MagicMock"]).MagicMock()
+    mock_col.get.return_value = {
+        "documents": ["Doc1", "Doc2"],
+        "metadatas": [
+            {"author_type": "operator"},
+            {"author_type": "char"},
+        ],
+    }
+    mock_client = __import__("unittest.mock", fromlist=["MagicMock"]).MagicMock()
+    mock_client.get_collection.return_value = mock_col
+    mock_chromadb = __import__("unittest.mock", fromlist=["MagicMock"]).MagicMock()
+    mock_chromadb.PersistentClient.return_value = mock_client
+    with patch.dict(sys.modules, {"chromadb": mock_chromadb}):
+        result = _load_samples_from_chromadb(n=5)
+    assert "Doc1" in result
+    assert "Doc2" not in result  # only operator
+
+
+def test_load_from_chromadb_no_operator_falls_back_to_all():
+    mock_col = __import__("unittest.mock", fromlist=["MagicMock"]).MagicMock()
+    mock_col.get.return_value = {
+        "documents": ["D1", "D2"],
+        "metadatas": [{"author_type": "char"}, {"author_type": "char"}],
+    }
+    mock_client = __import__("unittest.mock", fromlist=["MagicMock"]).MagicMock()
+    mock_client.get_collection.return_value = mock_col
+    mock_chromadb = __import__("unittest.mock", fromlist=["MagicMock"]).MagicMock()
+    mock_chromadb.PersistentClient.return_value = mock_client
+    with patch.dict(sys.modules, {"chromadb": mock_chromadb}):
+        result = _load_samples_from_chromadb(n=5)
+    assert "D1" in result or "D2" in result  # fallback: all docs
+
+
+def test_load_from_chromadb_exception_returns_empty():
+    with patch.dict(sys.modules, {"chromadb": None}):
+        result = _load_samples_from_chromadb(n=5)
+    assert result == []
+
+
+# ── build_samples_file ────────────────────────────────────────────────────────
+
+def test_build_samples_file_uses_chromadb_samples(tmp_path):
+    out = tmp_path / "voice.txt"
+    with patch(f"{_SVG}._load_samples_from_chromadb", return_value=["Sample A", "Sample B"]):
+        result_path = build_samples_file(output_path=out, n=2)
+    assert result_path == out
+    content = out.read_text(encoding="utf-8")
+    assert "Sample A" in content
+    assert "Sample B" in content
+
+
+def test_build_samples_file_falls_back_to_stubs_on_empty(tmp_path):
+    out = tmp_path / "voice.txt"
+    with patch(f"{_SVG}._load_samples_from_chromadb", return_value=[]):
+        build_samples_file(output_path=out, n=5)
+    content = out.read_text(encoding="utf-8")
+    for stub in _STUB_SAMPLES:
+        assert stub in content
+
+
+def test_build_samples_file_creates_parent_dirs(tmp_path):
+    out = tmp_path / "a" / "b" / "voice.txt"
+    with patch(f"{_SVG}._load_samples_from_chromadb", return_value=["X"]):
+        build_samples_file(output_path=out)
+    assert out.exists()
