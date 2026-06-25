@@ -1681,6 +1681,7 @@
             const sceneText = msgs.map(m => (m.author_name || '?') + ': ' + (m.content_original || '')).join('\n\n');
             const lastMsg = msgs.length ? (msgs[msgs.length - 1].content_original || '') : '';
             const setVal = (id, v) => { const el = document.getElementById(id); if (el && v != null) el.value = v; };
+            if (tool === 'draft') setVal('draft-prompt', lastMsg || sceneText);
             if (tool === 'refine') setVal('refine-scene-input', lastMsg || sceneText);
             if (tool === 'summarize') setVal('sum-text', sceneText);
             if (tool === 'lorecheck') { setVal('lc-text', lastMsg || ''); setVal('lc-scene-id', sceneId); }
