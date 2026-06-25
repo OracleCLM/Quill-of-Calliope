@@ -81,3 +81,25 @@ def test_translate_gateway_timeout_503():
         with patch(f"{_SRV}.requests.post", side_effect=req_mod.exceptions.Timeout("slow")):
             r = c.post("/api/translate", json={"text": "Ciao", "direction": "IT_to_EN"})
     assert r.status_code == 503
+
+
+# ── Context non-fantasy_rp (righe 512, 523 server.py) ────────────────────────
+
+def test_translate_it_to_en_plain_context():
+    """context=plain bypassa il system-prompt fantasy_rp (branch riga 512)."""
+    with _client() as c:
+        with patch(f"{_SRV}.requests.post", return_value=_mock_translate_response("Hello")):
+            r = c.post("/api/translate",
+                       json={"text": "Ciao", "direction": "IT_to_EN", "context": "plain"})
+    assert r.status_code == 200
+    assert r.get_json()["translation"] == "Hello"
+
+
+def test_translate_en_to_it_plain_context():
+    """context=plain bypassa il system-prompt fantasy_rp EN→IT (branch riga 523)."""
+    with _client() as c:
+        with patch(f"{_SRV}.requests.post", return_value=_mock_translate_response("Ciao")):
+            r = c.post("/api/translate",
+                       json={"text": "Hello", "direction": "EN_to_IT", "context": "plain"})
+    assert r.status_code == 200
+    assert r.get_json()["translation"] == "Ciao"
