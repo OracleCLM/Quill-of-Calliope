@@ -170,6 +170,31 @@ def test_step_train_unsloth_not_installed_exits(tmp_path):
     assert exc.value.code == 2
 
 
+def test_step_train_with_mock_unsloth(tmp_path):
+    # Lines 108-124: training stub with mocked unsloth
+    sufficient = {"gpu_available": True, "vram_gb": 10.0, "sufficient": True, "note": ""}
+    mock_model = MagicMock()
+    mock_tokenizer = MagicMock()
+    mock_peft_model = MagicMock()
+    mock_fml = MagicMock()
+    mock_fml.from_pretrained = MagicMock(return_value=(mock_model, mock_tokenizer))
+    mock_fml.get_peft_model = MagicMock(return_value=mock_peft_model)
+    mock_unsloth = MagicMock()
+    mock_unsloth.FastLanguageModel = mock_fml
+
+    train_path = tmp_path / "train.jsonl"
+    train_path.touch()
+    adapter = tmp_path / "adapter"
+
+    with patch(f"{_LPL}._check_hardware", return_value=sufficient), \
+         patch.dict(sys.modules, {"unsloth": mock_unsloth}):
+        _step_train(train_path, adapter)
+
+    mock_fml.from_pretrained.assert_called_once()
+    mock_fml.get_peft_model.assert_called_once()
+    assert adapter.exists()
+
+
 # ── _step_eval ────────────────────────────────────────────────────────────────
 
 def test_step_eval_writes_report(tmp_path):

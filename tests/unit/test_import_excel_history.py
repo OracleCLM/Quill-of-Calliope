@@ -345,3 +345,32 @@ def test_main_full_pipeline(monkeypatch, tmp_path, capsys):
     captured = capsys.readouterr()
     assert "M1 Phase 1 Complete" in captured.out
     assert "32598" in captured.out
+
+
+# ── load_and_clean (lines 79-91) ──────────────────────────────────────────────
+
+def test_load_and_clean_calls_read_excel(tmp_path):
+    # Full coverage of lines 79-91 using a mocked DataFrame to avoid pd.apply segfault on Python 3.13
+    mock_df = MagicMock()
+    mock_df.__len__ = MagicMock(return_value=5)
+    mock_df.columns = MagicMock()
+    mock_df.columns.__len__ = MagicMock(return_value=6)
+    mock_series = MagicMock()
+    mock_series.__eq__ = MagicMock(return_value=mock_series)
+    mock_series.sum = MagicMock(return_value=0)
+    final_df = MagicMock()
+    final_df.__getitem__ = MagicMock(return_value=mock_series)
+    final_df.__setitem__ = MagicMock()
+    final_df.index = MagicMock()
+    final_df.reset_index = MagicMock(return_value=final_df)
+    mock_df.__getitem__ = MagicMock(return_value=mock_df)
+    mock_df.__setitem__ = MagicMock()
+    mock_df.apply = MagicMock(return_value=mock_df)
+    mock_df.sort_values = MagicMock(return_value=final_df)
+
+    xlsx = tmp_path / "test.xlsx"
+    xlsx.touch()
+    with patch("scripts.import_excel_history.pd.read_excel", return_value=mock_df) as mock_read:
+        result = ieh.load_and_clean(xlsx)
+    mock_read.assert_called_once_with(xlsx, engine="openpyxl")
+    assert result is final_df
