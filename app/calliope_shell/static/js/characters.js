@@ -309,8 +309,11 @@
           headers: {'Content-Type': 'application/json'},
           body: JSON.stringify(body),
         });
-        if (r.ok) { statusEl.textContent = '✓ Salvato'; statusEl.style.color = '#8f8'; }
-        else { statusEl.textContent = '✗ Errore ' + r.status; saveBtn.disabled = false; }
+        if (r.ok) {
+          statusEl.textContent = '✓ Salvato'; statusEl.style.color = '#8f8';
+          card.kind = kindSel.value;
+          setTimeout(() => { container.textContent = ''; renderDetail(container, card); _addEditBtn(container, card); }, 800);
+        } else { statusEl.textContent = '✗ Errore ' + r.status; saveBtn.disabled = false; }
       } catch(e) { statusEl.textContent = '✗ ' + e.message; saveBtn.disabled = false; }
     };
 
