@@ -103,3 +103,23 @@ def test_translate_en_to_it_plain_context():
                        json={"text": "Hello", "direction": "EN_to_IT", "context": "plain"})
     assert r.status_code == 200
     assert r.get_json()["translation"] == "Ciao"
+
+
+def test_translate_generic_exception_503():
+    """requests.post solleva Exception generica → 503 (riga 557-559)."""
+    with _client() as c:
+        with patch(f"{_SRV}.requests.post", side_effect=RuntimeError("unexpected")):
+            r = c.post("/api/translate", json={"text": "Ciao", "direction": "IT_to_EN"})
+    assert r.status_code == 503
+    data = r.get_json()
+    assert "Translation failed" in data.get("error", "")
+
+
+def test_translate_audit_exception_nonfatal():
+    """audit_trail.log_event solleva → except pass non-fatal, risposta 200 (righe 550-551)."""
+    with _client() as c:
+        with patch(f"{_SRV}.requests.post", return_value=_mock_translate_response("Hello")):
+            with patch("app.calliope_shell.audit_trail.log_event", side_effect=RuntimeError("audit down")):
+                r = c.post("/api/translate", json={"text": "Ciao", "direction": "IT_to_EN"})
+    assert r.status_code == 200
+    assert r.get_json()["translation"] == "Hello"
