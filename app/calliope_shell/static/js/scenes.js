@@ -216,3 +216,49 @@ async function _loadSceneDetail(sceneId) {
         document.getElementById('chat-thread').innerHTML = '';
     }
 }
+
+// "+ Roster": mostra form con dropdown di tutti i personaggi DB
+window._showAddRoster = async function() {
+    const form = document.getElementById('add-roster-form');
+    const sel = document.getElementById('add-roster-char-sel');
+    if (!form || !sel) return;
+    sel.innerHTML = '<option value="">— Personaggio —</option>';
+    try {
+        const r = await fetch('/api/db/characters');
+        const d = await r.json();
+        (d.characters || []).forEach(c => {
+            const opt = document.createElement('option');
+            opt.value = c.id; opt.textContent = c.name;
+            sel.appendChild(opt);
+        });
+    } catch(_) {}
+    form.style.display = 'flex';
+};
+
+window._addToRoster = async function() {
+    const sceneId = window._currentSceneId;
+    const charSel = document.getElementById('add-roster-char-sel');
+    const roleSel = document.getElementById('add-roster-role-sel');
+    const statusEl = document.getElementById('add-roster-status');
+    if (!sceneId || !charSel || !charSel.value) {
+        if (statusEl) statusEl.textContent = '⚠ Seleziona personaggio';
+        return;
+    }
+    if (statusEl) statusEl.textContent = 'Aggiunta…';
+    try {
+        const r = await fetch('/api/db/scenes/' + encodeURIComponent(sceneId) + '/characters', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({character_id: charSel.value, role: roleSel.value}),
+        });
+        if (r.ok || r.status === 409) {
+            document.getElementById('add-roster-form').style.display = 'none';
+            await _loadSceneDetail(sceneId);
+        } else {
+            const d = await r.json();
+            if (statusEl) statusEl.textContent = '✗ ' + (d.error || r.status);
+        }
+    } catch(e) {
+        if (statusEl) statusEl.textContent = '✗ ' + e.message;
+    }
+};

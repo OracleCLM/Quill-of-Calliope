@@ -525,6 +525,19 @@
                     <div style="font-size:.85em;color:#8899cc;margin-bottom:8px;font-weight:bold;">▶ Genera prossimo messaggio</div>
                     <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
                         <select id="scene-char-select"><option value="">— Seleziona personaggio —</option></select>
+                        <button onclick="_showAddRoster()" style="background:#162216;color:#8f8;border:1px solid #2a5a2a;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:.78em;white-space:nowrap;">+ Roster</button>
+                    </div>
+                    <div id="add-roster-form" style="display:none;margin-top:6px;display:none;gap:6px;align-items:center;flex-wrap:wrap;">
+                        <select id="add-roster-char-sel" style="background:#111827;color:#aab;border:1px solid #2a3a5a;border-radius:6px;padding:4px 8px;font-size:.82em;cursor:pointer;min-width:140px;"><option value="">— Personaggio —</option></select>
+                        <select id="add-roster-role-sel" style="background:#111827;color:#aab;border:1px solid #2a3a5a;border-radius:6px;padding:4px 8px;font-size:.82em;cursor:pointer;">
+                            <option value="participant">participant</option>
+                            <option value="player">player</option>
+                            <option value="narrator">narrator</option>
+                            <option value="npc">npc</option>
+                        </select>
+                        <button onclick="_addToRoster()" style="background:#1a3a1a;color:#8f8;border:1px solid #2a5a2a;border-radius:5px;padding:4px 10px;cursor:pointer;font-size:.78em;">✓</button>
+                        <button onclick="document.getElementById('add-roster-form').style.display='none'" style="background:#1a2a3a;color:#aab;border:1px solid #2a3a5a;border-radius:5px;padding:4px 8px;cursor:pointer;font-size:.78em;">✕</button>
+                        <span id="add-roster-status" style="font-size:.75em;color:#88aaff;"></span>
                     </div>
                     <input id="scene-ctx-hint" placeholder="Hint contestuale (opzionale)...">
                     <div id="continue-status" style="font-size:.8em;color:#88aaff;margin-top:6px;min-height:1em;"></div>
