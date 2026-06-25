@@ -136,3 +136,45 @@ def test_scene_blend_404_file_not_found(client):
     })
     assert r.status_code == 404
     assert "error" in r.get_json()
+
+
+# ── Extra /api/summarize branches ────────────────────────────────────────────
+
+def test_summarize_codeblock_json(client):
+    """Line 1295: risposta LLM con JSON dentro code-block markdown."""
+    mock_resp = MagicMock()
+    mock_resp.json.return_value = {
+        "result": '```json\n{"summary": "short", "key_facts": ["x"]}\n```',
+    }
+    with patch(f"{_SRV}.requests.post", return_value=mock_resp):
+        r = client.post("/api/summarize", json={"text": "some long text"})
+    assert r.status_code == 200
+    data = r.get_json()
+    assert data["summary"] == "short"
+
+
+def test_summarize_non_json_result(client):
+    """Lines 1299-1300: risposta LLM non JSON → summary = testo grezzo."""
+    mock_resp = MagicMock()
+    mock_resp.json.return_value = {"result": "plain text, no JSON here"}
+    with patch(f"{_SRV}.requests.post", return_value=mock_resp):
+        r = client.post("/api/summarize", json={"text": "text"})
+    assert r.status_code == 200
+    assert r.get_json()["summary"] == "plain text, no JSON here"
+
+
+def test_summarize_generic_llm_exception(client):
+    """Lines 1285-1287: eccezione generica nell'LLM call → 503."""
+    with patch(f"{_SRV}.requests.post", side_effect=RuntimeError("oops")):
+        r = client.post("/api/summarize", json={"text": "text"})
+    assert r.status_code == 503
+
+
+def test_summarize_audit_exception_silenced(client):
+    """Lines 1310-1311: audit_trail.log_event lancia → silenziato."""
+    mock_resp = MagicMock()
+    mock_resp.json.return_value = {"result": '{"summary": "s", "key_facts": []}'}
+    with patch(f"{_SRV}.requests.post", return_value=mock_resp), \
+         patch("app.calliope_shell.audit_trail.log_event", side_effect=RuntimeError("db")):
+        r = client.post("/api/summarize", json={"text": "text"})
+    assert r.status_code == 200
