@@ -1151,3 +1151,183 @@ def test_add_roster_role_sel_has_id():
 def test_add_roster_status_has_id():
     """#add-roster-status — span feedback aggiunta al roster."""
     assert 'id="add-roster-status"' in _html()
+
+
+# ── Characters list panel IDs (2026-06-26 round 6 batch 6) ───────────────────
+
+def test_char_list_has_id():
+    """#char-list — ul lista personaggi nel char-list-panel."""
+    assert 'id="char-list"' in _html()
+
+
+def test_char_list_panel_has_id():
+    """#char-list-panel — container lista personaggi sidebar."""
+    assert 'id="char-list-panel"' in _html()
+
+
+# ── Activity + Draft IDs (2026-06-26 round 6 batch 6) ────────────────────────
+
+def test_ac_refresh_btn_has_id():
+    """#ac-refresh-btn — pulsante aggiorna counters/activity."""
+    assert 'id="ac-refresh-btn"' in _html()
+
+
+def test_draft_n_label_has_id():
+    """#draft-n-label — label numero varianti da generare nel panel Draft."""
+    assert 'id="draft-n-label"' in _html()
+
+
+def test_scenes_continue_area_has_id():
+    """#scenes-continue-area — area bottoni continua scena nel detail."""
+    assert 'id="scenes-continue-area"' in _html()
+
+
+# ── Dashboard Discord + LLM IDs (2026-06-26 round 6 batch 6) ─────────────────
+
+def test_dash_card_tone_has_id():
+    """#dash-card-tone — card tone/voice settings dashboard."""
+    assert 'id="dash-card-tone"' in _html()
+
+
+def test_dash_discord_channels_has_id():
+    """#dash-discord-channels — div canali Discord monitorati."""
+    assert 'id="dash-discord-channels"' in _html()
+
+
+def test_dash_recent_scenes_list_has_id():
+    """#dash-recent-scenes-list — ul scene recenti nella card dashboard."""
+    assert 'id="dash-recent-scenes-list"' in _html()
+
+
+def test_dash_c_chars_archive_has_id():
+    """#dash-c-chars-archive — contatore personaggi in archivio (non attivi)."""
+    assert 'id="dash-c-chars-archive"' in _html()
+
+
+def test_dash_llm_model_has_id():
+    """#dash-llm-model — span modello LLM corrente dashboard."""
+    assert 'id="dash-llm-model"' in _html()
+
+
+def test_dash_card_recent_discord_has_id():
+    """#dash-card-recent-discord — card messaggi Discord recenti dashboard."""
+    assert 'id="dash-card-recent-discord"' in _html()
+
+
+def test_dash_recent_discord_list_has_id():
+    """#dash-recent-discord-list — ul messaggi Discord recenti."""
+    assert 'id="dash-recent-discord-list"' in _html()
+
+
+def test_dash_discord_cta_has_id():
+    """#dash-discord-cta — area call-to-action per configurare Discord."""
+    assert 'id="dash-discord-cta"' in _html()
+
+
+def test_dash_discord_lastmsg_has_id():
+    """#dash-discord-lastmsg — span ultimo messaggio Discord ricevuto."""
+    assert 'id="dash-discord-lastmsg"' in _html()
+
+
+def test_dash_discord_token_has_id():
+    """#dash-discord-token — span stato token Discord bot."""
+    assert 'id="dash-discord-token"' in _html()
+
+
+# ── Cloud warning modal IDs (2026-06-26 round 6 batch 6) ─────────────────────
+
+def test_cloud_warn_backdrop_has_id():
+    """#cloud-warn-backdrop — backdrop modale avviso cloud LLM."""
+    assert 'id="cloud-warn-backdrop"' in _html()
+
+
+def test_cw_title_has_id():
+    """#cw-title — titolo modale avviso cloud."""
+    assert 'id="cw-title"' in _html()
+
+
+def test_cw_detail_has_id():
+    """#cw-detail — dettaglio testo modale avviso cloud."""
+    assert 'id="cw-detail"' in _html()
+
+
+def test_cw_provider_has_id():
+    """#cw-provider — span nome provider nel modale cloud."""
+    assert 'id="cw-provider"' in _html()
+
+
+def test_cw_btn_continue_has_id():
+    """#cw-btn-continue — pulsante Continua nel modale cloud."""
+    assert 'id="cw-btn-continue"' in _html()
+
+
+def test_cw_btn_skip_has_id():
+    """#cw-btn-skip — pulsante Salta/Non mostrare nel modale cloud."""
+    assert 'id="cw-btn-skip"' in _html()
+
+
+def test_cw_skip_session_has_id():
+    """#cw-skip-session — checkbox non mostrare di nuovo in sessione."""
+    assert 'id="cw-skip-session"' in _html()
+
+
+# ── Misc panel IDs (2026-06-26 round 6 batch 6) ──────────────────────────────
+
+def test_welcome_panel_has_id():
+    """#welcome-panel — panel benvenuto (home view)."""
+    assert 'id="welcome-panel"' in _html()
+
+
+def test_privacy_badge_has_id():
+    """#privacy-badge — badge 🔒 Local-only visibile nell'header."""
+    assert 'id="privacy-badge"' in _html()
+
+
+def test_st_iframe_has_id():
+    """#st-iframe — iframe SillyTavern (integrazione legacy)."""
+    assert 'id="st-iframe"' in _html()
+
+
+def test_cnt_chars_has_id():
+    """#cnt-chars — span contatore personaggi nella sidebar counters."""
+    assert 'id="cnt-chars"' in _html()
+
+
+def test_cnt_scenes_has_id():
+    """#cnt-scenes — span contatore scene nella sidebar counters."""
+    assert 'id="cnt-scenes"' in _html()
+
+
+def test_cnt_arcs_has_id():
+    """#cnt-arcs — span contatore archi nella sidebar counters."""
+    assert 'id="cnt-arcs"' in _html()
+
+
+def test_cnt_lore_has_id():
+    """#cnt-lore — span contatore voci lore nella sidebar counters."""
+    assert 'id="cnt-lore"' in _html()
+
+
+def test_counters_sidebar_has_id():
+    """#counters-sidebar — div sidebar contatori riassuntivi."""
+    assert 'id="counters-sidebar"' in _html()
+
+
+def test_dash_btn_uncensored_has_id():
+    """#dash-btn-uncensored — pulsante toggle modalità uncensored."""
+    assert 'id="dash-btn-uncensored"' in _html()
+
+
+def test_dash_llm_uncensored_has_id():
+    """#dash-llm-uncensored — span stato modalità uncensored LLM."""
+    assert 'id="dash-llm-uncensored"' in _html()
+
+
+def test_dash_uncensored_label_has_id():
+    """#dash-uncensored-label — label modalità uncensored dashboard."""
+    assert 'id="dash-uncensored-label"' in _html()
+
+
+def test_dash_discord_cta_text_has_id():
+    """#dash-discord-cta-text — testo CTA discord nella dashboard."""
+    assert 'id="dash-discord-cta-text"' in _html()
