@@ -176,3 +176,47 @@ class TestFlow8SummaryInScene:
         summary_msg = next((m for m in msgs if m.get("is_summary") in (1, True)), None)
         assert summary_msg is not None
         assert summary_msg.get("source") == "summary"
+
+
+# ── FLOW-9: Characters griglia — GET /api/db/characters → kind badge ──────────
+
+class TestFlow9CharactersGrid:
+    """GIVEN personaggi nel DB / WHEN GET lista e dettaglio / THEN kind e stem presenti."""
+
+    def test_characters_list_returns_stem_and_kind(self, client):
+        """GIVEN almeno 1 personaggio / WHEN GET /api/db/characters / THEN stem+kind in ogni entry."""
+        data = client.get("/api/db/characters").get_json()
+        chars = data.get("characters", [])
+        assert len(chars) >= 1, "DB personaggi vuoto"
+        for c in chars:
+            assert "id" in c, f"personaggio senza id: {c}"
+            assert "name" in c, f"personaggio senza name: {c}"
+
+    def test_character_detail_has_kind(self, client):
+        """GIVEN personaggio esistente / WHEN GET dettaglio / THEN campo kind presente e valido."""
+        chars = client.get("/api/db/characters").get_json()["characters"]
+        cid = chars[0]["id"]
+        data = client.get(f"/api/db/characters/{cid}").get_json()
+        char = data.get("character") or data
+        kind = char.get("kind")
+        assert kind is not None, f"kind assente in GET /api/db/characters/{cid}"
+        assert kind in ("player", "npc", "operator"), f"kind non valido: {kind!r}"
+
+    def test_create_and_retrieve_character(self, client):
+        """GIVEN POST nuovo personaggio / WHEN GET lista / THEN trovato per id."""
+        r = client.post("/api/db/characters", json={"name": "TestChar-Journey9", "kind": "npc"})
+        assert r.status_code == 201
+        char_id = r.get_json()["id"]
+        data = client.get(f"/api/db/characters/{char_id}").get_json()
+        char = data.get("character") or data
+        assert char["name"] == "TestChar-Journey9"
+        assert char["kind"] == "npc"
+
+    def test_patch_character_kind_reflected(self, client):
+        """GIVEN personaggio npc / WHEN PATCH kind=player / THEN GET mostra player."""
+        r = client.post("/api/db/characters", json={"name": "KindFlip-Journey9", "kind": "npc"})
+        cid = r.get_json()["id"]
+        client.patch(f"/api/db/characters/{cid}", json={"kind": "player"})
+        data = client.get(f"/api/db/characters/{cid}").get_json()
+        char = data.get("character") or data
+        assert char["kind"] == "player"
