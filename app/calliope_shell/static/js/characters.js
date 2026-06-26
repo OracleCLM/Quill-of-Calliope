@@ -66,7 +66,7 @@
     card.addEventListener('click', () => openCharacterDetail(char.stem));
 
     const name = document.createElement('div');
-    name.textContent = char.name;
+    name.textContent = char.name || char.stem;
     name.style.fontWeight = 'bold';
     name.style.color = NAME_COLOR;
     name.style.marginBottom = '4px';
@@ -545,6 +545,7 @@
       })
       .then(data => {
         if (data && data.error) throw new Error(data.error);
+        if (!data.name) data.name = stem;
         renderDetail(detail, data);
         _addEditBtn(detail, data);
         if (data.name) {
