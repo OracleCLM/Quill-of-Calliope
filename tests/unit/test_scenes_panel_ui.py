@@ -723,3 +723,30 @@ def test_draft_blend_output_has_id():
 def test_draft_blend_text_has_id():
     """#draft-blend-text — textarea testo blended."""
     assert 'id="draft-blend-text"' in _html()
+
+
+# ── Scene detail IDs (2026-06-26 round 5) ────────────────────────────────────
+
+def test_scene_detail_has_id():
+    """#scene-detail — container detail di una scena."""
+    assert 'id="scene-detail"' in _html()
+
+
+def test_scene_detail_title_has_id():
+    """#scene-detail-title — h2 titolo scena nel detail view."""
+    assert 'id="scene-detail-title"' in _html()
+
+
+def test_scene_detail_meta_has_id():
+    """#scene-detail-meta — metadati scena (status, chars, messages)."""
+    assert 'id="scene-detail-meta"' in _html()
+
+
+def test_scenes_list_has_id():
+    """#scenes-list — UL lista scene nel panel scenes."""
+    assert 'id="scenes-list"' in _html()
+
+
+def test_compose_status_has_id():
+    """#compose-status — span status dopo invio messaggio compose."""
+    assert 'id="compose-status"' in _html()
