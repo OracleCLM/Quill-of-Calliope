@@ -1717,7 +1717,7 @@
 
         // ── Char dropdown loader (Smart Draft) ──
         let _charDropdownLoaded = false;
-        async function _loadCharDropdown() {
+        window._loadCharDropdown = async function() {
             if (_charDropdownLoaded) return;
             const sel = document.getElementById('sd-char-focus');
             try {
@@ -1731,7 +1731,7 @@
                     _charDropdownLoaded = true;
                 }
             } catch(e) { /* non-fatal */ }
-        }
+        };
 
         // ── Scene Revive (from scene detail) ──
         window._reviveScene = async function() {
