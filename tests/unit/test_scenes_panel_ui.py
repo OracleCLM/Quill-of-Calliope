@@ -143,6 +143,11 @@ def test_ls_results_container_present():
     assert 'id="ls-results"' in _html()
 
 
+def test_ls_status_has_id():
+    """#ls-status — status indicator ricerca LoreSearch."""
+    assert 'id="ls-status"' in _html()
+
+
 # ── Translate panel selettori (aggiunta 2026-06-26) ──────────────────────────
 
 def test_translate_panel_exists():
