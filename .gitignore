@@ -119,7 +119,14 @@ data/*.db
 data/chromadb/
 data/discord_persona_config.db
 data/lore_kb.json
+data/backups/
 db/
 data/*.db-shm
 data/*.db-wal
+
+# === Live2D models (binaries — restore via scripts/fetch_mao_model.sh) ===
+shared/live2d_mascot/models/mao/Mao.moc3
+shared/live2d_mascot/models/mao/Mao.2048/
+shared/live2d_mascot/models/koko/
+shared/live2d_mascot/models/tingyun/
 !.planning/CALLIOPE_GAP_REVIEW_2026-06-07.md
