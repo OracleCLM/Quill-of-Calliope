@@ -16,6 +16,7 @@ from app.calliope_shell.char_memory_tools import (
     char_memory_list_facts,
 )
 from app.calliope_shell.characters_routes import register_character_routes
+from app.calliope_shell.characters_db_routes import register_characters_db_routes
 from app.calliope_shell.lore_routes import register_lore_routes
 from app.calliope_shell.scenes_db_routes import register_scenes_db_routes
 from app.calliope_shell.arcs_db_routes import register_arcs_db_routes
@@ -201,6 +202,7 @@ def create_app():
     register_lore_routes(app)
     register_scenes_db_routes(app)
     register_arcs_db_routes(app)
+    register_characters_db_routes(app)
 
     FLASK_PORT = os.getenv("FLASK_PORT", "5000")
     ST_URL = os.getenv("ST_URL", "http://localhost:8001")
@@ -884,6 +886,19 @@ def create_app():
 
     from app.calliope_shell import plot_arc as _pa  # noqa: PLC0415
     _pa.init_db()
+    # Sync YAML arcs → SQLite arcs (idempotente: INSERT OR IGNORE per slug-id).
+    try:
+        from app.db import get_db as _get_db_arcs  # noqa: PLC0415
+        _arc_conn = _get_db_arcs()
+        for _arc in _pa.list_arcs():
+            _arc_conn.execute(
+                "INSERT OR IGNORE INTO arcs (id, title, description) VALUES (?, ?, ?)",
+                (_arc["arc_id"], _arc.get("title", _arc["arc_id"]), _arc.get("summary", "") or ""),
+            )
+        _arc_conn.commit()
+        _arc_conn.close()
+    except Exception:  # noqa: BLE001
+        pass  # non-fatal: arc filter resterà vuoto ma l'app continua
     # Sprint C1: audit_trail table init at app startup so log_event() writes
     # land in the DB even before any other code path triggers init.
     from app.calliope_shell import audit_trail as _audit_init  # noqa: PLC0415

@@ -25,6 +25,10 @@ _REQUIRED_DB_RULES = {
     "/api/db/scenes/merge",
     "/api/db/messages/<message_id>",
     "/api/db/messages/<message_id>/move",
+    # GAP-1 fix: characters_db_routes devono essere cablate (erano assenti prima del fix)
+    "/api/db/characters",
+    "/api/db/characters/<char_id>",
+    "/api/db/characters/<char_id>/scenes",
 }
 
 

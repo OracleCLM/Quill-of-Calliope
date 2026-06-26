@@ -52,6 +52,7 @@ if "$DCE" exportguild \
     --media \
     --utc \
     --after "$LAST_TS" \
+    --fuck-russia \
     -o "$OUT_DIR/" 2>&1 | tee -a "$LOG_FILE"; then
     log "DCE export succeeded."
 else

@@ -9,7 +9,7 @@ def _conn(db_path):
     return get_db(db_path) if db_path else get_db()
 
 
-def register_characters_db_routes(app, *, db_path: str) -> None:
+def register_characters_db_routes(app, *, db_path=None) -> None:
 
     @app.route("/api/db/characters", methods=["GET"])
     def list_characters_db():
