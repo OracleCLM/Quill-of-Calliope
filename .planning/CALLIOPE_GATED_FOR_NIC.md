@@ -1,6 +1,6 @@
 # Calliope — Decisioni GATED per operatore (nic)
 
-> Aggiornato: 2026-06-26 browser-test round 6 COMPLETATO (241/242 HTML IDs testati; server.py 98%; suite 2390 unit) da sonnet-orch-calliope.
+> Aggiornato: 2026-06-26 redesign#257 FUNZIONALMENTE COMPLETO (P0-P5). Suite: 2517 test. Branch: efesto/redesign-p6-ui-refinements.
 > File accumulativo: ogni sessione appende le decisioni bloccanti. Rimuovi la riga dopo che hai dato il via libera.
 
 ---
@@ -686,3 +686,35 @@ LoreKB form, Messages → Scena, Scene edit PATCH, Arc list+detail, Refine, Tran
 - GATED-7: Dead code cleanup (richiede opus + operator review)
 
 **[DONE: browser-test-round9-2026-06-26]**
+
+---
+
+## [DONE: calliope-redesign-completo] — 2026-06-26
+
+**Redesign #257 (P0-P5) funzionalmente completo.**
+
+| Fase | Stato | Note |
+|------|-------|------|
+| P0 — Spec | ✅ DONE | VISION_REWRITE.md |
+| P1 — Scene core | ✅ DONE | chat lista-flat, member list (roster), message CRUD + delete |
+| P2 — Smart draft | ✅ DONE | sd-intent field, enhance, save-to-scene, copia scena |
+| P3 — Lore KB | ✅ DONE | 5 categorie, CRUD, ricerca semantica |
+| P4 — Characters | ✅ DONE | grid+avatar, V2 fields, edit, delete (9805468), write-to-scene |
+| P5 — Messages | ✅ DONE | recent view, Discord import UI+route, scene-assign |
+| P6 — Efesto integ. | ⏳ CONDIZIONALE | "quando Efesto è ready" — non blocca redesign |
+| P7 — Cleanup | 🔒 GATED | richiede opus + operator review |
+
+**Suite finale**: 2517 test verdi (inclusi TestFlow41-45).
+
+**Ultimi commit questa sessione**:
+| Commit | Feature |
+|--------|---------|
+| e1278bb | Context budget build_scene_context — summaries + max_recent cap |
+| 063d281 | Form crea-personaggio V2 (description+personality) + TestFlow45 |
+| 9805468 | Bottoni ✕ Elimina per scene e personaggi — CRUD completo in UI |
+
+**GATED pendenti**:
+- GATED-3: Discord bot token (nic deve generare)
+- GATED-5: branch efesto/gated5-remove-messages-next pronto per merge su main
+- GATED-6: branch efesto/gated6-arc-db-canonical pronto per merge su main
+- GATED-7: Dead code cleanup (richiede opus + operator review)

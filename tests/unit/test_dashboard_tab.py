@@ -55,11 +55,11 @@ def test_panel_counts_splits_chars_active_archive():
     assert "Personaggi archivio" in html
 
 
-def test_panel_shortcuts_has_4_buttons():
+def test_panel_shortcuts_has_5_surface_buttons():
     html = _html()
-    for action in ("showView('draft')", "showView('refine')",
-                    "showView('translate')", "showView('arc')"):
-        assert action in html
+    for sc_id in ("shortcut-scenes", "shortcut-characters",
+                  "shortcut-lorekb", "shortcut-messages", "shortcut-import"):
+        assert f'id="{sc_id}"' in html
 
 
 def test_panel_tone_has_provider_and_uncensored_switch():

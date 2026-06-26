@@ -487,6 +487,61 @@
             }
         };
         container.appendChild(delBtn);
+
+        // Upload avatar: file input nascosto + pulsante
+        const avatarInput = document.createElement('input');
+        avatarInput.type = 'file';
+        avatarInput.accept = 'image/*';
+        avatarInput.style.display = 'none';
+        container.appendChild(avatarInput);
+
+        const avatarBtn = document.createElement('button');
+        avatarBtn.id = 'btn-char-upload-avatar';
+        avatarBtn.textContent = '📷 Carica avatar';
+        avatarBtn.style.cssText = 'background:#1a2a3a;color:#8af;border:1px solid #2a3a5a;border-radius:6px;padding:5px 14px;cursor:pointer;font-size:.8em;margin-top:6px;display:block;';
+        avatarBtn.onclick = () => avatarInput.click();
+
+        const avatarStatus = document.createElement('span');
+        avatarStatus.style.cssText = 'font-size:.75em;color:#88aaff;margin-left:6px;';
+
+        avatarInput.onchange = async () => {
+            const file = avatarInput.files[0];
+            if (!file) return;
+            const stem = (chars[0].name || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/, '');
+            if (!stem) return;
+            const fd = new FormData();
+            fd.append('image', file);
+            avatarStatus.textContent = '…';
+            try {
+                const up = await fetch('/api/characters/' + encodeURIComponent(stem) + '/image', {method: 'POST', body: fd});
+                if (up.ok) {
+                    const res = await up.json();
+                    const imgPath = '/static/' + res.image_path;
+                    await fetch('/api/db/characters/' + encodeURIComponent(dbId), {
+                        method: 'PATCH',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({image_path: imgPath}),
+                    });
+                    avatarStatus.textContent = '✓ Avatar aggiornato';
+                    const av = container.querySelector('#char-avatar');
+                    if (av) { av.src = imgPath; av.style.display = ''; }
+                    else {
+                        const img = document.createElement('img');
+                        img.id = 'char-avatar';
+                        img.src = imgPath;
+                        img.style.cssText = 'width:80px;height:80px;object-fit:cover;border-radius:8px;margin:8px 0;border:1px solid #2a3a5a;display:block;';
+                        const h2 = container.querySelector('h2');
+                        if (h2) h2.insertAdjacentElement('afterend', img);
+                    }
+                    if (window.loadCharactersPanel) window.loadCharactersPanel();
+                } else {
+                    avatarStatus.textContent = '✗ Errore ' + up.status;
+                }
+            } catch(e) { avatarStatus.textContent = '✗ ' + e.message; }
+        };
+
+        container.appendChild(avatarBtn);
+        container.appendChild(avatarStatus);
       })
       .catch(() => {});
   }

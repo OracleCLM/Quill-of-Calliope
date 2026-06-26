@@ -438,41 +438,31 @@ def test_lorekb_search_results_has_id():
     assert 'id="lorekb-search-results"' in _html()
 
 
-# ── Dashboard shortcut IDs (aggiunta 2026-06-26 P6 round 4) ──────────────────
+# ── Dashboard shortcut IDs — 5 superfici (aggiornato: panel orfani rimossi) ──
 
-def test_shortcut_draft_has_id():
-    """#shortcut-draft — pulsante scorciatoia → panel draft."""
-    assert 'id="shortcut-draft"' in _html()
-
-
-def test_shortcut_refine_has_id():
-    """#shortcut-refine — pulsante scorciatoia → panel refine."""
-    assert 'id="shortcut-refine"' in _html()
+def test_shortcut_scenes_has_id():
+    """#shortcut-scenes — accesso rapido alla superficie Scene."""
+    assert 'id="shortcut-scenes"' in _html()
 
 
-def test_shortcut_translate_has_id():
-    """#shortcut-translate — pulsante scorciatoia → panel translate."""
-    assert 'id="shortcut-translate"' in _html()
+def test_shortcut_characters_has_id():
+    """#shortcut-characters — accesso rapido alla superficie Personaggi."""
+    assert 'id="shortcut-characters"' in _html()
 
 
-def test_shortcut_arc_has_id():
-    """#shortcut-arc — pulsante scorciatoia → panel arc."""
-    assert 'id="shortcut-arc"' in _html()
+def test_shortcut_lorekb_has_id():
+    """#shortcut-lorekb — accesso rapido alla superficie Lore KB."""
+    assert 'id="shortcut-lorekb"' in _html()
 
 
-def test_shortcut_smartdraft_has_id():
-    """#shortcut-smartdraft — pulsante scorciatoia → panel smartdraft."""
-    assert 'id="shortcut-smartdraft"' in _html()
+def test_shortcut_messages_has_id():
+    """#shortcut-messages — accesso rapido alla superficie Messaggi."""
+    assert 'id="shortcut-messages"' in _html()
 
 
-def test_shortcut_summarize_has_id():
-    """#shortcut-summarize — pulsante scorciatoia → panel summarize."""
-    assert 'id="shortcut-summarize"' in _html()
-
-
-def test_shortcut_lorecheck_has_id():
-    """#shortcut-lorecheck — pulsante scorciatoia → panel lorecheck."""
-    assert 'id="shortcut-lorecheck"' in _html()
+def test_shortcut_import_has_id():
+    """#shortcut-import — importa Discord direttamente dal Dashboard."""
+    assert 'id="shortcut-import"' in _html()
 
 
 # ── Characters panel IDs statici (aggiunta 2026-06-26 P6 round 4) ────────────

@@ -335,22 +335,18 @@
             </div>
 
             <div class="dash-card" id="dash-card-shortcuts">
-                <h3>Scorciatoie</h3>
+                <h3>Accesso rapido</h3>
                 <div class="shortcut-grid">
-                    <button id="shortcut-draft" class="shortcut-btn" onclick="showView('draft')">
-                        <span class="sc-icon">✦</span><span>Genera draft (varianti)</span></button>
-                    <button id="shortcut-refine" class="shortcut-btn" onclick="showView('refine')">
-                        <span class="sc-icon">✎</span><span>Rifinisci scena</span></button>
-                    <button id="shortcut-translate" class="shortcut-btn" onclick="showView('translate')">
-                        <span class="sc-icon">⇄</span><span>Traduci IT ↔ EN</span></button>
-                    <button id="shortcut-arc" class="shortcut-btn" onclick="showView('arc')">
-                        <span class="sc-icon">◈</span><span>Continua plot arc</span></button>
-                    <button id="shortcut-smartdraft" class="shortcut-btn" onclick="showView('smartdraft')">
-                        <span class="sc-icon">⚡</span><span>Smart Draft (IT→EN)</span></button>
-                    <button id="shortcut-summarize" class="shortcut-btn" onclick="showView('summarize')">
-                        <span class="sc-icon">∑</span><span>Summarize paste</span></button>
-                    <button id="shortcut-lorecheck" class="shortcut-btn" onclick="showView('lorecheck')">
-                        <span class="sc-icon">⊘</span><span>Lore coherence check</span></button>
+                    <button id="shortcut-scenes" class="shortcut-btn" onclick="showView('scenes')">
+                        <span class="sc-icon">◆</span><span>Scene</span></button>
+                    <button id="shortcut-characters" class="shortcut-btn" onclick="showView('characters')">
+                        <span class="sc-icon">👤</span><span>Personaggi</span></button>
+                    <button id="shortcut-lorekb" class="shortcut-btn" onclick="showView('lorekb')">
+                        <span class="sc-icon">📖</span><span>Lore KB</span></button>
+                    <button id="shortcut-messages" class="shortcut-btn" onclick="showView('messages')">
+                        <span class="sc-icon">◇</span><span>Messaggi</span></button>
+                    <button id="shortcut-import" class="shortcut-btn" onclick="_discordImport(false)">
+                        <span class="sc-icon">↓</span><span>Importa Discord</span></button>
                 </div>
             </div>
 
@@ -1825,13 +1821,60 @@
             const sceneText = msgs.map(m => (m.author_name || '?') + ': ' + (m.content_original || '')).join('\n\n');
             const lastMsg = msgs.length ? (msgs[msgs.length - 1].content_original || '') : '';
             const setVal = (id, v) => { const el = document.getElementById(id); if (el && v != null) el.value = v; };
-            if (tool === 'draft') setVal('draft-prompt', lastMsg || sceneText);
-            if (tool === 'refine') setVal('refine-scene-input', lastMsg || sceneText);
-            if (tool === 'summarize') setVal('sum-text', sceneText);
-            if (tool === 'translate') setVal('translate-input', lastMsg || sceneText);
-            if (tool === 'lorecheck') { setVal('lc-text', lastMsg || ''); setVal('lc-scene-id', sceneId); }
+            if (tool === 'draft') { setVal('draft-prompt', lastMsg || sceneText); showView(tool); return; }
+            if (tool === 'refine') { setVal('refine-scene-input', lastMsg || sceneText); showView(tool); return; }
+            if (tool === 'translate') { setVal('translate-input', lastMsg || sceneText); showView(tool); return; }
+            if (tool === 'lorecheck') { setVal('lc-text', lastMsg || ''); setVal('lc-scene-id', sceneId); showView(tool); return; }
+            if (tool === 'summarize') { _sceneInlineSummarize(sceneId, sceneText); return; }
             showView(tool);
         };
+
+        async function _sceneInlineSummarize(sceneId, sceneText) {
+            let area = document.getElementById('scene-inline-summarize');
+            if (!area) {
+                area = document.createElement('div');
+                area.id = 'scene-inline-summarize';
+                area.style.cssText = 'margin-top:12px;padding:12px;background:#0d1117;border:1px solid #2a3a5a;border-radius:8px;';
+                const detail = document.getElementById('scene-detail-inner') || document.querySelector('#scene-detail .scene-detail-body');
+                if (detail) detail.appendChild(area);
+                else { const sd = document.getElementById('scene-detail'); if (sd) sd.appendChild(area); }
+            }
+            area.innerHTML = '<span style="color:#88aaff;font-size:.85em;">∑ Summarize in corso…</span>';
+            try {
+                const r = await fetch('/api/summarize', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({text: sceneText, scene_id: sceneId}),
+                });
+                const d = await r.json();
+                const summary = d.summary || '';
+                area.innerHTML = '';
+                const pre = document.createElement('div');
+                pre.style.cssText = 'font-size:.83em;color:#cde;white-space:pre-wrap;line-height:1.5;margin-bottom:8px;max-height:200px;overflow-y:auto;';
+                pre.textContent = summary;
+                area.appendChild(pre);
+                const saveBtn = document.createElement('button');
+                saveBtn.textContent = '→ Salva come is_summary';
+                saveBtn.style.cssText = 'background:#1a3a1a;color:#8f8;border:1px solid #2a5a2a;border-radius:6px;padding:5px 12px;cursor:pointer;font-size:.8em;margin-right:6px;';
+                saveBtn.onclick = async () => {
+                    const r2 = await fetch('/api/db/scenes/' + encodeURIComponent(sceneId) + '/messages', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({author_name: 'Sistema', content_original: summary, is_summary: true}),
+                    });
+                    saveBtn.textContent = r2.ok ? '✓ Salvato' : ('✗ ' + r2.status);
+                    saveBtn.disabled = true;
+                };
+                const closeBtn = document.createElement('button');
+                closeBtn.textContent = '✕';
+                closeBtn.style.cssText = 'background:#1a1a2a;color:#888;border:1px solid #2a2a4a;border-radius:6px;padding:5px 10px;cursor:pointer;font-size:.8em;';
+                closeBtn.onclick = () => area.remove();
+                area.appendChild(saveBtn);
+                area.appendChild(closeBtn);
+            } catch(e) {
+                area.innerHTML = '<span style="color:#f66;font-size:.82em;">✗ ' + e.message + '</span>';
+            }
+        }
 
         window._copyLastMsg = function() {
             const msgs = window._currentSceneMessages || [];

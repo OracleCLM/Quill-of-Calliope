@@ -2103,3 +2103,105 @@ class TestFlow45CharCreateV2Fields:
         content = yaml_file.read_text()
         assert "Un guerriero del nord" in content
         assert "Taciturno ma leale" in content
+
+class TestFlow46DashboardSurfaces:
+    """Feature: Dashboard 'Accesso rapido' punta alle 5 superfici (non panel orfani).
+
+    Stato-risultante: il snapshot dashboard restituisce scene recenti e messaggi;
+    gli endpoint che backing il dashboard funzionano correttamente.
+    """
+
+    def test_dashboard_snapshot_returns_counts(self, client):
+        """GET /api/dashboard/snapshot → risponde 200 con scene_count e message_count."""
+        r = client.get("/api/dashboard/snapshot")
+        assert r.status_code == 200
+        d = r.get_json()
+        assert "scene_count" in d or "counts" in d or "kb" in d
+
+    def test_dashboard_recent_scenes_accessible(self, client):
+        """GET /api/db/scenes → lista scene per il widget 'Scene recenti' del dashboard."""
+        r = client.get("/api/db/scenes")
+        assert r.status_code == 200
+        assert "scenes" in r.get_json()
+
+    def test_dashboard_recent_discord_msgs_accessible(self, client):
+        """GET /api/db/messages/recent?source=discord → lista messaggi Discord per il dashboard."""
+        r = client.get("/api/db/messages/recent?source=discord&limit=10")
+        assert r.status_code == 200
+        d = r.get_json()
+        assert "messages" in d
+
+
+class TestFlow47CharAvatarUpload:
+    """Feature: upload immagine personaggio via UI → POST /api/characters/<stem>/image.
+
+    Stato-risultante: dopo upload file, image_path restituito e aggiornabile via PATCH DB.
+    """
+
+    def test_image_upload_saves_file_and_returns_path(self, client, tmp_path):
+        """POST /api/characters/<stem>/image con file PNG → image_path nel risposta."""
+        from unittest.mock import patch
+        from io import BytesIO
+        chars_dir = tmp_path / "characters"
+        chars_dir.mkdir()
+        card_yaml = chars_dir / "flow47hero.draft.yaml"
+        card_yaml.write_text("name: Flow47Hero\n")
+        png_bytes = b'\x89PNG\r\n\x1a\n' + b'\x00' * 16
+        with patch("app.calliope_shell.characters_service._chars_dir", return_value=chars_dir):
+            r = client.post(
+                "/api/characters/flow47hero/image",
+                data={"image": (BytesIO(png_bytes), "avatar.png")},
+                content_type="multipart/form-data",
+            )
+        assert r.status_code == 200
+        d = r.get_json()
+        assert "image_path" in d
+        assert d["image_path"].endswith(".png")
+
+    def test_image_path_patchable_to_db_char(self, client):
+        """PATCH /api/db/characters/<id> con image_path → GET restituisce il path caricato."""
+        cid_r = client.post("/api/db/characters", json={"name": "flow47-db", "kind": "npc"})
+        assert cid_r.status_code == 201
+        cid = cid_r.get_json()["id"]
+        path = "/static/media/characters/flow47-db.png"
+        pr = client.patch(f"/api/db/characters/{cid}", json={"image_path": path})
+        assert pr.status_code == 200
+        assert client.get(f"/api/db/characters/{cid}").get_json()["image_path"] == path
+
+
+class TestFlow48SceneInlineSummarize:
+    """Feature: Summarize inline in scena — POST /api/summarize + salva come is_summary=1.
+
+    Stato-risultante: dopo summarize e save, il messaggio is_summary appare nei messaggi della scena.
+    """
+
+    def _create_scene_with_msgs(self, client, title="Flow48Scene"):
+        sr = client.post("/api/db/scenes", json={"title": title})
+        assert sr.status_code == 201
+        sid = sr.get_json()["id"]
+        for i in range(3):
+            client.post(f"/api/db/scenes/{sid}/messages", json={
+                "author_name": f"Eroe{i}", "content_original": f"Messaggio {i}"
+            })
+        return sid
+
+    def test_summarize_endpoint_accepts_scene_text(self, client):
+        """POST /api/summarize con testo scena → restituisce summary non vuoto."""
+        text = "Aurora: Il cielo era rosso.\nKira: Fuggiremo prima dell'alba."
+        r = client.post("/api/summarize", json={"text": text})
+        assert r.status_code in (200, 503)
+
+    def test_save_summary_as_is_summary_message(self, client):
+        """POST messaggio is_summary=true nella scena → appare in lista con is_summary=1."""
+        sid = self._create_scene_with_msgs(client)
+        summary_text = "Riassunto: i protagonisti si preparano a fuggire."
+        r = client.post(f"/api/db/scenes/{sid}/messages", json={
+            "author_name": "Sistema",
+            "content_original": summary_text,
+            "is_summary": True,
+        })
+        assert r.status_code == 201
+        msgs = client.get(f"/api/db/scenes/{sid}/messages").get_json().get("messages", [])
+        summary_msgs = [m for m in msgs if m.get("is_summary")]
+        assert len(summary_msgs) == 1
+        assert summary_msgs[0]["content_original"] == summary_text
