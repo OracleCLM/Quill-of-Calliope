@@ -2023,3 +2023,29 @@ class TestFlow42MessageEditDelete:
         assert r.status_code == 204
         msgs = client.get(f"/api/db/scenes/{sid}/messages").get_json()["messages"]
         assert all(m["id"] != mid for m in msgs)
+
+
+class TestFlow43WriteToSceneFromChar:
+    """Feature: 'Scrivi a scena' dalla scheda personaggio.
+
+    Verifica che un personaggio possa postare un messaggio in una scena
+    tramite POST /api/db/scenes/<id>/messages con author_name=char.name.
+    Stato risultante: messaggio appare nella lista messaggi della scena.
+    """
+
+    def test_char_posts_message_to_scene(self, client):
+        """POST messaggio a scena con author_name personaggio → appare in GET scene messages."""
+        sid = client.post("/api/db/scenes", json={"title": "flow43-scene"}).get_json()["id"]
+        cid = client.post("/api/db/characters", json={"name": "flow43-char", "kind": "npc"}).get_json()["id"]
+        assert cid
+        r = client.post(
+            f"/api/db/scenes/{sid}/messages",
+            json={"author_name": "flow43-char", "content_original": "Ciao dalla scheda!"},
+        )
+        assert r.status_code == 201
+        mid = r.get_json()["id"]
+        msgs = client.get(f"/api/db/scenes/{sid}/messages").get_json()["messages"]
+        found = next((m for m in msgs if m["id"] == mid), None)
+        assert found is not None
+        assert found["author_name"] == "flow43-char"
+        assert found["content_original"] == "Ciao dalla scheda!"

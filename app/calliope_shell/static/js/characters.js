@@ -358,6 +358,69 @@
     operator: 'background:#2a1a1a;color:#f88;border:1px solid #5a2a2a;',
   };
 
+  function _showWriteToSceneForm(container, charName, anchorBtn) {
+    const existing = container.querySelector('#write-scene-form');
+    if (existing) { existing.remove(); return; }
+
+    const form = document.createElement('div');
+    form.id = 'write-scene-form';
+    form.style.cssText = 'margin-top:8px;padding:8px;background:#0e1a0e;border:1px solid #2a5a3a;border-radius:6px;';
+
+    const sel = document.createElement('select');
+    sel.id = 'write-scene-sel';
+    sel.style.cssText = 'width:100%;background:#111827;color:#aab;border:1px solid #2a3a5a;border-radius:4px;padding:4px 6px;font-size:.82em;margin-bottom:6px;box-sizing:border-box;';
+    const placeholder = document.createElement('option');
+    placeholder.value = '';
+    placeholder.textContent = '— Scegli scena —';
+    sel.appendChild(placeholder);
+    fetch('/api/db/scenes').then(r => r.ok ? r.json() : {scenes: []}).then(d => {
+        (d.scenes || []).forEach(s => {
+            const opt = document.createElement('option');
+            opt.value = s.id;
+            opt.textContent = s.title || ('Scena #' + s.id);
+            sel.appendChild(opt);
+        });
+    }).catch(() => {});
+    form.appendChild(sel);
+
+    const ta = document.createElement('textarea');
+    ta.id = 'write-scene-text';
+    ta.placeholder = 'Messaggio…';
+    ta.rows = 3;
+    ta.style.cssText = 'width:100%;box-sizing:border-box;background:#111827;color:#eee;border:1px solid #2a3a5a;border-radius:4px;padding:6px;font-size:.82em;resize:vertical;margin-bottom:6px;';
+    form.appendChild(ta);
+
+    const sendBtn = document.createElement('button');
+    sendBtn.textContent = '▶ Invia';
+    sendBtn.style.cssText = 'background:#1a3a1a;color:#8f8;border:1px solid #2a5a2a;border-radius:4px;padding:3px 12px;cursor:pointer;font-size:.78em;margin-right:6px;';
+    const statusEl = document.createElement('span');
+    statusEl.style.cssText = 'font-size:.75em;color:#8f8;';
+    sendBtn.onclick = async () => {
+        const sceneId = sel.value;
+        const text = ta.value.trim();
+        if (!sceneId || !text) { statusEl.textContent = 'Scegli scena e inserisci testo.'; return; }
+        sendBtn.disabled = true;
+        statusEl.textContent = '…';
+        try {
+            const r = await fetch('/api/db/scenes/' + encodeURIComponent(sceneId) + '/messages', {
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({author_name: charName, content_original: text}),
+            });
+            if (r.ok) {
+                statusEl.textContent = '✓ Inviato';
+                ta.value = '';
+                sendBtn.disabled = false;
+            } else {
+                statusEl.textContent = '✗ Errore ' + r.status;
+                sendBtn.disabled = false;
+            }
+        } catch(e) { statusEl.textContent = '✗ ' + e.message; sendBtn.disabled = false; }
+    };
+    form.appendChild(sendBtn);
+    form.appendChild(statusEl);
+    anchorBtn.insertAdjacentElement('afterend', form);
+  }
+
   function _addEditBtn(container, data) {
     fetch('/api/db/characters?name=' + encodeURIComponent(data.name || ''))
       .then(r => r.json())
@@ -401,6 +464,13 @@
         const mergedData = Object.assign({}, data, {kind, image_path: chars[0].image_path || ''});
         btn.onclick = () => { container.textContent = ''; renderEditForm(container, mergedData, dbId); };
         container.appendChild(btn);
+
+        const writeBtn = document.createElement('button');
+        writeBtn.id = 'btn-char-write-scene';
+        writeBtn.textContent = '✉ Scrivi a scena';
+        writeBtn.style.cssText = 'background:#1a3a2a;color:#8f8;border:1px solid #2a5a3a;border-radius:6px;padding:5px 14px;cursor:pointer;font-size:.8em;margin-top:6px;display:block;';
+        writeBtn.onclick = () => _showWriteToSceneForm(container, chars[0].name, writeBtn);
+        container.appendChild(writeBtn);
       })
       .catch(() => {});
   }
