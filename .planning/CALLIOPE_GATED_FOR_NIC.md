@@ -394,6 +394,23 @@ Branch dedicato: `efesto/gated6-arc-db-canonical` — non ancora mergato su main
 
 ---
 
+## Completato redesign#257 P6 UI — browser-test round 2+3 (2026-06-26)
+
+| Item | Dettaglio | Commit |
+|------|-----------|--------|
+| fix(GAP-1): register_characters_db_routes | create_app() non la registrava → 404 | 465cdce |
+| fix(GAP-2/3): arc seed YAML→SQLite al boot | INSERT OR IGNORE 6 archi | 465cdce |
+| fix(GAP-4/lorekb): overflow-y:auto panel | ricerca LoreKB scrollabile | 465cdce |
+| feat(discord-M2): discord_jsonl_to_db.py | 22.207 msg importati con dedup SHA1 | 465cdce |
+| fix(FLOW-7): _loadArcFilterOptions(editSel) | arc select nel form edit mai popolato | b0f5593 |
+| test(p6-journey): 14 Given/When/Then | GAP-1/2/3 + arc-assign blindati | d04aebb |
+| fix(smartdraft): _loadCharDropdown globale | scope bug ReferenceError in showView | 46b3059 |
+
+**Suite: 2371 passed (14 journey test P6 + 10 discord + fixture esistenti).**
+**GAP runtime residui** (non bugs di codice): 503 /api/draft (gateway LLM non avviato).
+
+---
+
 ## [GATED-7] P7 Dead Code Cleanup — lista candidati (proposta per operator review)
 
 > **HARD RULE**: nessuna rimozione senza: opus propone lista → father valuta → operator approva.

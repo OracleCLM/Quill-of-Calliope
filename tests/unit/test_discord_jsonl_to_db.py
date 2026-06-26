@@ -136,3 +136,87 @@ def test_run_idempotent(db, jsonl, monkeypatch):
     assert r1["inserted"] == 2
     assert r2["inserted"] == 0
     assert r2["skipped_dedup"] == 2
+
+
+def test_run_limit_respected(db, jsonl):
+    """limit=1 → processa solo 1 riga."""
+    import scripts.discord_jsonl_to_db as m
+    m.get_db = lambda *a, **kw: get_db(db)
+    try:
+        stats = run(jsonl, dry_run=False, only_ic=True, limit=1)
+    finally:
+        import importlib
+        importlib.reload(m)
+    assert stats["inserted"] <= 1
+
+
+def test_run_blank_lines_skipped(db, tmp_path):
+    """Righe vuote nel JSONL non causano errori."""
+    import scripts.discord_jsonl_to_db as m
+    p = tmp_path / "blank.jsonl"
+    p.write_text(
+        '\n{"channel_id":"1","channel_name":"ch","timestamp":"T","author_name":"A","content":"x","tag":"IC"}\n\n',
+        encoding="utf-8",
+    )
+    m.get_db = lambda *a, **kw: get_db(db)
+    try:
+        stats = run(p, dry_run=False, only_ic=True, limit=None)
+    finally:
+        import importlib
+        importlib.reload(m)
+    assert stats["inserted"] == 1
+    assert stats["errors"] == 0
+
+
+def test_run_json_decode_error_counted(db, tmp_path):
+    """Riga JSONL malformata → stats['errors'] incrementato."""
+    import scripts.discord_jsonl_to_db as m
+    p = tmp_path / "bad.jsonl"
+    p.write_text(
+        'NOT_JSON\n{"channel_id":"2","channel_name":"c2","timestamp":"T","author_name":"B","content":"y","tag":"IC"}\n',
+        encoding="utf-8",
+    )
+    m.get_db = lambda *a, **kw: get_db(db)
+    try:
+        stats = run(p, dry_run=False, only_ic=True, limit=None)
+    finally:
+        import importlib
+        importlib.reload(m)
+    assert stats["errors"] == 1
+    assert stats["inserted"] == 1
+
+
+def test_run_insert_error_counted(db, tmp_path, monkeypatch):
+    """Errore durante INSERT → stats['errors'] incrementato, non crash."""
+    import scripts.discord_jsonl_to_db as m
+    from unittest.mock import MagicMock
+
+    p = tmp_path / "ok.jsonl"
+    p.write_text(
+        '{"channel_id":"3","channel_name":"c3","timestamp":"T","author_name":"C","content":"z","tag":"IC"}\n',
+        encoding="utf-8",
+    )
+
+    real_conn = get_db(db)
+    init_schema(real_conn)
+    real_conn.close()
+
+    mock_conn = MagicMock()
+    # SELECT per scene ritorna None → _get_or_create_scene crea la scena
+    mock_conn.execute.return_value.fetchone.return_value = None
+    # Il secondo execute (INSERT INTO messages) solleva eccezione
+    def side_effect(sql, *args, **kwargs):
+        if "INSERT INTO messages" in sql:
+            raise Exception("simulated insert error")
+        return MagicMock(fetchone=lambda: None, description=[("id",)], fetchall=lambda: [])
+
+    mock_conn.execute.side_effect = side_effect
+
+    m.get_db = lambda *a, **kw: mock_conn
+    try:
+        stats = run(p, dry_run=False, only_ic=True, limit=None)
+    finally:
+        import importlib
+        importlib.reload(m)
+    assert stats["errors"] == 1
+    assert stats["inserted"] == 0
