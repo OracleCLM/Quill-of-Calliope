@@ -429,3 +429,45 @@ class TestFlow15MascotState:
         assert r.status_code in (200, 204)
         r2 = client.get("/api/mascot/state")
         assert r2.get_json().get("emotion") == "happy"
+
+
+# ── FLOW-16: Char memory endpoints ───────────────────────────────────────────
+
+class TestFlow16CharMemory:
+    """GIVEN app / WHEN char memory API / THEN struttura response corretta."""
+
+    def test_chars_memory_returns_200(self, client):
+        """GET /api/chars/<name>/memory — snippets ChromaDB."""
+        r = client.get("/api/chars/Arianna/memory")
+        assert r.status_code == 200
+
+    def test_chars_memory_has_snippets_key(self, client):
+        d = client.get("/api/chars/Arianna/memory").get_json()
+        assert "snippets" in d
+        assert isinstance(d["snippets"], list)
+
+    def test_char_facts_returns_200(self, client):
+        """GET /api/char/<name>/facts — fatti strutturati dal char_memory module."""
+        r = client.get("/api/char/Arianna/facts")
+        assert r.status_code == 200
+
+    def test_char_facts_has_facts_key(self, client):
+        d = client.get("/api/char/Arianna/facts").get_json()
+        assert "facts" in d
+
+    def test_memory_append_returns_400_without_params(self, client):
+        """POST /api/char/memory_append senza char+fact → 400."""
+        r = client.post("/api/char/memory_append", json={})
+        assert r.status_code == 400
+
+    def test_memory_append_with_params_returns_200(self, client):
+        """POST /api/char/memory_append con char+fact → 200."""
+        r = client.post("/api/char/memory_append", json={
+            "char": "Arianna", "fact": "Test fact journey16", "scope": "L1"
+        })
+        assert r.status_code == 200
+
+    def test_recall_returns_400_without_params(self, client):
+        """POST /api/char/recall senza char+query → 400."""
+        r = client.post("/api/char/recall", json={})
+        assert r.status_code == 400
