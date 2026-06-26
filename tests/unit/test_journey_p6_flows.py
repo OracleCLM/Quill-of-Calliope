@@ -1680,3 +1680,82 @@ class TestFlow35ArcDbCrud:
         sid = self._make_scene(client)
         r = client.patch(f"/api/db/scenes/{sid}/arc", json={})
         assert r.status_code == 400
+
+
+class TestFlow36SceneMessagesPaginated:
+    """GIVEN messaggi in scena / WHEN GET paginated + count / THEN corretti.
+
+    Copre:
+    - GET /api/db/scenes/<sid>/messages           → 200 con {messages, total, page, pages}
+    - GET /api/db/scenes/<sid>/messages?page=1    → paginazione
+    - GET /api/db/scenes/<sid>/messages?page=0    → 400 (bad_request)
+    - GET /api/db/scenes/<sid>/messages su inesistente → 404
+    - GET /api/db/scenes/<sid>/messages/count     → 200 con {count, scene_id}
+    - GET count su scena inesistente              → 404
+    """
+
+    def _make_scene(self, client, title="flow36-scene"):
+        r = client.post("/api/db/scenes", json={"title": title})
+        assert r.status_code == 201
+        return r.get_json()["id"]
+
+    def _add_msgs(self, client, sid, n=3):
+        for i in range(n):
+            client.post(
+                f"/api/db/scenes/{sid}/messages",
+                json={"author_name": f"auth36-{i}", "content_original": f"msg {i}"},
+            )
+
+    def test_get_messages_paginated_200(self, client):
+        """GET /api/db/scenes/<sid>/messages → 200."""
+        sid = self._make_scene(client)
+        self._add_msgs(client, sid, 3)
+        r = client.get(f"/api/db/scenes/{sid}/messages")
+        assert r.status_code == 200
+
+    def test_get_messages_has_messages_key(self, client):
+        """GET messages → risposta ha chiave messages."""
+        sid = self._make_scene(client)
+        self._add_msgs(client, sid, 2)
+        body = client.get(f"/api/db/scenes/{sid}/messages").get_json()
+        assert "messages" in body
+
+    def test_get_messages_page_param(self, client):
+        """GET con ?page=1&per_page=2 → 200."""
+        sid = self._make_scene(client)
+        self._add_msgs(client, sid, 4)
+        r = client.get(f"/api/db/scenes/{sid}/messages?page=1&per_page=2")
+        assert r.status_code == 200
+
+    def test_get_messages_bad_page_400(self, client):
+        """GET con page=0 → 400."""
+        sid = self._make_scene(client)
+        r = client.get(f"/api/db/scenes/{sid}/messages?page=0")
+        assert r.status_code == 400
+
+    def test_get_messages_nonexistent_scene_404(self, client):
+        """GET messages su scena inesistente → 404."""
+        r = client.get("/api/db/scenes/nonexistent-flow36/messages")
+        assert r.status_code == 404
+
+    def test_count_messages_200(self, client):
+        """GET /count → 200 con {count, scene_id}."""
+        sid = self._make_scene(client)
+        self._add_msgs(client, sid, 3)
+        r = client.get(f"/api/db/scenes/{sid}/messages/count")
+        assert r.status_code == 200
+        body = r.get_json()
+        assert "count" in body
+        assert body["count"] >= 3
+
+    def test_count_messages_zero_for_empty_scene(self, client):
+        """GET /count su scena vuota → count=0."""
+        sid = self._make_scene(client, "flow36-empty")
+        r = client.get(f"/api/db/scenes/{sid}/messages/count")
+        assert r.status_code == 200
+        assert r.get_json()["count"] == 0
+
+    def test_count_messages_nonexistent_scene_404(self, client):
+        """GET /count su scena inesistente → 404."""
+        r = client.get("/api/db/scenes/nonexistent-flow36/messages/count")
+        assert r.status_code == 404
