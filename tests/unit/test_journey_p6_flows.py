@@ -861,3 +861,114 @@ class TestFlow24MessagesFilter:
         """GET ?limit=3 → max 3 messaggi."""
         d = client.get("/api/db/messages/recent?limit=3").get_json()
         assert len(d["messages"]) <= 3
+
+
+# ── TestFlow25: Scenes message_count field (has-msg filter) ──────────────────
+
+class TestFlow25ScenesMessageCount:
+    """GIVEN /api/db/scenes / THEN ogni scena ha message_count numerico.
+
+    Blinda il campo usato dal filtro JS 'Solo scene con messaggi'
+    (#scene-has-msg-filter). Il filtro opera s.message_count > 0 lato client.
+    """
+
+    def test_scenes_list_200(self, client):
+        r = client.get("/api/db/scenes")
+        assert r.status_code == 200
+
+    def test_scenes_key_present(self, client):
+        d = client.get("/api/db/scenes").get_json()
+        assert "scenes" in d
+
+    def test_every_scene_has_message_count(self, client):
+        scenes = client.get("/api/db/scenes").get_json()["scenes"]
+        for s in scenes[:20]:
+            assert "message_count" in s, f"scena {s.get('id')} manca message_count"
+
+    def test_message_count_is_int_or_null(self, client):
+        scenes = client.get("/api/db/scenes").get_json()["scenes"]
+        for s in scenes[:20]:
+            mc = s["message_count"]
+            assert mc is None or isinstance(mc, int), f"message_count non int: {mc!r}"
+
+    def test_scenes_with_messages_have_positive_count(self, client):
+        """Crea scena + aggiunge messaggio → message_count >= 1."""
+        # crea scena
+        r = client.post("/api/db/scenes", json={"title": "journey-test-msgcount"})
+        assert r.status_code in (200, 201)
+        sid = r.get_json()["id"]
+        # aggiunge messaggio
+        client.post(f"/api/db/scenes/{sid}/messages", json={"author_name": "Test", "content_original": "Prova"})
+        # verifica count
+        scenes = client.get("/api/db/scenes").get_json()["scenes"]
+        target = next((s for s in scenes if s["id"] == sid), None)
+        assert target is not None
+        assert (target["message_count"] or 0) >= 1
+
+
+# ── TestFlow26: Scene roster CRUD ────────────────────────────────────────────
+
+class TestFlow26SceneRosterCrud:
+    """GIVEN una scena e un personaggio esistente
+    WHEN POST /api/db/scenes/<id>/characters
+    THEN il personaggio appare nel roster; DELETE lo rimuove.
+    """
+
+    def test_roster_get_empty(self, client):
+        r = client.post("/api/db/scenes", json={"title": "journey-test-arc-assign"})
+        assert r.status_code in (200, 201)
+        sid = r.get_json()["id"]
+        r2 = client.get(f"/api/db/scenes/{sid}/characters")
+        assert r2.status_code == 200
+        d = r2.get_json()
+        assert "characters" in d
+        assert d["characters"] == []
+
+    def test_roster_add_character(self, client):
+        # crea scena
+        r = client.post("/api/db/scenes", json={"title": "journey-test-arc-assign"})
+        sid = r.get_json()["id"]
+        # ottieni un personaggio esistente
+        chars = client.get("/api/db/characters").get_json()["characters"]
+        if not chars:
+            pytest.skip("nessun personaggio nel DB")
+        cid = chars[0]["id"]
+        # aggiungi al roster
+        r2 = client.post(f"/api/db/scenes/{sid}/characters", json={"character_id": cid, "role": "protagonist"})
+        assert r2.status_code in (200, 201)
+
+    def test_roster_character_appears_in_get(self, client):
+        r = client.post("/api/db/scenes", json={"title": "journey-test-arc-assign"})
+        sid = r.get_json()["id"]
+        chars = client.get("/api/db/characters").get_json()["characters"]
+        if not chars:
+            pytest.skip("nessun personaggio nel DB")
+        cid = chars[0]["id"]
+        client.post(f"/api/db/scenes/{sid}/characters", json={"character_id": cid, "role": "protagonist"})
+        r3 = client.get(f"/api/db/scenes/{sid}/characters")
+        assert r3.status_code == 200
+        names = [c.get("id") or c.get("character_id") for c in r3.get_json()["characters"]]
+        assert cid in names or any(str(cid) in str(n) for n in names)
+
+    def test_roster_delete_character(self, client):
+        r = client.post("/api/db/scenes", json={"title": "journey-test-arc-assign"})
+        sid = r.get_json()["id"]
+        chars = client.get("/api/db/characters").get_json()["characters"]
+        if not chars:
+            pytest.skip("nessun personaggio nel DB")
+        cid = chars[0]["id"]
+        client.post(f"/api/db/scenes/{sid}/characters", json={"character_id": cid, "role": "protagonist"})
+        r4 = client.delete(f"/api/db/scenes/{sid}/characters/{cid}")
+        assert r4.status_code in (200, 204)
+
+    def test_roster_empty_after_delete(self, client):
+        r = client.post("/api/db/scenes", json={"title": "journey-test-arc-assign"})
+        sid = r.get_json()["id"]
+        chars = client.get("/api/db/characters").get_json()["characters"]
+        if not chars:
+            pytest.skip("nessun personaggio nel DB")
+        cid = chars[0]["id"]
+        client.post(f"/api/db/scenes/{sid}/characters", json={"character_id": cid})
+        client.delete(f"/api/db/scenes/{sid}/characters/{cid}")
+        r5 = client.get(f"/api/db/scenes/{sid}/characters")
+        assert r5.get_json()["characters"] == []
