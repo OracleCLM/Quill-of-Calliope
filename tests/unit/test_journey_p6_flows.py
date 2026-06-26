@@ -130,3 +130,49 @@ class TestFlow7ArcAssign:
         scenes = client.get(f"/api/db/scenes?arc_id={arc_id}").get_json().get("scenes", [])
         ids = [s["id"] for s in scenes]
         assert scene_id in ids, f"scena {scene_id} non trovata nel filtro arc_id={arc_id}"
+
+
+# ── FLOW-8: Salva summary come messaggio is_summary=1 (VISION Principio 3) ───
+
+class TestFlow8SummaryInScene:
+    """GIVEN scena con messaggi / WHEN POST summary con is_summary=1 / THEN messaggio verde nel thread."""
+
+    @pytest.fixture
+    def scene_with_msgs(self, client):
+        """Crea una scena con 2 messaggi normali."""
+        r = client.post("/api/db/scenes", json={"title": "test-summary-scene"})
+        scene_id = r.get_json()["id"]
+        client.post(f"/api/db/scenes/{scene_id}/messages",
+                    json={"author_name": "Alice", "content_original": "Primo messaggio"})
+        client.post(f"/api/db/scenes/{scene_id}/messages",
+                    json={"author_name": "Bob", "content_original": "Secondo messaggio"})
+        return scene_id
+
+    def test_summary_message_saved_with_is_summary_flag(self, client, scene_with_msgs):
+        """WHEN POST messaggio con is_summary=1 / THEN campo is_summary=1 in GET."""
+        scene_id = scene_with_msgs
+        r = client.post(f"/api/db/scenes/{scene_id}/messages", json={
+            "author_name": "Sistema",
+            "content_original": "Riassunto: Alice e Bob si sono incontrati.",
+            "is_summary": 1,
+            "source": "summary",
+        })
+        assert r.status_code == 201
+        msgs = client.get(f"/api/db/scenes/{scene_id}").get_json()["messages"]
+        summary_msgs = [m for m in msgs if m.get("is_summary") in (1, True)]
+        assert len(summary_msgs) == 1
+        assert "Riassunto" in summary_msgs[0]["content_original"]
+
+    def test_summary_message_has_source_summary(self, client, scene_with_msgs):
+        """WHEN POST is_summary con source='summary' / THEN source nel DB è 'summary'."""
+        scene_id = scene_with_msgs
+        client.post(f"/api/db/scenes/{scene_id}/messages", json={
+            "author_name": "Sistema",
+            "content_original": "Recap della sessione.",
+            "is_summary": 1,
+            "source": "summary",
+        })
+        msgs = client.get(f"/api/db/scenes/{scene_id}").get_json()["messages"]
+        summary_msg = next((m for m in msgs if m.get("is_summary") in (1, True)), None)
+        assert summary_msg is not None
+        assert summary_msg.get("source") == "summary"

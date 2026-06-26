@@ -783,6 +783,10 @@
                 <ul id="sum-facts" style="color:#bbc; font-size:.85em; line-height:1.5; padding-left:20px;"></ul>
             </div>
             <div style="font-size:.78em; color:#556; margin-top:6px;" id="sum-meta"></div>
+            <div style="margin-top:12px;" id="sum-save-to-scene-area" style="display:none;">
+                <button id="btn-sum-save-to-scene" style="background:#1a3a1a;color:#8f8;border:1px solid #2a5a2a;border-radius:6px;padding:7px 16px;cursor:pointer;font-size:.85em;">→ Salva in scena</button>
+                <span id="sum-save-status" style="font-size:.8em;color:#88aaff;margin-left:10px;"></span>
+            </div>
         </div>
     </section>
 
@@ -1860,9 +1864,33 @@
                 document.getElementById('sum-meta').textContent = `${data.word_count} words | Model: ${data.model_used}`;
                 document.getElementById('sum-output').style.display = 'block';
                 document.getElementById('sum-status').textContent = '✓ Summary generato.';
+                // mostra il pulsante "salva in scena" solo se c'è una scena attiva
+                const saveArea = document.getElementById('sum-save-to-scene-area');
+                if (saveArea) saveArea.style.display = window._currentSceneId ? 'block' : 'none';
             } catch(e) {
                 document.getElementById('sum-status').textContent = '✗ ' + e.message;
             } finally { btn.disabled = false; }
+        });
+
+        // ── Salva Summary in scena ──
+        document.getElementById('btn-sum-save-to-scene').addEventListener('click', async function() {
+            const sceneId = window._currentSceneId;
+            const summary = (document.getElementById('sum-summary').textContent || '').trim();
+            const saveStatus = document.getElementById('sum-save-status');
+            if (!sceneId) { saveStatus.textContent = '✗ Nessuna scena attiva.'; return; }
+            if (!summary) { saveStatus.textContent = '✗ Genera prima il summary.'; return; }
+            saveStatus.textContent = 'Salvataggio…';
+            try {
+                const resp = await fetch('/api/db/scenes/' + encodeURIComponent(sceneId) + '/messages', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({author_name: 'Sistema', content_original: summary, is_summary: 1, source: 'summary'}),
+                });
+                if (!resp.ok) { const d = await resp.json(); throw new Error(d.error || resp.status); }
+                saveStatus.textContent = '✓ Salvato in scena.';
+            } catch(e) {
+                saveStatus.textContent = '✗ ' + e.message;
+            }
         });
 
         // ── Lore Search ──
