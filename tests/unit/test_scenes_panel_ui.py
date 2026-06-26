@@ -660,3 +660,39 @@ def test_dash_snapshot_status_has_id():
 def test_dash_card_recent_scenes_has_id():
     """#dash-card-recent-scenes — card scene recenti dashboard."""
     assert 'id="dash-card-recent-scenes"' in _html()
+
+
+# ── Draft panel IDs estesi (2026-06-26 round 5) ───────────────────────────────
+
+def test_draft_prompt_has_id():
+    """#draft-prompt — textarea prompt di draft nel panel."""
+    assert 'id="draft-prompt"' in _html()
+
+
+def test_draft_scene_type_has_id():
+    """#draft-scene-type — select tipo scena nel panel draft."""
+    assert 'id="draft-scene-type"' in _html()
+
+
+def test_draft_n_variants_has_id():
+    """#draft-n-variants — input numero varianti nel panel draft."""
+    assert 'id="draft-n-variants"' in _html()
+
+
+# ── Refine panel IDs estesi (2026-06-26 round 5) ─────────────────────────────
+
+def test_refine_feedback_has_id():
+    """#refine-feedback — input feedback utente nel panel refine."""
+    assert 'id="refine-feedback"' in _html()
+
+
+def test_refine_auto_lint_has_id():
+    """#refine-auto-lint — checkbox auto-lint nel panel refine."""
+    assert 'id="refine-auto-lint"' in _html()
+
+
+# ── LoreCheck panel IDs estesi (2026-06-26 round 5) ──────────────────────────
+
+def test_lc_scene_id_has_id():
+    """#lc-scene-id — input scene ID (opzionale) nel panel LoreCheck."""
+    assert 'id="lc-scene-id"' in _html()
