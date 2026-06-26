@@ -292,3 +292,46 @@ class TestFlow11MessagesRecent:
         d = client.get("/api/db/messages/recent?source=discord&limit=3").get_json()
         for m in d["messages"]:
             assert m.get("source") == "discord"
+
+
+# ── FLOW-12: LoreKB CRUD — /api/lore/entries ─────────────────────────────────
+
+class TestFlow12LoreKbCrud:
+    """GIVEN app avviata / WHEN CRUD /api/lore/entries / THEN lifecycle completo."""
+
+    def test_categories_returns_list(self, client):
+        d = client.get("/api/lore/categories").get_json()
+        cats = d.get("categories", [])
+        assert isinstance(cats, list) and len(cats) >= 1
+
+    def test_post_entry_returns_201(self, client):
+        r = client.post("/api/lore/entries", json={
+            "title": "TestLore-Journey12", "body": "Corpo di test.", "category": "other"
+        })
+        assert r.status_code == 201
+        assert "id" in r.get_json()
+
+    def test_get_entry_after_post(self, client):
+        r = client.post("/api/lore/entries", json={
+            "title": "TestLore-Journey12-Get", "body": "Corpo get.", "category": "other"
+        })
+        eid = r.get_json()["id"]
+        d = client.get(f"/api/lore/entries/{eid}").get_json()
+        assert d.get("title") == "TestLore-Journey12-Get"
+
+    def test_delete_entry_returns_200(self, client):
+        r = client.post("/api/lore/entries", json={
+            "title": "TestLore-Journey12-Del", "body": "Da eliminare.", "category": "other"
+        })
+        eid = r.get_json()["id"]
+        r2 = client.delete(f"/api/lore/entries/{eid}")
+        assert r2.status_code == 200
+
+    def test_get_deleted_entry_returns_404(self, client):
+        r = client.post("/api/lore/entries", json={
+            "title": "TestLore-Journey12-404", "body": ".", "category": "other"
+        })
+        eid = r.get_json()["id"]
+        client.delete(f"/api/lore/entries/{eid}")
+        r2 = client.get(f"/api/lore/entries/{eid}")
+        assert r2.status_code == 404
