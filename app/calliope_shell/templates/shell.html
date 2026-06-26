@@ -505,13 +505,13 @@
                 <select id="scene-arc-filter" onchange="_scenesArcFilter(this.value)" style="width:100%;background:#0d1117;color:#aab;border:1px solid #2a3a5a;border-radius:6px;padding:5px 8px;font-size:.8em;margin-top:4px;cursor:pointer;">
                     <option value="">— Tutti gli archi —</option>
                 </select>
-                <button onclick="_newSceneInline()" style="margin-top:6px;width:100%;background:#1a3a1a;color:#8f8;border:1px solid #2a5a2a;border-radius:6px;padding:6px 10px;cursor:pointer;font-size:.82em;">+ Nuova scena</button>
+                <button id="btn-new-scene" onclick="_newSceneInline()" style="margin-top:6px;width:100%;background:#1a3a1a;color:#8f8;border:1px solid #2a5a2a;border-radius:6px;padding:6px 10px;cursor:pointer;font-size:.82em;">+ Nuova scena</button>
                 <div id="new-scene-form" style="display:none;margin-top:6px;">
                     <input id="new-scene-title" placeholder="Titolo scena..." style="width:100%;box-sizing:border-box;background:#111827;color:#eee;border:1px solid #2a3a5a;border-radius:6px;padding:6px 10px;font-size:.85em;">
                     <input id="new-scene-location" placeholder="Location (opzionale)..." style="width:100%;box-sizing:border-box;background:#111827;color:#aab;border:1px solid #2a3a5a;border-radius:6px;padding:6px 10px;font-size:.83em;margin-top:4px;">
                     <div style="display:flex;gap:6px;margin-top:6px;">
-                        <button onclick="_submitNewScene()" style="flex:1;background:#1a3a1a;color:#8f8;border:1px solid #2a5a2a;border-radius:6px;padding:5px;cursor:pointer;font-size:.82em;">✓ Crea</button>
-                        <button onclick="_cancelNewScene()" style="flex:1;background:#1a2a3a;color:#aab;border:1px solid #2a3a5a;border-radius:6px;padding:5px;cursor:pointer;font-size:.82em;">✕</button>
+                        <button id="btn-scene-submit" onclick="_submitNewScene()" style="flex:1;background:#1a3a1a;color:#8f8;border:1px solid #2a5a2a;border-radius:6px;padding:5px;cursor:pointer;font-size:.82em;">✓ Crea</button>
+                        <button id="btn-scene-cancel" onclick="_cancelNewScene()" style="flex:1;background:#1a2a3a;color:#aab;border:1px solid #2a3a5a;border-radius:6px;padding:5px;cursor:pointer;font-size:.82em;">✕</button>
                     </div>
                     <div id="new-scene-status" style="font-size:.78em;color:#88aaff;min-height:1em;margin-top:4px;"></div>
                 </div>
@@ -544,7 +544,7 @@
                     <div style="font-size:.85em;color:#8899cc;margin-bottom:8px;font-weight:bold;">▶ Genera prossimo messaggio</div>
                     <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
                         <select id="scene-char-select"><option value="">— Seleziona personaggio —</option></select>
-                        <button onclick="_showAddRoster()" style="background:#162216;color:#8f8;border:1px solid #2a5a2a;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:.78em;white-space:nowrap;">+ Roster</button>
+                        <button id="btn-add-roster" onclick="_showAddRoster()" style="background:#162216;color:#8f8;border:1px solid #2a5a2a;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:.78em;white-space:nowrap;">+ Roster</button>
                     </div>
                     <div id="roster-list" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;min-height:0;"></div>
                     <div id="add-roster-form" style="display:none;margin-top:6px;display:none;gap:6px;align-items:center;flex-wrap:wrap;">
@@ -555,7 +555,7 @@
                             <option value="narrator">narrator</option>
                             <option value="npc">npc</option>
                         </select>
-                        <button onclick="_addToRoster()" style="background:#1a3a1a;color:#8f8;border:1px solid #2a5a2a;border-radius:5px;padding:4px 10px;cursor:pointer;font-size:.78em;">✓</button>
+                        <button id="btn-roster-confirm" onclick="_addToRoster()" style="background:#1a3a1a;color:#8f8;border:1px solid #2a5a2a;border-radius:5px;padding:4px 10px;cursor:pointer;font-size:.78em;">✓</button>
                         <button onclick="document.getElementById('add-roster-form').style.display='none'" style="background:#1a2a3a;color:#aab;border:1px solid #2a3a5a;border-radius:5px;padding:4px 8px;cursor:pointer;font-size:.78em;">✕</button>
                         <span id="add-roster-status" style="font-size:.75em;color:#88aaff;"></span>
                     </div>
