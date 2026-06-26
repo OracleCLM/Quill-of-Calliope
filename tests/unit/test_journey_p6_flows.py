@@ -256,3 +256,39 @@ class TestFlow10CharacterPatchFull:
         """WHEN PATCH personaggio inesistente / THEN 404."""
         r = client.patch("/api/db/characters/id-che-non-esiste", json={"kind": "npc"})
         assert r.status_code == 404
+
+
+# ── FLOW-11: Messages recent — pannello ◇ Messages ───────────────────────────
+
+class TestFlow11MessagesRecent:
+    """GIVEN messaggi nel DB / WHEN GET /api/db/messages/recent / THEN lista con campi."""
+
+    def test_recent_messages_returns_200(self, client):
+        r = client.get("/api/db/messages/recent?limit=5")
+        assert r.status_code == 200
+
+    def test_recent_messages_has_messages_key(self, client):
+        d = client.get("/api/db/messages/recent?limit=5").get_json()
+        assert "messages" in d
+
+    def test_recent_messages_is_list(self, client):
+        d = client.get("/api/db/messages/recent?limit=5").get_json()
+        assert isinstance(d["messages"], list)
+
+    def test_recent_messages_limit_respected(self, client):
+        d = client.get("/api/db/messages/recent?limit=3").get_json()
+        assert len(d["messages"]) <= 3
+
+    def test_recent_messages_have_required_fields(self, client):
+        """Ogni messaggio ha id, author_name, content_original, scene_id."""
+        d = client.get("/api/db/messages/recent?limit=5").get_json()
+        for m in d["messages"]:
+            assert "id" in m, f"id assente: {m}"
+            assert "author_name" in m, f"author_name assente: {m}"
+            assert "content_original" in m, f"content_original assente: {m}"
+
+    def test_source_filter_discord(self, client):
+        """Filtro source=discord ritorna messaggi Discord."""
+        d = client.get("/api/db/messages/recent?source=discord&limit=3").get_json()
+        for m in d["messages"]:
+            assert m.get("source") == "discord"
