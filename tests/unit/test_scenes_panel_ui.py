@@ -323,3 +323,35 @@ def test_btn_arc_cancel_new_has_id():
 def test_btn_roster_cancel_has_id():
     """#btn-roster-cancel — pulsante ✕ chiusura form add-roster."""
     assert 'id="btn-roster-cancel"' in _html()
+
+
+# ── SmartDraft panel IDs (aggiunta 2026-06-26) ───────────────────────────────
+
+def test_sd_intent_has_id():
+    """#sd-intent — textarea intent SmartDraft."""
+    assert 'id="sd-intent"' in _html()
+
+
+def test_btn_smartdraft_has_id():
+    """#btn-smartdraft — pulsante ⚡ Generate Draft."""
+    assert 'id="btn-smartdraft"' in _html()
+
+
+def test_sd_output_has_id():
+    """#sd-output — container output SmartDraft."""
+    assert 'id="sd-output"' in _html()
+
+
+def test_btn_sd_save_scene_has_id():
+    """#btn-sd-save-scene — pulsante → Salva in scena da SmartDraft."""
+    assert 'id="btn-sd-save-scene"' in _html()
+
+
+def test_sd_status_has_id():
+    """#sd-status — status indicator SmartDraft."""
+    assert 'id="sd-status"' in _html()
+
+
+def test_btn_sd_copy_has_id():
+    """#btn-sd-copy — pulsante 📋 Copy output SmartDraft."""
+    assert 'id="btn-sd-copy"' in _html()
