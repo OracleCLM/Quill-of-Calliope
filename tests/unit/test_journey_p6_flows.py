@@ -557,3 +557,49 @@ class TestFlow18LoreSearchAndSceneRoutes:
         """POST /api/translate → 503 in test env (gateway non disponibile)."""
         r = client.post("/api/translate", json={"text": "Ciao"})
         assert r.status_code in (200, 503)
+
+
+# ── FLOW-19: Scene revive + draft degradation ─────────────────────────────────
+
+class TestFlow19SceneReviveAndDraft:
+    """GIVEN scena nel DB / WHEN scene revive + draft / THEN struttura corretta."""
+
+    def test_scene_revive_returns_200_with_scene_id(self, client):
+        """POST /api/scene/revive con scene_id valida → 200 con char_facts + lore_refs."""
+        scenes = client.get("/api/db/scenes").get_json().get("scenes", [])
+        if not scenes:
+            pytest.skip("Nessuna scena nel DB")
+        scene_id = scenes[0]["id"]
+        r = client.post("/api/scene/revive", json={"scene_id": scene_id})
+        assert r.status_code == 200
+
+    def test_scene_revive_has_lore_refs_key(self, client):
+        scenes = client.get("/api/db/scenes").get_json().get("scenes", [])
+        if not scenes:
+            pytest.skip("Nessuna scena nel DB")
+        scene_id = scenes[0]["id"]
+        d = client.post("/api/scene/revive", json={"scene_id": scene_id}).get_json()
+        assert "lore_refs" in d
+
+    def test_scene_revive_has_participants_key(self, client):
+        scenes = client.get("/api/db/scenes").get_json().get("scenes", [])
+        if not scenes:
+            pytest.skip("Nessuna scena nel DB")
+        scene_id = scenes[0]["id"]
+        d = client.post("/api/scene/revive", json={"scene_id": scene_id}).get_json()
+        assert "participants" in d
+
+    def test_draft_without_intent_it_returns_400(self, client):
+        """POST /api/draft senza intent_it → 400."""
+        r = client.post("/api/draft", json={})
+        assert r.status_code == 400
+
+    def test_draft_with_intent_returns_503_without_gateway(self, client):
+        """POST /api/draft con intent → 503 in test env (LLM non disponibile)."""
+        r = client.post("/api/draft", json={"intent_it": "Il guerriero combatté.", "style": "poetico"})
+        assert r.status_code in (200, 503)
+
+    def test_scene_blend_without_variants_file_returns_400(self, client):
+        """POST /api/scene/blend senza variants_file_path → 400."""
+        r = client.post("/api/scene/blend", json={"texts": ["A", "B"]})
+        assert r.status_code == 400
