@@ -495,3 +495,35 @@ Branch dedicato: `efesto/gated6-arc-db-canonical` — non ancora mergato su main
 **Bottoni senza ID residui**: solo shortcut-grid home (testabili via classe `.shortcut-btn`) + bottoni generati dinamicamente (→ Scena nei messaggi, filtri categoria LoreKB).
 
 **[DONE: browser-test-round-p6-round3-post-compact]**
+
+---
+
+## Completato browser-test round 4 (2026-06-26 — post-compact)
+
+| Item | Tipo | Commit |
+|------|------|--------|
+| fix(lorekb): id= su 8 elementi form renderForm() | fix | 37ffd77 |
+| fix(ui): id= bottoni dinamici residui (msg-to-scene idx, lorekb-cat-*, shortcut-*) | fix | 8d4d854 |
+| test(ui-struct): +10 test chars panel + shortcut | test | e806c16 |
+| test(ui-struct): +8 test arc + refine panel IDs | test | bc1849c |
+| chore(gitignore): db/ + lore_kb.json + db-shm/wal | chore | 0e1574b |
+| test(ui-struct): +1 test #ls-status LoreSearch | test | 2b3203e |
+| chore(gitignore): live2d model binaries + data/backups/ | chore | 7e986ee |
+
+**Suite: 2236 passed (+12 vs inizio round). test_scenes_panel_ui: 76→95 (+19 test).**
+
+**Pannelli verificati funzionalmente** (tutti passano graceful degradation 503 LLM):
+LoreKB form, Messages → Scena, Scene edit PATCH, Arc list+detail, Refine, Translate, SmartDraft, LoreSearch (10 hits ChromaDB), LoreCheck, Scene chat compose POST.
+
+**Gap residui non-codice**:
+- `silver.draft.yaml` / `saturn.draft.yaml`: YAML invalido — nic deve fixare manualmente
+- ~~MASCOT-PORT: ws_server.py default `--port 8767` ≠ canonical 9876~~ → ✅ FIXATO commit 6a60e82
+- MASCOT-SWITCH: feature `?model=koko|tingyun` non implementata nell'app (nessun codice la usa) — non è un bug, è feature futura
+
+**GATED pendenti**:
+- GATED-3: Discord bot token (nic deve generare)
+- GATED-5: branch efesto/gated5-remove-messages-next pronto per merge
+- GATED-6: branch efesto/gated6-arc-db-canonical pronto per merge
+- GATED-7: Dead code cleanup (richiede opus + operator review)
+
+**[DONE: browser-test-round4-2026-06-26]**

@@ -534,3 +534,72 @@ def test_refine_output_box_has_id():
 def test_refine_output_row_has_id():
     """#refine-output-row — riga output del refine (contiene output-box)."""
     assert 'id="refine-output-row"' in _html()
+
+
+# ── SmartDraft panel IDs estesi (2026-06-26 round 5) ─────────────────────────
+
+def test_sd_scene_id_has_id():
+    """#sd-scene-id — input ID scena SmartDraft."""
+    assert 'id="sd-scene-id"' in _html()
+
+
+def test_sd_char_focus_has_id():
+    """#sd-char-focus — select personaggio focus SmartDraft."""
+    assert 'id="sd-char-focus"' in _html()
+
+
+def test_sd_style_has_id():
+    """#sd-style — input stile narrativo SmartDraft."""
+    assert 'id="sd-style"' in _html()
+
+
+def test_btn_sd_lorecheck_has_id():
+    """#btn-sd-lorecheck — pulsante ⊘ Lore Check da SmartDraft."""
+    assert 'id="btn-sd-lorecheck"' in _html()
+
+
+# ── Summarize panel IDs (2026-06-26 round 5) ─────────────────────────────────
+
+def test_sum_text_has_id():
+    """#sum-text — textarea testo da riassumere (NON #summarize-input)."""
+    assert 'id="sum-text"' in _html()
+
+
+def test_btn_sum_save_to_scene_has_id():
+    """#btn-sum-save-to-scene — pulsante → Salva in scena dal Summarize."""
+    assert 'id="btn-sum-save-to-scene"' in _html()
+
+
+def test_summarize_panel_has_id():
+    """#summarize-panel — container sezione Summarize."""
+    assert 'id="summarize-panel"' in _html()
+
+
+def test_smartdraft_panel_has_id():
+    """#smartdraft-panel — container sezione SmartDraft."""
+    assert 'id="smartdraft-panel"' in _html()
+
+
+def test_sum_output_has_id():
+    """#sum-output — container output riassunto."""
+    assert 'id="sum-output"' in _html()
+
+
+def test_sum_status_has_id():
+    """#sum-status — status indicator Summarize."""
+    assert 'id="sum-status"' in _html()
+
+
+def test_sd_context_info_has_id():
+    """#sd-context-info — info contesto usato nel draft (scene/chars/lore)."""
+    assert 'id="sd-context-info"' in _html()
+
+
+def test_sd_lint_has_id():
+    """#sd-lint — container warning lint cliché SmartDraft."""
+    assert 'id="sd-lint"' in _html()
+
+
+def test_sd_actions_has_id():
+    """#sd-actions — container pulsanti azione post-draft (copy/save/lorecheck)."""
+    assert 'id="sd-actions"' in _html()
