@@ -431,3 +431,40 @@ def test_lorekb_search_btn_has_id():
 def test_lorekb_search_results_has_id():
     """#lorekb-search-results — container risultati ricerca LoreKB."""
     assert 'id="lorekb-search-results"' in _html()
+
+
+# ── Dashboard shortcut IDs (aggiunta 2026-06-26 P6 round 4) ──────────────────
+
+def test_shortcut_draft_has_id():
+    """#shortcut-draft — pulsante scorciatoia → panel draft."""
+    assert 'id="shortcut-draft"' in _html()
+
+
+def test_shortcut_refine_has_id():
+    """#shortcut-refine — pulsante scorciatoia → panel refine."""
+    assert 'id="shortcut-refine"' in _html()
+
+
+def test_shortcut_translate_has_id():
+    """#shortcut-translate — pulsante scorciatoia → panel translate."""
+    assert 'id="shortcut-translate"' in _html()
+
+
+def test_shortcut_arc_has_id():
+    """#shortcut-arc — pulsante scorciatoia → panel arc."""
+    assert 'id="shortcut-arc"' in _html()
+
+
+def test_shortcut_smartdraft_has_id():
+    """#shortcut-smartdraft — pulsante scorciatoia → panel smartdraft."""
+    assert 'id="shortcut-smartdraft"' in _html()
+
+
+def test_shortcut_summarize_has_id():
+    """#shortcut-summarize — pulsante scorciatoia → panel summarize."""
+    assert 'id="shortcut-summarize"' in _html()
+
+
+def test_shortcut_lorecheck_has_id():
+    """#shortcut-lorecheck — pulsante scorciatoia → panel lorecheck."""
+    assert 'id="shortcut-lorecheck"' in _html()

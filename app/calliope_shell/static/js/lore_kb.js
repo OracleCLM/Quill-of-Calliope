@@ -50,12 +50,14 @@
         container.innerHTML = "";
         const categories = await fetchJSON("/api/lore/categories");
         const allBtn = txt("button", "Tutte");
+        allBtn.id = "lorekb-cat-all";
         allBtn.dataset.category = "";
         styleCategoryBtn(allBtn);
         container.appendChild(allBtn);
         allBtn.addEventListener("click", () => loadEntries(""));
         categories.categories.forEach(id => {
             const btn = txt("button", CATEGORY_LABELS[id] || id);
+            btn.id = "lorekb-cat-" + id;
             btn.dataset.category = id;
             styleCategoryBtn(btn);
             btn.addEventListener("click", () => loadEntries(id));

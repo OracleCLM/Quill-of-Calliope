@@ -337,19 +337,19 @@
             <div class="dash-card" id="dash-card-shortcuts">
                 <h3>Scorciatoie</h3>
                 <div class="shortcut-grid">
-                    <button class="shortcut-btn" onclick="showView('draft')">
+                    <button id="shortcut-draft" class="shortcut-btn" onclick="showView('draft')">
                         <span class="sc-icon">✦</span><span>Genera draft (varianti)</span></button>
-                    <button class="shortcut-btn" onclick="showView('refine')">
+                    <button id="shortcut-refine" class="shortcut-btn" onclick="showView('refine')">
                         <span class="sc-icon">✎</span><span>Rifinisci scena</span></button>
-                    <button class="shortcut-btn" onclick="showView('translate')">
+                    <button id="shortcut-translate" class="shortcut-btn" onclick="showView('translate')">
                         <span class="sc-icon">⇄</span><span>Traduci IT ↔ EN</span></button>
-                    <button class="shortcut-btn" onclick="showView('arc')">
+                    <button id="shortcut-arc" class="shortcut-btn" onclick="showView('arc')">
                         <span class="sc-icon">◈</span><span>Continua plot arc</span></button>
-                    <button class="shortcut-btn" onclick="showView('smartdraft')">
+                    <button id="shortcut-smartdraft" class="shortcut-btn" onclick="showView('smartdraft')">
                         <span class="sc-icon">⚡</span><span>Smart Draft (IT→EN)</span></button>
-                    <button class="shortcut-btn" onclick="showView('summarize')">
+                    <button id="shortcut-summarize" class="shortcut-btn" onclick="showView('summarize')">
                         <span class="sc-icon">∑</span><span>Summarize paste</span></button>
-                    <button class="shortcut-btn" onclick="showView('lorecheck')">
+                    <button id="shortcut-lorecheck" class="shortcut-btn" onclick="showView('lorecheck')">
                         <span class="sc-icon">⊘</span><span>Lore coherence check</span></button>
                 </div>
             </div>
@@ -1061,7 +1061,7 @@
                     if (statusEl) statusEl.textContent = '';
                     return;
                 }
-                ul.innerHTML = msgs.map(m => {
+                ul.innerHTML = msgs.map((m, idx) => {
                     const srcBadge = (m.source === 'discord') ? '<span style="font-size:.7em;color:#7788cc;margin-left:5px">discord</span>' : '';
                     const esc = (s) => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;');
                     const encA = encodeURIComponent(m.author_name || '');
@@ -1071,7 +1071,7 @@
                         '<b style="color:#88aaff">' + esc(m.author_name) + '</b>' + srcBadge +
                         ' <span style="color:#566;font-size:.78em">' + esc(m.ts) + '</span><br>' +
                         '<span style="color:#cdd">' + esc(m.content_original) + '</span></div>' +
-                        '<button onclick="_appendMsgToScene(decodeURIComponent(\'' + encA + '\'),decodeURIComponent(\'' + encC + '\'))" ' +
+                        '<button id="msg-to-scene-' + idx + '" onclick="_appendMsgToScene(decodeURIComponent(\'' + encA + '\'),decodeURIComponent(\'' + encC + '\'))" ' +
                         'style="flex-shrink:0;background:#1a2a4a;color:#aac;border:1px solid #2a3a5a;border-radius:5px;padding:4px 8px;cursor:pointer;font-size:.75em;white-space:nowrap">→ Scena</button>' +
                         '</li>';
                 }).join('');
