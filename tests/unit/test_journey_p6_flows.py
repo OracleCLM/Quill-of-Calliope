@@ -220,3 +220,39 @@ class TestFlow9CharactersGrid:
         data = client.get(f"/api/db/characters/{cid}").get_json()
         char = data.get("character") or data
         assert char["kind"] == "player"
+
+
+# ── FLOW-10: Characters PATCH completo — nome + kind + image_path ─────────────
+
+class TestFlow10CharacterPatchFull:
+    """GIVEN personaggio nel DB / WHEN PATCH nome+kind+image / THEN tutte le mutazioni riflesse."""
+
+    @pytest.fixture
+    def char_id(self, client):
+        r = client.post("/api/db/characters", json={"name": "PatchFlow10", "kind": "npc"})
+        assert r.status_code == 201
+        return r.get_json()["id"]
+
+    def test_patch_name_reflected(self, client, char_id):
+        """WHEN PATCH name / THEN GET mostra nuovo nome."""
+        client.patch(f"/api/db/characters/{char_id}", json={"name": "PatchFlow10-Renamed"})
+        d = client.get(f"/api/db/characters/{char_id}").get_json()
+        char = d.get("character") or d
+        assert char["name"] == "PatchFlow10-Renamed"
+
+    def test_patch_image_path_reflected(self, client, char_id):
+        """WHEN PATCH image_path / THEN GET mostra il path."""
+        client.patch(f"/api/db/characters/{char_id}", json={"image_path": "/static/avatars/test.png"})
+        d = client.get(f"/api/db/characters/{char_id}").get_json()
+        char = d.get("character") or d
+        assert char.get("image_path") == "/static/avatars/test.png"
+
+    def test_patch_kind_invalid_returns_400(self, client, char_id):
+        """WHEN PATCH kind invalido / THEN 400 Bad Request."""
+        r = client.patch(f"/api/db/characters/{char_id}", json={"kind": "villain"})
+        assert r.status_code == 400
+
+    def test_patch_nonexistent_returns_404(self, client):
+        """WHEN PATCH personaggio inesistente / THEN 404."""
+        r = client.patch("/api/db/characters/id-che-non-esiste", json={"kind": "npc"})
+        assert r.status_code == 404
