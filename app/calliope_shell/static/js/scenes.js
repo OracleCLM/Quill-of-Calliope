@@ -324,8 +324,14 @@ window._toggleSceneEdit = function() {
     if (form.style.display === 'none' || !form.style.display) {
         const titleIn = document.getElementById('scene-edit-title');
         const locIn = document.getElementById('scene-edit-location');
+        const arcSel = document.getElementById('scene-edit-arc');
         if (titleIn) titleIn.value = s.title || '';
         if (locIn) locIn.value = s.location || '';
+        if (arcSel) {
+            _loadArcFilterOptions().then(() => {
+                if (s.arc_id) arcSel.value = s.arc_id;
+            });
+        }
         form.style.display = 'flex';
         if (titleIn) titleIn.focus();
     } else {
@@ -338,12 +344,15 @@ window._saveSceneEdit = async function() {
     if (!sceneId) return;
     const title = (document.getElementById('scene-edit-title').value || '').trim();
     const location = (document.getElementById('scene-edit-location').value || '').trim();
+    const arcSel = document.getElementById('scene-edit-arc');
+    const arcId = arcSel ? (arcSel.value || null) : undefined;
     const statusEl = document.getElementById('scene-edit-status');
     if (!title) { if (statusEl) statusEl.textContent = '⚠ Titolo obbligatorio'; return; }
     if (statusEl) statusEl.textContent = 'Salvataggio…';
     try {
         const body = {title};
         if (location !== undefined) body.location = location || null;
+        if (arcId !== undefined) body.arc_id = arcId;
         const r = await fetch('/api/db/scenes/' + encodeURIComponent(sceneId), {
             method: 'PATCH',
             headers: {'Content-Type': 'application/json'},

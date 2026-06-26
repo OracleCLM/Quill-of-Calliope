@@ -521,9 +521,24 @@
         <div id="scenes-detail-col">
             <div id="scene-empty-state">← Seleziona una scena dalla lista</div>
             <div id="scene-detail">
-                <h2 id="scene-detail-title"></h2>
+                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                    <h2 id="scene-detail-title" style="margin:0;flex:1;"></h2>
+                    <button onclick="_toggleSceneEdit()" style="background:#1a2a4a;color:#aac;border:1px solid #2a3a5a;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:.78em;white-space:nowrap;">✎ Modifica</button>
+                </div>
                 <div class="scene-detail-meta" id="scene-detail-meta"></div>
                 <div id="scene-arc-badge" style="display:none;margin-bottom:6px;"></div>
+                <div id="scene-edit-form" style="display:none;flex-direction:column;gap:6px;margin:8px 0;padding:10px;background:#0d1420;border:1px solid #2a3a5a;border-radius:8px;">
+                    <input id="scene-edit-title" placeholder="Titolo scena..." style="background:#111827;color:#eee;border:1px solid #2a3a5a;border-radius:6px;padding:6px 10px;font-size:.85em;">
+                    <input id="scene-edit-location" placeholder="Location..." style="background:#111827;color:#eee;border:1px solid #2a3a5a;border-radius:6px;padding:6px 10px;font-size:.85em;">
+                    <select id="scene-edit-arc" style="background:#111827;color:#aab;border:1px solid #2a3a5a;border-radius:6px;padding:6px 10px;font-size:.85em;cursor:pointer;">
+                        <option value="">— Nessun arco —</option>
+                    </select>
+                    <div style="display:flex;gap:8px;">
+                        <button onclick="_saveSceneEdit()" style="background:#1a3a1a;color:#8f8;border:1px solid #2a5a2a;border-radius:6px;padding:5px 16px;cursor:pointer;font-size:.82em;">✓ Salva</button>
+                        <button onclick="_toggleSceneEdit()" style="background:#1a2a3a;color:#aab;border:1px solid #2a3a5a;border-radius:6px;padding:5px 12px;cursor:pointer;font-size:.82em;">✕</button>
+                        <span id="scene-edit-status" style="font-size:.78em;color:#88aaff;align-self:center;"></span>
+                    </div>
+                </div>
                 <div id="chat-thread"></div>
                 <div id="scenes-continue-area">
                     <div style="font-size:.85em;color:#8899cc;margin-bottom:8px;font-weight:bold;">▶ Genera prossimo messaggio</div>

@@ -52,3 +52,32 @@ def test_nav_parent_covers_secondary_panels():
     html = _html()
     for panel in ("draft", "refine", "smartdraft", "summarize", "lorecheck"):
         assert panel in html, f"panel {panel} non trovato nel _NAV_PARENT"
+
+
+def test_scene_edit_form_present():
+    """P6: il form inline di modifica scena deve esistere nel DOM."""
+    assert 'id="scene-edit-form"' in _html()
+
+
+def test_scene_edit_form_has_arc_select():
+    """P6: il form di modifica deve includere il select per l'arco."""
+    assert 'id="scene-edit-arc"' in _html()
+
+
+def test_scene_edit_form_has_title_and_location():
+    """P6: il form di modifica deve avere campi title e location."""
+    html = _html()
+    assert 'id="scene-edit-title"' in html
+    assert 'id="scene-edit-location"' in html
+
+
+def test_scene_edit_toggle_button_present():
+    """P6: il pulsante che attiva _toggleSceneEdit deve essere nel panel."""
+    html = _html()
+    assert "_toggleSceneEdit" in html
+
+
+def test_scene_edit_save_wires_saveSceneEdit():
+    """P6: il pulsante salva nel form chiama _saveSceneEdit."""
+    html = _html()
+    assert "_saveSceneEdit" in html

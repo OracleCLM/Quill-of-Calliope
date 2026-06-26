@@ -133,7 +133,7 @@ def register_scenes_db_routes(app, db_path=None):
     def db_update_scene(scene_id):
         # WI-65: aggiorna title e/o location (solo i campi forniti).
         body = request.get_json(silent=True) or {}
-        if "title" not in body and "location" not in body:
+        if "title" not in body and "location" not in body and "arc_id" not in body:
             return jsonify({"error": "no updatable fields"}), 400
         if "title" in body and not body.get("title"):
             return jsonify({"error": "title cannot be empty"}), 400
@@ -151,6 +151,9 @@ def register_scenes_db_routes(app, db_path=None):
         if "location" in body:
             sets.append("location = ?")
             params.append(body.get("location"))
+        if "arc_id" in body:
+            sets.append("arc_id = ?")
+            params.append(body.get("arc_id"))
         params.append(scene_id)
         conn.execute(f"UPDATE scenes SET {', '.join(sets)} WHERE id = ?", params)
         conn.commit()

@@ -96,3 +96,47 @@ def test_patch_updates_updated_at(client):
     after = conn2.execute("SELECT updated_at FROM scenes WHERE id = ?", (s["scene_id"],)).fetchone()[0]
     conn2.close()
     assert after > before, f"updated_at non aggiornato: {before!r} → {after!r}"
+
+
+# --- P6: PATCH /api/db/scenes/<id> con arc_id -----------------------------------
+
+def test_patch_arc_id_returns_200(client, tmp_path):
+    """P6: assegnare arc_id via PATCH deve restituire 200."""
+    from app.db import get_db, new_id
+    c, s = client
+    conn = get_db(s["path"])
+    arc_id = new_id()
+    conn.execute("INSERT INTO arcs (id, title) VALUES (?, ?)", (arc_id, "Arco Prova"))
+    conn.commit()
+    conn.close()
+    r = c.patch(f"/api/db/scenes/{s['scene_id']}", json={"arc_id": arc_id})
+    assert r.status_code == 200
+
+
+def test_patch_arc_id_reflected_in_detail(client):
+    """P6: arc_id assegnato via PATCH deve comparire nel GET detail."""
+    from app.db import get_db, new_id
+    c, s = client
+    conn = get_db(s["path"])
+    arc_id = new_id()
+    conn.execute("INSERT INTO arcs (id, title) VALUES (?, ?)", (arc_id, "Arco Visibile"))
+    conn.commit()
+    conn.close()
+    c.patch(f"/api/db/scenes/{s['scene_id']}", json={"arc_id": arc_id})
+    detail = c.get(f"/api/db/scenes/{s['scene_id']}").get_json()
+    assert detail["scene"]["arc_id"] == arc_id
+
+
+def test_patch_arc_id_null_removes_arc(client):
+    """P6: arc_id=null nel PATCH deve disassociare la scena dall'arco."""
+    from app.db import get_db, new_id
+    c, s = client
+    conn = get_db(s["path"])
+    arc_id = new_id()
+    conn.execute("INSERT INTO arcs (id, title) VALUES (?, ?)", (arc_id, "Arco Da Togliere"))
+    conn.execute("UPDATE scenes SET arc_id = ? WHERE id = ?", (arc_id, s["scene_id"]))
+    conn.commit()
+    conn.close()
+    c.patch(f"/api/db/scenes/{s['scene_id']}", json={"arc_id": None})
+    detail = c.get(f"/api/db/scenes/{s['scene_id']}").get_json()
+    assert detail["scene"]["arc_id"] is None
