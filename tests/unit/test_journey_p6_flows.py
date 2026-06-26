@@ -1431,3 +1431,137 @@ class TestFlow33SceneRosterRoleAndOperations:
         """POST /merge senza campi obbligatori → 400."""
         r = client.post("/api/db/scenes/merge", json={"scene_id_a": "x"})
         assert r.status_code == 400
+
+
+class TestFlow34MessageAdvanced:
+    """GIVEN messaggi in scena / WHEN position/insert/move/compact / THEN corretti.
+
+    Copre:
+    - PATCH /api/db/messages/<id>/position → 200
+    - POST  /api/db/scenes/<sid>/messages/insert → 201
+    - POST  /api/db/messages/<id>/move → 200
+    - POST  /api/db/scenes/<sid>/messages/compact → 200
+    - /api/db/messages/recent → 200
+    """
+
+    def _make_scene(self, client, title="flow34-scene"):
+        r = client.post("/api/db/scenes", json={"title": title})
+        assert r.status_code == 201
+        return r.get_json()["id"]
+
+    def _add_msg(self, client, sid, author="auth34", content="cont34"):
+        r = client.post(
+            f"/api/db/scenes/{sid}/messages",
+            json={"author_name": author, "content_original": content},
+        )
+        assert r.status_code == 201
+        return r.get_json()["id"]
+
+    def test_patch_position_200(self, client):
+        """PATCH /position → 200."""
+        sid = self._make_scene(client)
+        mid = self._add_msg(client, sid)
+        r = client.patch(f"/api/db/messages/{mid}/position", json={"position": 0})
+        assert r.status_code == 200
+
+    def test_patch_position_no_field_400(self, client):
+        """PATCH /position senza campo → 400."""
+        sid = self._make_scene(client)
+        mid = self._add_msg(client, sid)
+        r = client.patch(f"/api/db/messages/{mid}/position", json={})
+        assert r.status_code == 400
+
+    def test_patch_position_negative_400(self, client):
+        """PATCH /position con valore negativo → 400."""
+        sid = self._make_scene(client)
+        mid = self._add_msg(client, sid)
+        r = client.patch(f"/api/db/messages/{mid}/position", json={"position": -1})
+        assert r.status_code == 400
+
+    def test_patch_position_nonexistent_404(self, client):
+        """PATCH /position messaggio inesistente → 404."""
+        r = client.patch("/api/db/messages/nonexistent34/position", json={"position": 0})
+        assert r.status_code == 404
+
+    def test_insert_message_at_201(self, client):
+        """POST /insert → 201 con id."""
+        sid = self._make_scene(client)
+        r = client.post(
+            f"/api/db/scenes/{sid}/messages/insert",
+            json={"author_name": "ins34", "content_original": "inserito", "position_order": 0},
+        )
+        assert r.status_code == 201
+        assert "id" in r.get_json()
+
+    def test_insert_missing_field_400(self, client):
+        """POST /insert senza position_order → 400."""
+        sid = self._make_scene(client)
+        r = client.post(
+            f"/api/db/scenes/{sid}/messages/insert",
+            json={"author_name": "ins34", "content_original": "x"},
+        )
+        assert r.status_code == 400
+
+    def test_insert_negative_position_400(self, client):
+        """POST /insert position_order negativo → 400."""
+        sid = self._make_scene(client)
+        r = client.post(
+            f"/api/db/scenes/{sid}/messages/insert",
+            json={"author_name": "ins34", "content_original": "x", "position_order": -5},
+        )
+        assert r.status_code == 400
+
+    def test_insert_nonexistent_scene_404(self, client):
+        """POST /insert su scena inesistente → 404."""
+        r = client.post(
+            "/api/db/scenes/nonexistent34/messages/insert",
+            json={"author_name": "x", "content_original": "y", "position_order": 0},
+        )
+        assert r.status_code == 404
+
+    def test_move_message_to_scene_200(self, client):
+        """POST /move → 200."""
+        sid_a = self._make_scene(client, "flow34-move-a")
+        sid_b = self._make_scene(client, "flow34-move-b")
+        mid = self._add_msg(client, sid_a)
+        r = client.post(
+            f"/api/db/messages/{mid}/move",
+            json={"target_scene_id": sid_b, "position": 0},
+        )
+        assert r.status_code == 200
+
+    def test_move_missing_fields_400(self, client):
+        """POST /move senza campi → 400."""
+        sid = self._make_scene(client)
+        mid = self._add_msg(client, sid)
+        r = client.post(f"/api/db/messages/{mid}/move", json={"target_scene_id": sid})
+        assert r.status_code == 400
+
+    def test_move_nonexistent_message_404(self, client):
+        """POST /move su messaggio inesistente → 404."""
+        sid = self._make_scene(client)
+        r = client.post(
+            "/api/db/messages/nonexistent34/move",
+            json={"target_scene_id": sid, "position": 0},
+        )
+        assert r.status_code == 404
+
+    def test_compact_scene_messages_200(self, client):
+        """POST /compact → 200."""
+        sid = self._make_scene(client)
+        self._add_msg(client, sid, "a34", "first")
+        self._add_msg(client, sid, "b34", "second")
+        r = client.post(f"/api/db/scenes/{sid}/messages/compact")
+        assert r.status_code == 200
+
+    def test_compact_nonexistent_scene_404(self, client):
+        """POST /compact su scena inesistente → 404."""
+        r = client.post("/api/db/scenes/nonexistent34/messages/compact")
+        assert r.status_code == 404
+
+    def test_recent_messages_200(self, client):
+        """GET /api/db/messages/recent → 200 con lista."""
+        r = client.get("/api/db/messages/recent")
+        assert r.status_code == 200
+        body = r.get_json()
+        assert isinstance(body, (list, dict))
