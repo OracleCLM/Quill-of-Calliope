@@ -13,31 +13,39 @@ from app.db import get_db
 from app.db.messages import list_messages_for_scene
 
 
-def build_scene_context(scene_id: str, db_path: str | None = None) -> str:
+def build_scene_context(
+    scene_id: str,
+    db_path: str | None = None,
+    max_recent: int = 30,
+) -> str:
     """
     Ritorna il contesto-scena dal DB per il draft-gen (vedi tests/unit/test_scene_context_db.py):
-      - "Scene: <titolo>" + gli ultimi messaggi ordinati come "<author>: <content>"
-      - scena inesistente -> "" (stringa vuota)
-    Usa app.db.get_db(db_path) + app.db.messages.get_scene_message_page / list_messages_for_scene.
+      - "Scene: <titolo>" + contesto a budget: summaries (is_summary=1) prima, poi
+        ultimi max_recent messaggi verbatim. Scena inesistente -> "".
     """
     db = get_db(db_path)
 
-    # Recupera il titolo della scena per verificare l'esistenza
     row = db.execute("SELECT title FROM scenes WHERE id = ?", (scene_id,)).fetchone()
     if row is None:
         return ""
     title = row[0]
 
-    # Recupera i messaggi
     messages = list_messages_for_scene(db, scene_id)
-
-    # Ordina i messaggi per position_order come richiesto
     messages.sort(key=lambda m: m["position_order"])
 
-    # Costruisce la stringa di output
+    summaries = [m for m in messages if m.get("is_summary")]
+    regular = [m for m in messages if not m.get("is_summary")]
+    recent = regular[-max_recent:] if len(regular) > max_recent else regular
+
     lines = [f"Scene: {title}"]
-    for msg in messages:
-        lines.append(f"{msg['author_name']}: {msg['content_original']}")
+    if summaries:
+        lines.append("[Summary]")
+        for m in summaries:
+            lines.append(m["content_original"])
+    if recent:
+        lines.append("[Recent messages]")
+        for m in recent:
+            lines.append(f"{m['author_name']}: {m['content_original']}")
 
     return "\n".join(lines)
 
