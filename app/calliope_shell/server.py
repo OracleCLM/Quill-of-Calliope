@@ -100,6 +100,20 @@ def _chroma_client():
     return chromadb.PersistentClient(path=_CHROMA_PATH)
 
 
+def _embed_ollama(text: str) -> list[float] | None:
+    """Embedding 768-dim via nomic-embed-text:v1.5 — per collection costruite con nomic."""
+    try:
+        resp = requests.post(
+            "http://localhost:11434/api/embeddings",
+            json={"model": "nomic-embed-text:v1.5", "prompt": text},
+            timeout=10,
+        )
+        resp.raise_for_status()
+        return resp.json()["embedding"]
+    except Exception:
+        return None
+
+
 def _detect_discord_bot() -> dict:
     """Detect Discord bot state — graceful-degradation pattern (Q6 code-prepared).
 
@@ -594,7 +608,9 @@ def create_app():
         try:
             client = _chroma_client()
             col = client.get_collection("calliope_messages")
-            query_result = col.query(query_texts=[name], n_results=5)
+            _emb = _embed_ollama(name)
+            _kw = {"query_embeddings": [_emb]} if _emb else {"query_texts": [name]}
+            query_result = col.query(**_kw, n_results=5)
             docs = query_result.get("documents", [[]])[0]
             dists = query_result.get("distances", [[]])[0]
             results["snippets"] = [
@@ -1402,7 +1418,9 @@ def create_app():
             client = _chroma_client()
             col = client.get_collection("calliope_messages")
             query_text = f"{scene_data.get('title', scene_id)} {' '.join(participants[:3])}"
-            results = col.query(query_texts=[query_text], n_results=5)
+            _emb = _embed_ollama(query_text)
+            _kw = {"query_embeddings": [_emb]} if _emb else {"query_texts": [query_text]}
+            results = col.query(**_kw, n_results=5)
             recent_messages = [doc[:200] for doc in (results.get("documents", [[]])[0])]
         except Exception:
             pass
