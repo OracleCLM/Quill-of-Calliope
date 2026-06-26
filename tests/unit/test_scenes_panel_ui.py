@@ -468,3 +468,20 @@ def test_shortcut_summarize_has_id():
 def test_shortcut_lorecheck_has_id():
     """#shortcut-lorecheck — pulsante scorciatoia → panel lorecheck."""
     assert 'id="shortcut-lorecheck"' in _html()
+
+
+# ── Characters panel IDs statici (aggiunta 2026-06-26 P6 round 4) ────────────
+
+def test_char_search_has_id():
+    """#char-search — input filtro per nome personaggio."""
+    assert 'id="char-search"' in _html()
+
+
+def test_characters_grid_has_id():
+    """#characters-grid — container card personaggi."""
+    assert 'id="characters-grid"' in _html()
+
+
+def test_character_detail_has_id():
+    """#character-detail — pannello dettaglio personaggio."""
+    assert 'id="character-detail"' in _html()
