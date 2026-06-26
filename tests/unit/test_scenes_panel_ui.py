@@ -796,3 +796,90 @@ def test_msg_status_has_id():
 def test_sum_save_status_has_id():
     """#sum-save-status — span feedback salvataggio summary in scena."""
     assert 'id="sum-save-status"' in _html()
+
+
+# ── Panel container IDs principali (2026-06-26 round 6 batch 2) ──────────────
+
+def test_arc_panel_has_id():
+    """#arc-panel — container panel Arc narrativi."""
+    assert 'id="arc-panel"' in _html()
+
+
+def test_arc_list_col_has_id():
+    """#arc-list-col — colonna lista archi nel panel."""
+    assert 'id="arc-list-col"' in _html()
+
+
+def test_arc_detail_col_has_id():
+    """#arc-detail-col — colonna detail arco."""
+    assert 'id="arc-detail-col"' in _html()
+
+
+def test_arc_detail_title_has_id():
+    """#arc-detail-title — h2 titolo arco nel detail view."""
+    assert 'id="arc-detail-title"' in _html()
+
+
+def test_characters_panel_has_id():
+    """#characters-panel — container panel Personaggi."""
+    assert 'id="characters-panel"' in _html()
+
+
+def test_messages_panel_has_id():
+    """#messages-panel — container panel Messaggi."""
+    assert 'id="messages-panel"' in _html()
+
+
+def test_btn_copy_last_has_id():
+    """#btn-copy-last — pulsante 📋 Copia ultimo messaggio."""
+    assert 'id="btn-copy-last"' in _html()
+
+
+def test_btn_copy_scene_has_id():
+    """#btn-copy-scene — pulsante 📄 Copia scena intera."""
+    assert 'id="btn-copy-scene"' in _html()
+
+
+def test_btn_scene_smartdraft_has_id():
+    """#btn-scene-smartdraft — pulsante SmartDraft rapido nel detail scena."""
+    assert 'id="btn-scene-smartdraft"' in _html()
+
+
+def test_refine_status_has_id():
+    """#refine-status — div status feedback nel panel Refine."""
+    assert 'id="refine-status"' in _html()
+
+
+def test_translate_status_has_id():
+    """#translate-status — div status nel panel Translate."""
+    assert 'id="translate-status"' in _html()
+
+
+def test_sum_summary_has_id():
+    """#sum-summary — div testo del riassunto generato nel panel Summarize."""
+    assert 'id="sum-summary"' in _html()
+
+
+def test_sum_facts_has_id():
+    """#sum-facts — ul punti chiave del summary."""
+    assert 'id="sum-facts"' in _html()
+
+
+def test_roster_list_has_id():
+    """#roster-list — ul personaggi nel roster di scena."""
+    assert 'id="roster-list"' in _html()
+
+
+def test_new_scene_form_has_id():
+    """#new-scene-form — form creazione nuova scena."""
+    assert 'id="new-scene-form"' in _html()
+
+
+def test_scene_empty_state_has_id():
+    """#scene-empty-state — div empty state quando nessuna scena è aperta."""
+    assert 'id="scene-empty-state"' in _html()
+
+
+def test_sd_save_status_has_id():
+    """#sd-save-status — span feedback salvataggio SmartDraft in scena."""
+    assert 'id="sd-save-status"' in _html()
