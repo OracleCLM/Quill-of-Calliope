@@ -1253,3 +1253,181 @@ class TestFlow31SceneGetDelete:
     def test_delete_nonexistent_scene_404(self, client):
         r = client.delete("/api/db/scenes/nonexistent-id-xyz-f31b")
         assert r.status_code == 404
+
+
+class TestFlow32MessageCrud:
+    """GIVEN un messaggio nel DB / WHEN GET+PATCH+DELETE / THEN risposta corretta.
+
+    Copre:
+    - GET  /api/db/messages/<id>      → 200 con campi
+    - PATCH /api/db/messages/<id>     → 200 con id aggiornato
+    - DELETE /api/db/messages/<id>    → 204; poi GET → 404
+    - PATCH payload vuoto             → 400
+    """
+
+    def _make_scene(self, client, title="flow32-scene"):
+        r = client.post("/api/db/scenes", json={"title": title})
+        assert r.status_code == 201
+        return r.get_json()["id"]
+
+    def _add_message(self, client, scene_id, author="flow32-author", content="contenuto32"):
+        r = client.post(
+            f"/api/db/scenes/{scene_id}/messages",
+            json={"author_name": author, "content_original": content},
+        )
+        assert r.status_code == 201
+        return r.get_json()["id"]
+
+    def test_get_message_by_id_200(self, client):
+        """GET /api/db/messages/<id> → 200 con campo content_original."""
+        sid = self._make_scene(client)
+        mid = self._add_message(client, sid)
+        r = client.get(f"/api/db/messages/{mid}")
+        assert r.status_code == 200
+        body = r.get_json()
+        assert "content_original" in body or "id" in body
+
+    def test_get_nonexistent_message_404(self, client):
+        """GET messaggio inesistente → 404."""
+        r = client.get("/api/db/messages/nonexistent-flow32-msg")
+        assert r.status_code == 404
+
+    def test_patch_message_content_200(self, client):
+        """PATCH content_original → 200 con id."""
+        sid = self._make_scene(client)
+        mid = self._add_message(client, sid)
+        r = client.patch(f"/api/db/messages/{mid}", json={"content_original": "aggiornato32"})
+        assert r.status_code == 200
+        body = r.get_json()
+        assert body.get("id") == mid
+
+    def test_patch_message_author_200(self, client):
+        """PATCH author_name → 200."""
+        sid = self._make_scene(client)
+        mid = self._add_message(client, sid)
+        r = client.patch(f"/api/db/messages/{mid}", json={"author_name": "nuovo-autore32"})
+        assert r.status_code == 200
+
+    def test_patch_empty_payload_400(self, client):
+        """PATCH senza campi validi → 400."""
+        sid = self._make_scene(client)
+        mid = self._add_message(client, sid)
+        r = client.patch(f"/api/db/messages/{mid}", json={})
+        assert r.status_code == 400
+
+    def test_patch_nonexistent_message_404(self, client):
+        """PATCH messaggio inesistente → 404."""
+        r = client.patch(
+            "/api/db/messages/nonexistent-flow32-msg",
+            json={"content_original": "x"},
+        )
+        assert r.status_code == 404
+
+    def test_delete_message_204(self, client):
+        """DELETE messaggio → 204."""
+        sid = self._make_scene(client)
+        mid = self._add_message(client, sid)
+        r = client.delete(f"/api/db/messages/{mid}")
+        assert r.status_code == 204
+
+    def test_get_after_delete_404(self, client):
+        """GET dopo DELETE → 404."""
+        sid = self._make_scene(client)
+        mid = self._add_message(client, sid)
+        client.delete(f"/api/db/messages/{mid}")
+        r = client.get(f"/api/db/messages/{mid}")
+        assert r.status_code == 404
+
+    def test_delete_nonexistent_message_404(self, client):
+        """DELETE messaggio inesistente → 404."""
+        r = client.delete("/api/db/messages/nonexistent-flow32-msg")
+        assert r.status_code == 404
+
+
+class TestFlow33SceneRosterRoleAndOperations:
+    """GIVEN scene con personaggio nel roster / WHEN PATCH role + scene duplicate+merge.
+
+    Copre:
+    - PATCH /api/db/scenes/<sid>/characters/<cid> → 200
+    - PATCH senza role → 400
+    - POST /api/db/scenes/<sid>/duplicate         → 201 con new_scene_id
+    - POST /api/db/scenes/merge                   → 201 con merged_scene_id
+    - POST merge self-merge                       → 400
+    """
+
+    def _make_scene(self, client, title="flow33-scene"):
+        r = client.post("/api/db/scenes", json={"title": title})
+        assert r.status_code == 201
+        return r.get_json()["id"]
+
+    def _make_char(self, client, name="flow33-char"):
+        r = client.post("/api/db/characters", json={"name": name, "kind": "npc"})
+        assert r.status_code in (200, 201)
+        return r.get_json()["id"]
+
+    def test_patch_roster_role_200(self, client):
+        """PATCH role nel roster → 200."""
+        sid = self._make_scene(client)
+        cid = self._make_char(client)
+        client.post(f"/api/db/scenes/{sid}/characters", json={"character_id": cid, "role": "protagonist"})
+        r = client.patch(f"/api/db/scenes/{sid}/characters/{cid}", json={"role": "antagonist"})
+        assert r.status_code == 200
+
+    def test_patch_roster_no_role_400(self, client):
+        """PATCH roster senza campo role → 400."""
+        sid = self._make_scene(client)
+        cid = self._make_char(client)
+        client.post(f"/api/db/scenes/{sid}/characters", json={"character_id": cid})
+        r = client.patch(f"/api/db/scenes/{sid}/characters/{cid}", json={})
+        assert r.status_code == 400
+
+    def test_patch_roster_nonexistent_404(self, client):
+        """PATCH role per personaggio non nel roster → 404."""
+        sid = self._make_scene(client)
+        r = client.patch(f"/api/db/scenes/{sid}/characters/nonexistent-char", json={"role": "x"})
+        assert r.status_code == 404
+
+    def test_duplicate_scene_201(self, client):
+        """POST /duplicate → 201 con new_scene_id."""
+        sid = self._make_scene(client, "flow33-orig")
+        r = client.post(f"/api/db/scenes/{sid}/duplicate", json={"new_name": "flow33-copy"})
+        assert r.status_code == 201
+        body = r.get_json()
+        assert "new_scene_id" in body
+
+    def test_duplicate_no_name_400(self, client):
+        """POST /duplicate senza new_name → 400."""
+        sid = self._make_scene(client)
+        r = client.post(f"/api/db/scenes/{sid}/duplicate", json={})
+        assert r.status_code == 400
+
+    def test_duplicate_nonexistent_404(self, client):
+        """POST /duplicate su scena inesistente → 404."""
+        r = client.post("/api/db/scenes/nonexistent-flow33/duplicate", json={"new_name": "x"})
+        assert r.status_code == 404
+
+    def test_merge_scenes_201(self, client):
+        """POST /merge due scene → 201 con merged_scene_id."""
+        sid_a = self._make_scene(client, "flow33-merge-a")
+        sid_b = self._make_scene(client, "flow33-merge-b")
+        r = client.post(
+            "/api/db/scenes/merge",
+            json={"scene_id_a": sid_a, "scene_id_b": sid_b, "new_name": "flow33-merged"},
+        )
+        assert r.status_code == 201
+        body = r.get_json()
+        assert "merged_scene_id" in body
+
+    def test_merge_self_400(self, client):
+        """POST /merge stessa scena → 400 (self-merge guard)."""
+        sid = self._make_scene(client)
+        r = client.post(
+            "/api/db/scenes/merge",
+            json={"scene_id_a": sid, "scene_id_b": sid, "new_name": "x"},
+        )
+        assert r.status_code == 400
+
+    def test_merge_missing_fields_400(self, client):
+        """POST /merge senza campi obbligatori → 400."""
+        r = client.post("/api/db/scenes/merge", json={"scene_id_a": "x"})
+        assert r.status_code == 400
