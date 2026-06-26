@@ -144,7 +144,7 @@ def register_scenes_db_routes(app, db_path=None):
         if row is None:
             conn.close()
             return jsonify({"error": "not_found"}), 404
-        sets, params = [], []
+        sets, params = ["updated_at = strftime('%Y-%m-%dT%H:%M:%SZ','now')"], []
         if "title" in body:
             sets.append("title = ?")
             params.append(body.get("title"))

@@ -81,3 +81,18 @@ def test_patch_location_not_found_returns_404(client):
     c, _ = client
     r = c.patch("/api/db/scenes/scena-inesistente", json={"location": "X"})
     assert r.status_code == 404
+
+
+def test_patch_updates_updated_at(client):
+    from app.db import get_db
+    c, s = client
+    conn = get_db(s["path"])
+    before = conn.execute("SELECT updated_at FROM scenes WHERE id = ?", (s["scene_id"],)).fetchone()[0]
+    conn.close()
+    import time
+    time.sleep(1)
+    c.patch(f"/api/db/scenes/{s['scene_id']}", json={"title": "Titolo Nuovo"})
+    conn2 = get_db(s["path"])
+    after = conn2.execute("SELECT updated_at FROM scenes WHERE id = ?", (s["scene_id"],)).fetchone()[0]
+    conn2.close()
+    assert after > before, f"updated_at non aggiornato: {before!r} → {after!r}"
