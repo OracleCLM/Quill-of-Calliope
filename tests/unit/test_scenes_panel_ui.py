@@ -301,3 +301,25 @@ def test_btn_scene_action_lorecheck_has_id():
 def test_btn_char_create_has_id():
     """#btn-char-create — pulsante + Nuovo personaggio nel panel characters."""
     assert 'id="btn-char-create"' in _html()
+
+
+# ── Bottoni arco e roster (aggiunta 2026-06-26) ───────────────────────────────
+
+def test_btn_arc_new_has_id():
+    """#btn-arc-new — pulsante + Nuovo arco nel panel archi."""
+    assert 'id="btn-arc-new"' in _html()
+
+
+def test_btn_arc_submit_new_has_id():
+    """#btn-arc-submit-new — pulsante ✓ Crea nel form nuovo arco."""
+    assert 'id="btn-arc-submit-new"' in _html()
+
+
+def test_btn_arc_cancel_new_has_id():
+    """#btn-arc-cancel-new — pulsante ✕ nel form nuovo arco."""
+    assert 'id="btn-arc-cancel-new"' in _html()
+
+
+def test_btn_roster_cancel_has_id():
+    """#btn-roster-cancel — pulsante ✕ chiusura form add-roster."""
+    assert 'id="btn-roster-cancel"' in _html()

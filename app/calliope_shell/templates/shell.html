@@ -556,7 +556,7 @@
                             <option value="npc">npc</option>
                         </select>
                         <button id="btn-roster-confirm" onclick="_addToRoster()" style="background:#1a3a1a;color:#8f8;border:1px solid #2a5a2a;border-radius:5px;padding:4px 10px;cursor:pointer;font-size:.78em;">✓</button>
-                        <button onclick="document.getElementById('add-roster-form').style.display='none'" style="background:#1a2a3a;color:#aab;border:1px solid #2a3a5a;border-radius:5px;padding:4px 8px;cursor:pointer;font-size:.78em;">✕</button>
+                        <button id="btn-roster-cancel" onclick="document.getElementById('add-roster-form').style.display='none'" style="background:#1a2a3a;color:#aab;border:1px solid #2a3a5a;border-radius:5px;padding:4px 8px;cursor:pointer;font-size:.78em;">✕</button>
                         <span id="add-roster-status" style="font-size:.75em;color:#88aaff;"></span>
                     </div>
                     <div style="display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap;">
@@ -852,14 +852,14 @@
     <div id="arc-panel">
         <div id="arc-list-col">
             <h3>◈ Plot Arcs</h3>
-            <button onclick="_arcNewInline()" style="width:100%;background:#1a3a1a;color:#8f8;border:1px solid #2a5a2a;border-radius:6px;padding:6px 10px;cursor:pointer;font-size:.8em;margin-bottom:8px;">+ Nuovo arco</button>
+            <button id="btn-arc-new" onclick="_arcNewInline()" style="width:100%;background:#1a3a1a;color:#8f8;border:1px solid #2a5a2a;border-radius:6px;padding:6px 10px;cursor:pointer;font-size:.8em;margin-bottom:8px;">+ Nuovo arco</button>
             <div id="arc-new-form" style="display:none;margin-bottom:10px;">
                 <input id="arc-new-id" placeholder="ID (es. arc_001)" style="width:100%;box-sizing:border-box;background:#111827;color:#eee;border:1px solid #2a3a5a;border-radius:6px;padding:5px 8px;font-size:.82em;margin-bottom:5px;">
                 <input id="arc-new-title" placeholder="Titolo" style="width:100%;box-sizing:border-box;background:#111827;color:#eee;border:1px solid #2a3a5a;border-radius:6px;padding:5px 8px;font-size:.82em;margin-bottom:5px;">
                 <input id="arc-new-chars" placeholder="Personaggi (Aurora,Philly,...)" style="width:100%;box-sizing:border-box;background:#111827;color:#eee;border:1px solid #2a3a5a;border-radius:6px;padding:5px 8px;font-size:.82em;margin-bottom:5px;">
                 <div style="display:flex;gap:5px;">
-                    <button onclick="_arcSubmitNew()" style="flex:1;background:#1a3a1a;color:#8f8;border:1px solid #2a5a2a;border-radius:5px;padding:5px 8px;cursor:pointer;font-size:.78em;">✓ Crea</button>
-                    <button onclick="_arcCancelNew()" style="flex:1;background:#1a2a3a;color:#aab;border:1px solid #2a3a5a;border-radius:5px;padding:5px 8px;cursor:pointer;font-size:.78em;">✕</button>
+                    <button id="btn-arc-submit-new" onclick="_arcSubmitNew()" style="flex:1;background:#1a3a1a;color:#8f8;border:1px solid #2a5a2a;border-radius:5px;padding:5px 8px;cursor:pointer;font-size:.78em;">✓ Crea</button>
+                    <button id="btn-arc-cancel-new" onclick="_arcCancelNew()" style="flex:1;background:#1a2a3a;color:#aab;border:1px solid #2a3a5a;border-radius:5px;padding:5px 8px;cursor:pointer;font-size:.78em;">✕</button>
                 </div>
                 <div id="arc-new-status" style="font-size:.75em;color:#88aaff;min-height:1em;margin-top:4px;"></div>
             </div>
