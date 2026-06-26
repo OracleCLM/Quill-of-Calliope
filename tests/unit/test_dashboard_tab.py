@@ -22,17 +22,16 @@ def test_dashboard_nav_link_present_and_first():
     html = _html()
     assert 'id="nav-dashboard"' in html
     assert "◈ Dashboard" in html
-    # Verify nav-dashboard appears BEFORE nav-home in markup order (Q1=A)
+    # Verify nav-dashboard appears BEFORE nav-scenes in markup order (Q1=A)
     pos_dash = html.index('id="nav-dashboard"')
-    pos_home = html.index('id="nav-home"')
-    assert pos_dash < pos_home, "nav-dashboard must precede nav-home"
+    pos_scenes = html.index('id="nav-scenes"')
+    assert pos_dash < pos_scenes, "nav-dashboard must be first nav item"
 
 
 def test_dashboard_nav_active_by_default():
     html = _html()
-    # Q1: Dashboard is landing tab — active class on nav-dashboard, not nav-home
+    # Q1: Dashboard is landing tab — active class on nav-dashboard
     assert 'id="nav-dashboard" class="active"' in html
-    assert 'id="nav-home" class="active"' not in html
 
 
 def test_dashboard_has_5_panels():
