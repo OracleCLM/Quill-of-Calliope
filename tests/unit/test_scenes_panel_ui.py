@@ -174,3 +174,32 @@ def test_lc_text_input_has_id():
 
 def test_btn_lorecheck_has_id():
     assert 'id="btn-lorecheck"' in _html()
+
+
+# ── Draft panel selettori (aggiunta 2026-06-26) ──────────────────────────────
+
+def test_draft_panel_exists():
+    assert 'id="draft-panel"' in _html()
+
+
+def test_btn_draft_generate_has_id():
+    assert 'id="btn-draft-generate"' in _html()
+
+
+def test_btn_draft_blend_has_id():
+    assert 'id="btn-draft-blend"' in _html()
+
+
+# ── Refine panel selettori (aggiunta 2026-06-26) ─────────────────────────────
+
+def test_refine_panel_exists():
+    assert 'id="refine-panel"' in _html()
+
+
+def test_refine_scene_input_has_id():
+    """Textarea Refine usa #refine-scene-input (NON #refine-text)."""
+    assert 'id="refine-scene-input"' in _html()
+
+
+def test_btn_refine_has_id():
+    assert 'id="btn-refine"' in _html()
