@@ -210,3 +210,25 @@ def test_btn_refine_has_id():
 def test_new_scene_title_input_has_id():
     """#new-scene-title — campo titolo nel form inline crea scena."""
     assert 'id="new-scene-title"' in _html()
+
+
+# ── Compose area nella scene chat (aggiunta 2026-06-26) ──────────────────────
+
+def test_compose_content_textarea_has_id():
+    """#compose-content — textarea compose messaggio."""
+    assert 'id="compose-content"' in _html()
+
+
+def test_compose_author_input_has_id():
+    """#compose-author — input autore messaggio."""
+    assert 'id="compose-author"' in _html()
+
+
+def test_compose_who_select_has_id():
+    """#compose-who — select chi scrive."""
+    assert 'id="compose-who"' in _html()
+
+
+def test_btn_compose_send_has_id():
+    """#btn-compose-send — pulsante Invia messaggio."""
+    assert 'id="btn-compose-send"' in _html()
