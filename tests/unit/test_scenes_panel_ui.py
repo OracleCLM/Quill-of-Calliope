@@ -696,3 +696,30 @@ def test_refine_auto_lint_has_id():
 def test_lc_scene_id_has_id():
     """#lc-scene-id — input scene ID (opzionale) nel panel LoreCheck."""
     assert 'id="lc-scene-id"' in _html()
+
+
+# ── Draft panel IDs output/state (2026-06-26 round 5) ────────────────────────
+
+def test_draft_status_has_id():
+    """#draft-status — div status/feedback nel panel draft."""
+    assert 'id="draft-status"' in _html()
+
+
+def test_draft_variants_container_has_id():
+    """#draft-variants-container — container liste varianti draft."""
+    assert 'id="draft-variants-container"' in _html()
+
+
+def test_draft_variants_list_has_id():
+    """#draft-variants-list — UL varianti selezionabili."""
+    assert 'id="draft-variants-list"' in _html()
+
+
+def test_draft_blend_output_has_id():
+    """#draft-blend-output — container output blended draft."""
+    assert 'id="draft-blend-output"' in _html()
+
+
+def test_draft_blend_text_has_id():
+    """#draft-blend-text — textarea testo blended."""
+    assert 'id="draft-blend-text"' in _html()
