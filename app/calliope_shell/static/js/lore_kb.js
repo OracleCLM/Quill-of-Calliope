@@ -221,6 +221,7 @@
         form.style.gap = "8px";
 
         const titleInput = document.createElement("input");
+        titleInput.id = "lorekb-entry-title";
         titleInput.type = "text";
         titleInput.placeholder = "Titolo";
         titleInput.value = entry ? entry.title : "";
@@ -228,6 +229,7 @@
         form.appendChild(titleInput);
 
         const categorySelect = document.createElement("select");
+        categorySelect.id = "lorekb-entry-category";
         Object.entries(CATEGORY_LABELS).forEach(([id, label]) => {
             const opt = document.createElement("option");
             opt.value = id;
@@ -239,6 +241,7 @@
         form.appendChild(categorySelect);
 
         const keysInput = document.createElement("input");
+        keysInput.id = "lorekb-entry-keys";
         keysInput.type = "text";
         keysInput.placeholder = "Chiavi (separate con virgola)";
         keysInput.value = entry ? (entry.keys || []).join(", ") : "";
@@ -246,6 +249,7 @@
         form.appendChild(keysInput);
 
         const scopeInput = document.createElement("input");
+        scopeInput.id = "lorekb-entry-scope";
         scopeInput.type = "text";
         scopeInput.placeholder = "Scope";
         scopeInput.value = entry ? entry.scope : "global";
@@ -255,6 +259,7 @@
         const constDiv = document.createElement("div");
         const constLabel = txt("label", " Costante");
         const constCheckbox = document.createElement("input");
+        constCheckbox.id = "lorekb-entry-constant";
         constCheckbox.type = "checkbox";
         constCheckbox.checked = entry ? !!entry.constant : false;
         constLabel.prepend(constCheckbox);
@@ -263,6 +268,7 @@
         form.appendChild(constDiv);
 
         const contentArea = document.createElement("textarea");
+        contentArea.id = "lorekb-entry-content";
         contentArea.rows = 8;
         contentArea.placeholder = "Contenuto";
         contentArea.value = entry ? entry.content : "";
@@ -275,8 +281,10 @@
 
         const btnContainer = document.createElement("div");
         const saveBtn = txt("button", "Salva");
+        saveBtn.id = "lorekb-entry-save-btn";
         saveBtn.type = "button";
         const cancelBtn = txt("button", "Annulla");
+        cancelBtn.id = "lorekb-entry-cancel-btn";
         cancelBtn.type = "button";
         [saveBtn, cancelBtn].forEach(b => {
             b.style.background = STYLE.buttonBg;
