@@ -119,3 +119,25 @@ def test_sum_save_to_scene_area_style_unified():
     assert len(matches) == 1
     # un solo attributo style nel tag
     assert matches[0].count('style=') == 1, f"Doppio attributo style trovato: {matches[0]}"
+
+
+# ── LoreSearch panel selettori (aggiunta 2026-06-26) ─────────────────────────
+
+def test_loresearch_panel_exists():
+    """#loresearch-panel deve esistere nel DOM."""
+    assert 'id="loresearch-panel"' in _html()
+
+
+def test_ls_query_input_has_id():
+    """Input LoreSearch ha id #ls-query (NON #loresearch-query)."""
+    assert 'id="ls-query"' in _html()
+
+
+def test_btn_loresearch_has_id():
+    """Pulsante LoreSearch ha id #btn-loresearch."""
+    assert 'id="btn-loresearch"' in _html()
+
+
+def test_ls_results_container_present():
+    """Container risultati LoreSearch ha id #ls-results."""
+    assert 'id="ls-results"' in _html()
