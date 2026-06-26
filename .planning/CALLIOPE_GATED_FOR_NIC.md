@@ -449,6 +449,27 @@ Branch dedicato: `efesto/gated6-arc-db-canonical` — non ancora mergato su main
 - GATED-6: branch efesto/gated6-arc-db-canonical pronto per merge su main
 - GATED-7: Dead code cleanup (richiede opus + operator review per la lista)
 
-**[DONE: esaurito-nongated]**
+---
+
+## Completato in sessione 2026-06-26 (browser-test estensivo P6 continua)
+
+| Item | Tipo | Commit |
+|------|------|--------|
+| fix: h2 vuoto per YAML con name='' → fallback stem | fix(characters.js) | 9f2660e |
+| test: FLOW-10 Characters PATCH completo (nome+kind+image+404+400) | journey | bf01eeb |
+| test: selettori LoreSearch (#ls-query ≠ #loresearch-query) | ui struct | 9f6360c |
+| test: selettori Translate (#translate-input/output) | ui struct | 188ef39 |
+| test: selettori LoreCheck (#lc-text ≠ #lorecheck-input) | ui struct | 188ef39 |
+| test: selettori Draft/Refine (#btn-draft-generate #refine-scene-input) | ui struct | 7286051 |
+
+**Suite: 2086 passed (unit), +15 test da browser-test round 2026-06-26.**
+
+**Pannelli verificati via Playwright**: Dashboard, Scenes (list+detail+arc-badge+roster), Characters (grid+detail+PATCH), SmartDraft, Translate, Draft, Refine, LoreCheck, LoreSearch, Arc, Summarize, Revive, LoreKB.
+
+**Gap dati aperti (non codice)**:
+- `silver.draft.yaml` e `saturn.draft.yaml`: YAML invalido (virgolette non bilanciate, riga ~36/40). Parser restituisce name='' → h2 vuoto (ora fixato con fallback stem). Nic deve fixare i file YAML manualmente.
+- LoreKB: 0 voci nelle categorie — gap dati operatore, UI gestisce empty state correttamente.
+
+**[DONE: browser-test-round-p6-continued]**
 
 ---
