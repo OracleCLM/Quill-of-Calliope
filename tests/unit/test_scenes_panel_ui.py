@@ -38,3 +38,17 @@ def test_scene_arc_filter_inside_scenes_panel():
     pos_filter = html.index('id="scene-arc-filter"')
     pos_detail = html.index('id="scenes-detail-col"')
     assert pos_panel < pos_filter < pos_detail, "arc-filter deve essere nella colonna lista, non nel detail"
+
+
+def test_nav_parent_map_defined():
+    """P6: _NAV_PARENT mappa panel secondari → nav parent (coerenza navbar)."""
+    html = _html()
+    assert "_NAV_PARENT" in html
+    assert "arc:'scenes'" in html or "arc: 'scenes'" in html
+
+
+def test_nav_parent_covers_secondary_panels():
+    """P6: i panel senza nav link hanno un parent mappato."""
+    html = _html()
+    for panel in ("draft", "refine", "smartdraft", "summarize", "lorecheck"):
+        assert panel in html, f"panel {panel} non trovato nel _NAV_PARENT"

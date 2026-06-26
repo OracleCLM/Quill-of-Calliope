@@ -968,6 +968,7 @@
 
         // ── View routing ──
         const _ALL_PANELS = ['dashboard','main','characters','scenes','messages','translate','draft','refine','arc','smartdraft','summarize','lorekb','loresearch','lorecheck'];
+        const _NAV_PARENT = {arc:'scenes', draft:'scenes', refine:'scenes', smartdraft:'scenes', summarize:'scenes', translate:'scenes', loresearch:'lorekb', lorecheck:'lorekb'};
         function showView(view) {
             _ALL_PANELS.forEach(v => {
                 const el = document.getElementById(v === 'main' ? 'main-view' : v + '-panel');
@@ -975,6 +976,8 @@
                 if (el) el.style.display = (v === view) ? 'flex' : 'none';
                 if (nav) nav.classList.toggle('active', v === view);
             });
+            const parentKey = _NAV_PARENT[view];
+            if (parentKey) { const pn = document.getElementById('nav-' + parentKey); if (pn) pn.classList.add('active'); }
             if (view === 'arc') loadArcList();
             if (view === 'scenes') _loadScenes();
             if (view === 'dashboard') { loadDashboardSnapshot(); _loadRecentScenes(); _loadRecentDiscordMsgs(); }
