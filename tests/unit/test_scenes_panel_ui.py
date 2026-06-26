@@ -141,3 +141,36 @@ def test_btn_loresearch_has_id():
 def test_ls_results_container_present():
     """Container risultati LoreSearch ha id #ls-results."""
     assert 'id="ls-results"' in _html()
+
+
+# ── Translate panel selettori (aggiunta 2026-06-26) ──────────────────────────
+
+def test_translate_panel_exists():
+    assert 'id="translate-panel"' in _html()
+
+
+def test_translate_input_has_id():
+    assert 'id="translate-input"' in _html()
+
+
+def test_translate_output_has_id():
+    assert 'id="translate-output"' in _html()
+
+
+def test_btn_translate_has_id():
+    assert 'id="btn-translate"' in _html()
+
+
+# ── LoreCheck panel selettori (aggiunta 2026-06-26) ──────────────────────────
+
+def test_lorecheck_panel_exists():
+    assert 'id="lorecheck-panel"' in _html()
+
+
+def test_lc_text_input_has_id():
+    """Textarea LoreCheck usa #lc-text (NON #lorecheck-input)."""
+    assert 'id="lc-text"' in _html()
+
+
+def test_btn_lorecheck_has_id():
+    assert 'id="btn-lorecheck"' in _html()
