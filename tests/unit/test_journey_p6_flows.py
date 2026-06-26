@@ -603,3 +603,112 @@ class TestFlow19SceneReviveAndDraft:
         """POST /api/scene/blend senza variants_file_path → 400."""
         r = client.post("/api/scene/blend", json={"texts": ["A", "B"]})
         assert r.status_code == 400
+
+
+# ── FLOW-20: Scene DB edit lifecycle ──────────────────────────────────────────
+
+class TestFlow20SceneDbEdit:
+    """PATCH /api/db/scenes/<id> — crea, aggiorna titolo, verifica, errori."""
+
+    @pytest.fixture(autouse=True)
+    def _scene(self, client):
+        r = client.post("/api/db/scenes", json={"title": "flow20-original-title"})
+        assert r.status_code == 201
+        self.scene_id = r.get_json()["id"]
+        yield
+        client.delete(f"/api/db/scenes/{self.scene_id}")
+
+    def test_patch_title_returns_200(self, client):
+        """PATCH con title valido → 200."""
+        r = client.patch(f"/api/db/scenes/{self.scene_id}", json={"title": "flow20-updated-title"})
+        assert r.status_code == 200
+
+    def test_patch_title_persists(self, client):
+        """GET dopo PATCH restituisce il titolo aggiornato."""
+        client.patch(f"/api/db/scenes/{self.scene_id}", json={"title": "flow20-persisted"})
+        d = client.get(f"/api/db/scenes/{self.scene_id}").get_json()
+        assert d["scene"]["title"] == "flow20-persisted"
+
+    def test_patch_without_fields_returns_400(self, client):
+        """PATCH senza campi aggiornabili → 400."""
+        r = client.patch(f"/api/db/scenes/{self.scene_id}", json={})
+        assert r.status_code == 400
+
+    def test_patch_empty_title_returns_400(self, client):
+        """PATCH con title vuoto → 400."""
+        r = client.patch(f"/api/db/scenes/{self.scene_id}", json={"title": ""})
+        assert r.status_code == 400
+
+    def test_patch_unknown_scene_returns_404(self, client):
+        """PATCH su scene_id inesistente → 404."""
+        r = client.patch("/api/db/scenes/nonexistent-id-xyz", json={"title": "X"})
+        assert r.status_code == 404
+
+    def test_patch_location_returns_200(self, client):
+        """PATCH con location → 200 e persiste."""
+        r = client.patch(f"/api/db/scenes/{self.scene_id}", json={"location": "Castello di ferro"})
+        assert r.status_code == 200
+        d = client.get(f"/api/db/scenes/{self.scene_id}").get_json()
+        assert d["scene"]["location"] == "Castello di ferro"
+
+
+# ── FLOW-21: POST /api/characters → crea file YAML scheletro ─────────────────
+
+class TestFlow21CharactersCreate:
+    """POST /api/characters crea un file YAML nella dir characters (non solo SQLite)."""
+
+    STEM = "flow21-journey-test-char"
+    YAML_PATH = None
+
+    @pytest.fixture(autouse=True)
+    def _cleanup(self, tmp_path):
+        from app.calliope_shell.characters_service import _chars_dir
+        self._yaml = _chars_dir() / f"{self.STEM}.draft.yaml"
+        yield
+        if self._yaml.exists():
+            self._yaml.unlink()
+
+    def test_create_returns_201(self, client):
+        """POST /api/characters → 201 con stem e name."""
+        r = client.post("/api/characters", json={"name": "flow21 journey test char", "kind": "npc"})
+        assert r.status_code == 201
+        d = r.get_json()
+        assert d["stem"] == self.STEM
+        assert d["name"] == "flow21 journey test char"
+
+    def test_yaml_file_created_on_disk(self, client):
+        """Il file .draft.yaml viene fisicamente scritto su disco."""
+        client.post("/api/characters", json={"name": "flow21 journey test char", "kind": "npc"})
+        assert self._yaml.exists()
+
+    def test_yaml_contains_name(self, client):
+        """Il file YAML contiene il campo name."""
+        import yaml
+        client.post("/api/characters", json={"name": "flow21 journey test char", "kind": "npc"})
+        data = yaml.safe_load(self._yaml.read_text())
+        assert data["name"] == "flow21 journey test char"
+
+    def test_yaml_contains_kind_as_tag(self, client):
+        """Il kind viene salvato come tag nel YAML."""
+        import yaml
+        client.post("/api/characters", json={"name": "flow21 journey test char", "kind": "player"})
+        data = yaml.safe_load(self._yaml.read_text())
+        assert "player" in data.get("tags", [])
+
+    def test_duplicate_returns_409(self, client):
+        """POST duplicato → 409 already exists."""
+        client.post("/api/characters", json={"name": "flow21 journey test char"})
+        r = client.post("/api/characters", json={"name": "flow21 journey test char"})
+        assert r.status_code == 409
+
+    def test_empty_name_returns_400(self, client):
+        """POST senza name → 400."""
+        r = client.post("/api/characters", json={"kind": "npc"})
+        assert r.status_code == 400
+
+    def test_visible_in_list_after_create(self, client):
+        """GET /api/characters dopo POST → il nuovo personaggio appare."""
+        client.post("/api/characters", json={"name": "flow21 journey test char"})
+        chars = client.get("/api/characters").get_json()
+        stems = [c["stem"] for c in chars]
+        assert self.STEM in stems
