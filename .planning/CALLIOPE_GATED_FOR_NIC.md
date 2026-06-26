@@ -432,3 +432,23 @@ Branch dedicato: `efesto/gated6-arc-db-canonical` — non ancora mergato su main
 **Decisione richiesta**: quali file (se qualcuno) rimuovere? Risposta: tenere tutto / rimuovere solo lore.py / lista completa.
 
 ---
+
+## Completato ciclo gap-review 2026-06-26 ciclo #3 (branch efesto/redesign-p6-ui-refinements)
+
+| Item | Dettaglio | Commit |
+|------|-----------|--------|
+| feat(summarize/P3): '→ Salva in scena' | POST is_summary=1 nella scena attiva; visibile solo se scena aperta; 2 journey test TestFlow8SummaryInScene | adb3e63 |
+| diagnosi: test draft 503 già coperti | test_server_scene_draft_routes.py righe 229-243 già avevano ConnectionError+Exception | — |
+
+**Suite: 2393 passed, 77 skipped. Coverage: 98% invariata.**
+**Gap non-gated ESAURITI**: tutti i gap VISION implementabili senza operator-review sono stati chiusi.
+
+**GATED pendenti**:
+- GATED-3: Discord bot token (nic deve generare il token)
+- GATED-5: branch efesto/gated5-remove-messages-next pronto per merge su main
+- GATED-6: branch efesto/gated6-arc-db-canonical pronto per merge su main
+- GATED-7: Dead code cleanup (richiede opus + operator review per la lista)
+
+**[DONE: esaurito-nongated]**
+
+---
