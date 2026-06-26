@@ -1017,3 +1017,137 @@ def test_arc_continue_result_has_id():
 def test_continue_status_has_id():
     """#continue-status — span feedback generazione continuazione."""
     assert 'id="continue-status"' in _html()
+
+
+# ── Nav IDs (2026-06-26 round 6 batch 5) ─────────────────────────────────────
+
+def test_nav_dashboard_has_id():
+    """#nav-dashboard — link nav Dashboard."""
+    assert 'id="nav-dashboard"' in _html()
+
+
+def test_nav_scenes_has_id():
+    """#nav-scenes — link nav Scene."""
+    assert 'id="nav-scenes"' in _html()
+
+
+def test_nav_characters_has_id():
+    """#nav-characters — link nav Personaggi."""
+    assert 'id="nav-characters"' in _html()
+
+
+def test_nav_messages_has_id():
+    """#nav-messages — link nav Messaggi."""
+    assert 'id="nav-messages"' in _html()
+
+
+def test_nav_lorekb_has_id():
+    """#nav-lorekb — link nav Lore KB."""
+    assert 'id="nav-lorekb"' in _html()
+
+
+def test_main_view_has_id():
+    """#main-view — container principale viste panel."""
+    assert 'id="main-view"' in _html()
+
+
+def test_mascot_has_id():
+    """#mascot — container Live2D mascot (canvas o div)."""
+    assert 'id="mascot"' in _html()
+
+
+# ── Summarize output IDs (2026-06-26 round 6 batch 5) ────────────────────────
+
+def test_btn_summarize_has_id():
+    """#btn-summarize — pulsante Genera Summary nel panel Summarize."""
+    assert 'id="btn-summarize"' in _html()
+
+
+def test_sum_meta_has_id():
+    """#sum-meta — div metadati summary (word_count, model)."""
+    assert 'id="sum-meta"' in _html()
+
+
+# ── LoreCheck output IDs (2026-06-26 round 6 batch 5) ────────────────────────
+
+def test_lc_issues_has_id():
+    """#lc-issues — ul problemi rilevati da LoreCheck."""
+    assert 'id="lc-issues"' in _html()
+
+
+def test_lc_refs_has_id():
+    """#lc-refs — ul riferimenti lore trovati da LoreCheck."""
+    assert 'id="lc-refs"' in _html()
+
+
+# ── Refine lint output IDs (2026-06-26 round 6 batch 5) ──────────────────────
+
+def test_refine_lint_badge_has_id():
+    """#refine-lint-badge — badge contatore problemi stile dal Refine."""
+    assert 'id="refine-lint-badge"' in _html()
+
+
+def test_refine_lint_list_has_id():
+    """#refine-lint-list — ul lista problemi stile lint nel panel Refine."""
+    assert 'id="refine-lint-list"' in _html()
+
+
+# ── SmartDraft output (2026-06-26 round 6 batch 5) ───────────────────────────
+
+def test_gen_output_has_id():
+    """#gen-output — div testo generato da SmartDraft."""
+    assert 'id="gen-output"' in _html()
+
+
+# ── Scenes panel sub-IDs (2026-06-26 round 6 batch 5) ────────────────────────
+
+def test_scenes_list_col_has_id():
+    """#scenes-list-col — colonna sinistra lista scene nel panel."""
+    assert 'id="scenes-list-col"' in _html()
+
+
+def test_scenes_filter_bar_has_id():
+    """#scenes-filter-bar — barra filtri nella colonna lista scene."""
+    assert 'id="scenes-filter-bar"' in _html()
+
+
+def test_new_scene_location_has_id():
+    """#new-scene-location — input location nel form nuova scena."""
+    assert 'id="new-scene-location"' in _html()
+
+
+def test_new_scene_status_has_id():
+    """#new-scene-status — span feedback creazione nuova scena."""
+    assert 'id="new-scene-status"' in _html()
+
+
+def test_lorekb_panel_has_id():
+    """#lorekb-panel — container panel Lore KB."""
+    assert 'id="lorekb-panel"' in _html()
+
+
+def test_scene_char_select_has_id():
+    """#scene-char-select — select personaggio per compose nel detail scena."""
+    assert 'id="scene-char-select"' in _html()
+
+
+# ── Roster form IDs (2026-06-26 round 6 batch 5) ─────────────────────────────
+
+def test_add_roster_form_has_id():
+    """#add-roster-form — form aggiunta personaggio al roster di scena."""
+    assert 'id="add-roster-form"' in _html()
+
+
+def test_add_roster_char_sel_has_id():
+    """#add-roster-char-sel — select personaggio nel form roster."""
+    assert 'id="add-roster-char-sel"' in _html()
+
+
+def test_add_roster_role_sel_has_id():
+    """#add-roster-role-sel — select ruolo nel form roster."""
+    assert 'id="add-roster-role-sel"' in _html()
+
+
+def test_add_roster_status_has_id():
+    """#add-roster-status — span feedback aggiunta al roster."""
+    assert 'id="add-roster-status"' in _html()
