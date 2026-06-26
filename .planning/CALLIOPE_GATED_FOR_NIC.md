@@ -469,7 +469,29 @@ Branch dedicato: `efesto/gated6-arc-db-canonical` — non ancora mergato su main
 **Gap dati aperti (non codice)**:
 - `silver.draft.yaml` e `saturn.draft.yaml`: YAML invalido (virgolette non bilanciate, riga ~36/40). Parser restituisce name='' → h2 vuoto (ora fixato con fallback stem). Nic deve fixare i file YAML manualmente.
 - LoreKB: 0 voci nelle categorie — gap dati operatore, UI gestisce empty state correttamente.
+- **ChromaDB embedding mismatch**: `/api/chars/<name>/memory` ritorna `error: "Collection expecting embedding with dimension of 768, got 384"`. Il DB ChromaDB char_memory è stato costruito con modello che generava 768-dim; il modello corrente (sentence-transformers/all-minilm) genera 384-dim. Fallback silente (snippets=[]). Fix: ricostruire la collection ChromaDB con `scripts/build_chromadb_index.py` oppure allineare il modello a 768-dim (es. `all-mpnet-base-v2`). Non bloccante — char facts semplicemente non compaiono nel detail personaggio.
 
 **[DONE: browser-test-round-p6-continued]**
 
 ---
+
+## Completato in sessione 2026-06-26 (browser-test estensivo P6 round 3 — post-compact)
+
+| Item | Tipo | Commit |
+|------|------|--------|
+| fix(chromadb): _embed_ollama() per query 768-dim su calliope_messages | fix | 5bc0ad2 |
+| fix+test(shell): id= su 8 bottoni scene senza ID + 9 test | fix+test | ed0e451 |
+| fix+test(shell): id= su bottoni arc/roster + 4 test | fix+test | 2eaade0 |
+| test: FLOW-13 Arc lifecycle POST/GET/DELETE /api/arc | journey | bb052fb |
+| test: SmartDraft IDs strutturali (sd-intent, btn-smartdraft, sd-output...) | ui struct | 2fd3603 |
+| test: LoreCheck IDs completi (lc-output, lc-verdict, lc-issues-list) | ui struct | a34a380 |
+| test: Messages panel IDs (msg-char-filter, msg-discord-only, message-list) | ui struct | a34a380 |
+| test: LoreKB panel IDs (lorekb-new-btn, lorekb-search-*, lorekb-entries) | ui struct | a34a380 |
+
+**Suite: 2149 passed. test_scenes_panel_ui: 76 test. test_journey_p6_flows: 40 test.**
+
+**ChromaDB mismatch risolto**: chars/memory ora restituisce 5 snippets reali via Ollama nomic-embed-text:v1.5.
+
+**Bottoni senza ID residui**: solo shortcut-grid home (testabili via classe `.shortcut-btn`) + bottoni generati dinamicamente (→ Scena nei messaggi, filtri categoria LoreKB).
+
+**[DONE: browser-test-round-p6-round3-post-compact]**
