@@ -603,3 +603,60 @@ def test_sd_lint_has_id():
 def test_sd_actions_has_id():
     """#sd-actions — container pulsanti azione post-draft (copy/save/lorecheck)."""
     assert 'id="sd-actions"' in _html()
+
+
+# ── Dashboard panel IDs (2026-06-26 round 5) ─────────────────────────────────
+
+def test_dashboard_panel_has_id():
+    """#dashboard-panel — container principale dashboard."""
+    assert 'id="dashboard-panel"' in _html()
+
+
+def test_dash_card_state_has_id():
+    """#dash-card-state — card stato sistema."""
+    assert 'id="dash-card-state"' in _html()
+
+
+def test_dash_card_counts_has_id():
+    """#dash-card-counts — card contatori conoscenza."""
+    assert 'id="dash-card-counts"' in _html()
+
+
+def test_dash_d_flask_has_id():
+    """#dash-d-flask — stato servizio Flask nella dashboard."""
+    assert 'id="dash-d-flask"' in _html()
+
+
+def test_dash_c_chars_active_has_id():
+    """#dash-c-chars-active — contatore personaggi attivi."""
+    assert 'id="dash-c-chars-active"' in _html()
+
+
+def test_dash_c_scenes_has_id():
+    """#dash-c-scenes — contatore scene totali."""
+    assert 'id="dash-c-scenes"' in _html()
+
+
+def test_dash_c_arcs_has_id():
+    """#dash-c-arcs — contatore archi narrativi."""
+    assert 'id="dash-c-arcs"' in _html()
+
+
+def test_dash_c_messages_has_id():
+    """#dash-c-messages — contatore messaggi totali."""
+    assert 'id="dash-c-messages"' in _html()
+
+
+def test_dash_discord_state_has_id():
+    """#dash-discord-state — stato Discord bot nella dashboard."""
+    assert 'id="dash-discord-state"' in _html()
+
+
+def test_dash_snapshot_status_has_id():
+    """#dash-snapshot-status — testo status snapshot dashboard."""
+    assert 'id="dash-snapshot-status"' in _html()
+
+
+def test_dash_card_recent_scenes_has_id():
+    """#dash-card-recent-scenes — card scene recenti dashboard."""
+    assert 'id="dash-card-recent-scenes"' in _html()
