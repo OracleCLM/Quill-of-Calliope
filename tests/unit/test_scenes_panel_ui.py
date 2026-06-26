@@ -950,3 +950,70 @@ def test_arc_new_status_has_id():
 def test_char_memory_details_has_id():
     """#char-memory-details — div snippets memoria ChromaDB personaggio."""
     assert 'id="char-memory-details"' in _html()
+
+
+# ── Arc detail IDs (2026-06-26 round 6 batch 4) ──────────────────────────────
+
+def test_arc_btn_summary_has_id():
+    """#arc-btn-summary — pulsante genera summary arco."""
+    assert 'id="arc-btn-summary"' in _html()
+
+
+def test_arc_btn_threads_has_id():
+    """#arc-btn-threads — pulsante carica thread scene per arco."""
+    assert 'id="arc-btn-threads"' in _html()
+
+
+def test_arc_btn_continue_has_id():
+    """#arc-btn-continue — pulsante genera continuazione arco."""
+    assert 'id="arc-btn-continue"' in _html()
+
+
+def test_arc_status_has_id():
+    """#arc-status — span feedback operazioni arc."""
+    assert 'id="arc-status"' in _html()
+
+
+def test_arc_summary_box_has_id():
+    """#arc-summary-box — div testo summary arco generato."""
+    assert 'id="arc-summary-box"' in _html()
+
+
+def test_arc_threads_list_has_id():
+    """#arc-threads-list — div lista thread scene rilevati."""
+    assert 'id="arc-threads-list"' in _html()
+
+
+def test_arc_detail_meta_has_id():
+    """#arc-detail-meta — div metadati arco (status, chars, scenes)."""
+    assert 'id="arc-detail-meta"' in _html()
+
+
+def test_arc_detail_scenes_has_id():
+    """#arc-detail-scenes — div lista scene associate all'arco."""
+    assert 'id="arc-detail-scenes"' in _html()
+
+
+def test_arc_continue_seed_has_id():
+    """#arc-continue-seed — input seed testo per continuazione arco."""
+    assert 'id="arc-continue-seed"' in _html()
+
+
+def test_arc_continue_type_has_id():
+    """#arc-continue-type — select tipo continuazione (epilogo, twist, cliffhanger)."""
+    assert 'id="arc-continue-type"' in _html()
+
+
+def test_arc_hint_input_has_id():
+    """#arc-hint-input — input hint extra per generazione arc."""
+    assert 'id="arc-hint-input"' in _html()
+
+
+def test_arc_continue_result_has_id():
+    """#arc-continue-result — div output testo continuazione generata."""
+    assert 'id="arc-continue-result"' in _html()
+
+
+def test_continue_status_has_id():
+    """#continue-status — span feedback generazione continuazione."""
+    assert 'id="continue-status"' in _html()
