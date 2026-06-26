@@ -180,3 +180,15 @@ def test_load_emotion_map_fallback_on_ioerror():
     with patch("pathlib.Path.read_text", side_effect=OSError("no file")):
         result = _load_emotion_map()
     assert result == {}
+
+
+# ── Arc seed except branch (righe 916-917 server.py) ─────────────────────────
+
+def test_arc_seed_exception_is_non_fatal():
+    """Se get_db() lancia durante il seed archi, create_app non si interrompe."""
+    with patch("app.db.get_db", side_effect=RuntimeError("db locked")):
+        app, _ = create_app()
+    app.config["TESTING"] = True
+    with app.test_client() as c:
+        r = c.get("/health")
+    assert r.status_code == 200
