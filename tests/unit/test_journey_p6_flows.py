@@ -1151,3 +1151,57 @@ class TestFlow29CharDbReadDelete:
         assert r.status_code == 200
         scene_ids = [s["id"] for s in r.get_json()["scenes"]]
         assert sid in scene_ids
+
+
+# ── FLOW-30: Arc continue + LoreKB categories ────────────────────────────────
+class TestFlow30ArcContinueAndLoreCategories:
+    """GIVEN arco esistente + lore store
+    WHEN POST /api/arc/<id>/continue + GET /api/lore/categories
+    THEN risposta con scene_type + lista categorie.
+    """
+
+    ARC_ID = "arc_flow30_test"
+
+    @pytest.fixture(autouse=True)
+    def setup_arc(self, client):
+        client.post("/api/arc", json={
+            "arc_id": self.ARC_ID, "title": "Flow30 TestArc", "chars": ["Aurora"]
+        })
+
+    def test_arc_continue_returns_200(self, client):
+        r = client.post(f"/api/arc/{self.ARC_ID}/continue", json={})
+        assert r.status_code == 200
+
+    def test_arc_continue_has_scene_type(self, client):
+        d = client.post(f"/api/arc/{self.ARC_ID}/continue", json={}).get_json()
+        assert "scene_type" in d
+
+    def test_arc_continue_with_hint(self, client):
+        d = client.post(f"/api/arc/{self.ARC_ID}/continue",
+                        json={"hint": "finale drammatico"}).get_json()
+        assert "scene_type" in d
+
+    def test_arc_continue_nonexistent_arc_503(self, client):
+        r = client.post("/api/arc/nonexistent-arc-xyz/continue", json={})
+        assert r.status_code in (404, 503)
+
+    def test_lore_categories_returns_200(self, client):
+        r = client.get("/api/lore/categories")
+        assert r.status_code == 200
+
+    def test_lore_categories_has_categories_key(self, client):
+        d = client.get("/api/lore/categories").get_json()
+        assert "categories" in d
+        assert isinstance(d["categories"], list)
+
+    def test_lore_categories_contains_expected(self, client):
+        cats = client.get("/api/lore/categories").get_json()["categories"]
+        assert len(cats) > 0
+
+    def test_lore_entries_filter_by_category(self, client):
+        r = client.get("/api/lore/entries?category=other")
+        assert r.status_code == 200
+        d = r.get_json()
+        assert "entries" in d
+        for e in d["entries"]:
+            assert e.get("category") == "other"
