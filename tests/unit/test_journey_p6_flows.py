@@ -1029,3 +1029,125 @@ class TestFlow27MessageToScene:
             0
         )
         assert after == before + 1
+
+
+# ── FLOW-28: LoreKB CRUD — create/get/update/delete entry ────────────────────
+class TestFlow28LoreKBCrud:
+    """GIVEN le route /api/lore/entries
+    WHEN POST→GET→PUT→DELETE
+    THEN ogni mutazione riflessa nella lista entries.
+    """
+
+    def _create(self, client, title="flow28-test-lore"):
+        r = client.post("/api/lore/entries", json={
+            "title": title,
+            "category": "other",
+            "keys": ["flow28", "test"],
+            "content": "Contenuto di prova flow28.",
+            "scope": "global",
+        })
+        assert r.status_code == 201
+        return r.get_json()["id"]
+
+    def test_create_201_with_id(self, client):
+        r = client.post("/api/lore/entries", json={"title": "f28-create"})
+        assert r.status_code == 201
+        assert "id" in r.get_json()
+
+    def test_created_entry_in_list(self, client):
+        eid = self._create(client, "f28-list-check")
+        r = client.get("/api/lore/entries")
+        assert r.status_code == 200
+        ids = [e["id"] for e in r.get_json()["entries"]]
+        assert eid in ids
+
+    def test_get_entry_by_id(self, client):
+        eid = self._create(client, "f28-get-by-id")
+        r = client.get(f"/api/lore/entries/{eid}")
+        assert r.status_code == 200
+        assert r.get_json()["title"] == "f28-get-by-id"
+
+    def test_missing_title_400(self, client):
+        r = client.post("/api/lore/entries", json={"content": "no title"})
+        assert r.status_code == 400
+
+    def test_update_entry_200(self, client):
+        eid = self._create(client, "f28-update-target")
+        r = client.put(f"/api/lore/entries/{eid}", json={"content": "updated content"})
+        assert r.status_code == 200
+        updated = client.get(f"/api/lore/entries/{eid}").get_json()
+        assert updated["content"] == "updated content"
+
+    def test_category_filter(self, client):
+        eid = self._create(client, "f28-cat-filter")
+        client.put(f"/api/lore/entries/{eid}", json={"category": "places"})
+        r = client.get("/api/lore/entries?category=places")
+        assert r.status_code == 200
+        ids = [e["id"] for e in r.get_json()["entries"]]
+        assert eid in ids
+
+    def test_delete_entry_ok(self, client):
+        eid = self._create(client, "f28-delete-target")
+        r = client.delete(f"/api/lore/entries/{eid}")
+        assert r.status_code in (200, 204)
+        r2 = client.get(f"/api/lore/entries/{eid}")
+        assert r2.status_code == 404
+
+    def test_delete_nonexistent_404(self, client):
+        r = client.delete("/api/lore/entries/nonexistent-id-xyz")
+        assert r.status_code == 404
+
+
+# ── FLOW-29: Character DB — GET by ID, DELETE, scenes list ───────────────────
+class TestFlow29CharDbReadDelete:
+    """GIVEN /api/db/characters
+    WHEN GET by ID, DELETE, GET /scenes per personaggio
+    THEN risposte corrette e char rimossa post-delete.
+    """
+
+    def _make_char(self, client, name="flow29-char", kind="npc"):
+        r = client.post("/api/db/characters", json={"name": name, "kind": kind})
+        assert r.status_code in (200, 201)
+        return r.get_json()["id"]
+
+    def test_get_char_by_id(self, client):
+        cid = self._make_char(client, "f29-get-char")
+        r = client.get(f"/api/db/characters/{cid}")
+        assert r.status_code == 200
+        d = r.get_json()
+        assert d["name"] == "f29-get-char"
+        assert d["kind"] == "npc"
+
+    def test_get_nonexistent_char_404(self, client):
+        r = client.get("/api/db/characters/nonexistent-id-xyz-f29")
+        assert r.status_code == 404
+
+    def test_delete_char_204(self, client):
+        cid = self._make_char(client, "f29-delete-char")
+        r = client.delete(f"/api/db/characters/{cid}")
+        assert r.status_code == 204
+        r2 = client.get(f"/api/db/characters/{cid}")
+        assert r2.status_code == 404
+
+    def test_delete_nonexistent_char_404(self, client):
+        r = client.delete("/api/db/characters/nonexistent-id-xyz-f29b")
+        assert r.status_code == 404
+
+    def test_char_scenes_list_empty(self, client):
+        cid = self._make_char(client, "f29-scenes-char")
+        r = client.get(f"/api/db/characters/{cid}/scenes")
+        assert r.status_code == 200
+        d = r.get_json()
+        assert "scenes" in d
+        assert isinstance(d["scenes"], list)
+
+    def test_char_scenes_list_after_roster_add(self, client):
+        cid = self._make_char(client, "f29-roster-char")
+        sr = client.post("/api/db/scenes", json={"title": "f29-scene"})
+        sid = sr.get_json()["id"]
+        client.post(f"/api/db/scenes/{sid}/characters",
+                    json={"character_id": cid, "role": "participant"})
+        r = client.get(f"/api/db/characters/{cid}/scenes")
+        assert r.status_code == 200
+        scene_ids = [s["id"] for s in r.get_json()["scenes"]]
+        assert sid in scene_ids
