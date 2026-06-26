@@ -24,7 +24,12 @@ def register_character_routes(app):
         if draft_path.exists():
             return jsonify({"error": "already exists", "stem": stem}), 409
         kind = data.get("kind", "npc")
-        card_data = {"name": name, "description": "", "personality": "", "tags": [kind]}
+        card_data = {
+            "name": name,
+            "description": (data.get("description") or "").strip(),
+            "personality": (data.get("personality") or "").strip(),
+            "tags": [kind],
+        }
         draft_path.write_text(yaml.dump(card_data, allow_unicode=True), encoding="utf-8")
         return jsonify({"stem": stem, "name": name}), 201
 

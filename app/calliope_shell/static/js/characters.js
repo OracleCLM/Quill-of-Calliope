@@ -478,8 +478,7 @@
   window.createCharacterInline = function() {
     if (!detail) return;
     detail.textContent = '';
-    const emptyData = {name: '', kind: 'npc', compact: '', persona: '', traits: '', backstory: ''};
-    const fields = [['compact','Compact'],['persona','Persona'],['traits','Tratti'],['backstory','Backstory']];
+    const v2Fields = [['description','Description','textarea'],['personality','Personality','textarea']];
 
     const h = document.createElement('div');
     h.textContent = '+ Nuovo personaggio';
@@ -501,6 +500,20 @@
     });
     detail.appendChild(kindSel);
 
+    const inputs = {};
+    v2Fields.forEach(([key, label]) => {
+      const lbl = document.createElement('div');
+      lbl.textContent = label + ':';
+      lbl.style.cssText = 'color:#88aaff;font-size:.8em;font-weight:bold;margin-top:8px;';
+      detail.appendChild(lbl);
+      const ta = document.createElement('textarea');
+      ta.id = 'char-new-' + key;
+      ta.rows = 3;
+      ta.style.cssText = 'width:100%;box-sizing:border-box;background:#111827;color:#eee;border:1px solid #2a3a5a;border-radius:6px;padding:6px 10px;font-size:.83em;resize:vertical;margin-bottom:4px;';
+      detail.appendChild(ta);
+      inputs[key] = ta;
+    });
+
     const statusEl = document.createElement('div');
     statusEl.style.cssText = 'font-size:.8em;color:#88aaff;min-height:1.2em;margin:6px 0;';
     detail.appendChild(statusEl);
@@ -517,11 +530,13 @@
       if (!name) { statusEl.textContent = '⚠ Nome obbligatorio.'; return; }
       saveBtn.disabled = true;
       statusEl.textContent = 'Creazione…';
+      const body = {name, kind: kindSel.value};
+      v2Fields.forEach(([key]) => { body[key] = inputs[key].value; });
       try {
         const r = await fetch('/api/characters', {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({name, kind: kindSel.value}),
+          body: JSON.stringify(body),
         });
         const d = await r.json();
         if (r.ok) {

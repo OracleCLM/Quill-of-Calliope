@@ -2074,3 +2074,32 @@ class TestFlow44DiscordImportEndpoint:
         r = client.post("/api/discord/import", json={"input_path": "/nonexistent/file.jsonl"})
         assert r.status_code == 404
         assert "error" in r.get_json()
+
+
+class TestFlow45CharCreateV2Fields:
+    """Feature: crea personaggio con campi V2 description/personality.
+
+    Verifica che POST /api/characters accetti i campi V2 e li persista.
+    """
+
+    def test_create_char_with_description_persists(self, client, tmp_path):
+        """POST /api/characters con description+personality → GET restituisce i valori."""
+        from unittest.mock import patch
+        chars_dir = tmp_path / "characters"
+        chars_dir.mkdir()
+        with patch("app.calliope_shell.characters_service._chars_dir", return_value=chars_dir):
+            r = client.post("/api/characters", json={
+                "name": "Flow45Hero",
+                "kind": "player",
+                "description": "Un guerriero del nord, cicatrici sul viso.",
+                "personality": "Taciturno ma leale.",
+            })
+        assert r.status_code == 201
+        d = r.get_json()
+        assert d["name"] == "Flow45Hero"
+        stem = d["stem"]
+        yaml_file = chars_dir / f"{stem}.draft.yaml"
+        assert yaml_file.exists()
+        content = yaml_file.read_text()
+        assert "Un guerriero del nord" in content
+        assert "Taciturno ma leale" in content
