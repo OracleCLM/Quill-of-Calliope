@@ -77,3 +77,40 @@ def test_get_character_returns_full_card(client):
     data = r.get_json()
     assert data["personality"] == "cacciatrice"
     assert data["tags"] == ["ranger"]
+
+
+# ── POST /api/characters (characters_create) ──────────────────────────────────
+
+def test_create_character_invalid_name_all_symbols(client, tmp_path):
+    """name composto solo da simboli → stem vuoto → 400 invalid name."""
+    with patch(f"{_SVC}._chars_dir", return_value=tmp_path):
+        r = client.post("/api/characters", json={"name": "---"})
+    assert r.status_code == 400
+    assert r.get_json()["error"] == "invalid name"
+
+
+def test_create_character_empty_name(client, tmp_path):
+    """name vuoto → 400 name required."""
+    with patch(f"{_SVC}._chars_dir", return_value=tmp_path):
+        r = client.post("/api/characters", json={"name": ""})
+    assert r.status_code == 400
+    assert r.get_json()["error"] == "name required"
+
+
+def test_create_character_success(client, tmp_path):
+    """POST con name valido → 201 + stem."""
+    with patch(f"{_SVC}._chars_dir", return_value=tmp_path):
+        r = client.post("/api/characters", json={"name": "Aurora"})
+    assert r.status_code == 201
+    data = r.get_json()
+    assert data["stem"] == "aurora"
+    assert data["name"] == "Aurora"
+
+
+def test_create_character_already_exists(client, tmp_path):
+    """POST con nome già esistente → 409 already exists."""
+    (tmp_path / "aurora.draft.yaml").write_text("name: Aurora\n")
+    with patch(f"{_SVC}._chars_dir", return_value=tmp_path):
+        r = client.post("/api/characters", json={"name": "Aurora"})
+    assert r.status_code == 409
+    assert r.get_json()["error"] == "already exists"
