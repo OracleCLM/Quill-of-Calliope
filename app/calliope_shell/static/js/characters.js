@@ -412,6 +412,47 @@
     nameIn.focus();
   };
 
+  async function _appendSceneAttive(container, charName) {
+    try {
+      const r = await fetch('/api/db/characters?name=' + encodeURIComponent(charName));
+      const d = await r.json();
+      const chars = d.characters || [];
+      if (!chars.length) return;
+      const dbChar = chars[0];
+      const r2 = await fetch('/api/db/characters/' + encodeURIComponent(dbChar.id) + '/scenes');
+      const d2 = await r2.json();
+      const scenes = d2.scenes || [];
+      const sec = document.createElement('div');
+      sec.style.marginTop = '16px';
+      const lbl = document.createElement('div');
+      lbl.textContent = 'Scene attive:';
+      lbl.style.color = SECTION_LABEL_COLOR;
+      lbl.style.fontSize = '.8em';
+      lbl.style.fontWeight = 'bold';
+      sec.appendChild(lbl);
+      if (!scenes.length) {
+        const none = document.createElement('div');
+        none.textContent = 'Nessuna scena nel roster.';
+        none.style.color = '#556';
+        none.style.fontSize = '.82em';
+        none.style.marginTop = '4px';
+        sec.appendChild(none);
+      } else {
+        scenes.forEach(s => {
+          const item = document.createElement('div');
+          item.style.cssText = 'font-size:.82em;color:#aac;padding:4px 0;cursor:pointer;border-bottom:1px solid #1a2440;';
+          item.textContent = (s.title || s.id) + (s.role ? ' (' + s.role + ')' : '');
+          item.onclick = () => {
+            if (window.showView) window.showView('scenes');
+            if (window._loadSceneDetail) window._loadSceneDetail(s.id);
+          };
+          sec.appendChild(item);
+        });
+      }
+      container.appendChild(sec);
+    } catch (_) {}
+  }
+
   window.openCharacterDetail = function(stem) {
     if (!detail) return;
     detail.textContent = '';
@@ -428,6 +469,7 @@
         if (data && data.error) throw new Error(data.error);
         renderDetail(detail, data);
         _addEditBtn(detail, data);
+        if (data.name) _appendSceneAttive(detail, data.name);
       })
       .catch(err => showError(detail, err.message));
   };

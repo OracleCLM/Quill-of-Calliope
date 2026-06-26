@@ -201,3 +201,40 @@ def test_add_character_name_too_long_400(client):
     r = client.post("/api/db/characters", json={"name": long_name})
     assert r.status_code == 400
     assert "error" in r.get_json()
+
+
+# --- GET /api/db/characters/<char_id>/scenes ---------------------------------
+
+def test_list_scenes_for_character_empty(client, tmp_path):
+    """Personaggio senza scene → lista vuota 200."""
+    char_id = client.post("/api/db/characters", json={"name": "Solo"}).get_json()["id"]
+    r = client.get(f"/api/db/characters/{char_id}/scenes")
+    assert r.status_code == 200
+    assert r.get_json()["scenes"] == []
+
+
+def test_list_scenes_for_character_with_scene(tmp_path):
+    """Dopo POST /api/db/scenes/<id>/characters, la scena compare nella lista scene del char."""
+    from app.db import get_db, init_schema
+    from app.calliope_shell.scenes_db_routes import register_scenes_db_routes
+
+    p = tmp_path / "all.db"
+    conn = get_db(str(p))
+    init_schema(conn)
+    conn.close()
+
+    app2 = Flask(__name__)
+    app2.config["TESTING"] = True
+    register_characters_db_routes(app2, db_path=str(p))
+    register_scenes_db_routes(app2, db_path=str(p))
+    c2 = app2.test_client()
+
+    char_id = c2.post("/api/db/characters", json={"name": "Kira"}).get_json()["id"]
+    scene_id = c2.post("/api/db/scenes", json={"title": "Notte"}).get_json()["id"]
+    c2.post(f"/api/db/scenes/{scene_id}/characters",
+            json={"character_id": char_id, "role": "player"})
+
+    r = c2.get(f"/api/db/characters/{char_id}/scenes")
+    assert r.status_code == 200
+    scenes = r.get_json()["scenes"]
+    assert any(s["id"] == scene_id for s in scenes)

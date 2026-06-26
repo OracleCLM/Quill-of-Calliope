@@ -88,3 +88,16 @@ def register_characters_db_routes(app, *, db_path: str) -> None:
             return "", 204
         conn.close()
         return jsonify({"error": "not found"}), 404
+
+    @app.route("/api/db/characters/<char_id>/scenes", methods=["GET"])
+    def list_scenes_for_character(char_id):
+        conn = _conn(db_path)
+        cur = conn.execute(
+            "SELECT s.id, s.title, s.location, sc.role FROM scenes s "
+            "JOIN scene_characters sc ON sc.scene_id = s.id "
+            "WHERE sc.character_id = ? ORDER BY s.updated_at DESC",
+            (char_id,),
+        )
+        rows = [dict(zip([d[0] for d in cur.description], r)) for r in cur.fetchall()]
+        conn.close()
+        return jsonify({"scenes": rows}), 200
