@@ -327,6 +327,12 @@
     container.appendChild(btnRow);
   }
 
+  const KIND_BADGE_STYLE = {
+    npc: 'background:#1a2a1a;color:#8f8;border:1px solid #2a5a2a;',
+    player: 'background:#1a1a3a;color:#88aaff;border:1px solid #2a3a6a;',
+    operator: 'background:#2a1a1a;color:#f88;border:1px solid #5a2a2a;',
+  };
+
   function _addEditBtn(container, data) {
     fetch('/api/db/characters?name=' + encodeURIComponent(data.name || ''))
       .then(r => r.json())
@@ -334,10 +340,23 @@
         const chars = d.characters || [];
         if (!chars.length) return;
         const dbId = chars[0].id;
+        const kind = chars[0].kind || 'npc';
+        const badgeStyle = KIND_BADGE_STYLE[kind] || KIND_BADGE_STYLE.npc;
+        const badge = document.createElement('span');
+        badge.id = 'char-kind-badge';
+        badge.textContent = kind;
+        badge.style.cssText = `font-size:.72em;border-radius:10px;padding:2px 10px;${badgeStyle}`;
+        const existingBadge = container.querySelector('#char-kind-badge');
+        if (existingBadge) existingBadge.replaceWith(badge);
+        else {
+            const h2 = container.querySelector('h2');
+            if (h2) h2.insertAdjacentElement('afterend', badge);
+            else container.insertBefore(badge, container.firstChild);
+        }
         const btn = document.createElement('button');
         btn.textContent = '✎ Modifica';
-        btn.style.cssText = 'background:#1a2a4a;color:#aac;border:1px solid #2a3a5a;border-radius:6px;padding:5px 14px;cursor:pointer;font-size:.8em;margin-top:10px;';
-        const mergedData = Object.assign({}, data, {kind: chars[0].kind});
+        btn.style.cssText = 'background:#1a2a4a;color:#aac;border:1px solid #2a3a5a;border-radius:6px;padding:5px 14px;cursor:pointer;font-size:.8em;margin-top:10px;display:block;';
+        const mergedData = Object.assign({}, data, {kind});
         btn.onclick = () => { container.textContent = ''; renderEditForm(container, mergedData, dbId); };
         container.appendChild(btn);
       })
