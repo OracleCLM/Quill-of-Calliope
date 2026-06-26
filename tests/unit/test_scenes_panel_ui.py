@@ -485,3 +485,47 @@ def test_characters_grid_has_id():
 def test_character_detail_has_id():
     """#character-detail — pannello dettaglio personaggio."""
     assert 'id="character-detail"' in _html()
+
+
+# ── Arc panel IDs statici (aggiunta 2026-06-26 P6 round 4) ──────────────────
+
+def test_arc_ul_has_id():
+    """#arc-ul — lista archi nel pannello arc."""
+    assert 'id="arc-ul"' in _html()
+
+
+def test_arc_new_form_has_id():
+    """#arc-new-form — form inline creazione nuovo arco."""
+    assert 'id="arc-new-form"' in _html()
+
+
+def test_arc_new_id_input_has_id():
+    """#arc-new-id — input ID per nuovo arco."""
+    assert 'id="arc-new-id"' in _html()
+
+
+def test_arc_new_chars_has_id():
+    """#arc-new-chars — input personaggi per nuovo arco."""
+    assert 'id="arc-new-chars"' in _html()
+
+
+def test_arc_detail_content_has_id():
+    """#arc-detail-content — div contenuto dettaglio arco."""
+    assert 'id="arc-detail-content"' in _html()
+
+
+def test_arc_detail_empty_has_id():
+    """#arc-detail-empty — placeholder vuoto pannello arc."""
+    assert 'id="arc-detail-empty"' in _html()
+
+
+# ── Refine panel IDs statici (aggiunta 2026-06-26 P6 round 4) ────────────────
+
+def test_refine_output_box_has_id():
+    """#refine-output-box — output box del refine."""
+    assert 'id="refine-output-box"' in _html()
+
+
+def test_refine_output_row_has_id():
+    """#refine-output-row — riga output del refine (contiene output-box)."""
+    assert 'id="refine-output-row"' in _html()
