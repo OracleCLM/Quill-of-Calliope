@@ -1205,3 +1205,51 @@ class TestFlow30ArcContinueAndLoreCategories:
         assert "entries" in d
         for e in d["entries"]:
             assert e.get("category") == "other"
+
+
+# ── FLOW-31: Scene GET by ID + DELETE ────────────────────────────────────────
+class TestFlow31SceneGetDelete:
+    """GIVEN /api/db/scenes/<id>
+    WHEN GET → restituisce scene+messages / DELETE → 204 + 404.
+    """
+
+    def _make(self, client, title="flow31-scene"):
+        r = client.post("/api/db/scenes", json={"title": title})
+        assert r.status_code == 201
+        return r.get_json()["id"]
+
+    def test_get_scene_by_id_returns_200(self, client):
+        sid = self._make(client)
+        r = client.get(f"/api/db/scenes/{sid}")
+        assert r.status_code == 200
+
+    def test_get_scene_by_id_has_scene_key(self, client):
+        sid = self._make(client)
+        d = client.get(f"/api/db/scenes/{sid}").get_json()
+        assert "scene" in d
+        assert d["scene"]["id"] == sid
+
+    def test_get_scene_by_id_has_messages_key(self, client):
+        sid = self._make(client)
+        d = client.get(f"/api/db/scenes/{sid}").get_json()
+        assert "messages" in d
+        assert isinstance(d["messages"], list)
+
+    def test_get_nonexistent_scene_404(self, client):
+        r = client.get("/api/db/scenes/nonexistent-id-xyz-f31")
+        assert r.status_code == 404
+
+    def test_delete_scene_204(self, client):
+        sid = self._make(client)
+        r = client.delete(f"/api/db/scenes/{sid}")
+        assert r.status_code == 204
+
+    def test_get_after_delete_404(self, client):
+        sid = self._make(client)
+        client.delete(f"/api/db/scenes/{sid}")
+        r = client.get(f"/api/db/scenes/{sid}")
+        assert r.status_code == 404
+
+    def test_delete_nonexistent_scene_404(self, client):
+        r = client.delete("/api/db/scenes/nonexistent-id-xyz-f31b")
+        assert r.status_code == 404
