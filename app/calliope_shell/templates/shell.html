@@ -523,7 +523,7 @@
             <div id="scene-detail">
                 <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
                     <h2 id="scene-detail-title" style="margin:0;flex:1;"></h2>
-                    <button onclick="_toggleSceneEdit()" style="background:#1a2a4a;color:#aac;border:1px solid #2a3a5a;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:.78em;white-space:nowrap;">✎ Modifica</button>
+                    <button id="btn-scene-edit-toggle" onclick="_toggleSceneEdit()" style="background:#1a2a4a;color:#aac;border:1px solid #2a3a5a;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:.78em;white-space:nowrap;">✎ Modifica</button>
                 </div>
                 <div class="scene-detail-meta" id="scene-detail-meta"></div>
                 <div id="scene-arc-badge" style="display:none;margin-bottom:6px;"></div>
@@ -534,8 +534,8 @@
                         <option value="">— Nessun arco —</option>
                     </select>
                     <div style="display:flex;gap:8px;">
-                        <button onclick="_saveSceneEdit()" style="background:#1a3a1a;color:#8f8;border:1px solid #2a5a2a;border-radius:6px;padding:5px 16px;cursor:pointer;font-size:.82em;">✓ Salva</button>
-                        <button onclick="_toggleSceneEdit()" style="background:#1a2a3a;color:#aab;border:1px solid #2a3a5a;border-radius:6px;padding:5px 12px;cursor:pointer;font-size:.82em;">✕</button>
+                        <button id="btn-scene-edit-save" onclick="_saveSceneEdit()" style="background:#1a3a1a;color:#8f8;border:1px solid #2a5a2a;border-radius:6px;padding:5px 16px;cursor:pointer;font-size:.82em;">✓ Salva</button>
+                        <button id="btn-scene-edit-cancel" onclick="_toggleSceneEdit()" style="background:#1a2a3a;color:#aab;border:1px solid #2a3a5a;border-radius:6px;padding:5px 12px;cursor:pointer;font-size:.82em;">✕</button>
                         <span id="scene-edit-status" style="font-size:.78em;color:#88aaff;align-self:center;"></span>
                     </div>
                 </div>
@@ -588,11 +588,11 @@
                 <div style="margin-top:14px; padding-top:10px; border-top:1px solid #1a2a3a;">
                     <div style="font-size:.85em; color:#8899cc; margin-bottom:8px; font-weight:bold;">⚙ Azioni scena</div>
                     <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                        <button onclick="_sceneAction('draft')" style="background:#16223a; color:#aac; border:1px solid #2a3a5a; border-radius:6px; padding:7px 14px; cursor:pointer; font-size:.82em;">✦ Draft</button>
-                        <button onclick="_sceneAction('refine')" style="background:#16223a; color:#aac; border:1px solid #2a3a5a; border-radius:6px; padding:7px 14px; cursor:pointer; font-size:.82em;">✎ Refine</button>
-                        <button onclick="_sceneAction('translate')" style="background:#16223a; color:#aac; border:1px solid #2a3a5a; border-radius:6px; padding:7px 14px; cursor:pointer; font-size:.82em;">⇄ Translate</button>
-                        <button onclick="_sceneAction('summarize')" style="background:#16223a; color:#aac; border:1px solid #2a3a5a; border-radius:6px; padding:7px 14px; cursor:pointer; font-size:.82em;">∑ Summarize</button>
-                        <button onclick="_sceneAction('lorecheck')" style="background:#16223a; color:#aac; border:1px solid #2a3a5a; border-radius:6px; padding:7px 14px; cursor:pointer; font-size:.82em;">⊘ Lore Check</button>
+                        <button id="btn-scene-action-draft" onclick="_sceneAction('draft')" style="background:#16223a; color:#aac; border:1px solid #2a3a5a; border-radius:6px; padding:7px 14px; cursor:pointer; font-size:.82em;">✦ Draft</button>
+                        <button id="btn-scene-action-refine" onclick="_sceneAction('refine')" style="background:#16223a; color:#aac; border:1px solid #2a3a5a; border-radius:6px; padding:7px 14px; cursor:pointer; font-size:.82em;">✎ Refine</button>
+                        <button id="btn-scene-action-translate" onclick="_sceneAction('translate')" style="background:#16223a; color:#aac; border:1px solid #2a3a5a; border-radius:6px; padding:7px 14px; cursor:pointer; font-size:.82em;">⇄ Translate</button>
+                        <button id="btn-scene-action-summarize" onclick="_sceneAction('summarize')" style="background:#16223a; color:#aac; border:1px solid #2a3a5a; border-radius:6px; padding:7px 14px; cursor:pointer; font-size:.82em;">∑ Summarize</button>
+                        <button id="btn-scene-action-lorecheck" onclick="_sceneAction('lorecheck')" style="background:#16223a; color:#aac; border:1px solid #2a3a5a; border-radius:6px; padding:7px 14px; cursor:pointer; font-size:.82em;">⊘ Lore Check</button>
                         <button onclick="_copyLastMsg()" id="btn-copy-last" style="background:#162216; color:#8f8; border:1px solid #2a5a2a; border-radius:6px; padding:7px 14px; cursor:pointer; font-size:.82em;">📋 Copia ultimo</button>
                         <button onclick="_copyFullScene()" id="btn-copy-scene" style="background:#162216; color:#8f8; border:1px solid #2a5a2a; border-radius:6px; padding:7px 14px; cursor:pointer; font-size:.82em;">📄 Copia scena</button>
                     </div>
@@ -626,7 +626,7 @@
         <h2>☺ Personaggi</h2>
         <div style="margin-bottom:12px; display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
             <input id="char-search" placeholder="Filtra per nome, persona, tag..." style="flex:1; min-width:200px; max-width:420px; background:#0d1117; color:#dde; border:1px solid #2a3a5a; border-radius:6px; padding:8px 12px; font-size:.9em; box-sizing:border-box;">
-            <button onclick="createCharacterInline()" style="background:#1a3a1a;color:#8f8;border:1px solid #2a5a2a;border-radius:6px;padding:7px 14px;cursor:pointer;font-size:.84em;white-space:nowrap;">+ Nuovo personaggio</button>
+            <button id="btn-char-create" onclick="createCharacterInline()" style="background:#1a3a1a;color:#8f8;border:1px solid #2a5a2a;border-radius:6px;padding:7px 14px;cursor:pointer;font-size:.84em;white-space:nowrap;">+ Nuovo personaggio</button>
         </div>
         <div style="display:flex; gap:20px; flex:1; min-height:0;">
             <div id="characters-grid" style="flex:1.4; min-width:0;"></div>

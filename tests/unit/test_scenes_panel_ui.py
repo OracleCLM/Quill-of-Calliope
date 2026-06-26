@@ -254,3 +254,50 @@ def test_scene_ctx_hint_has_id():
 def test_scene_compose_area_has_id():
     """#scene-compose-area — container compose nuovo messaggio."""
     assert 'id="scene-compose-area"' in _html()
+
+
+# ── Bottoni _sceneAction e scene-edit (aggiunta 2026-06-26) ──────────────────
+
+def test_btn_scene_edit_toggle_has_id():
+    """#btn-scene-edit-toggle — pulsante ✎ Modifica nel detail scena."""
+    assert 'id="btn-scene-edit-toggle"' in _html()
+
+
+def test_btn_scene_edit_save_has_id():
+    """#btn-scene-edit-save — pulsante ✓ Salva nel form edit scena."""
+    assert 'id="btn-scene-edit-save"' in _html()
+
+
+def test_btn_scene_edit_cancel_has_id():
+    """#btn-scene-edit-cancel — pulsante ✕ nel form edit scena."""
+    assert 'id="btn-scene-edit-cancel"' in _html()
+
+
+def test_btn_scene_action_draft_has_id():
+    """#btn-scene-action-draft — pulsante ✦ Draft in azioni scena."""
+    assert 'id="btn-scene-action-draft"' in _html()
+
+
+def test_btn_scene_action_refine_has_id():
+    """#btn-scene-action-refine — pulsante ✎ Refine in azioni scena."""
+    assert 'id="btn-scene-action-refine"' in _html()
+
+
+def test_btn_scene_action_translate_has_id():
+    """#btn-scene-action-translate — pulsante ⇄ Translate in azioni scena."""
+    assert 'id="btn-scene-action-translate"' in _html()
+
+
+def test_btn_scene_action_summarize_has_id():
+    """#btn-scene-action-summarize — pulsante ∑ Summarize in azioni scena."""
+    assert 'id="btn-scene-action-summarize"' in _html()
+
+
+def test_btn_scene_action_lorecheck_has_id():
+    """#btn-scene-action-lorecheck — pulsante ⊘ Lore Check in azioni scena."""
+    assert 'id="btn-scene-action-lorecheck"' in _html()
+
+
+def test_btn_char_create_has_id():
+    """#btn-char-create — pulsante + Nuovo personaggio nel panel characters."""
+    assert 'id="btn-char-create"' in _html()
