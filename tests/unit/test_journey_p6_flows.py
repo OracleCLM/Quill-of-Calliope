@@ -471,3 +471,46 @@ class TestFlow16CharMemory:
         """POST /api/char/recall senza char+query → 400."""
         r = client.post("/api/char/recall", json={})
         assert r.status_code == 400
+
+
+# ── FLOW-17: Arc advanced routes ──────────────────────────────────────────────
+
+class TestFlow17ArcAdvanced:
+    """GIVEN arco esistente / WHEN arc sub-routes / THEN struttura corretta."""
+
+    ARC_ID = "arc_flow17_test"
+
+    @pytest.fixture(autouse=True)
+    def setup_arc(self, client):
+        client.post("/api/arc", json={
+            "arc_id": self.ARC_ID, "title": "Flow17 Test Arc", "chars": ["Arianna"]
+        })
+
+    def test_arc_summary_returns_200(self, client):
+        r = client.post(f"/api/arc/{self.ARC_ID}/summary")
+        assert r.status_code == 200
+
+    def test_arc_summary_has_summary_key(self, client):
+        d = client.post(f"/api/arc/{self.ARC_ID}/summary").get_json()
+        assert "summary" in d
+
+    def test_arc_threads_returns_200(self, client):
+        r = client.get(f"/api/arc/{self.ARC_ID}/threads")
+        assert r.status_code == 200
+
+    def test_arc_threads_has_threads_key(self, client):
+        d = client.get(f"/api/arc/{self.ARC_ID}/threads").get_json()
+        assert "threads" in d
+
+    def test_arc_search_returns_results(self, client):
+        r = client.post("/api/arc/search", json={"query": "Aurora combattimento magia"})
+        assert r.status_code == 200
+        assert "results" in r.get_json()
+
+    def test_arc_append_without_md_path_returns_400(self, client):
+        """arc/append richiede scene_md_path — senza → 400."""
+        r = client.post(f"/api/arc/{self.ARC_ID}/append", json={
+            "scene_id": "test", "title": "Test", "summary": "summary"
+        })
+        assert r.status_code == 400
+        assert "error" in r.get_json()
