@@ -372,3 +372,60 @@ class TestFlow13ArcCreate:
         """DELETE /api/arc non implementato — sistema YAML non ha questo endpoint."""
         r = client.delete(f"/api/arc/{self.ARC_ID}")
         assert r.status_code == 405
+
+
+# ── FLOW-14: Dashboard API endpoints ─────────────────────────────────────────
+
+class TestFlow14DashboardApi:
+    """GIVEN app / WHEN GET /api/dashboard/* / THEN 200 con struttura attesa."""
+
+    def test_counts_returns_200(self, client):
+        r = client.get("/api/dashboard/counts")
+        assert r.status_code == 200
+
+    def test_counts_has_chars_and_scenes(self, client):
+        d = client.get("/api/dashboard/counts").get_json()
+        assert "chars" in d
+        assert "scenes" in d
+
+    def test_activity_returns_200(self, client):
+        r = client.get("/api/dashboard/activity")
+        assert r.status_code == 200
+
+    def test_activity_has_events_key(self, client):
+        d = client.get("/api/dashboard/activity").get_json()
+        assert "events" in d
+
+    def test_snapshot_returns_200(self, client):
+        r = client.get("/api/dashboard/snapshot")
+        assert r.status_code == 200
+
+    def test_health_endpoint_returns_ok(self, client):
+        r = client.get("/health")
+        assert r.status_code == 200
+        assert r.get_json().get("status") == "ok"
+
+
+# ── FLOW-15: Mascot state API ─────────────────────────────────────────────────
+
+class TestFlow15MascotState:
+    """GIVEN app / WHEN GET /api/mascot/state / THEN 200 con emotion + ws_url."""
+
+    def test_mascot_state_returns_200(self, client):
+        r = client.get("/api/mascot/state")
+        assert r.status_code == 200
+
+    def test_mascot_state_has_emotion(self, client):
+        d = client.get("/api/mascot/state").get_json()
+        assert "emotion" in d
+
+    def test_mascot_emotion_map_returns_200(self, client):
+        r = client.get("/api/mascot/emotion_map")
+        assert r.status_code == 200
+
+    def test_mascot_state_post_updates_emotion(self, client):
+        """POST /api/mascot/state aggiorna emotion — PATCH non implementato (405)."""
+        r = client.post("/api/mascot/state", json={"emotion": "happy", "intensity": 0.8})
+        assert r.status_code in (200, 204)
+        r2 = client.get("/api/mascot/state")
+        assert r2.get_json().get("emotion") == "happy"
