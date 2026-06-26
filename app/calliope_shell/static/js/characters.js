@@ -471,6 +471,22 @@
         writeBtn.style.cssText = 'background:#1a3a2a;color:#8f8;border:1px solid #2a5a3a;border-radius:6px;padding:5px 14px;cursor:pointer;font-size:.8em;margin-top:6px;display:block;';
         writeBtn.onclick = () => _showWriteToSceneForm(container, chars[0].name, writeBtn);
         container.appendChild(writeBtn);
+
+        const delBtn = document.createElement('button');
+        delBtn.id = 'btn-char-delete';
+        delBtn.textContent = '✕ Elimina';
+        delBtn.style.cssText = 'background:#2a1a1a;color:#c66;border:1px solid #4a2a2a;border-radius:6px;padding:5px 14px;cursor:pointer;font-size:.8em;margin-top:6px;display:block;';
+        delBtn.onclick = async () => {
+            if (!confirm('Eliminare il personaggio "' + (chars[0].name || dbId) + '"?')) return;
+            const r = await fetch('/api/db/characters/' + encodeURIComponent(dbId), {method: 'DELETE'});
+            if (r.ok || r.status === 204) {
+                if (detail) detail.innerHTML = '← Seleziona un personaggio';
+                if (window.loadCharactersPanel) window.loadCharactersPanel();
+            } else {
+                alert('Errore eliminazione: ' + r.status);
+            }
+        };
+        container.appendChild(delBtn);
       })
       .catch(() => {});
   }

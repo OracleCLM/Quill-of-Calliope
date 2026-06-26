@@ -517,6 +517,7 @@
                 <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
                     <h2 id="scene-detail-title" style="margin:0;flex:1;"></h2>
                     <button id="btn-scene-edit-toggle" onclick="_toggleSceneEdit()" style="background:#1a2a4a;color:#aac;border:1px solid #2a3a5a;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:.78em;white-space:nowrap;">✎ Modifica</button>
+                    <button id="btn-scene-delete" onclick="_deleteScene()" style="background:#2a1a1a;color:#c66;border:1px solid #4a2a2a;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:.78em;white-space:nowrap;">✕ Elimina</button>
                 </div>
                 <div class="scene-detail-meta" id="scene-detail-meta"></div>
                 <div id="scene-arc-badge" style="display:none;margin-bottom:6px;"></div>
@@ -1844,6 +1845,23 @@
             }).catch(() => {
                 if (statusEl) statusEl.textContent = '✗ Clipboard non disponibile';
             });
+        };
+
+        window._deleteScene = async function() {
+            const sid = window._currentSceneId;
+            const scene = window._currentScene || {};
+            if (!sid) return;
+            if (!confirm('Eliminare la scena "' + (scene.title || sid) + '"? I messaggi verranno cancellati.')) return;
+            const r = await fetch('/api/db/scenes/' + encodeURIComponent(sid), {method: 'DELETE'});
+            if (r.ok || r.status === 204) {
+                document.getElementById('scene-detail').style.display = 'none';
+                document.getElementById('scene-empty-state').style.display = '';
+                window._currentSceneId = null;
+                window._currentScene = null;
+                if (window._loadScenesList) _loadScenesList();
+            } else {
+                alert('Errore eliminazione scena: ' + r.status);
+            }
         };
 
         window._copyFullScene = function() {
