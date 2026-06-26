@@ -453,6 +453,37 @@
     } catch (_) {}
   }
 
+  async function _appendCharFacts(container, charName) {
+    try {
+      const r = await fetch('/api/char/' + encodeURIComponent(charName) + '/facts');
+      if (!r.ok) return;
+      const d = await r.json();
+      const facts = d.facts || [];
+      if (!facts.length) return;
+      const sec = document.createElement('div');
+      sec.style.marginTop = '16px';
+      const lbl = document.createElement('div');
+      lbl.textContent = 'Memoria:';
+      lbl.style.color = SECTION_LABEL_COLOR;
+      lbl.style.fontSize = '.8em';
+      lbl.style.fontWeight = 'bold';
+      sec.appendChild(lbl);
+      facts.slice(0, 5).forEach(f => {
+        const item = document.createElement('div');
+        item.style.cssText = 'font-size:.78em;color:#99aacc;padding:3px 0 3px 8px;border-left:2px solid #2a3a5a;margin-top:4px;';
+        item.textContent = (f.scope ? '[' + f.scope + '] ' : '') + f.fact_text;
+        sec.appendChild(item);
+      });
+      if (facts.length > 5) {
+        const more = document.createElement('div');
+        more.style.cssText = 'font-size:.74em;color:#556;margin-top:4px;';
+        more.textContent = '+ altri ' + (facts.length - 5) + ' fatti memorizzati';
+        sec.appendChild(more);
+      }
+      container.appendChild(sec);
+    } catch (_) {}
+  }
+
   window.openCharacterDetail = function(stem) {
     if (!detail) return;
     detail.textContent = '';
@@ -469,7 +500,10 @@
         if (data && data.error) throw new Error(data.error);
         renderDetail(detail, data);
         _addEditBtn(detail, data);
-        if (data.name) _appendSceneAttive(detail, data.name);
+        if (data.name) {
+          _appendSceneAttive(detail, data.name);
+          _appendCharFacts(detail, data.name);
+        }
       })
       .catch(err => showError(detail, err.message));
   };
