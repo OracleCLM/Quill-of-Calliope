@@ -750,3 +750,49 @@ def test_scenes_list_has_id():
 def test_compose_status_has_id():
     """#compose-status — span status dopo invio messaggio compose."""
     assert 'id="compose-status"' in _html()
+
+
+# ── Revive panel IDs (2026-06-26 round 6) ────────────────────────────────────
+
+def test_btn_scene_revive_has_id():
+    """#btn-scene-revive — pulsante 🔄 Revive Scene nel detail scena."""
+    assert 'id="btn-scene-revive"' in _html()
+
+
+def test_revive_status_has_id():
+    """#revive-status — span feedback dopo revive."""
+    assert 'id="revive-status"' in _html()
+
+
+def test_revive_output_has_id():
+    """#revive-output — div output testo revivificato."""
+    assert 'id="revive-output"' in _html()
+
+
+# ── Scene filter IDs (2026-06-26 round 6) ────────────────────────────────────
+
+def test_scene_filter_has_id():
+    """#scene-filter — input filtro testo per lista scene."""
+    assert 'id="scene-filter"' in _html()
+
+
+# ── Ulteriori IDs scene panel (2026-06-26 round 6) ───────────────────────────
+
+def test_scene_edit_status_has_id():
+    """#scene-edit-status — span feedback inline nel form edit scena."""
+    assert 'id="scene-edit-status"' in _html()
+
+
+def test_lorekb_detail_has_id():
+    """#lorekb-detail — pannello detail LoreKB (form o info voce)."""
+    assert 'id="lorekb-detail"' in _html()
+
+
+def test_msg_status_has_id():
+    """#msg-status — span feedback filtro nel panel messaggi."""
+    assert 'id="msg-status"' in _html()
+
+
+def test_sum_save_status_has_id():
+    """#sum-save-status — span feedback salvataggio summary in scena."""
+    assert 'id="sum-save-status"' in _html()

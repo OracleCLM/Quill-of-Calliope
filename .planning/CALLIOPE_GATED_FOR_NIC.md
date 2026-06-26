@@ -1,6 +1,6 @@
 # Calliope — Decisioni GATED per operatore (nic)
 
-> Aggiornato: 2026-06-26 ciclo #2 (fix test_dashboard_nav_link_present_and_first → nav-scenes; suite 2347 passed) da sonnet-orch-calliope.
+> Aggiornato: 2026-06-26 ciclo round-6 (arc-seed except test → server.py 94%→98%; suite 2281 passed unit) da sonnet-orch-calliope.
 > File accumulativo: ogni sessione appende le decisioni bloccanti. Rimuovi la riga dopo che hai dato il via libera.
 
 ---
@@ -527,3 +527,44 @@ LoreKB form, Messages → Scena, Scene edit PATCH, Arc list+detail, Refine, Tran
 - GATED-7: Dead code cleanup (richiede opus + operator review)
 
 **[DONE: browser-test-round4-2026-06-26]**
+
+---
+
+## Completato browser-test round 5 (2026-06-26 — post-compact)
+
+| Item | Tipo | Commit |
+|------|------|--------|
+| fix(mascot): porta default 8767→9876 | fix | 6a60e82 |
+| test(ui-struct): +13 SmartDraft+Summarize panel IDs | test | d886994 |
+| test(ui-struct): +11 dashboard panel IDs | test | 191859d |
+| test(ui-struct): +6 draft/refine/lorecheck IDs estesi | test | 317817c |
+| test(ui-struct): +5 draft output/state IDs | test | 23c36e5 |
+| test(ui-struct): +5 scene-detail + compose-status IDs | test | a753462 |
+
+**Suite: 2276 passed. test_scenes_panel_ui: 95→135 (+40 test).**
+
+**Pannelli verificati funzionalmente in round 5**:
+- Characters: grid 21 item, detail click, kind badge, edit btn, search filter ✓
+- LoreKB: form create, save, appare in lista ✓
+- Scenes: arc filter (39 match), text filter (224 match), create nuova scena ✓
+- Arc: detail click, content visible, empty hidden ✓
+- Scene chat compose: send POST → "✓ Inviato", thread aggiornato ✓
+- SmartDraft: form compilabile, 503 graceful "✗ LLM gateway not available" ✓
+- Summarize: 503 graceful "✗ LLM gateway not available" ✓
+- Draft: input compilabili, genera in corso (gateway assente, timeout atteso) ✓
+- Refine: 503 "✗ Errore: LLM gateway unavailable" ✓
+- Dashboard: contatori popolati (3 chars active, 303 scenes, 15 arcs, 29308 msgs, 1 lore) ✓
+
+**MASCOT-SWITCH**: confermato che `?model=koko|tingyun` NON è implementato nel codice (nessuna route né JS). Non è un bug — è feature futura non esistente.
+
+**Gap residui**:
+- `silver.draft.yaml` / `saturn.draft.yaml`: YAML invalido — nic deve fixare manualmente
+- 757 scene totali nel DB (molte da journey tests) — non è un bug, è accumulo di test data
+
+**GATED pendenti**:
+- GATED-3: Discord bot token (nic deve generare)
+- GATED-5: branch efesto/gated5-remove-messages-next pronto per merge
+- GATED-6: branch efesto/gated6-arc-db-canonical pronto per merge
+- GATED-7: Dead code cleanup (richiede opus + operator review)
+
+**[DONE: browser-test-round5-2026-06-26]**
