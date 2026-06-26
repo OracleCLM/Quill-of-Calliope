@@ -33,7 +33,7 @@ manager = _ws_core.manager
 def main() -> None:
     parser = argparse.ArgumentParser(description="Calliope mascot WebSocket server")
     parser.add_argument("--host", default="127.0.0.1")
-    parser.add_argument("--port", type=int, default=8767)
+    parser.add_argument("--port", type=int, default=9876)
     parser.add_argument("--daemon", action="store_true")
     args = parser.parse_args()
 
