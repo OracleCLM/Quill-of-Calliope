@@ -972,3 +972,60 @@ class TestFlow26SceneRosterCrud:
         client.delete(f"/api/db/scenes/{sid}/characters/{cid}")
         r5 = client.get(f"/api/db/scenes/{sid}/characters")
         assert r5.get_json()["characters"] == []
+
+
+# ── TestFlow27: Messages → scena (append) ────────────────────────────────────
+
+class TestFlow27MessageToScene:
+    """GIVEN una scena + messaggio recente
+    WHEN POST /api/db/scenes/<id>/messages con author_name+content_original
+    THEN messaggio appare nella scena (GET /api/db/scenes/<id>/messages).
+    """
+
+    def _make_scene(self, client, title="journey-test-arc-assign"):
+        r = client.post("/api/db/scenes", json={"title": title})
+        assert r.status_code in (200, 201)
+        return r.get_json()["id"]
+
+    def test_append_message_201(self, client):
+        sid = self._make_scene(client)
+        r = client.post(f"/api/db/scenes/{sid}/messages",
+            json={"author_name": "Alice", "content_original": "Prova msg"})
+        assert r.status_code in (200, 201)
+
+    def test_appended_message_appears_in_get(self, client):
+        sid = self._make_scene(client)
+        client.post(f"/api/db/scenes/{sid}/messages",
+            json={"author_name": "Bob", "content_original": "Ciao Mondo"})
+        r = client.get(f"/api/db/scenes/{sid}/messages")
+        assert r.status_code == 200
+        msgs = r.get_json().get("messages", [])
+        assert any(m.get("author_name") == "Bob" for m in msgs)
+
+    def test_missing_author_name_400(self, client):
+        sid = self._make_scene(client)
+        r = client.post(f"/api/db/scenes/{sid}/messages",
+            json={"content_original": "Orphan"})
+        assert r.status_code == 400
+
+    def test_missing_content_original_400(self, client):
+        sid = self._make_scene(client)
+        r = client.post(f"/api/db/scenes/{sid}/messages",
+            json={"author_name": "Ghost"})
+        assert r.status_code == 400
+
+    def test_scene_message_count_increments(self, client):
+        sid = self._make_scene(client)
+        before = next(
+            (s["message_count"] or 0
+             for s in client.get("/api/db/scenes").get_json()["scenes"] if s["id"] == sid),
+            0
+        )
+        client.post(f"/api/db/scenes/{sid}/messages",
+            json={"author_name": "Sys", "content_original": "Text"})
+        after = next(
+            (s["message_count"] or 0
+             for s in client.get("/api/db/scenes").get_json()["scenes"] if s["id"] == sid),
+            0
+        )
+        assert after == before + 1

@@ -1,6 +1,6 @@
 # Calliope — Decisioni GATED per operatore (nic)
 
-> Aggiornato: 2026-06-26 ciclo round-6 (arc-seed except test → server.py 94%→98%; suite 2281 passed unit) da sonnet-orch-calliope.
+> Aggiornato: 2026-06-26 browser-test round 6 COMPLETATO (241/242 HTML IDs testati; server.py 98%; suite 2390 unit) da sonnet-orch-calliope.
 > File accumulativo: ogni sessione appende le decisioni bloccanti. Rimuovi la riga dopo che hai dato il via libera.
 
 ---
@@ -568,3 +568,38 @@ LoreKB form, Messages → Scena, Scene edit PATCH, Arc list+detail, Refine, Tran
 - GATED-7: Dead code cleanup (richiede opus + operator review)
 
 **[DONE: browser-test-round5-2026-06-26]**
+
+---
+
+## Completato browser-test round 6 (2026-06-26 — post-compact)
+
+| Item | Tipo | Commit |
+|------|------|--------|
+| test: arc seed except → server.py 94%→98% | test | 1d41429 |
+| test: +8 round 6 (Revive, scene-filter, LoreKB, msg IDs) | test | 1e522c8 |
+| test: +17 batch 2 (arc, chars-panel, copy, refine) | test | 8a179e6 |
+| test: +13 batch 3 (dashboard IDs secondari, copy-last, arc-new) | test | 206c880 |
+| test: +13 batch 4 (arc detail: btn-summary/threads/continue/meta) | test | 75c52bd |
+| test: +24 batch 5 (nav, summarize, lorecheck, refine, roster) | test | f6b98ea |
+| test: +34 batch 6 → 241/242 HTML IDs coperti (100% statici) | test | d332b89 |
+
+**Suite: 2390 passed. test_scenes_panel_ui: 135→244 (+109 test). Coverage HTML ID: 100% statici.**
+
+**Flussi Playwright verificati in round 6**:
+- LoreKB CRUD: form creazione → salva → appare in lista ✓
+- Scene edit form: apre/chiude, pre-fill titolo ✓
+- Messages → Scena: click con scena selezionata → "✓ Aggiunto" in msg-status ✓
+- Messages filtro aurora: 50 messaggi filtrati ✓
+- Revive: click → "✓ Scene revived — context loaded." + output testo ✓
+- Arc panel: list click → detail title + btn-summary/threads/continue ✓
+- Arc threads: "No threads detected." (graceful empty state) ✓
+- Characters search: 3 elementi con aurora dopo filtro ✓
+- Characters create: form appare nel detail ✓
+- Copy buttons: btn-copy-last + btn-copy-scene visibili nel detail scena ✓
+
+**Gap non-codice rilevati (invariati)**:
+- `silver.draft.yaml` / `saturn.draft.yaml`: YAML invalido — nic deve fixare manualmente
+- `copy-last-status` vuoto se `_currentSceneMessages` è empty (no feedback) — UX minor, non bug
+- `msg-target-scene` mostra solo scene recenti (journey-test) — data accumulation, non bug
+
+**[DONE: browser-test-round6-2026-06-26]**
