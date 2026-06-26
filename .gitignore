@@ -118,4 +118,8 @@ graphify-out/
 data/*.db
 data/chromadb/
 data/discord_persona_config.db
+data/lore_kb.json
+db/
+data/*.db-shm
+data/*.db-wal
 !.planning/CALLIOPE_GAP_REVIEW_2026-06-07.md
