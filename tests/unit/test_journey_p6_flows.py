@@ -1922,3 +1922,37 @@ class TestFlow39DashboardLlmRouting:
         """POST senza campo uncensored → 400."""
         r = client.post("/api/dashboard/llm_routing", json={})
         assert r.status_code == 400
+
+
+class TestFlow40LoreCheckAndCharMemoryReplace:
+    """Boundary test per endpoint LLM-dipendenti: solo guard 400 su payload mancante.
+
+    /api/lore/check → 400 se 'text' mancante
+    /api/char/memory_replace → 400 se campi obbligatori mancanti
+    """
+
+    def test_lore_check_missing_text_400(self, client):
+        """POST /api/lore/check senza text → 400."""
+        r = client.post("/api/lore/check", json={})
+        assert r.status_code == 400
+
+    def test_lore_check_with_text_returns_json(self, client):
+        """POST /api/lore/check con text → risposta JSON (200 o 503 se LLM non disponibile)."""
+        r = client.post("/api/lore/check", json={"text": "Arianna era una guerriera."})
+        assert r.status_code in (200, 503)
+        assert r.get_json() is not None
+
+    def test_memory_replace_missing_fields_400(self, client):
+        """POST /api/char/memory_replace senza campi obbligatori → 400."""
+        r = client.post("/api/char/memory_replace", json={"char": "Arianna"})
+        assert r.status_code == 400
+
+    def test_memory_replace_all_fields_returns_json(self, client):
+        """POST /api/char/memory_replace con tutti i campi → risposta JSON (200, 202 o 400)."""
+        r = client.post("/api/char/memory_replace", json={
+            "char": "Arianna",
+            "old_fact": "Era alta.",
+            "new_fact": "Era bassa.",
+        })
+        assert r.status_code in (200, 202, 400)
+        assert r.get_json() is not None
