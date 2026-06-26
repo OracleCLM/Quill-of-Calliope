@@ -883,3 +883,70 @@ def test_scene_empty_state_has_id():
 def test_sd_save_status_has_id():
     """#sd-save-status — span feedback salvataggio SmartDraft in scena."""
     assert 'id="sd-save-status"' in _html()
+
+
+# ── Dashboard IDs secondari (2026-06-26 round 6 batch 3) ─────────────────────
+
+def test_dash_card_activity_has_id():
+    """#dash-card-activity — card attività recente dashboard."""
+    assert 'id="dash-card-activity"' in _html()
+
+
+def test_dash_card_discord_has_id():
+    """#dash-card-discord — card stato Discord dashboard."""
+    assert 'id="dash-card-discord"' in _html()
+
+
+def test_dash_card_shortcuts_has_id():
+    """#dash-card-shortcuts — card shortcut rapidi dashboard."""
+    assert 'id="dash-card-shortcuts"' in _html()
+
+
+def test_dash_d_chroma_has_id():
+    """#dash-d-chroma — indicatore stato ChromaDB."""
+    assert 'id="dash-d-chroma"' in _html()
+
+
+def test_dash_d_gateway_has_id():
+    """#dash-d-gateway — indicatore stato LLM gateway."""
+    assert 'id="dash-d-gateway"' in _html()
+
+
+def test_dash_d_mascot_has_id():
+    """#dash-d-mascot — indicatore stato mascot WS."""
+    assert 'id="dash-d-mascot"' in _html()
+
+
+def test_dash_c_lore_has_id():
+    """#dash-c-lore — contatore voci Lore KB dashboard."""
+    assert 'id="dash-c-lore"' in _html()
+
+
+def test_dash_llm_provider_has_id():
+    """#dash-llm-provider — span provider LLM corrente dashboard."""
+    assert 'id="dash-llm-provider"' in _html()
+
+
+def test_activity_list_has_id():
+    """#activity-list — ul attività recente nel panel dashboard."""
+    assert 'id="activity-list"' in _html()
+
+
+def test_copy_last_status_has_id():
+    """#copy-last-status — span feedback 📋 Copia ultimo messaggio."""
+    assert 'id="copy-last-status"' in _html()
+
+
+def test_arc_new_title_has_id():
+    """#arc-new-title — input titolo nuova arc nel form creazione."""
+    assert 'id="arc-new-title"' in _html()
+
+
+def test_arc_new_status_has_id():
+    """#arc-new-status — span feedback creazione arc."""
+    assert 'id="arc-new-status"' in _html()
+
+
+def test_char_memory_details_has_id():
+    """#char-memory-details — div snippets memoria ChromaDB personaggio."""
+    assert 'id="char-memory-details"' in _html()
