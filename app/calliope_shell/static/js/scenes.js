@@ -25,19 +25,18 @@ async function _loadScenes() {
     }
 }
 
-async function _loadArcFilterOptions() {
+async function _loadArcFilterOptions(editSel = null) {
     const sel = document.getElementById('scene-arc-filter');
-    if (!sel) return;
+    if (!sel && !editSel) return;
     try {
         const r = await fetch('/api/db/arcs');
         const d = await r.json();
         const arcs = d.arcs || [];
-        sel.innerHTML = '<option value="">— Tutti gli archi —</option>';
-        arcs.forEach(a => {
-            const opt = document.createElement('option');
-            opt.value = a.id; opt.textContent = a.title || a.id;
-            sel.appendChild(opt);
-        });
+        const optHtml = arcs.map(a =>
+            `<option value="${_escHtml(String(a.id))}">${_escHtml(a.title || a.id)}</option>`
+        ).join('');
+        if (sel) sel.innerHTML = '<option value="">— Tutti gli archi —</option>' + optHtml;
+        if (editSel) editSel.innerHTML = '<option value="">— Nessun arco —</option>' + optHtml;
     } catch(_) {}
 }
 
@@ -328,7 +327,7 @@ window._toggleSceneEdit = function() {
         if (titleIn) titleIn.value = s.title || '';
         if (locIn) locIn.value = s.location || '';
         if (arcSel) {
-            _loadArcFilterOptions().then(() => {
+            _loadArcFilterOptions(arcSel).then(() => {
                 if (s.arc_id) arcSel.value = s.arc_id;
             });
         }
