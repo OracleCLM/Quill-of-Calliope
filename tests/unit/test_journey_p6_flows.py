@@ -1759,3 +1759,101 @@ class TestFlow36SceneMessagesPaginated:
         """GET /count su scena inesistente → 404."""
         r = client.get("/api/db/scenes/nonexistent-flow36/messages/count")
         assert r.status_code == 404
+
+
+class TestFlow37MessageReactions:
+    """GIVEN messaggi / WHEN GET+POST+DELETE reazioni / THEN corretti.
+
+    Copre:
+    - GET  /api/db/messages/<id>/reactions              → 200 lista
+    - POST /api/db/messages/<id>/reactions              → 201 con id
+    - POST senza character_id                           → 400
+    - POST su messaggio inesistente                     → 404
+    - DELETE /api/db/messages/<id>/reactions/<rid>      → 204
+    - DELETE reaction inesistente                       → 404
+    """
+
+    def _make_scene(self, client, title="flow37-scene"):
+        r = client.post("/api/db/scenes", json={"title": title})
+        assert r.status_code == 201
+        return r.get_json()["id"]
+
+    def _add_msg(self, client, sid):
+        r = client.post(
+            f"/api/db/scenes/{sid}/messages",
+            json={"author_name": "auth37", "content_original": "testo37"},
+        )
+        assert r.status_code == 201
+        return r.get_json()["id"]
+
+    def _add_char(self, client):
+        r = client.post("/api/db/characters", json={"name": "flow37-char", "kind": "npc"})
+        assert r.status_code in (200, 201)
+        return r.get_json()["id"]
+
+    def test_list_reactions_empty_200(self, client):
+        """GET reactions su messaggio senza reazioni → 200 lista vuota."""
+        sid = self._make_scene(client)
+        mid = self._add_msg(client, sid)
+        r = client.get(f"/api/db/messages/{mid}/reactions")
+        assert r.status_code == 200
+        body = r.get_json()
+        assert "reactions" in body
+        assert isinstance(body["reactions"], list)
+
+    def test_add_reaction_201(self, client):
+        """POST reaction → 201 con id."""
+        sid = self._make_scene(client)
+        mid = self._add_msg(client, sid)
+        cid = self._add_char(client)
+        r = client.post(
+            f"/api/db/messages/{mid}/reactions",
+            json={"character_id": cid, "emoji": "❤️"},
+        )
+        assert r.status_code == 201
+        assert "id" in r.get_json()
+
+    def test_add_reaction_no_char_id_400(self, client):
+        """POST reaction senza character_id → 400."""
+        sid = self._make_scene(client)
+        mid = self._add_msg(client, sid)
+        r = client.post(f"/api/db/messages/{mid}/reactions", json={"emoji": "❤️"})
+        assert r.status_code == 400
+
+    def test_add_reaction_nonexistent_message_404(self, client):
+        """POST reaction su messaggio inesistente → 404."""
+        r = client.post(
+            "/api/db/messages/nonexistent-flow37/reactions",
+            json={"character_id": "some-char"},
+        )
+        assert r.status_code == 404
+
+    def test_reaction_appears_in_list(self, client):
+        """Dopo POST, GET lista → reazione presente."""
+        sid = self._make_scene(client)
+        mid = self._add_msg(client, sid)
+        cid = self._add_char(client)
+        client.post(f"/api/db/messages/{mid}/reactions", json={"character_id": cid, "emoji": "⭐"})
+        r = client.get(f"/api/db/messages/{mid}/reactions")
+        assert r.status_code == 200
+        assert len(r.get_json()["reactions"]) >= 1
+
+    def test_delete_reaction_204(self, client):
+        """DELETE reaction → 204."""
+        sid = self._make_scene(client)
+        mid = self._add_msg(client, sid)
+        cid = self._add_char(client)
+        add_r = client.post(
+            f"/api/db/messages/{mid}/reactions",
+            json={"character_id": cid, "emoji": "🔥"},
+        )
+        rid = add_r.get_json()["id"]
+        r = client.delete(f"/api/db/messages/{mid}/reactions/{rid}")
+        assert r.status_code == 204
+
+    def test_delete_nonexistent_reaction_404(self, client):
+        """DELETE reaction inesistente → 404."""
+        sid = self._make_scene(client)
+        mid = self._add_msg(client, sid)
+        r = client.delete(f"/api/db/messages/{mid}/reactions/nonexistent-rid-flow37")
+        assert r.status_code == 404
