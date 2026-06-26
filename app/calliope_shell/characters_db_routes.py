@@ -63,17 +63,18 @@ def register_characters_db_routes(app, *, db_path=None) -> None:
 
         name = data.get("name")
         kind = data.get("kind")
-        image_path = data.get("image_path")
         card_json = data.get("card_json")  # stringa opaca (WI-47)
 
         if kind is not None and kind not in VALID_KINDS:
             return jsonify({"error": "invalid kind"}), 400
 
+        # image_path: passa solo se la chiave è presente nel body (None = cancella)
+        patch_kwargs = {"name": name, "kind": kind, "card_json": card_json}
+        if "image_path" in data:
+            patch_kwargs["image_path"] = data["image_path"]
+
         conn = _conn(db_path)
-        updated = db_chars.update_character(
-            conn, char_id, name=name, kind=kind, image_path=image_path,
-            card_json=card_json,
-        )
+        updated = db_chars.update_character(conn, char_id, **patch_kwargs)
         conn.close()
 
         if updated:

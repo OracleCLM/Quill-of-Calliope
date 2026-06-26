@@ -272,6 +272,18 @@
     });
     container.appendChild(kindSel);
 
+    // Image path field
+    const imgLbl = document.createElement('div');
+    imgLbl.textContent = 'Avatar (URL o /path):';
+    imgLbl.style.cssText = 'color:#88aaff;font-size:.8em;font-weight:bold;margin-top:8px;';
+    container.appendChild(imgLbl);
+    const imgIn = document.createElement('input');
+    imgIn.type = 'text';
+    imgIn.value = data.image_path || '';
+    imgIn.placeholder = '/static/avatars/nome.png';
+    imgIn.style.cssText = 'width:100%;background:#111827;color:#eee;border:1px solid #2a3a5a;border-radius:6px;padding:6px 10px;font-size:.85em;box-sizing:border-box;margin-bottom:10px;';
+    container.appendChild(imgIn);
+
     const inputs = {};
     fields.forEach(([key, label]) => {
       const lbl = document.createElement('div');
@@ -302,7 +314,7 @@
       const card = Object.assign({}, data);
       fields.forEach(([key]) => { card[key] = inputs[key].value; });
       card.name = nameIn.value.trim();
-      const body = {name: card.name, kind: kindSel.value, card_json: JSON.stringify(card)};
+      const body = {name: card.name, kind: kindSel.value, card_json: JSON.stringify(card), image_path: imgIn.value.trim() || null};
       try {
         const r = await fetch('/api/db/characters/' + encodeURIComponent(dbId), {
           method: 'PATCH',
@@ -353,10 +365,26 @@
             if (h2) h2.insertAdjacentElement('afterend', badge);
             else container.insertBefore(badge, container.firstChild);
         }
+        // Avatar display (image_path dal DB)
+        const imagePath = chars[0].image_path;
+        if (imagePath) {
+            const existing = container.querySelector('#char-avatar');
+            const img = document.createElement('img');
+            img.id = 'char-avatar';
+            img.src = imagePath;
+            img.alt = chars[0].name || '';
+            img.style.cssText = 'width:80px;height:80px;object-fit:cover;border-radius:8px;margin:8px 0;border:1px solid #2a3a5a;display:block;';
+            img.onerror = () => { img.style.display = 'none'; };
+            if (existing) existing.replaceWith(img);
+            else {
+                const h2 = container.querySelector('h2');
+                if (h2) h2.insertAdjacentElement('afterend', img);
+            }
+        }
         const btn = document.createElement('button');
         btn.textContent = '✎ Modifica';
         btn.style.cssText = 'background:#1a2a4a;color:#aac;border:1px solid #2a3a5a;border-radius:6px;padding:5px 14px;cursor:pointer;font-size:.8em;margin-top:10px;display:block;';
-        const mergedData = Object.assign({}, data, {kind});
+        const mergedData = Object.assign({}, data, {kind, image_path: chars[0].image_path || ''});
         btn.onclick = () => { container.textContent = ''; renderEditForm(container, mergedData, dbId); };
         container.appendChild(btn);
       })

@@ -144,6 +144,27 @@ def test_patch_character_not_found_404(client):
     assert r.status_code == 404
 
 
+def test_patch_character_image_path_200(client):
+    """PATCH image_path → 200, GET detail restituisce image_path aggiornato."""
+    char_id = client.post("/api/db/characters", json={"name": "ImgChar"}).get_json()["id"]
+    r = client.patch(f"/api/db/characters/{char_id}", json={"image_path": "/static/avatars/test.png"})
+    assert r.status_code == 200
+    data = client.get(f"/api/db/characters/{char_id}").get_json()
+    char = data.get("character") or data
+    assert char.get("image_path") == "/static/avatars/test.png"
+
+
+def test_patch_character_image_path_null_clears(client):
+    """PATCH image_path=null rimuove il path."""
+    char_id = client.post("/api/db/characters", json={"name": "ImgChar2"}).get_json()["id"]
+    client.patch(f"/api/db/characters/{char_id}", json={"image_path": "/some/path.png"})
+    r = client.patch(f"/api/db/characters/{char_id}", json={"image_path": None})
+    assert r.status_code == 200
+    data = client.get(f"/api/db/characters/{char_id}").get_json()
+    char = data.get("character") or data
+    assert char.get("image_path") is None
+
+
 # --- DELETE /api/db/characters/<char_id> ------------------------------------
 
 def test_delete_character_204(client):

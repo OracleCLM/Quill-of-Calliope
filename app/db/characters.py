@@ -10,6 +10,8 @@ from __future__ import annotations
 import sqlite3
 from typing import List, Mapping, Optional
 
+_UNSET = object()  # sentinel: distingue "non fornito" da None esplicito (es. cancella image_path)
+
 # Importiamo utility generiche dal package ``app.db``.
 try:
     from app.db import new_id  # type: ignore
@@ -139,7 +141,7 @@ def update_character(
     *,
     name: Optional[str] = None,
     card_json: Optional[str] = None,
-    image_path: Optional[str] = None,
+    image_path=_UNSET,
     kind: Optional[str] = None,
 ) -> bool:
     """
@@ -182,7 +184,7 @@ def update_character(
     if card_json is not None:
         updates.append("card_json = ?")
         params.append(card_json)
-    if image_path is not None:
+    if image_path is not _UNSET:
         updates.append("image_path = ?")
         params.append(image_path)
     if kind is not None:
