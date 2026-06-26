@@ -1565,3 +1565,118 @@ class TestFlow34MessageAdvanced:
         assert r.status_code == 200
         body = r.get_json()
         assert isinstance(body, (list, dict))
+
+
+class TestFlow35ArcDbCrud:
+    """GIVEN archi nel DB / WHEN GET+PATCH+DELETE + scene assegnazione.
+
+    Copre:
+    - GET  /api/db/arcs/<id>         → 200 / 404
+    - PATCH /api/db/arcs/<id>        → 200 con arc aggiornato / 400 / 404
+    - DELETE /api/db/arcs/<id>       → 204 / 404
+    - GET  /api/db/arcs/<id>/scenes  → 200 con lista
+    - PATCH /api/db/scenes/<sid>/arc → 200 con {arc_id}
+    """
+
+    def _make_arc(self, client, title="flow35-arc"):
+        r = client.post("/api/db/arcs", json={"title": title})
+        assert r.status_code == 201
+        return r.get_json()["id"]
+
+    def _make_scene(self, client, title="flow35-scene"):
+        r = client.post("/api/db/scenes", json={"title": title})
+        assert r.status_code == 201
+        return r.get_json()["id"]
+
+    def test_get_arc_by_id_200(self, client):
+        """GET /api/db/arcs/<id> → 200."""
+        aid = self._make_arc(client)
+        r = client.get(f"/api/db/arcs/{aid}")
+        assert r.status_code == 200
+
+    def test_get_arc_nonexistent_404(self, client):
+        """GET arc inesistente → 404."""
+        r = client.get("/api/db/arcs/nonexistent-flow35")
+        assert r.status_code == 404
+
+    def test_patch_arc_title_200(self, client):
+        """PATCH title → 200 con arc aggiornato."""
+        aid = self._make_arc(client)
+        r = client.patch(f"/api/db/arcs/{aid}", json={"title": "flow35-updated"})
+        assert r.status_code == 200
+        body = r.get_json()
+        assert body.get("title") == "flow35-updated" or body.get("id") == aid
+
+    def test_patch_arc_no_fields_400(self, client):
+        """PATCH arc senza campi validi → 400."""
+        aid = self._make_arc(client)
+        r = client.patch(f"/api/db/arcs/{aid}", json={})
+        assert r.status_code == 400
+
+    def test_patch_arc_nonexistent_404(self, client):
+        """PATCH arc inesistente → 404."""
+        r = client.patch("/api/db/arcs/nonexistent-flow35", json={"title": "x"})
+        assert r.status_code == 404
+
+    def test_delete_arc_204(self, client):
+        """DELETE arc → 204."""
+        aid = self._make_arc(client, "flow35-to-delete")
+        r = client.delete(f"/api/db/arcs/{aid}")
+        assert r.status_code == 204
+
+    def test_get_after_delete_404(self, client):
+        """GET arc dopo DELETE → 404."""
+        aid = self._make_arc(client, "flow35-del-verify")
+        client.delete(f"/api/db/arcs/{aid}")
+        r = client.get(f"/api/db/arcs/{aid}")
+        assert r.status_code == 404
+
+    def test_delete_nonexistent_arc_404(self, client):
+        """DELETE arc inesistente → 404."""
+        r = client.delete("/api/db/arcs/nonexistent-flow35")
+        assert r.status_code == 404
+
+    def test_arc_scenes_list_empty_200(self, client):
+        """GET /api/db/arcs/<id>/scenes → 200 con lista vuota."""
+        aid = self._make_arc(client)
+        r = client.get(f"/api/db/arcs/{aid}/scenes")
+        assert r.status_code == 200
+        body = r.get_json()
+        assert "scenes" in body
+        assert isinstance(body["scenes"], list)
+
+    def test_arc_scenes_after_assign(self, client):
+        """GET /api/db/arcs/<id>/scenes → contiene la scena assegnata."""
+        aid = self._make_arc(client)
+        sid = self._make_scene(client)
+        client.patch(f"/api/db/scenes/{sid}/arc", json={"arc_id": aid})
+        r = client.get(f"/api/db/arcs/{aid}/scenes")
+        assert r.status_code == 200
+        scene_ids = [s["id"] for s in r.get_json()["scenes"]]
+        assert sid in scene_ids
+
+    def test_arc_scenes_nonexistent_arc_404(self, client):
+        """GET /api/db/arcs/<id>/scenes su arco inesistente → 404."""
+        r = client.get("/api/db/arcs/nonexistent-flow35/scenes")
+        assert r.status_code == 404
+
+    def test_patch_scene_arc_endpoint_200(self, client):
+        """PATCH /api/db/scenes/<sid>/arc con arc_id → 200."""
+        aid = self._make_arc(client)
+        sid = self._make_scene(client)
+        r = client.patch(f"/api/db/scenes/{sid}/arc", json={"arc_id": aid})
+        assert r.status_code == 200
+
+    def test_patch_scene_arc_remove_200(self, client):
+        """PATCH /api/db/scenes/<sid>/arc con arc_id=null → 200 (disassocia)."""
+        aid = self._make_arc(client)
+        sid = self._make_scene(client)
+        client.patch(f"/api/db/scenes/{sid}/arc", json={"arc_id": aid})
+        r = client.patch(f"/api/db/scenes/{sid}/arc", json={"arc_id": None})
+        assert r.status_code == 200
+
+    def test_patch_scene_arc_no_field_400(self, client):
+        """PATCH /api/db/scenes/<sid>/arc senza arc_id → 400."""
+        sid = self._make_scene(client)
+        r = client.patch(f"/api/db/scenes/{sid}/arc", json={})
+        assert r.status_code == 400
