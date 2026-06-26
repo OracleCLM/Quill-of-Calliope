@@ -1650,6 +1650,30 @@ def create_app():
             "model_used": "openrouter/deepseek-r1-0528",
         })
 
+    @app.route("/api/discord/import", methods=["POST"])
+    def discord_import():
+        """Importa messaggi Discord dal JSONL nel DB (idempotente, skip dedup)."""
+        import sys as _sys
+        data = request.get_json(silent=True) or {}
+        dry_run = bool(data.get("dry_run", False))
+        limit_val = data.get("limit")
+        limit_int = int(limit_val) if limit_val and str(limit_val).isdigit() else None
+        default_path = Path(__file__).resolve().parent.parent.parent / "datasets" / "discord_yokai" / "messages_clean.jsonl"
+        input_path = Path(data.get("input_path") or default_path)
+        if not input_path.exists():
+            return jsonify({"error": f"File non trovato: {input_path}"}), 404
+        # Import dinamico dello script (non nel path standard)
+        _scripts_dir = str(input_path.parent.parent.parent / "scripts")
+        if _scripts_dir not in _sys.path:
+            _sys.path.insert(0, _scripts_dir)
+        import importlib
+        djtdb = importlib.import_module("discord_jsonl_to_db")
+        try:
+            stats = djtdb.run(input_path=input_path, dry_run=dry_run, only_ic=True, limit=limit_int)
+        except Exception as exc:
+            return jsonify({"error": str(exc)}), 500
+        return jsonify({"stats": stats, "dry_run": dry_run, "input_path": str(input_path)}), 200
+
     return app, FLASK_PORT
 
 

@@ -621,6 +621,11 @@
                 <option value="">— Seleziona scena —</option>
             </select>
         </div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
+            <button id="btn-discord-import" onclick="_discordImport(false)" style="background:#1a1a3a;color:#88aaff;border:1px solid #2a3a6a;border-radius:6px;padding:5px 12px;cursor:pointer;font-size:.8em;">↓ Importa Discord</button>
+            <button onclick="_discordImport(true)" style="background:#111;color:#556;border:1px solid #222;border-radius:6px;padding:5px 12px;cursor:pointer;font-size:.8em;">↓ Dry-run</button>
+            <span id="discord-import-status" style="font-size:.78em;color:#8899aa;"></span>
+        </div>
         <ul id="message-list" class="message-list" data-empty-state="messages"><li style="color:#334;padding:12px">Caricamento messaggi recenti…</li></ul>
     </div>
 
@@ -1089,6 +1094,31 @@
             const d = document.getElementById('msg-discord-only');
             if (d) d.addEventListener('change', loadRecentMessages);
         });
+
+        async function _discordImport(dryRun) {
+            const statusEl = document.getElementById('discord-import-status');
+            const btn = document.getElementById('btn-discord-import');
+            if (statusEl) statusEl.textContent = '…importazione in corso…';
+            if (btn) btn.disabled = true;
+            try {
+                const r = await fetch('/api/discord/import', {
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({dry_run: dryRun}),
+                });
+                const d = await r.json();
+                if (r.ok) {
+                    const s = d.stats || {};
+                    const msg = `${dryRun ? '[dry-run] ' : ''}inseriti=${s.inserted||0} skip-dedup=${s.skipped_dedup||0} skip-tag=${s.skipped_tag||0} errori=${s.errors||0}`;
+                    if (statusEl) statusEl.textContent = '✓ ' + msg;
+                    if (!dryRun) loadRecentMessages();
+                } else {
+                    if (statusEl) statusEl.textContent = '✗ ' + (d.error || r.status);
+                }
+            } catch(e) {
+                if (statusEl) statusEl.textContent = '✗ ' + e.message;
+            }
+            if (btn) btn.disabled = false;
+        }
 
         // Scene/Messages panel JS → /static/js/scenes.js (FE-0 estratto 2026-06-11)
         // ── Draft / Variant handler ──

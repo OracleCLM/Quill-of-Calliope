@@ -2049,3 +2049,28 @@ class TestFlow43WriteToSceneFromChar:
         assert found is not None
         assert found["author_name"] == "flow43-char"
         assert found["content_original"] == "Ciao dalla scheda!"
+
+
+class TestFlow44DiscordImportEndpoint:
+    """Feature: import Discord via UI — POST /api/discord/import.
+
+    Dry-run verifica che la route esista e risponda con stats,
+    senza inserire dati reali nel DB di test.
+    """
+
+    def test_discord_import_dry_run_returns_stats(self, client):
+        """POST /api/discord/import dry_run=True → 200 con stats o 404 se JSONL assente."""
+        r = client.post("/api/discord/import", json={"dry_run": True})
+        assert r.status_code in (200, 404)
+        d = r.get_json()
+        assert d is not None
+        if r.status_code == 200:
+            assert "stats" in d
+            assert "dry_run" in d
+            assert d["dry_run"] is True
+
+    def test_discord_import_missing_file_404(self, client):
+        """POST /api/discord/import con input_path inesistente → 404."""
+        r = client.post("/api/discord/import", json={"input_path": "/nonexistent/file.jsonl"})
+        assert r.status_code == 404
+        assert "error" in r.get_json()
