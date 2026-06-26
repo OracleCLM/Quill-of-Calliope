@@ -276,6 +276,21 @@ async function _loadSceneDetail(sceneId) {
             }
         }
         _renderChatThread(messages);
+        // Readonly scenes (es. Discord importate): nascondi compose area
+        const composeArea = document.getElementById('scene-compose-area');
+        if (composeArea) composeArea.style.display = s.is_readonly ? 'none' : '';
+        const readonlyNote = document.getElementById('scene-readonly-note');
+        if (s.is_readonly) {
+            if (!readonlyNote) {
+                const note = document.createElement('div');
+                note.id = 'scene-readonly-note';
+                note.textContent = '🔒 Scena di sola lettura (importata da Discord)';
+                note.style.cssText = 'font-size:.8em;color:#556;margin-top:8px;padding:6px 10px;background:#0d1117;border:1px solid #1a2a2a;border-radius:5px;';
+                composeArea && composeArea.parentNode.insertBefore(note, composeArea);
+            }
+        } else if (readonlyNote) {
+            readonlyNote.remove();
+        }
         // FE-2: roster personaggi-in-scena dal DB
         const sel = document.getElementById('scene-char-select');
         const composeWho = document.getElementById('compose-who');

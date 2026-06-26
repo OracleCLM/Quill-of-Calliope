@@ -443,7 +443,10 @@ def create_app():
 
         chars_db = 0
         try:
-            chars_db = len(list_chars())
+            from app.db import get_db as _get_db  # noqa: PLC0415
+            _conn_c = _get_db()
+            chars_db = _conn_c.execute("SELECT COUNT(*) FROM characters").fetchone()[0]
+            _conn_c.close()
         except Exception as exc:
             logger.warning("dashboard_counts: chars_db query failed: %s", exc)
         chars_yaml = len(list((repo_root / "characters").rglob("*.yaml"))) if (repo_root / "characters").exists() else 0
@@ -451,9 +454,10 @@ def create_app():
         scenes_disk = len(list((repo_root / "scenes").rglob("*.md"))) if (repo_root / "scenes").exists() else 0
         scenes_db = 0
         try:
-            client = _chroma_client()
-            col = client.get_or_create_collection("calliope_scenes")
-            scenes_db = col.count()
+            from app.db import get_db as _get_db  # noqa: PLC0415
+            _conn_s = _get_db()
+            scenes_db = _conn_s.execute("SELECT COUNT(*) FROM scenes").fetchone()[0]
+            _conn_s.close()
         except Exception as exc:
             logger.warning("dashboard_counts: scenes_db query failed: %s", exc)
 

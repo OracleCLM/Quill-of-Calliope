@@ -123,10 +123,9 @@ def test_counts_scenes_is_dict(client):
     assert "disk" in data["scenes"]
 
 
-def test_counts_list_chars_fail(client):
-    """Lines 431-432: list_chars lancia → warning, chars_db=0."""
-    with patch(f"{_SRV}.list_chars", side_effect=RuntimeError("db full")), \
-         patch(f"{_SRV}._chroma_client", side_effect=Exception("down")):
+def test_counts_chars_db_fail(client):
+    """dashboard_counts: chars_db SQLite query fallisce → 0, non crash."""
+    with patch("app.db.get_db", side_effect=RuntimeError("db full")):
         rv = client.get("/api/dashboard/counts")
     assert rv.status_code == 200
     assert rv.get_json()["chars"]["db"] == 0
