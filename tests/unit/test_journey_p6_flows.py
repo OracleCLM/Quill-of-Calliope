@@ -335,3 +335,40 @@ class TestFlow12LoreKbCrud:
         client.delete(f"/api/lore/entries/{eid}")
         r2 = client.get(f"/api/lore/entries/{eid}")
         assert r2.status_code == 404
+
+
+# ── FLOW-13: Arc creation lifecycle ──────────────────────────────────────────
+
+class TestFlow13ArcCreate:
+    """GIVEN app / WHEN POST /api/arc / THEN 201 + arco visibile in GET /api/arc."""
+
+    ARC_ID = "arc_test_flow13"
+
+    def test_create_arc_returns_201(self, client):
+        r = client.post("/api/arc", json={
+            "arc_id": self.ARC_ID, "title": "Flow13 TestArc", "chars": ["Arianna"]
+        })
+        assert r.status_code == 201
+        d = r.get_json()
+        assert d.get("arc_id") == self.ARC_ID
+
+    def test_arc_visible_in_list(self, client):
+        client.post("/api/arc", json={
+            "arc_id": self.ARC_ID, "title": "Flow13 TestArc", "chars": []
+        })
+        r = client.get("/api/arc")
+        arcs = r.get_json()
+        assert any(a.get("arc_id") == self.ARC_ID for a in arcs)
+
+    def test_get_single_arc(self, client):
+        client.post("/api/arc", json={
+            "arc_id": self.ARC_ID, "title": "Flow13 TestArc", "chars": []
+        })
+        r = client.get(f"/api/arc/{self.ARC_ID}")
+        assert r.status_code == 200
+        assert r.get_json().get("arc_id") == self.ARC_ID
+
+    def test_delete_arc_not_implemented_returns_405(self, client):
+        """DELETE /api/arc non implementato — sistema YAML non ha questo endpoint."""
+        r = client.delete(f"/api/arc/{self.ARC_ID}")
+        assert r.status_code == 405
