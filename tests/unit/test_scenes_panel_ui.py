@@ -232,3 +232,25 @@ def test_compose_who_select_has_id():
 def test_btn_compose_send_has_id():
     """#btn-compose-send — pulsante Invia messaggio."""
     assert 'id="btn-compose-send"' in _html()
+
+
+# ── Scene chat thread e continue (aggiunta 2026-06-26) ───────────────────────
+
+def test_chat_thread_container_has_id():
+    """#chat-thread — container thread messaggi scena."""
+    assert 'id="chat-thread"' in _html()
+
+
+def test_continue_btn_has_id():
+    """#continue-btn — pulsante ▶ Genera prossimo messaggio."""
+    assert 'id="continue-btn"' in _html()
+
+
+def test_scene_ctx_hint_has_id():
+    """#scene-ctx-hint — input hint contestuale per generazione."""
+    assert 'id="scene-ctx-hint"' in _html()
+
+
+def test_scene_compose_area_has_id():
+    """#scene-compose-area — container compose nuovo messaggio."""
+    assert 'id="scene-compose-area"' in _html()
