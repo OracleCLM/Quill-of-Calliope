@@ -81,3 +81,41 @@ def test_scene_edit_save_wires_saveSceneEdit():
     """P6: il pulsante salva nel form chiama _saveSceneEdit."""
     html = _html()
     assert "_saveSceneEdit" in html
+
+
+# ── ID espliciti sui bottoni principali (aggiunta 2026-06-26) ─────────────────
+
+def test_btn_new_scene_has_id():
+    """btn-new-scene ha id esplicito per testabilità Playwright."""
+    assert 'id="btn-new-scene"' in _html()
+
+
+def test_btn_scene_submit_has_id():
+    """btn-scene-submit (✓ Crea) ha id esplicito."""
+    assert 'id="btn-scene-submit"' in _html()
+
+
+def test_btn_scene_cancel_has_id():
+    """btn-scene-cancel (✕) ha id esplicito."""
+    assert 'id="btn-scene-cancel"' in _html()
+
+
+def test_btn_add_roster_has_id():
+    """btn-add-roster (+ Roster) ha id esplicito."""
+    assert 'id="btn-add-roster"' in _html()
+
+
+def test_btn_roster_confirm_has_id():
+    """btn-roster-confirm (✓ add) ha id esplicito."""
+    assert 'id="btn-roster-confirm"' in _html()
+
+
+def test_sum_save_to_scene_area_style_unified():
+    """sum-save-to-scene-area NON deve avere attributo style duplicato (bug fix)."""
+    html = _html()
+    # cerca il div e verifica che non ci siano due 'style=' sulla stessa riga con id sum-save
+    import re
+    matches = re.findall(r'<div[^>]+id="sum-save-to-scene-area"[^>]*>', html)
+    assert len(matches) == 1
+    # un solo attributo style nel tag
+    assert matches[0].count('style=') == 1, f"Doppio attributo style trovato: {matches[0]}"
