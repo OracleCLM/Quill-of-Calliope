@@ -203,3 +203,10 @@ def test_refine_scene_input_has_id():
 
 def test_btn_refine_has_id():
     assert 'id="btn-refine"' in _html()
+
+
+# ── Input creazione nuova scena (aggiunta 2026-06-26) ────────────────────────
+
+def test_new_scene_title_input_has_id():
+    """#new-scene-title — campo titolo nel form inline crea scena."""
+    assert 'id="new-scene-title"' in _html()
