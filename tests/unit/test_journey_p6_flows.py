@@ -712,3 +712,48 @@ class TestFlow21CharactersCreate:
         chars = client.get("/api/characters").get_json()
         stems = [c["stem"] for c in chars]
         assert self.STEM in stems
+
+
+# ── FLOW-22: PATCH /api/db/characters/<id> — aggiorna kind/name ───────────────
+
+class TestFlow22CharDbPatch:
+    """PATCH /api/db/characters/<id>: aggiorna kind, name, verifica errori."""
+
+    @pytest.fixture(autouse=True)
+    def _char(self, client):
+        r = client.post("/api/db/characters", json={"name": "flow22-test-char", "kind": "npc"})
+        assert r.status_code == 201
+        self.char_id = r.get_json()["id"]
+        yield
+        client.delete(f"/api/db/characters/{self.char_id}")
+
+    def test_patch_kind_returns_200(self, client):
+        """PATCH con kind valido → 200."""
+        r = client.patch(f"/api/db/characters/{self.char_id}", json={"kind": "player"})
+        assert r.status_code == 200
+
+    def test_patch_kind_persists(self, client):
+        """GET dopo PATCH kind → kind aggiornato."""
+        client.patch(f"/api/db/characters/{self.char_id}", json={"kind": "player"})
+        d = client.get(f"/api/db/characters/{self.char_id}").get_json()
+        assert d["kind"] == "player"
+
+    def test_patch_name_returns_200(self, client):
+        """PATCH con name → 200."""
+        r = client.patch(f"/api/db/characters/{self.char_id}", json={"name": "flow22-renamed"})
+        assert r.status_code == 200
+
+    def test_patch_invalid_kind_returns_400(self, client):
+        """PATCH con kind non valido → 400."""
+        r = client.patch(f"/api/db/characters/{self.char_id}", json={"kind": "invalid_kind"})
+        assert r.status_code == 400
+
+    def test_patch_empty_body_returns_400(self, client):
+        """PATCH con body vuoto → 400."""
+        r = client.patch(f"/api/db/characters/{self.char_id}", json={})
+        assert r.status_code == 400
+
+    def test_patch_unknown_id_returns_404(self, client):
+        """PATCH su id inesistente → 404."""
+        r = client.patch("/api/db/characters/nonexistent-id-xyz", json={"kind": "npc"})
+        assert r.status_code == 404

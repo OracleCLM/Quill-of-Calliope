@@ -257,12 +257,14 @@
       ['first_mes', 'First Message', 'textarea'],
     ];
     const nameIn = document.createElement('input');
+    nameIn.id = 'char-edit-name';
     nameIn.value = data.name || '';
     nameIn.placeholder = 'Nome';
     nameIn.style.cssText = 'width:100%;background:#111827;color:#eee;border:1px solid #2a3a5a;border-radius:6px;padding:6px 10px;font-size:.9em;box-sizing:border-box;margin-bottom:10px;';
     container.appendChild(nameIn);
 
     const kindSel = document.createElement('select');
+    kindSel.id = 'char-edit-kind';
     kindSel.style.cssText = 'background:#111827;color:#aab;border:1px solid #2a3a5a;border-radius:6px;padding:6px 8px;font-size:.85em;margin-bottom:10px;cursor:pointer;';
     ['npc','player','operator'].forEach(k => {
       const opt = document.createElement('option');
@@ -306,6 +308,7 @@
     btnRow.style.cssText = 'display:flex;gap:8px;margin-top:6px;';
 
     const saveBtn = document.createElement('button');
+    saveBtn.id = 'char-edit-save-btn';
     saveBtn.textContent = '✓ Salva';
     saveBtn.style.cssText = 'background:#1a3a1a;color:#8f8;border:1px solid #2a5a2a;border-radius:6px;padding:6px 16px;cursor:pointer;font-size:.85em;';
     saveBtn.onclick = async () => {
@@ -330,6 +333,7 @@
     };
 
     const cancelBtn = document.createElement('button');
+    cancelBtn.id = 'char-edit-cancel-btn';
     cancelBtn.textContent = 'Annulla';
     cancelBtn.style.cssText = 'background:#1a2a3a;color:#aab;border:1px solid #2a3a5a;border-radius:6px;padding:6px 14px;cursor:pointer;font-size:.85em;';
     cancelBtn.onclick = () => { container.textContent = ''; renderDetail(container, data); _addEditBtn(container, data); };
@@ -382,6 +386,7 @@
             }
         }
         const btn = document.createElement('button');
+        btn.id = 'btn-char-edit';
         btn.textContent = '✎ Modifica';
         btn.style.cssText = 'background:#1a2a4a;color:#aac;border:1px solid #2a3a5a;border-radius:6px;padding:5px 14px;cursor:pointer;font-size:.8em;margin-top:10px;display:block;';
         const mergedData = Object.assign({}, data, {kind, image_path: chars[0].image_path || ''});
