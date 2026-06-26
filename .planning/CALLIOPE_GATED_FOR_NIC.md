@@ -1,6 +1,6 @@
 # Calliope — Decisioni GATED per operatore (nic)
 
-> Aggiornato: 2026-06-26 (ciclo gap-review; GATED-5/6 eseguiti su branch separati; feat char-scene-link commit 56017b8) da sonnet-orch-calliope.
+> Aggiornato: 2026-06-26 ciclo #2 (fix test_dashboard_nav_link_present_and_first → nav-scenes; suite 2347 passed) da sonnet-orch-calliope.
 > File accumulativo: ogni sessione appende le decisioni bloccanti. Rimuovi la riga dopo che hai dato il via libera.
 
 ---
@@ -366,3 +366,52 @@ Branch dedicato: `efesto/gated6-arc-db-canonical` — non ancora mergato su main
 **Suite: 2346 test verdi (feat branch). Coverage: 94% server.py (solo GATED-5 984-1079 + app.run() 1626 residui).**
 **Branch GATED-5/6 pronti per merge su main — in attesa di nic.**
 **GATED pendenti**: GATED-3 (Discord token).
+
+---
+
+## Completato ciclo gap-review 2026-06-26 ciclo #2
+
+| Item | Dettaglio | Commit |
+|------|-----------|--------|
+| fix(test): test_dashboard_nav_link_present_and_first | nav-home rimosso per WI-10 ≤5 voci; test aggiornato → nav-scenes | 9511001 |
+
+**Suite: 2347 passed, 77 skipped (tests/ no UI). Coverage 98% invariata.**
+**GATED pendenti**: GATED-3 (Discord token). GATED-5/6 pronti per merge su main.
+
+---
+
+## Completato redesign#257 P6 UI — branch efesto/redesign-p6-ui-refinements (2026-06-26)
+
+| Item | Dettaglio | Commit |
+|------|-----------|--------|
+| feat(scenes/P6): filtro arc nel panel + badge arc header | dropdown filtro per arco in lista scene, badge cliccabile in detail | 46de86a |
+| feat(navbar/P6): coerenza nav — _NAV_PARENT | panel secondari (draft/refine/lorecheck…) evidenziano nav parent | dd740f6 |
+| feat(scenes/P6): form edit inline + arc_id in PATCH | #scene-edit-form con title/location/arc select, backend PATCH esteso | fc44c76 |
+| feat(characters/P6): kind badge nel detail view | badge npc/player/operator colorato dal DB (stessa fetch _addEditBtn) | 77c4999 |
+
+**Suite: 2361 passed, 77 skipped. +14 test rispetto a ciclo #2.**
+**Branch**: efesto/redesign-p6-ui-refinements — 4 commit P6, non ancora mergato su main.
+
+---
+
+## [GATED-7] P7 Dead Code Cleanup — lista candidati (proposta per operator review)
+
+> **HARD RULE**: nessuna rimozione senza: opus propone lista → father valuta → operator approva.
+> Questo item accumula la lista. Commit di rimozione solo dopo GO esplicito.
+
+**Moduli candidati** (scan 2026-06-26, zero import a runtime — non importati da nessun file non-test):
+
+| File | Righe | Motivo candidatura | Rischio rimozione |
+|------|-------|--------------------|-------------------|
+| `app/context_budget.py` | ~120r | Motore budget P2/P3 — non wired a server.py | BASSO — futuro P3 |
+| `app/summarizer.py` | ~80r | Engine resumo P3 — non wired a server.py | BASSO — futuro P3 |
+| `app/db/lore.py` | ~60r | Già marcato DEPRECATED internamente | MEDIO — potrebbe avere dati |
+
+**Non-candidati** (esclusi dallo scan):
+- `scripts/discord_bot.py` — wired con GATED-3 bot token
+- Tutti gli `if __name__ == "__main__":` guards — falsi positivi dello scanner
+- `app/db/messages.py:544` — dead code per race condition, non rimuovibile
+
+**Decisione richiesta**: quali file (se qualcuno) rimuovere? Risposta: tenere tutto / rimuovere solo lore.py / lista completa.
+
+---
