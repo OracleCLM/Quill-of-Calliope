@@ -1035,6 +1035,15 @@
             }
         }
 
+        function _msgToCharPanel(authorName) {
+            showView('characters');
+            const searchEl = document.getElementById('char-search');
+            if (searchEl && authorName) {
+                searchEl.value = authorName;
+                searchEl.dispatchEvent(new Event('input'));
+            }
+        }
+
         async function loadRecentMessages() {
             const ul = document.getElementById('message-list');
             const charEl = document.getElementById('msg-char-filter');
@@ -1068,6 +1077,8 @@
                         '<span style="color:#cdd">' + esc(m.content_original) + '</span></div>' +
                         '<button id="msg-to-scene-' + idx + '" onclick="_appendMsgToScene(decodeURIComponent(\'' + encA + '\'),decodeURIComponent(\'' + encC + '\'))" ' +
                         'style="flex-shrink:0;background:#1a2a4a;color:#aac;border:1px solid #2a3a5a;border-radius:5px;padding:4px 8px;cursor:pointer;font-size:.75em;white-space:nowrap">→ Scena</button>' +
+                        '<button id="msg-to-char-' + idx + '" onclick="_msgToCharPanel(decodeURIComponent(\'' + encA + '\'))" ' +
+                        'style="flex-shrink:0;background:#1a2a1a;color:#8f8;border:1px solid #2a5a2a;border-radius:5px;padding:4px 8px;cursor:pointer;font-size:.75em;white-space:nowrap">→ Personaggio</button>' +
                         '</li>';
                 }).join('');
                 if (statusEl) statusEl.textContent = msgs.length + ' messaggi';

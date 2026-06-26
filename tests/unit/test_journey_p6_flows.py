@@ -2205,3 +2205,34 @@ class TestFlow48SceneInlineSummarize:
         summary_msgs = [m for m in msgs if m.get("is_summary")]
         assert len(summary_msgs) == 1
         assert summary_msgs[0]["content_original"] == summary_text
+
+
+class TestFlow49MsgToCharPanel:
+    """Feature: '→ Personaggio' in Messages → naviga a Characters pre-filtrato per autore.
+
+    Stato-risultante: GET /api/db/characters?name=<author> restituisce il personaggio corrispondente.
+    Verifica che l'API alla base del pre-fill funzioni (la navigazione JS è client-side).
+    """
+
+    def test_char_filter_by_name_returns_matching(self, client):
+        """GET /api/db/characters?name=<nome> → lista con solo il personaggio cercato."""
+        client.post("/api/db/characters", json={"name": "AuroraFlow49", "kind": "npc"})
+        r = client.get("/api/db/characters?name=AuroraFlow49")
+        assert r.status_code == 200
+        chars = r.get_json()["characters"]
+        assert len(chars) >= 1
+        assert all(c["name"] == "AuroraFlow49" for c in chars)
+
+    def test_char_filter_by_name_case_insensitive(self, client):
+        """GET /api/db/characters?name= è case-insensitive — stesso char trovato."""
+        client.post("/api/db/characters", json={"name": "KiraFlow49", "kind": "player"})
+        r = client.get("/api/db/characters?name=kiraflow49")
+        assert r.status_code == 200
+        chars = r.get_json()["characters"]
+        assert any(c["name"] == "KiraFlow49" for c in chars)
+
+    def test_msg_to_char_button_in_html(self, client):
+        """Il markup dei messaggi include il bottone '→ Personaggio' con id msg-to-char-."""
+        r = client.get("/")
+        assert r.status_code == 200
+        assert "msg-to-char-" in r.data.decode()
