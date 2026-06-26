@@ -355,3 +355,79 @@ def test_sd_status_has_id():
 def test_btn_sd_copy_has_id():
     """#btn-sd-copy — pulsante 📋 Copy output SmartDraft."""
     assert 'id="btn-sd-copy"' in _html()
+
+
+# ── LoreCheck panel IDs completi (aggiunta 2026-06-26) ───────────────────────
+
+def test_lc_output_container_has_id():
+    """#lc-output — container risultati LoreCheck."""
+    assert 'id="lc-output"' in _html()
+
+
+def test_lc_verdict_has_id():
+    """#lc-verdict — div verdetto LoreCheck."""
+    assert 'id="lc-verdict"' in _html()
+
+
+def test_lc_issues_list_has_id():
+    """#lc-issues-list — UL lista problemi LoreCheck."""
+    assert 'id="lc-issues-list"' in _html()
+
+
+def test_lc_status_has_id():
+    """#lc-status — status indicator LoreCheck."""
+    assert 'id="lc-status"' in _html()
+
+
+# ── Messages panel IDs statici (aggiunta 2026-06-26) ─────────────────────────
+
+def test_msg_char_filter_has_id():
+    """#msg-char-filter — input filtro per personaggio nel panel messages."""
+    assert 'id="msg-char-filter"' in _html()
+
+
+def test_msg_discord_only_has_id():
+    """#msg-discord-only — checkbox filtro solo-discord."""
+    assert 'id="msg-discord-only"' in _html()
+
+
+def test_msg_target_scene_has_id():
+    """#msg-target-scene — select scena di destinazione per → Scena."""
+    assert 'id="msg-target-scene"' in _html()
+
+
+def test_message_list_has_id():
+    """#message-list — container lista messaggi."""
+    assert 'id="message-list"' in _html()
+
+
+# ── LoreKB panel IDs statici (aggiunta 2026-06-26) ───────────────────────────
+
+def test_lorekb_new_btn_has_id():
+    """#lorekb-new-btn — pulsante + Nuova voce LoreKB."""
+    assert 'id="lorekb-new-btn"' in _html()
+
+
+def test_lorekb_categories_has_id():
+    """#lorekb-categories — container filtri categoria LoreKB."""
+    assert 'id="lorekb-categories"' in _html()
+
+
+def test_lorekb_entries_has_id():
+    """#lorekb-entries — lista voci LoreKB."""
+    assert 'id="lorekb-entries"' in _html()
+
+
+def test_lorekb_search_input_has_id():
+    """#lorekb-search-input — input ricerca LoreKB."""
+    assert 'id="lorekb-search-input"' in _html()
+
+
+def test_lorekb_search_btn_has_id():
+    """#lorekb-search-btn — pulsante Cerca LoreKB."""
+    assert 'id="lorekb-search-btn"' in _html()
+
+
+def test_lorekb_search_results_has_id():
+    """#lorekb-search-results — container risultati ricerca LoreKB."""
+    assert 'id="lorekb-search-results"' in _html()
