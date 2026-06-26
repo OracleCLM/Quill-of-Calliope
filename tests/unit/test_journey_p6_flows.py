@@ -757,3 +757,107 @@ class TestFlow22CharDbPatch:
         """PATCH su id inesistente → 404."""
         r = client.patch("/api/db/characters/nonexistent-id-xyz", json={"kind": "npc"})
         assert r.status_code == 404
+
+
+# ── FLOW-23: POST /api/db/scenes/<id>/messages — compose ─────────────────────
+
+
+class TestFlow23ComposeMessage:
+    """GIVEN scena esistente / WHEN POST messaggio / THEN 201 + persiste."""
+
+    @pytest.fixture(autouse=True)
+    def _scene(self, client):
+        r = client.post("/api/db/scenes", json={"title": "flow23-compose-scene"})
+        assert r.status_code == 201
+        self.scene_id = r.get_json()["id"]
+        yield
+        client.delete(f"/api/db/scenes/{self.scene_id}")
+
+    def test_post_message_returns_201(self, client):
+        """POST messaggio valido → 201."""
+        r = client.post(
+            f"/api/db/scenes/{self.scene_id}/messages",
+            json={"author_name": "Aurora", "content_original": "Ciao dal test"},
+        )
+        assert r.status_code == 201
+
+    def test_post_message_body_has_id(self, client):
+        """201 response contiene campo id."""
+        r = client.post(
+            f"/api/db/scenes/{self.scene_id}/messages",
+            json={"author_name": "Koko", "content_original": "Test msg"},
+        )
+        assert "id" in r.get_json()
+
+    def test_message_visible_in_scene_get(self, client):
+        """GET scena dopo POST → messages non è vuoto."""
+        client.post(
+            f"/api/db/scenes/{self.scene_id}/messages",
+            json={"author_name": "Aurora", "content_original": "Visible msg"},
+        )
+        d = client.get(f"/api/db/scenes/{self.scene_id}").get_json()
+        msgs = d.get("messages") or []
+        count = d.get("message_count", len(msgs))
+        assert count >= 1
+
+    def test_post_missing_content_returns_400(self, client):
+        """POST senza content_original → 400."""
+        r = client.post(
+            f"/api/db/scenes/{self.scene_id}/messages",
+            json={"author_name": "Aurora"},
+        )
+        assert r.status_code == 400
+
+    def test_post_missing_author_returns_400(self, client):
+        """POST senza author_name → 400."""
+        r = client.post(
+            f"/api/db/scenes/{self.scene_id}/messages",
+            json={"content_original": "Messaggio senza autore"},
+        )
+        assert r.status_code == 400
+
+    def test_post_to_nonexistent_scene_returns_404(self, client):
+        """POST a scene inesistente → 404."""
+        r = client.post(
+            "/api/db/scenes/nonexistent-scene-uuid/messages",
+            json={"author_name": "Aurora", "content_original": "Test"},
+        )
+        assert r.status_code == 404
+
+
+# ── FLOW-24: GET /api/db/messages/recent — filtro char + source ───────────────
+
+
+class TestFlow24MessagesFilter:
+    """GIVEN messaggi nel DB / WHEN GET con filtri / THEN risposta corretta."""
+
+    def test_recent_messages_returns_200(self, client):
+        """GET /api/db/messages/recent → 200."""
+        r = client.get("/api/db/messages/recent?limit=10")
+        assert r.status_code == 200
+
+    def test_recent_messages_has_messages_key(self, client):
+        """Response contiene chiave 'messages'."""
+        d = client.get("/api/db/messages/recent?limit=5").get_json()
+        assert "messages" in d
+
+    def test_recent_messages_is_list(self, client):
+        """messages è una lista."""
+        d = client.get("/api/db/messages/recent?limit=5").get_json()
+        assert isinstance(d["messages"], list)
+
+    def test_char_filter_returns_subset(self, client):
+        """GET ?char=NonExistentChar999 → lista vuota (no match)."""
+        d = client.get("/api/db/messages/recent?limit=50&char=NonExistentChar999").get_json()
+        assert d["messages"] == []
+
+    def test_discord_source_filter(self, client):
+        """GET ?source=discord → solo messaggi discord (o lista vuota)."""
+        d = client.get("/api/db/messages/recent?limit=10&source=discord").get_json()
+        for msg in d["messages"]:
+            assert msg.get("source") == "discord"
+
+    def test_limit_respected(self, client):
+        """GET ?limit=3 → max 3 messaggi."""
+        d = client.get("/api/db/messages/recent?limit=3").get_json()
+        assert len(d["messages"]) <= 3
