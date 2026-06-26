@@ -514,3 +514,46 @@ class TestFlow17ArcAdvanced:
         })
         assert r.status_code == 400
         assert "error" in r.get_json()
+
+
+# ── FLOW-18: Lore/search + scene routes degradation ──────────────────────────
+
+class TestFlow18LoreSearchAndSceneRoutes:
+    """GIVEN app / WHEN lore/scene POST routes / THEN degradation graceful in test env."""
+
+    def test_lore_search_returns_200(self, client):
+        """POST /api/lore/search usa ChromaDB calliope_lore (384-dim) — funziona sempre."""
+        r = client.post("/api/lore/search", json={"query": "Aurora combattimento"})
+        assert r.status_code == 200
+
+    def test_lore_search_has_results_key(self, client):
+        d = client.post("/api/lore/search", json={"query": "Aurora"}).get_json()
+        assert "results" in d
+
+    def test_scene_refine_without_params_returns_400(self, client):
+        r = client.post("/api/scene/refine", json={})
+        assert r.status_code == 400
+
+    def test_scene_refine_without_feedback_returns_400(self, client):
+        r = client.post("/api/scene/refine", json={"scene_text": "testo"})
+        assert r.status_code == 400
+
+    def test_scene_variants_without_prompt_returns_400(self, client):
+        r = client.post("/api/scene/variants", json={})
+        assert r.status_code == 400
+
+    def test_scene_variants_with_prompt_returns_200(self, client):
+        """scene/variants genera localmente (no LLM) — sempre 200."""
+        r = client.post("/api/scene/variants", json={"prompt": "Il guerriero avanzò."})
+        assert r.status_code == 200
+        assert "variants" in r.get_json()
+
+    def test_summarize_without_llm_returns_503(self, client):
+        """POST /api/summarize → 503 in test env (gateway non disponibile)."""
+        r = client.post("/api/summarize", json={"text": "Alice: Ciao"})
+        assert r.status_code in (200, 503)
+
+    def test_translate_without_llm_returns_503(self, client):
+        """POST /api/translate → 503 in test env (gateway non disponibile)."""
+        r = client.post("/api/translate", json={"text": "Ciao"})
+        assert r.status_code in (200, 503)
