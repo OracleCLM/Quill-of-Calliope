@@ -502,6 +502,9 @@
         <div id="scenes-list-col">
             <div id="scenes-filter-bar">
                 <input id="scene-filter" placeholder="Filtra per titolo, personaggio..." oninput="_scenesFilter(this.value)">
+                <select id="scene-arc-filter" onchange="_scenesArcFilter(this.value)" style="width:100%;background:#0d1117;color:#aab;border:1px solid #2a3a5a;border-radius:6px;padding:5px 8px;font-size:.8em;margin-top:4px;cursor:pointer;">
+                    <option value="">— Tutti gli archi —</option>
+                </select>
                 <button onclick="_newSceneInline()" style="margin-top:6px;width:100%;background:#1a3a1a;color:#8f8;border:1px solid #2a5a2a;border-radius:6px;padding:6px 10px;cursor:pointer;font-size:.82em;">+ Nuova scena</button>
                 <div id="new-scene-form" style="display:none;margin-top:6px;">
                     <input id="new-scene-title" placeholder="Titolo scena..." style="width:100%;box-sizing:border-box;background:#111827;color:#eee;border:1px solid #2a3a5a;border-radius:6px;padding:6px 10px;font-size:.85em;">
@@ -520,6 +523,7 @@
             <div id="scene-detail">
                 <h2 id="scene-detail-title"></h2>
                 <div class="scene-detail-meta" id="scene-detail-meta"></div>
+                <div id="scene-arc-badge" style="display:none;margin-bottom:6px;"></div>
                 <div id="chat-thread"></div>
                 <div id="scenes-continue-area">
                     <div style="font-size:.85em;color:#8899cc;margin-bottom:8px;font-weight:bold;">▶ Genera prossimo messaggio</div>

@@ -19,9 +19,31 @@ async function _loadScenes() {
         const data = await resp.json();
         _allScenes = data.scenes || [];
         _renderSceneList(_allScenes);
+        _loadArcFilterOptions();
     } catch(e) {
         ul.innerHTML = '<li style="color:#f66;padding:12px">Errore: ' + e.message + '</li>';
     }
+}
+
+async function _loadArcFilterOptions() {
+    const sel = document.getElementById('scene-arc-filter');
+    if (!sel) return;
+    try {
+        const r = await fetch('/api/db/arcs');
+        const d = await r.json();
+        const arcs = d.arcs || [];
+        sel.innerHTML = '<option value="">— Tutti gli archi —</option>';
+        arcs.forEach(a => {
+            const opt = document.createElement('option');
+            opt.value = a.id; opt.textContent = a.title || a.id;
+            sel.appendChild(opt);
+        });
+    } catch(_) {}
+}
+
+function _scenesArcFilter(arcId) {
+    if (!arcId) { _renderSceneList(_allScenes); return; }
+    _renderSceneList(_allScenes.filter(s => s.arc_id === arcId));
 }
 
 function _renderSceneList(scenes) {
@@ -181,6 +203,15 @@ async function _loadSceneDetail(sceneId) {
         document.getElementById('scene-detail-title').textContent = s.title || sceneId;
         document.getElementById('scene-detail-meta').textContent =
             `${s.location || ''} · ${messages.length} messaggi`;
+        const arcBadge = document.getElementById('scene-arc-badge');
+        if (arcBadge) {
+            if (s.arc_id) {
+                arcBadge.innerHTML = `<span style="font-size:.75em;background:#1a1a2e;color:#8899cc;border:1px solid #2a3a5a;border-radius:10px;padding:2px 10px;cursor:pointer;" onclick="showView('arc')" title="Vai all'arco">📚 ${_escHtml(s.arc_id)}</span>`;
+                arcBadge.style.display = 'block';
+            } else {
+                arcBadge.style.display = 'none';
+            }
+        }
         _renderChatThread(messages);
         // FE-2: roster personaggi-in-scena dal DB
         const sel = document.getElementById('scene-char-select');
