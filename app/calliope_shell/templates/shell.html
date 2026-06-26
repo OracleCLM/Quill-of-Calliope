@@ -1476,9 +1476,9 @@
             try {
                 const resp = await fetch('/api/db/scenes');
                 const data = await resp.json();
-                const scenes = (data.scenes || []).slice(0, 6);
+                const scenes = (data.scenes || []).filter(s => (s.message_count || 0) > 0).slice(0, 6);
                 if (!scenes.length) {
-                    ul.innerHTML = '<li style="color:#334;font-size:.82em;padding:4px 0">Nessuna scena nel DB</li>';
+                    ul.innerHTML = '<li style="color:#334;font-size:.82em;padding:4px 0">Nessuna scena con messaggi</li>';
                     return;
                 }
                 ul.innerHTML = scenes.map(s => {
