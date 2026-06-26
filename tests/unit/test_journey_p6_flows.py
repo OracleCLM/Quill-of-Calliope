@@ -1891,3 +1891,34 @@ class TestFlow38CharacterYamlGet:
         """GET stem inesistente → 404."""
         r = client.get("/api/characters/nonexistent-stem-flow38-xyz")
         assert r.status_code == 404
+
+
+class TestFlow39DashboardLlmRouting:
+    """GIVEN app avviata / WHEN GET+POST /api/dashboard/llm_routing / THEN corretti.
+
+    Copre:
+    - GET  /api/dashboard/llm_routing   → 200 con active_provider, active_model
+    - POST /api/dashboard/llm_routing   → toggle uncensored
+    - POST senza 'uncensored'           → 400
+    """
+
+    def test_get_llm_routing_200(self, client):
+        """GET /api/dashboard/llm_routing → 200."""
+        r = client.get("/api/dashboard/llm_routing")
+        assert r.status_code == 200
+
+    def test_get_llm_routing_has_provider(self, client):
+        """GET → risposta ha active_provider e active_model."""
+        body = client.get("/api/dashboard/llm_routing").get_json()
+        assert "active_provider" in body
+        assert "active_model" in body
+
+    def test_post_llm_routing_toggle_200(self, client):
+        """POST {uncensored: false} → 200."""
+        r = client.post("/api/dashboard/llm_routing", json={"uncensored": False})
+        assert r.status_code == 200
+
+    def test_post_llm_routing_missing_field_400(self, client):
+        """POST senza campo uncensored → 400."""
+        r = client.post("/api/dashboard/llm_routing", json={})
+        assert r.status_code == 400
