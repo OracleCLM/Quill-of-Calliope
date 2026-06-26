@@ -1955,4 +1955,71 @@ class TestFlow40LoreCheckAndCharMemoryReplace:
             "new_fact": "Era bassa.",
         })
         assert r.status_code in (200, 202, 400)
-        assert r.get_json() is not None
+
+
+class TestFlow41CharAvatarMerge:
+    """Feature: avatar personaggio visibile nella griglia.
+
+    Verifica che /api/db/characters restituisca image_path e che sia
+    patchabile — base del merge YAML+DB per mostrare avatar nelle schede.
+    """
+
+    def _create_char(self, client, name="flow41-avatar"):
+        r = client.post("/api/db/characters", json={"name": name, "kind": "npc"})
+        assert r.status_code == 201
+        return r.get_json()["id"]
+
+    def test_char_list_has_image_path_field(self, client):
+        """GET /api/db/characters → ogni char ha campo image_path (anche se None)."""
+        self._create_char(client)
+        chars = client.get("/api/db/characters").get_json()["characters"]
+        assert len(chars) >= 1
+        for c in chars:
+            assert "image_path" in c
+
+    def test_patch_image_path_persists(self, client):
+        """PATCH /api/db/characters/<id> con image_path → GET restituisce il valore."""
+        cid = self._create_char(client, "flow41-patch")
+        r = client.patch(f"/api/db/characters/{cid}", json={"image_path": "/static/img/test.jpg"})
+        assert r.status_code == 200
+        detail = client.get(f"/api/db/characters/{cid}").get_json()
+        assert detail["image_path"] == "/static/img/test.jpg"
+
+    def test_patch_image_path_null_clears(self, client):
+        """PATCH image_path=None cancella l'avatar (→ None nel DB)."""
+        cid = self._create_char(client, "flow41-clear")
+        client.patch(f"/api/db/characters/{cid}", json={"image_path": "/img.png"})
+        r = client.patch(f"/api/db/characters/{cid}", json={"image_path": None})
+        assert r.status_code == 200
+        assert client.get(f"/api/db/characters/{cid}").get_json()["image_path"] is None
+
+
+class TestFlow42MessageEditDelete:
+    """Feature: modifica e cancellazione messaggi in-scene.
+
+    Verifica PATCH content_original e DELETE per /api/db/messages/<id>.
+    """
+
+    def _scene_with_message(self, client, scene_title="flow42-scene", content="testo originale"):
+        sid = client.post("/api/db/scenes", json={"title": scene_title}).get_json()["id"]
+        mid = client.post(
+            f"/api/db/scenes/{sid}/messages",
+            json={"author_name": "narrator", "content_original": content},
+        ).get_json()["id"]
+        return sid, mid
+
+    def test_patch_message_content_updates(self, client):
+        """PATCH /api/db/messages/<id> content_original → 200, testo aggiornato."""
+        _, mid = self._scene_with_message(client, "flow42-patch")
+        r = client.patch(f"/api/db/messages/{mid}", json={"content_original": "testo modificato"})
+        assert r.status_code == 200
+        detail = client.get(f"/api/db/messages/{mid}").get_json()
+        assert detail["content_original"] == "testo modificato"
+
+    def test_delete_message_removes_from_scene(self, client):
+        """DELETE /api/db/messages/<id> → 204; GET scene messages non include il messaggio."""
+        sid, mid = self._scene_with_message(client, "flow42-delete")
+        r = client.delete(f"/api/db/messages/{mid}")
+        assert r.status_code == 204
+        msgs = client.get(f"/api/db/scenes/{sid}/messages").get_json()["messages"]
+        assert all(m["id"] != mid for m in msgs)

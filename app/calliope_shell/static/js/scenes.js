@@ -158,13 +158,63 @@ function _renderChatThread(messages) {
             ? '<span style="font-size:.7em;color:#aa88cc;margin-left:6px;vertical-align:middle" title="testo raffinato">✎</span>'
             : '';
         const ts = _fmtTs(m.ts);
-        return `<div class="chat-msg">
+        const mid = m.id || '';
+        return `<div class="chat-msg" id="msg-${_escHtml(mid)}">
             <div class="chat-msg-author">${_escHtml(m.author_name || '?')}${srcBadge}${enhBadge}<span style="float:right;font-size:.72em;color:#445;font-weight:normal">${_escHtml(ts)}</span></div>
             <div class="chat-msg-content" style="${msgStyle}border-radius:8px;padding:8px 12px;font-size:.87em;color:#ccd;white-space:pre-wrap;line-height:1.5;">${_escHtml(body)}</div>
+            <div class="chat-msg-actions" style="display:none;gap:4px;margin-top:4px;">
+                <button onclick="_editMsgInline('${_escHtml(mid)}')" style="background:#1a2a3a;color:#aac;border:1px solid #2a3a5a;border-radius:4px;padding:2px 8px;cursor:pointer;font-size:.72em;">✎ Modifica</button>
+                <button onclick="_deleteMsg('${_escHtml(mid)}')" style="background:#2a1a1a;color:#c66;border:1px solid #4a2a2a;border-radius:4px;padding:2px 8px;cursor:pointer;font-size:.72em;">✕ Elimina</button>
+            </div>
         </div>`;
     }).join('');
+    thread.querySelectorAll('.chat-msg').forEach(el => {
+        el.addEventListener('mouseenter', () => {
+            const btns = el.querySelector('.chat-msg-actions');
+            if (btns) btns.style.display = 'flex';
+        });
+        el.addEventListener('mouseleave', () => {
+            const btns = el.querySelector('.chat-msg-actions');
+            if (btns) btns.style.display = 'none';
+        });
+    });
     thread.scrollTop = thread.scrollHeight;
 }
+
+window._deleteMsg = async function(msgId) {
+    if (!msgId || !confirm('Elimina messaggio?')) return;
+    const r = await fetch('/api/db/messages/' + encodeURIComponent(msgId), {method: 'DELETE'});
+    if (r.ok || r.status === 204) await _loadSceneDetail(window._currentSceneId);
+};
+
+window._editMsgInline = function(msgId) {
+    const el = document.getElementById('msg-' + msgId);
+    if (!el) return;
+    const contentEl = el.querySelector('.chat-msg-content');
+    if (!contentEl) return;
+    const currentText = contentEl.textContent;
+    const ta = document.createElement('textarea');
+    ta.value = currentText;
+    ta.rows = 3;
+    ta.style.cssText = 'width:100%;box-sizing:border-box;background:#111827;color:#eee;border:1px solid #2a3a5a;border-radius:6px;padding:6px;font-size:.85em;resize:vertical;margin-top:4px;';
+    const saveBtn = document.createElement('button');
+    saveBtn.textContent = '✓ Salva';
+    saveBtn.style.cssText = 'background:#1a3a1a;color:#8f8;border:1px solid #2a5a2a;border-radius:4px;padding:3px 10px;cursor:pointer;font-size:.75em;margin-top:4px;margin-right:6px;';
+    const cancelBtn = document.createElement('button');
+    cancelBtn.textContent = 'Annulla';
+    cancelBtn.style.cssText = 'background:#1a2a3a;color:#aab;border:1px solid #2a3a5a;border-radius:4px;padding:3px 8px;cursor:pointer;font-size:.75em;margin-top:4px;';
+    saveBtn.onclick = async () => {
+        const r = await fetch('/api/db/messages/' + encodeURIComponent(msgId), {
+            method: 'PATCH', headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({content_original: ta.value}),
+        });
+        if (r.ok) await _loadSceneDetail(window._currentSceneId);
+    };
+    cancelBtn.onclick = () => _loadSceneDetail(window._currentSceneId);
+    contentEl.replaceWith(ta);
+    el.querySelector('.chat-msg-actions').after(saveBtn);
+    saveBtn.after(cancelBtn);
+};
 
 // FE-3: append nuovo messaggio → POST /api/db/scenes/<id>/messages
 async function _appendMessage() {

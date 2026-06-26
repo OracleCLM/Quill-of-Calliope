@@ -603,3 +603,86 @@ LoreKB form, Messages → Scena, Scene edit PATCH, Arc list+detail, Refine, Tran
 - `msg-target-scene` mostra solo scene recenti (journey-test) — data accumulation, non bug
 
 **[DONE: browser-test-round6-2026-06-26]**
+
+---
+
+## Completato browser-test round 7+8 (2026-06-26 — post-compact-2)
+
+| Item | Tipo | Commit |
+|------|------|--------|
+| fix: display:none duplicato su #add-roster-form | fix | 19e8179 |
+| test: TestFlow27 messages→scena (5 test) | test | 19e8179 |
+| test: TestFlow28 LoreKB CRUD (8 test) | test | 2c095ff |
+| test: TestFlow29 char GET/DELETE/scenes (6 test) | test | 2c095ff |
+| test: TestFlow30 arc/continue + lore/categories (8 test) | test | 955c213 |
+| test: TestFlow31 scene GET/DELETE esplicito (7 test) | test | a368f63 |
+
+**Suite: 2434 passed.**
+
+**Flussi Playwright verificati in round 7+8**:
+- Characters grid: 22 card caricate, click → detail → edit → save → auto-return ✓
+- Translate panel: radio name="translate-direction" (no id → accessibility minor, non bug) ✓
+- Messages → Scena: flusso completo (TestFlow27 conferma API side) ✓
+- LoreKB: 102 voci nel DB, CRUD completo via API (28 API) ✓
+- Arc continue: POST /api/arc/<id>/continue → {scene_type, prompt_seed} ✓
+- Scene GET by ID: /api/db/scenes/<id> → {scene, messages} ✓
+- Scene DELETE: 204, poi GET → 404 ✓
+
+**Discovery API**:
+- DELETE /api/lore/entries/<id> restituisce 200 (non 204) con {"deleted": True} — test adeguato
+- POST /api/arc/<id>/continue restituisce 503 se arc non esiste (non 404)
+
+**Gap residui (invariati)**:
+- `silver.draft.yaml` / `saturn.draft.yaml`: YAML invalido — nic deve fixare manualmente
+- Translate radio buttons senza `id` → accesso DA (minore)
+- `?model=koko|tingyun` mascot switch: non implementato (feature futura)
+
+**GATED pendenti (invariati)**:
+- GATED-3: Discord bot token (nic deve generare)
+- GATED-5: branch efesto/gated5-remove-messages-next pronto per merge
+- GATED-6: branch efesto/gated6-arc-db-canonical pronto per merge
+- GATED-7: Dead code cleanup (richiede opus + operator review)
+
+**[DONE: browser-test-round7+8-2026-06-26]**
+
+---
+
+## Completato browser-test round 9 — API coverage sweep (2026-06-26)
+
+| Item | Tipo | Commit |
+|------|------|--------|
+| test: TestFlow32 message CRUD GET/PATCH/DELETE (9 test) | test | df17c79 |
+| test: TestFlow33 roster role PATCH + scene duplicate+merge (9 test) | test | df17c79 |
+| test: TestFlow34 messaggi avanzati position/insert/move/compact (14 test) | test | 935f285 |
+| test: TestFlow35 arcs DB CRUD + GET/scenes/arc assegnazione (14 test) | test | 9539e9f |
+| test: TestFlow36 messages paginated GET + count (8 test) | test | e8f3f88 |
+| test: TestFlow37 message reactions GET/POST/DELETE (7 test) | test | 001c74a |
+| test: TestFlow38 characters YAML GET singolo (3 test) | test | fac03e6 |
+| test: TestFlow39 dashboard/llm_routing GET+POST toggle (4 test) | test | 2a24caa |
+| test: TestFlow40 lore/check + char/memory_replace boundary (4 test) | test | 308ce65 |
+
+**Suite: 2838 passed. TestFlow32-40 (+72 test rispetto a 2766 pre-round).**
+
+**Copertura API raggiunta** (route ora coperte da journey tests):
+- messages: CRUD + position + insert + move + compact + count + paginated ✓
+- scene_characters roster: POST + GET + DELETE + PATCH role ✓
+- scenes: GET/DELETE + duplicate + merge + arc-assign endpoint ✓
+- arcs DB: GET/PATCH/DELETE + arc/scenes list ✓
+- reactions: GET + POST + DELETE ✓
+- characters YAML: GET singolo stem ✓
+- dashboard: llm_routing GET + POST toggle ✓
+- lore: check + lore_entries CRUD ✓
+- char/memory_replace boundary ✓
+
+**Route ancora NON coperte (intenzionale)**:
+- `/api/messages/next` → GATED-5 (scheduled per rimozione, no test necessari)
+- `/api/characters/<stem>/image` → POST multipart/form-data (test richiederebbe file upload mock)
+- `/api/char/recall` → già coperto in TestFlow13 (confrontare riga 471+)
+
+**GATED pendenti (invariati)**:
+- GATED-3: Discord bot token (nic deve generare, VISION M6)
+- GATED-5: branch efesto/gated5-remove-messages-next pronto per merge
+- GATED-6: branch efesto/gated6-arc-db-canonical pronto per merge
+- GATED-7: Dead code cleanup (richiede opus + operator review)
+
+**[DONE: browser-test-round9-2026-06-26]**

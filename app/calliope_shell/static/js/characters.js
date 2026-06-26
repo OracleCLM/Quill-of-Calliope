@@ -65,6 +65,15 @@
     });
     card.addEventListener('click', () => openCharacterDetail(char.stem));
 
+    if (char.image_path) {
+      const img = document.createElement('img');
+      img.src = char.image_path;
+      img.alt = char.name || '';
+      img.style.cssText = 'width:100%;height:120px;object-fit:cover;border-radius:5px;margin-bottom:8px;display:block;';
+      img.onerror = () => { img.style.display = 'none'; };
+      card.appendChild(img);
+    }
+
     const name = document.createElement('div');
     name.textContent = char.name || char.stem;
     name.style.fontWeight = 'bold';
@@ -231,18 +240,18 @@
     searchInput._charListener = listener;
     searchInput.addEventListener('input', listener);
 
-    fetch('/api/characters')
-      .then(resp => {
-        if (!resp.ok) throw new Error('Network error');
-        return resp.json();
-      })
-      .then(data => {
-        if (!Array.isArray(data)) throw new Error('Invalid response');
-        cached = data;
-        if (data.length === 0) {
+    Promise.all([
+      fetch('/api/characters').then(r => { if (!r.ok) throw new Error('Network error'); return r.json(); }),
+      fetch('/api/db/characters').then(r => r.ok ? r.json() : {characters: []}).catch(() => ({characters: []})),
+    ]).then(([yamlData, dbData]) => {
+        if (!Array.isArray(yamlData)) throw new Error('Invalid response');
+        const imgByName = {};
+        (dbData.characters || []).forEach(c => { if (c.image_path) imgByName[c.name] = c.image_path; });
+        cached = yamlData.map(c => Object.assign({}, c, {image_path: imgByName[c.name] || null}));
+        if (cached.length === 0) {
           showEmpty(grid, 'Nessun personaggio');
         } else {
-          renderGrid(data);
+          renderGrid(cached);
         }
       })
       .catch(err => showError(grid, err.message));
