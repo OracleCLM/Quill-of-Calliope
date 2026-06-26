@@ -185,8 +185,10 @@ async function _loadSceneDetail(sceneId) {
         // FE-2: roster personaggi-in-scena dal DB
         const sel = document.getElementById('scene-char-select');
         const composeWho = document.getElementById('compose-who');
+        const rosterListEl = document.getElementById('roster-list');
         sel.innerHTML = '<option value="">— Seleziona personaggio —</option>';
         if (composeWho) composeWho.innerHTML = '<option value="">— Chi scrive —</option><option value="Narratore">Narratore</option>';
+        if (rosterListEl) rosterListEl.innerHTML = '';
         try {
             const rresp = await fetch('/api/db/scenes/' + encodeURIComponent(sceneId) + '/characters');
             const rdata = await rresp.json();
@@ -200,6 +202,18 @@ async function _loadSceneDetail(sceneId) {
                     opt2.value = c.name; opt2.textContent = label;
                     opt2.dataset.charId = c.id;
                     composeWho.appendChild(opt2);
+                }
+                if (rosterListEl) {
+                    const badge = document.createElement('span');
+                    badge.textContent = label;
+                    badge.style.cssText = 'background:#1a2a3a;color:#aab;border:1px solid #2a3a5a;border-radius:12px;padding:2px 8px;font-size:.75em;display:inline-flex;align-items:center;gap:4px;';
+                    const rm = document.createElement('button');
+                    rm.textContent = '×';
+                    rm.title = 'Rimuovi dal roster';
+                    rm.style.cssText = 'background:none;border:none;color:#c66;cursor:pointer;font-size:1em;padding:0 2px;line-height:1;';
+                    rm.onclick = () => window._removeFromRoster(c.id);
+                    badge.appendChild(rm);
+                    rosterListEl.appendChild(badge);
                 }
             });
         } catch (e) { /* roster opzionale */ }
@@ -261,6 +275,15 @@ window._addToRoster = async function() {
     } catch(e) {
         if (statusEl) statusEl.textContent = '✗ ' + e.message;
     }
+};
+
+window._removeFromRoster = async function(charId) {
+    const sceneId = window._currentSceneId;
+    if (!sceneId) return;
+    try {
+        const r = await fetch('/api/db/scenes/' + encodeURIComponent(sceneId) + '/characters/' + encodeURIComponent(charId), {method: 'DELETE'});
+        if (r.ok) await _loadSceneDetail(sceneId);
+    } catch(e) { /* silenzioso */ }
 };
 
 window._toggleSceneEdit = function() {

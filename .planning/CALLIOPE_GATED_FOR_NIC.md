@@ -1,6 +1,6 @@
 # Calliope — Decisioni GATED per operatore (nic)
 
-> Aggiornato: 2026-06-25 (ciclo gap-review ripreso, coverage 98%) da sonnet-orch-calliope.
+> Aggiornato: 2026-06-26 (ciclo gap-review; GATED-5/6 eseguiti su branch separati; feat char-scene-link commit 56017b8) da sonnet-orch-calliope.
 > File accumulativo: ogni sessione appende le decisioni bloccanti. Rimuovi la riga dopo che hai dato il via libera.
 
 ---
@@ -56,26 +56,17 @@ Impatto: basta una variabile env `REFINE_PROVIDER` / `REFINE_MODEL` configurabil
 
 ---
 
-## [GATED-5] POST /api/messages/next — mantenere o rimuovere?
+## ✅ [DONE] GATED-5 — POST /api/messages/next rimosso (branch efesto/gated5-remove-messages-next, commit f3a4e3b)
 
-**Blocco**: La route LLM-gen "genera prossimo messaggio" (riga ~1044 server.py) usa char_memory + ChromaDB + gateway per generare il prossimo turno in stile LLM. FE-4 ha rimosso le route CRUD flat-YAML ma non questa (è una feature, non solo CRUD).
-
-**Domanda**:
-- (a) Rimuovere del tutto (nuovo paradigma = write/edit manuale via FE-3)?
-- (b) Mantenerla e collegare il bottone "Genera prossimo msg" esistente in shell.html al nuovo scena DB (scene_id dal DB invece che da flat-YAML)?
+**Eseguito 2026-06-26**: Rimossa route codice morto `POST /api/messages/next` (~100 righe). 6 file di test aggiornati. Suite: 2344 passed.
+Branch dedicato: `efesto/gated5-remove-messages-next` — non ancora mergato su main.
 
 ---
 
-## [GATED-6] Arc panel: YAML vs DB — quale sistema è canonical?
+## ✅ [DONE] GATED-6 — Arc DB canonical (branch efesto/gated6-arc-db-canonical, commit 05152b9)
 
-**Blocco**: Il pannello Arc (shell.html) usa il sistema YAML/SQLite legacy (`/api/arc`, `plot_arc.py`). In parallelo esiste `/api/db/arcs` (DB-based, referenzia scene per DB scene_id). La UI del "+Nuovo arco" crea archi via `/api/arc` (YAML). La dashboard conta gli archi via `plot_arc.list_arcs()` (YAML). I due sistemi non sincronizzano.
-
-**Domanda**:
-- (a) Mantenere il sistema YAML (`plot_arc.py`) come canonical per gli archi e deprecare `/api/db/arcs`?
-- (b) Migrare il pannello Arc a `/api/db/arcs` (scene referenziate per DB id, non YAML path)?
-- (c) Lasciare i due sistemi coesistenti (archi "narrativi" YAML + "strutturali" DB)?
-
-**Impatto scelta (b)**: richiede migrazione archi YAML→DB + cambio JS del pannello Arc + adeguamento dashboard counter.
+**Eseguito 2026-06-26**: DB ora fonte canonica degli archi. Route `/api/arc` legacy rimosse da server.py, dashboard counter migrato a `app.db.arcs`, pannello Arc migrato a `/api/db/arcs` (title+description+scene DB). test_server_arc_legacy.py eliminato. Suite: 2329 passed.
+Branch dedicato: `efesto/gated6-arc-db-canonical` — non ancora mergato su main.
 
 ---
 
@@ -360,3 +351,18 @@ Impatto: basta una variabile env `REFINE_PROVIDER` / `REFINE_MODEL` configurabil
 **Suite: 2059 test verdi. Coverage: 98% TOTAL.**
 **Scripts residui a 0% non testabili**: tutti `__main__` guards (già documentati come skip legittimi ciclo 13-16).
 **GATED pendenti**: GATED-3 (Discord token), GATED-5 (/api/messages/next), GATED-6 (Arc YAML vs DB).
+
+---
+
+## Completato ciclo gap-review 2026-06-26 (GATED-5+6 branch + char-scene-link)
+
+| Item | Dettaglio | Commit/Branch |
+|------|-----------|---------------|
+| GATED-5: rimozione POST /api/messages/next | ~100r codice morto rimosso, 6 file test aggiornati | f3a4e3b / efesto/gated5-remove-messages-next |
+| GATED-6: DB canonical per archi | route legacy rimosse, dashboard migrata, pannello Arc JS migrato | 05152b9 / efesto/gated6-arc-db-canonical |
+| feat(characters): GET /api/db/characters/<id>/scenes | route join scene_characters, +2 test (22 totali) | 56017b8 / feat/char-scene-link-and-scene-edit |
+| feat(scenes): _toggleSceneEdit + _saveSceneEdit | PATCH /api/db/scenes/<id> per edit inline title/location | 56017b8 / feat/char-scene-link-and-scene-edit |
+
+**Suite: 2346 test verdi (feat branch). Coverage: 94% server.py (solo GATED-5 984-1079 + app.run() 1626 residui).**
+**Branch GATED-5/6 pronti per merge su main — in attesa di nic.**
+**GATED pendenti**: GATED-3 (Discord token).
