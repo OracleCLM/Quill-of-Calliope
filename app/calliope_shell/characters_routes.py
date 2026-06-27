@@ -22,7 +22,11 @@ def register_character_routes(app):
         chars_path = characters_service._chars_dir()
         draft_path = chars_path / f"{stem}.draft.yaml"
         if draft_path.exists():
-            return jsonify({"error": "already exists", "stem": stem}), 409
+            counter = 1
+            while (chars_path / f"{stem}-{counter}.draft.yaml").exists():
+                counter += 1
+            stem = f"{stem}-{counter}"
+            draft_path = chars_path / f"{stem}.draft.yaml"
         kind = body.get("kind", "npc")
         card_data = {
             "name": name,

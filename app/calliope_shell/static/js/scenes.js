@@ -331,7 +331,7 @@ async function _loadSceneDetail(sceneId) {
             }
         }
         // C1: render del thread-chat (bolle ordinate) + reset compose.
-        _renderSceneThread(messages);
+        _renderChatThread(messages);
         const ct = document.getElementById('scene-compose-text');
         if (ct) ct.value = '';
         const cs = document.getElementById('scene-compose-status');

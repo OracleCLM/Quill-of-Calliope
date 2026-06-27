@@ -695,11 +695,13 @@ class TestFlow21CharactersCreate:
         data = yaml.safe_load(self._yaml.read_text())
         assert "player" in data.get("tags", [])
 
-    def test_duplicate_returns_409(self, client):
-        """POST duplicato → 409 already exists."""
+    def test_duplicate_returns_incremented(self, client):
+        """POST duplicato → 201 con stem auto-incrementato (no overwrite)."""
         client.post("/api/characters", json={"name": "flow21 journey test char"})
         r = client.post("/api/characters", json={"name": "flow21 journey test char"})
-        assert r.status_code == 409
+        assert r.status_code == 201
+        stem = r.get_json()["stem"]
+        assert stem != self.STEM, "Il duplicato deve avere uno stem diverso"
 
     def test_empty_name_returns_400(self, client):
         """POST senza name → 400."""

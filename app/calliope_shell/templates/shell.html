@@ -320,8 +320,8 @@
                  the <a> links below. Lore points at loresearch for now; P5c
                  repoints it to the KB-first surface. -->
             <a id="nav-dashboard" class="active" onclick="showView('dashboard')">◈ Dashboard</a> |
-            <a id="nav-home" onclick="showView('home')">⌂ Home</a> |
             <a id="nav-scenes" onclick="showView('scenes')">◆ Scenes</a> |
+            <a id="nav-characters" onclick="showView('characters')">👤 Chars</a> |
             <a id="nav-messages" onclick="showView('messages')">◇ Messages</a> |
             <a id="nav-lorekb" onclick="showView('lorekb')">📖 Lore</a> |
                 <a id="nav-arc" onclick="showView('arc')">◈ Archi</a> |
@@ -380,6 +380,16 @@
             <div class="dash-card" id="dash-card-shortcuts">
                 <h3>Scorciatoie</h3>
                 <div class="shortcut-grid">
+                    <button id="shortcut-scenes" class="shortcut-btn" onclick="showView('scenes')">
+                        <span class="sc-icon">◆</span><span>Scene-Chat</span></button>
+                    <button id="shortcut-characters" class="shortcut-btn" onclick="showView('characters')">
+                        <span class="sc-icon">👤</span><span>Personaggi</span></button>
+                    <button id="shortcut-lorekb" class="shortcut-btn" onclick="showView('lorekb')">
+                        <span class="sc-icon">📖</span><span>Lore KB</span></button>
+                    <button id="shortcut-messages" class="shortcut-btn" onclick="showView('messages')">
+                        <span class="sc-icon">◇</span><span>Messaggi</span></button>
+                    <button id="shortcut-import" class="shortcut-btn" onclick="_discordImport(false)">
+                        <span class="sc-icon">↓</span><span>Importa Discord</span></button>
                     <button class="shortcut-btn" onclick="showView('draft')">
                         <span class="sc-icon">✦</span><span>Genera draft (varianti)</span></button>
                     <button class="shortcut-btn" onclick="showView('refine')">
@@ -395,6 +405,16 @@
                     <button class="shortcut-btn" onclick="showView('lorecheck')">
                         <span class="sc-icon">⊘</span><span>Lore coherence check</span></button>
                 </div>
+            </div>
+
+            <div class="dash-card" id="dash-card-recent-scenes">
+                <h3>Scene recenti</h3>
+                <ul id="dash-recent-scenes-list" style="margin:0;padding:0;list-style:none;"></ul>
+            </div>
+
+            <div class="dash-card" id="dash-card-recent-discord">
+                <h3>Discord recenti</h3>
+                <ul id="dash-recent-discord-list" style="margin:0;padding:0;list-style:none;"></ul>
             </div>
 
             <div class="dash-card" id="dash-card-tone">
@@ -559,12 +579,14 @@
                 </label>
                 <button id="btn-new-scene" onclick="_newSceneInline()" style="margin-top:6px;width:100%;background:#1a3a1a;color:#8f8;border:1px solid #2a5a2a;border-radius:6px;padding:6px 10px;cursor:pointer;font-size:.82em;">+ Nuova scena</button>
                 <button id="btn-clean-fixtures" onclick="_cleanFixtureScenes()" style="margin-top:4px;width:100%;background:#2a1a1a;color:#c66;border:1px solid #4a2a2a;border-radius:6px;padding:5px 10px;cursor:pointer;font-size:.78em;">🗑 Pulisci fixture test</button>
-                <div id="new-scene-inline-form" style="display:none;margin-top:6px;gap:4px;flex-direction:column;">
-                    <input id="new-scene-title-input" placeholder="Titolo scena..." style="width:100%;box-sizing:border-box;background:#111827;color:#eee;border:1px solid #2a3a5a;border-radius:6px;padding:5px 8px;font-size:.82em;">
+                <div id="new-scene-form" style="display:none;margin-top:6px;gap:4px;flex-direction:column;">
+                    <input id="new-scene-title" placeholder="Titolo scena..." style="width:100%;box-sizing:border-box;background:#111827;color:#eee;border:1px solid #2a3a5a;border-radius:6px;padding:5px 8px;font-size:.82em;">
+                    <input id="new-scene-location" placeholder="Location (opzionale)..." style="width:100%;box-sizing:border-box;background:#111827;color:#aab;border:1px solid #2a3a5a;border-radius:6px;padding:5px 8px;font-size:.82em;">
                     <div style="display:flex;gap:4px;">
                         <button id="btn-scene-submit" onclick="_submitNewScene()" style="flex:1;background:#1a3a1a;color:#8f8;border:1px solid #2a5a2a;border-radius:6px;padding:5px;cursor:pointer;font-size:.82em;">✓ Crea</button>
                         <button id="btn-scene-cancel" onclick="_cancelNewScene()" style="flex:1;background:#1a2a3a;color:#aab;border:1px solid #2a3a5a;border-radius:6px;padding:5px;cursor:pointer;font-size:.82em;">✕</button>
                     </div>
+                    <div id="new-scene-status" style="font-size:.78em;color:#88aaff;min-height:1em;"></div>
                 </div>
                 <button id="scene-new-btn" onclick="_createScene()" title="Crea una nuova scena">＋ Nuova scena</button>
             </div>
@@ -577,24 +599,83 @@
         <div id="scenes-detail-col">
             <div id="scene-empty-state">← Seleziona una scena dalla lista</div>
             <div id="scene-detail">
-                <h2 id="scene-detail-title"></h2>
+                <!-- Header: titolo + toggle modifica + elimina -->
+                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                    <h2 id="scene-detail-title" style="margin:0;flex:1;"></h2>
+                    <button id="btn-scene-edit-toggle" onclick="_toggleSceneEdit()" style="background:#1a2a4a;color:#aac;border:1px solid #2a3a5a;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:.78em;white-space:nowrap;">✎ Modifica</button>
+                    <button id="btn-scene-delete" onclick="_deleteScene()" style="background:#2a1a1a;color:#c66;border:1px solid #4a2a2a;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:.78em;white-space:nowrap;">✕ Elimina</button>
+                </div>
                 <div class="scene-detail-meta" id="scene-detail-meta"></div>
-                <!-- Roster scena (binding manuale): personaggi-in-scena + aggiungi -->
-                <div id="scene-roster-bar">
+                <!-- Arc badge (P6) -->
+                <div id="scene-arc-badge" style="display:none;margin-bottom:6px;"></div>
+                <!-- Form modifica scena inline (P6) -->
+                <div id="scene-edit-form" style="display:none;flex-direction:column;gap:6px;margin:8px 0;padding:10px;background:#0d1420;border:1px solid #2a3a5a;border-radius:8px;">
+                    <input id="scene-edit-title" placeholder="Titolo scena..." style="background:#111827;color:#eee;border:1px solid #2a3a5a;border-radius:6px;padding:6px 10px;font-size:.85em;">
+                    <input id="scene-edit-location" placeholder="Location..." style="background:#111827;color:#eee;border:1px solid #2a3a5a;border-radius:6px;padding:6px 10px;font-size:.85em;">
+                    <select id="scene-edit-arc" style="background:#111827;color:#aab;border:1px solid #2a3a5a;border-radius:6px;padding:6px 10px;font-size:.85em;cursor:pointer;">
+                        <option value="">— Nessun arco —</option>
+                    </select>
+                    <div style="display:flex;gap:8px;">
+                        <button id="btn-scene-edit-save" onclick="_saveSceneEdit()" style="background:#1a3a1a;color:#8f8;border:1px solid #2a5a2a;border-radius:6px;padding:5px 16px;cursor:pointer;font-size:.82em;">✓ Salva</button>
+                        <button id="btn-scene-edit-cancel" onclick="_toggleSceneEdit()" style="background:#1a2a3a;color:#aab;border:1px solid #2a3a5a;border-radius:6px;padding:5px 12px;cursor:pointer;font-size:.82em;">✕</button>
+                        <span id="scene-edit-status" style="font-size:.78em;color:#88aaff;align-self:center;"></span>
+                    </div>
+                </div>
+                <!-- Chat thread (branch P6 primary display) -->
+                <div id="chat-thread"></div>
+                <!-- Area continua/genera (branch P6) -->
+                <div id="scenes-continue-area">
+                    <div style="font-size:.85em;color:#8899cc;margin-bottom:8px;font-weight:bold;">▶ Genera prossimo messaggio</div>
+                    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+                        <select id="scene-char-select"><option value="">— Seleziona personaggio —</option></select>
+                        <button id="btn-add-roster" onclick="_showAddRoster()" style="background:#162216;color:#8f8;border:1px solid #2a5a2a;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:.78em;white-space:nowrap;">+ Roster</button>
+                    </div>
+                    <div id="roster-list" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;min-height:0;"></div>
+                    <div id="add-roster-form" style="display:none;margin-top:6px;gap:6px;align-items:center;flex-wrap:wrap;">
+                        <select id="add-roster-char-sel" style="background:#111827;color:#aab;border:1px solid #2a3a5a;border-radius:6px;padding:4px 8px;font-size:.82em;cursor:pointer;min-width:140px;"><option value="">— Personaggio —</option></select>
+                        <select id="add-roster-role-sel" style="background:#111827;color:#aab;border:1px solid #2a3a5a;border-radius:6px;padding:4px 8px;font-size:.82em;cursor:pointer;">
+                            <option value="participant">participant</option>
+                            <option value="player">player</option>
+                            <option value="narrator">narrator</option>
+                            <option value="npc">npc</option>
+                        </select>
+                        <button id="btn-roster-confirm" onclick="_addToRoster()" style="background:#1a3a1a;color:#8f8;border:1px solid #2a5a2a;border-radius:5px;padding:4px 10px;cursor:pointer;font-size:.78em;">✓</button>
+                        <button id="btn-roster-cancel" onclick="document.getElementById('add-roster-form').style.display='none'" style="background:#1a2a3a;color:#aab;border:1px solid #2a3a5a;border-radius:5px;padding:4px 8px;cursor:pointer;font-size:.78em;">✕</button>
+                        <span id="add-roster-status" style="font-size:.75em;color:#88aaff;"></span>
+                    </div>
+                    <div style="display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap;">
+                        <input id="scene-ctx-hint" placeholder="Intento / hint contestuale (opzionale)..." style="flex:1;min-width:180px;background:#111827;color:#eee;border:1px solid #2a3a5a;border-radius:6px;padding:6px 10px;font-size:.85em;">
+                        <button id="continue-btn" onclick="_smartDraftFromScene()" disabled style="white-space:nowrap;background:#1e3a6e;color:#fff;border:none;border-radius:6px;padding:7px 16px;cursor:pointer;font-size:.85em;">▶ Genera</button>
+                    </div>
+                    <div id="continue-status" style="font-size:.8em;color:#88aaff;margin-top:6px;min-height:1em;"></div>
+                    <div id="gen-output" class="gen-output"></div>
+                </div>
+                <!-- Compose nuovo messaggio (branch P6) -->
+                <div id="scene-compose-area" style="margin-top:14px;padding-top:10px;border-top:1px solid #1a2a3a;">
+                    <div style="font-size:.85em;color:#8899cc;margin-bottom:8px;font-weight:bold;">✏ Nuovo messaggio</div>
+                    <select id="compose-who" style="background:#111827;color:#aab;border:1px solid #2a3a5a;border-radius:6px;padding:6px 10px;font-size:.85em;margin-right:8px;cursor:pointer;"><option value="">— Chi scrive —</option><option value="Narratore">Narratore</option></select>
+                    <input id="compose-author" placeholder="Autore..." style="width:34%;background:#111827;color:#eee;border:1px solid #2a3a5a;border-radius:6px;padding:6px 10px;font-size:.85em;margin-right:8px;">
+                    <textarea id="compose-content" placeholder="Testo del messaggio..." rows="3" style="width:100%;box-sizing:border-box;background:#111827;color:#eee;border:1px solid #2a3a5a;border-radius:6px;padding:8px 10px;font-size:.85em;margin-top:6px;resize:vertical;"></textarea>
+                    <button id="btn-compose-send" onclick="_appendMessage()" style="margin-top:6px;background:#1a3a1a;color:#8f8;border:1px solid #2a5a2a;border-radius:6px;padding:7px 18px;cursor:pointer;font-size:.85em;">Invia</button>
+                    <span id="compose-status" style="font-size:.8em;color:#88aaff;margin-left:10px;"></span>
+                </div>
+                <!-- Roster bar (main P5 compat) + hidden compose (main compat) -->
+                <div id="scene-roster-bar" style="display:none">
                     <span class="roster-label">Personaggi in scena:</span>
                     <span id="scene-roster-chips"></span>
                     <select id="roster-add-select" onchange="_addCharToScene(this.value)" title="Aggiungi un personaggio al roster della scena">
                         <option value="">＋ Aggiungi personaggio…</option>
                     </select>
                 </div>
-                <!-- C1: vista chat JanitorAI-minimal — thread bolle + compose narratore/personaggio -->
-                <div id="scene-thread" class="scene-thread"></div>
-                <div id="scene-compose">
+                <!-- Main C1 thread (hidden — _renderSceneThread compat) -->
+                <div id="scene-thread" class="scene-thread" style="display:none"></div>
+                <!-- Main compose (hidden — _sendSceneMessage compat) -->
+                <div id="scene-compose" style="display:none">
                     <div class="compose-role-row">
                         <label><input type="radio" name="compose-role" value="narrator" checked onclick="_setComposeRole('narrator')"> Narratore</label>
                         <label><input type="radio" name="compose-role" value="character" onclick="_setComposeRole('character')"> Personaggio</label>
                         <select id="compose-char-select" disabled><option value="">— Personaggio —</option></select>
-                        <span id="write-model-ctl" title="Modello usato per la rifinitura (✦ raffina): Cloud=strong+veloce, Locale=privacy ma lento/da-testare">
+                        <span id="write-model-ctl">
                             ✎ Scrittura:
                             <select id="write-profile-select" onchange="_setWriteProfile(this.value)">
                                 <option value="cloud">Cloud</option>
@@ -620,19 +701,19 @@
                     <div id="revive-status" style="font-size:.8em; color:#88aaff; margin-top:6px; min-height:1em;"></div>
                     <div id="revive-output" style="display:none; margin-top:8px; background:#111827; border:1px solid #2a3a5a; border-radius:6px; padding:12px; font-size:.85em; color:#dde; white-space:pre-wrap; line-height:1.5; max-height:300px; overflow-y:auto;"></div>
                 </div>
-                <!-- P5c.2 scene-action fold: the tools removed from top-nav in P5b are
-                     surfaced HERE, in-scene. Each reuses its existing panel + endpoint,
-                     pre-filled with the active scene's context (see _sceneAction).
-                     Reversible: remove this block + the _sceneAction() function. -->
+                <!-- Azioni scena con IDs espliciti (P6) -->
                 <div style="margin-top:14px; padding-top:10px; border-top:1px solid #1a2a3a;">
                     <div style="font-size:.85em; color:#8899cc; margin-bottom:8px; font-weight:bold;">⚙ Azioni scena</div>
                     <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                        <button onclick="_sceneAction('draft')" style="background:#16223a; color:#aac; border:1px solid #2a3a5a; border-radius:6px; padding:7px 14px; cursor:pointer; font-size:.82em;">✦ Draft</button>
-                        <button onclick="_sceneAction('refine')" style="background:#16223a; color:#aac; border:1px solid #2a3a5a; border-radius:6px; padding:7px 14px; cursor:pointer; font-size:.82em;">✎ Refine</button>
-                        <button onclick="_sceneAction('translate')" style="background:#16223a; color:#aac; border:1px solid #2a3a5a; border-radius:6px; padding:7px 14px; cursor:pointer; font-size:.82em;">⇄ Translate</button>
-                        <button onclick="_sceneAction('summarize')" style="background:#16223a; color:#aac; border:1px solid #2a3a5a; border-radius:6px; padding:7px 14px; cursor:pointer; font-size:.82em;">∑ Summarize</button>
-                        <button onclick="_sceneAction('lorecheck')" style="background:#16223a; color:#aac; border:1px solid #2a3a5a; border-radius:6px; padding:7px 14px; cursor:pointer; font-size:.82em;">⊘ Lore Check</button>
+                        <button id="btn-scene-action-draft" onclick="_sceneAction('draft')" style="background:#16223a; color:#aac; border:1px solid #2a3a5a; border-radius:6px; padding:7px 14px; cursor:pointer; font-size:.82em;">✦ Draft</button>
+                        <button id="btn-scene-action-refine" onclick="_sceneAction('refine')" style="background:#16223a; color:#aac; border:1px solid #2a3a5a; border-radius:6px; padding:7px 14px; cursor:pointer; font-size:.82em;">✎ Refine</button>
+                        <button id="btn-scene-action-translate" onclick="_sceneAction('translate')" style="background:#16223a; color:#aac; border:1px solid #2a3a5a; border-radius:6px; padding:7px 14px; cursor:pointer; font-size:.82em;">⇄ Translate</button>
+                        <button id="btn-scene-action-summarize" onclick="_sceneAction('summarize')" style="background:#16223a; color:#aac; border:1px solid #2a3a5a; border-radius:6px; padding:7px 14px; cursor:pointer; font-size:.82em;">∑ Summarize</button>
+                        <button id="btn-scene-action-lorecheck" onclick="_sceneAction('lorecheck')" style="background:#16223a; color:#aac; border:1px solid #2a3a5a; border-radius:6px; padding:7px 14px; cursor:pointer; font-size:.82em;">⊘ Lore Check</button>
+                        <button onclick="_copyLastMsg()" id="btn-copy-last" style="background:#162216; color:#8f8; border:1px solid #2a5a2a; border-radius:6px; padding:7px 14px; cursor:pointer; font-size:.82em;">📋 Copia ultimo</button>
+                        <button onclick="_copyFullScene()" id="btn-copy-scene" style="background:#162216; color:#8f8; border:1px solid #2a5a2a; border-radius:6px; padding:7px 14px; cursor:pointer; font-size:.82em;">📄 Copia scena</button>
                     </div>
+                    <span id="copy-last-status" style="font-size:.76em;color:#88aaff;margin-top:4px;display:block;min-height:1em;"></span>
                 </div>
             </div>
         </div>
@@ -643,7 +724,16 @@
         <h2>◇ Messaggi recenti</h2>
         <div class="msg-filter-bar">
             <input id="msg-char-filter" placeholder="Filtra per personaggio (es. Aurora)...">
+            <label style="font-size:.82em;color:#8899aa;display:flex;align-items:center;gap:5px;cursor:pointer;">
+                <input type="checkbox" id="msg-discord-only" style="cursor:pointer;"> Solo Discord
+            </label>
             <span id="msg-status" style="font-size:.82em;color:#88aaff;"></span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
+            <span style="font-size:.82em;color:#667;">→ Aggiungi a scena:</span>
+            <select id="msg-target-scene" style="background:#111827;color:#aab;border:1px solid #2a3a5a;border-radius:6px;padding:5px 8px;font-size:.82em;cursor:pointer;min-width:160px;">
+                <option value="">— Seleziona scena —</option>
+            </select>
         </div>
         <ul id="message-list" class="message-list" data-empty-state="messages"><li style="color:#334;padding:12px">Caricamento messaggi recenti…</li></ul>
     </div>
@@ -659,6 +749,7 @@
         <div style="margin-bottom:12px; display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
             <input id="char-search" placeholder="Filtra per nome, persona, tag..." style="flex:1; min-width:200px; max-width:420px; background:#0d1117; color:#dde; border:1px solid #2a3a5a; border-radius:6px; padding:8px 12px; font-size:.9em; box-sizing:border-box;">
             <button id="char-new-btn" onclick="_createCharacter()" title="Crea un nuovo personaggio (anche scheda di altro giocatore)" style="background:#1e2f5a; color:#cde; border:1px solid #2a4a7a; border-radius:6px; padding:8px 16px; cursor:pointer; font-size:.88em; white-space:nowrap;">＋ Nuovo personaggio</button>
+            <button id="btn-char-create" onclick="createCharacterInline()" style="background:#1a3a1a;color:#8f8;border:1px solid #2a5a2a;border-radius:6px;padding:7px 14px;cursor:pointer;font-size:.84em;white-space:nowrap;">+ Nuovo personaggio</button>
         </div>
         <div style="display:flex; gap:20px; flex:1; min-height:0;">
             <div id="characters-grid" style="flex:1.4; min-width:0;"></div>
@@ -810,10 +901,12 @@
         <div id="sd-context-info" style="display:none; font-size:.8em; color:#667; margin-bottom:8px; padding:6px 10px; background:#0d1117; border-radius:4px;"></div>
         <div id="sd-output" style="display:none; background:#111827; border:1px solid #2a3a5a; border-radius:6px; padding:14px; font-size:.9em; color:#dde; white-space:pre-wrap; line-height:1.6;"></div>
         <div id="sd-lint" style="display:none; font-size:.78em; color:#c90; margin-top:6px;"></div>
-        <div id="sd-actions" style="display:none; margin-top:10px; display:flex; gap:8px;">
+        <div id="sd-actions" style="display:none; margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;">
             <button id="btn-sd-copy" style="background:#1a2a4a; color:#aac; border:1px solid #2a3a5a; border-radius:4px; padding:6px 14px; cursor:pointer; font-size:.82em;">📋 Copy</button>
+            <button id="btn-sd-save-scene" style="background:#1a3a1a; color:#8f8; border:1px solid #2a5a2a; border-radius:4px; padding:6px 14px; cursor:pointer; font-size:.82em;">→ Salva in scena</button>
             <button id="btn-sd-lorecheck" style="background:#2a1a1a; color:#c99; border:1px solid #3a2a2a; border-radius:4px; padding:6px 14px; cursor:pointer; font-size:.82em;">⊘ Lore Check</button>
         </div>
+        <span id="sd-save-status" style="font-size:.78em;color:#88aaff;"></span>
     </section>
 
     <!-- ── SUMMARIZE PANEL (Sprint E — /api/summarize) ── -->
@@ -835,6 +928,10 @@
                 <ul id="sum-facts" style="color:#bbc; font-size:.85em; line-height:1.5; padding-left:20px;"></ul>
             </div>
             <div style="font-size:.78em; color:#556; margin-top:6px;" id="sum-meta"></div>
+            <div id="sum-save-to-scene-area" style="margin-top:12px;display:none;">
+                <button id="btn-sum-save-to-scene" style="background:#1a3a1a;color:#8f8;border:1px solid #2a5a2a;border-radius:6px;padding:7px 16px;cursor:pointer;font-size:.85em;">→ Salva in scena</button>
+                <span id="sum-save-status" style="font-size:.8em;color:#88aaff;margin-left:10px;"></span>
+            </div>
         </div>
     </section>
 
@@ -924,6 +1021,17 @@
     <div id="arc-panel">
         <div id="arc-list-col">
             <h3>◈ Plot Arcs</h3>
+            <button id="btn-arc-new" onclick="_arcNewInline()" style="width:100%;background:#1a3a1a;color:#8f8;border:1px solid #2a5a2a;border-radius:6px;padding:6px 10px;cursor:pointer;font-size:.8em;margin-bottom:8px;">+ Nuovo arco</button>
+            <div id="arc-new-form" style="display:none;margin-bottom:10px;">
+                <input id="arc-new-id" placeholder="ID (es. arc_001)" style="width:100%;box-sizing:border-box;background:#111827;color:#eee;border:1px solid #2a3a5a;border-radius:6px;padding:5px 8px;font-size:.82em;margin-bottom:5px;">
+                <input id="arc-new-title" placeholder="Titolo" style="width:100%;box-sizing:border-box;background:#111827;color:#eee;border:1px solid #2a3a5a;border-radius:6px;padding:5px 8px;font-size:.82em;margin-bottom:5px;">
+                <input id="arc-new-chars" placeholder="Personaggi (Aurora,Philly,...)" style="width:100%;box-sizing:border-box;background:#111827;color:#eee;border:1px solid #2a3a5a;border-radius:6px;padding:5px 8px;font-size:.82em;margin-bottom:5px;">
+                <div style="display:flex;gap:5px;">
+                    <button id="btn-arc-submit-new" onclick="_arcSubmitNew()" style="flex:1;background:#1a3a1a;color:#8f8;border:1px solid #2a5a2a;border-radius:5px;padding:5px 8px;cursor:pointer;font-size:.78em;">✓ Crea</button>
+                    <button id="btn-arc-cancel-new" onclick="_arcCancelNew()" style="flex:1;background:#1a2a3a;color:#aab;border:1px solid #2a3a5a;border-radius:5px;padding:5px 8px;cursor:pointer;font-size:.78em;">✕</button>
+                </div>
+                <div id="arc-new-status" style="font-size:.75em;color:#88aaff;min-height:1em;margin-top:4px;"></div>
+            </div>
             <ul id="arc-ul" data-empty-state="arc"><li style="color:#555">Caricamento...</li></ul>
         </div>
         <div id="arc-detail-col">
@@ -1048,6 +1156,7 @@
 
         // ── View routing ──
         const _ALL_PANELS = ['dashboard','main','characters','scenes','messages','translate','draft','refine','arc','smartdraft','summarize','lorekb','loresearch','lorecheck','import', 'tools'];
+        const _NAV_PARENT = {draft:'scenes', refine:'scenes', smartdraft:'scenes', summarize:'scenes', translate:'scenes', loresearch:'lorekb', lorecheck:'lorekb'};
         function showView(view) {
             // 'home' is the nav label for the 'main' panel (#main-view: scene shell
             // + mascot sidebar). Without this alias, showView('home') matches no
@@ -1118,12 +1227,22 @@
                     if (statusEl) statusEl.textContent = '';
                     return;
                 }
-                ul.innerHTML = msgs.map(m =>
-                    '<li style="padding:8px 12px;background:#0d1117;border:1px solid #1a2a3a;border-radius:6px">' +
-                    '<b style="color:#88aaff">' + (m.author_name || '—') + '</b> ' +
-                    '<span style="color:#566;font-size:.78em">' + (m.ts || '') + '</span><br>' +
-                    '<span style="color:#cdd">' + (m.content_original || '').replace(/</g, '&lt;') + '</span></li>'
-                ).join('');
+                const esc = (s) => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;');
+                ul.innerHTML = msgs.map((m, idx) => {
+                    const encA = encodeURIComponent(m.author_name || '');
+                    const encC = encodeURIComponent(m.content_original || '');
+                    const srcBadge = m.source_type === 'discord' ? ' <span style="color:#5865f2;font-size:.72em">[Discord]</span>' : '';
+                    return '<li style="padding:8px 12px;background:#0d1117;border:1px solid #1a2a3a;border-radius:6px;display:flex;gap:8px;align-items:flex-start;">' +
+                        '<div style="flex:1;min-width:0;">' +
+                        '<b style="color:#88aaff">' + esc(m.author_name) + '</b>' + srcBadge +
+                        ' <span style="color:#566;font-size:.78em">' + esc(m.ts) + '</span><br>' +
+                        '<span style="color:#cdd">' + esc(m.content_original) + '</span></div>' +
+                        '<button id="msg-to-scene-' + idx + '" onclick="_appendMsgToScene(decodeURIComponent(\'' + encA + '\'),decodeURIComponent(\'' + encC + '\'))" ' +
+                        'style="flex-shrink:0;background:#1a2a4a;color:#aac;border:1px solid #2a3a5a;border-radius:5px;padding:4px 8px;cursor:pointer;font-size:.75em;white-space:nowrap">→ Scena</button>' +
+                        '<button id="msg-to-char-' + idx + '" onclick="_msgToCharPanel(decodeURIComponent(\'' + encA + '\'))" ' +
+                        'style="flex-shrink:0;background:#1a2a1a;color:#8f8;border:1px solid #2a5a2a;border-radius:5px;padding:4px 8px;cursor:pointer;font-size:.75em;white-space:nowrap">→ Personaggio</button>' +
+                        '</li>';
+                }).join('');
                 if (statusEl) statusEl.textContent = msgs.length + ' messaggi';
             } catch (e) {
                 if (statusEl) statusEl.textContent = 'Errore caricamento';
@@ -1131,7 +1250,9 @@
         }
         document.addEventListener('DOMContentLoaded', function() {
             const f = document.getElementById('msg-char-filter');
-            if (f) f.addEventListener('change', loadRecentMessages);
+            if (f) { f.addEventListener('input', loadRecentMessages); f.addEventListener('change', loadRecentMessages); }
+            const d = document.getElementById('msg-discord-only');
+            if (d) d.addEventListener('change', loadRecentMessages);
         });
 
         // Scene/Messages panel JS → /static/js/scenes.js (FE-0 estratto 2026-06-11)

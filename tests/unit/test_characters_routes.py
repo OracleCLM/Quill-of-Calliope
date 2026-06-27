@@ -108,9 +108,9 @@ def test_create_character_success(client, tmp_path):
 
 
 def test_create_character_already_exists(client, tmp_path):
-    """POST con nome già esistente → 409 already exists."""
+    """POST con nome già esistente → 201 con stem auto-incrementato (aurora-1)."""
     (tmp_path / "aurora.draft.yaml").write_text("name: Aurora\n")
     with patch(f"{_SVC}._chars_dir", return_value=tmp_path):
         r = client.post("/api/characters", json={"name": "Aurora"})
-    assert r.status_code == 409
-    assert r.get_json()["error"] == "already exists"
+    assert r.status_code == 201
+    assert r.get_json()["stem"] == "aurora-1"
