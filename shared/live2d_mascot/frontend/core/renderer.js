@@ -1,80 +1,191 @@
-/* renderer.js — entry-point del renderer Live2D condiviso.
+/**
+ * Shared Live2D mascot renderer — repo-agnostic bootstrap.
  *
- * Definisce window.createMascotRenderer(config): inizializza PIXI (v7) +
- * pixi-live2d-display (cubism4), carica il model, lo monta su #canvas con
- * sfondo trasparente, pubblica window.mascotApp = { app, model } e segnala
- * 'mascotReady'. È il file che pet_page.py / dashboard.html si aspettano in
- * <script src="/core/renderer.js"> e che invocano via createMascotRenderer().
+ * Extracted from Quill of Calliope frontend/live2d/app.js (which hardcoded its
+ * model URL). Here the renderer is a factory parameterized by config, so both
+ * Calliope and Vesta can mount the same engine layer with their own model.
  *
- * Contratto config (da MASCOT_CONFIG):
- *   modelUrl, canvasId, backgroundAlpha, idleMotion, errorBannerId, fitWidth
+ * Engine: PIXI + pixi-live2d-display (Cubism 4). For Vesta's Inochi2D convergence
+ * (see VESTA_IMPORT_PATH.md), provide an alternate renderer that fulfils the SAME
+ * downstream contract below — the 6 core JS files depend only on this contract,
+ * never on PIXI directly.
  *
- * Richiede che PIXI e PIXI.live2d (vendor) siano già caricati.
+ * Downstream contract (consumed by state_machine.js / tts_sync.js / expressions.js):
+ *   window.mascotApp = { app, model }
+ *   model.motion(name, index?)
+ *   model.expression(slot)              + model.internalModel.expressionManager
+ *   model.internalModel.coreModel.setParameterValueById('ParamMouthOpenY', v)
+ *   window dispatches CustomEvent('mascotReady') once the model is loaded
+ *
+ * @file renderer.js
  */
-(function () {
-  'use strict';
 
-  function _fail(msg) {
-    var e = new Error(msg);
-    e.name = 'MascotRendererError';
-    return e;
+/**
+ * Create and mount a Live2D mascot renderer.
+ *
+ * @param {Object} config
+ * @param {string} config.modelUrl        URL/path to a .model3.json (repo-specific).
+ * @param {string} [config.canvasId='live2d-canvas']  Canvas element id.
+ * @param {number} [config.backgroundColor=0x1a1a2e]
+ * @param {number} [config.backgroundAlpha]   Set 0 for a transparent sidebar canvas.
+ * @param {string} [config.idleMotion='Idle']         Motion group played on load.
+ * @param {string} [config.errorBannerId='error-banner']
+ * @param {number} [config.width]    Fixed canvas width (px). With height → embed mode (no resizeTo:window).
+ * @param {number} [config.height]   Fixed canvas height (px).
+ * @param {number} [config.fitWidth] Scale the model to this pixel width (best for narrow sidebars).
+ * @returns {Promise<{app: any, model: any}>}  Resolves to window.mascotApp.
+ */
+async function createMascotRenderer(config) {
+  const {
+    modelUrl,
+    canvasId = 'live2d-canvas',
+    backgroundColor = 0x1a1a2e,
+    backgroundAlpha,
+    idleMotion = 'Idle',
+    errorBannerId = 'error-banner',
+    width,
+    height,
+    fitWidth,
+  } = config || {};
+
+  if (!modelUrl) {
+    throw new Error('[renderer] config.modelUrl is required');
   }
 
-  async function createMascotRenderer(cfg) {
-    cfg = cfg || {};
+  // Fixed-size embed (e.g. the product-shell sidebar canvas) vs. the full-window
+  // dev dashboard. When width+height are given we size the app to the canvas and
+  // skip resizeTo:window; otherwise the dashboard fills the viewport.
+  const fixedSize = width != null && height != null;
 
-    if (typeof PIXI === 'undefined') throw _fail('PIXI non caricato (vendor/pixi.min.js)');
-    if (!PIXI.live2d || !PIXI.live2d.Live2DModel) {
-      throw _fail('pixi-live2d-display non caricato (vendor/pixi-live2d-cubism4.min.js)');
-    }
-
-    var canvas = document.getElementById(cfg.canvasId || 'live2d-canvas');
-    if (!canvas) throw _fail('canvas #' + (cfg.canvasId || 'live2d-canvas') + ' non trovato');
-
-    // Le motion/physics auto-update richiedono un ticker registrato.
-    try { PIXI.live2d.Live2DModel.registerTicker(PIXI.Ticker); } catch (e) { /* già registrato */ }
-
-    var app = new PIXI.Application({
-      view: canvas,
-      backgroundAlpha: (cfg.backgroundAlpha != null ? cfg.backgroundAlpha : 0),
-      resizeTo: window,           // canvas = dimensione finestra Qt
+  try {
+    const appOpts = {
+      view: document.getElementById(canvasId),
+      backgroundColor,
       antialias: true,
-      autoDensity: true,
-      resolution: window.devicePixelRatio || 1,
-    });
+    };
+    if (backgroundAlpha != null) appOpts.backgroundAlpha = backgroundAlpha;
+    if (fixedSize) {
+      appOpts.width = width;
+      appOpts.height = height;
+    } else {
+      appOpts.resizeTo = window;
+    }
+    const app = new PIXI.Application(appOpts);
 
-    // autoInteract off: il drag/right-click li gestisce l'overlay Qt (shell.py).
-    var model = await PIXI.live2d.Live2DModel.from(cfg.modelUrl, { autoInteract: false });
+    const { Live2DModel } = PIXI.live2d;
+    const model = await Live2DModel.from(modelUrl);
 
-    // Ancoraggio al centro-orizzontale, leggermente in alto (testa+busto visibili
-    // in una finestra verticale stretta come il pet).
-    model.anchor.set(0.5, 0.0);
+    // Center and scale model relative to its container. `fitWidth` (when given)
+    // scales the model to a target pixel width — the right fit for a narrow
+    // sidebar; otherwise scale relative to the viewport like the dashboard.
+    let scale;
+    if (fitWidth != null && model.width) {
+      scale = fitWidth / model.width;
+    } else {
+      const ref = fixedSize
+        ? Math.min(app.screen.width, app.screen.height)
+        : Math.min(window.innerWidth, window.innerHeight);
+      scale = Math.max(0.3, ref / 1600);
+    }
+    model.scale.set(scale);
+    model.anchor.set(0.5, 0.5);
+    model.position.set(app.screen.width / 2, app.screen.height / 2);
+
     app.stage.addChild(model);
 
-    function layout() {
-      var W = app.renderer.width;
-      var H = app.renderer.height;
-      // larghezza nativa del model (coordinate canvas Live2D).
-      var nativeW = (model.internalModel && model.internalModel.originalWidth)
-        || model.width || (cfg.fitWidth || W);
-      var targetW = cfg.fitWidth || W;
-      var scale = targetW / nativeW;
-      model.scale.set(scale);
-      model.x = W / 2;
-      model.y = H * 0.04;          // piccolo margine dall'alto
-    }
-    layout();
-    window.addEventListener('resize', layout);
+    // Start idle motion (no-op if the model declares no such group).
+    model.motion(idleMotion);
 
-    // Idle motion se il model la dichiara (Mao minimale → no-op silenzioso).
-    if (cfg.idleMotion) {
-      try { model.motion(cfg.idleMotion); } catch (e) { /* nessuna motion: model statico */ }
+    // Fallback idle liveliness: some models (e.g. VTube-Studio exports) ship no
+    // Cubism motion3 files and pixi-live2d-display leaves breath/eye-blink
+    // unconfigured, so they render frozen. When the model has no motion groups,
+    // drive a gentle breath sway + periodic blink ourselves so idle looks alive.
+    _ensureIdleLiveliness(app, model);
+
+    // Expose globally for state_machine.js, tts_sync.js, expressions.js (the contract).
+    window.mascotApp = { app, model };
+
+    window.dispatchEvent(new CustomEvent('mascotReady'));
+    console.log('[renderer] Mascot ready:', modelUrl);
+
+    // Reposition on window resize (dashboard only — fixed-size embeds don't track the viewport).
+    if (!fixedSize) {
+      window.addEventListener('resize', () => {
+        model.position.set(app.screen.width / 2, app.screen.height / 2);
+      });
     }
 
-    window.mascotApp = { app: app, model: model };
-    window.dispatchEvent(new Event('mascotReady'));
     return window.mascotApp;
+  } catch (err) {
+    console.error('[renderer] Load failed:', err);
+    const banner = document.getElementById(errorBannerId);
+    if (banner) {
+      banner.style.display = 'block';
+      banner.textContent =
+        'Failed to load mascot model. Check console. ' +
+        'Ensure the engine scripts (cubismcore + pixi-live2d-display) are loaded ' +
+        'and the model URL is reachable.';
+    }
+    throw err;
   }
+}
 
+/**
+ * Synthesize an idle breath/sway + blink when the model has no motion groups.
+ * Applied on the PIXI ticker at LOW priority so it runs AFTER the model's own
+ * per-frame update (otherwise the model would overwrite our parameter writes).
+ */
+function _ensureIdleLiveliness(app, model) {
+  const im = model.internalModel;
+  const groups = (im && im.motionManager && im.motionManager.definitions) || {};
+  if (Object.keys(groups).length > 0) return; // real motions present — nothing to do
+
+  const core = im && im.coreModel;
+  if (!core) return;
+
+  const has = (id) => {
+    try { core.getParameterValueById(id); return true; } catch (_) { return false; }
+  };
+  const set = (id, v) => { try { core.setParameterValueById(id, v); } catch (_) {} };
+
+  const canBreath = has('ParamBreath');
+  const canAngleX = has('ParamAngleX');
+  const canAngleY = has('ParamAngleY');
+  const canBody = has('ParamBodyAngleX');
+  const canEyeL = has('ParamEyeLOpen');
+  const canEyeR = has('ParamEyeROpen');
+
+  let t = 0;
+  let nextBlink = 1.5 + Math.random() * 3;
+  let blinkUntil = -1;
+
+  const prio = (typeof PIXI !== 'undefined' && PIXI.UPDATE_PRIORITY)
+    ? PIXI.UPDATE_PRIORITY.LOW : undefined;
+
+  app.ticker.add((dt) => {
+    t += dt / 60; // PIXI dt is frames (~1 @60fps) → seconds
+    if (canBreath) set('ParamBreath', 0.5 + 0.5 * Math.sin(t * 1.8));
+    if (canAngleX) set('ParamAngleX', 6 * Math.sin(t * 0.7));
+    if (canAngleY) set('ParamAngleY', 4 * Math.sin(t * 0.5));
+    if (canBody) set('ParamBodyAngleX', 4 * Math.sin(t * 0.7));
+
+    // Periodic blink: snap closed briefly, then reopen.
+    if (t >= nextBlink && blinkUntil < 0) blinkUntil = t + 0.12;
+    if (blinkUntil > 0) {
+      const open = t < blinkUntil ? 0 : 1;
+      if (canEyeL) set('ParamEyeLOpen', open);
+      if (canEyeR) set('ParamEyeROpen', open);
+      if (t >= blinkUntil) { blinkUntil = -1; nextBlink = t + 2 + Math.random() * 3; }
+    }
+  }, undefined, prio);
+
+  console.log('[renderer] idle liveliness fallback active (no motion groups)');
+}
+
+// UMD-ish export: browser global + CommonJS (for node-based structure tests).
+if (typeof window !== 'undefined') {
   window.createMascotRenderer = createMascotRenderer;
-})();
+}
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { createMascotRenderer };
+}

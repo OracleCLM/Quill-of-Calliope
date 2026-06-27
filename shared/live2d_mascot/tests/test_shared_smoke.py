@@ -83,13 +83,15 @@ class TestJSCoreContent:
         assert "setMascotState" in content
         assert "idle" in content and "talking" in content
 
-    def test_expressions_has_7_slots(self):
-        # expressions.js uses joy/sad/anger/surprise/neutral/thinking/confused (7 slots)
+    def test_expressions_map_to_mao_slots(self):
+        # expressions.js maps emotions (joy/sad/anger/surprise/neutral/thinking/confused)
+        # onto the SHIPPABLE Mao model's real expression Names (exp_01..exp_08).
         content = (FRONTEND_CORE / "expressions.js").read_text()
-        for slot_or_emotion in ("neutral", "sad", "surprise", "thinking", "confused"):
-            assert slot_or_emotion in content.lower(), f"Missing: {slot_or_emotion}"
-        # 7 f-slots: f00..f06
-        assert "f06" in content
+        for emotion in ("neutral", "sad", "surprise", "thinking", "confused"):
+            assert emotion in content.lower(), f"Missing emotion: {emotion}"
+        # Real Mao expression slots, not the old placeholder f00..f06.
+        assert "exp_01" in content and "exp_08" in content
+        assert "f06" not in content
 
     def test_tts_sync_has_param_mouth(self):
         content = (FRONTEND_CORE / "tts_sync.js").read_text()

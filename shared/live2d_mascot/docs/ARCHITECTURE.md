@@ -34,9 +34,11 @@ Any RP/VTuber project needs the same WebSocket broadcast, state machine, and emo
 shared/live2d_mascot/
 ├── server/
 │   ├── ws_server.py        WebSocket server + REST event bridge (FastAPI)
-│   └── tts_phoneme_export.py  espeak-ng phoneme timing bridge
+│   └── tts_phoneme_export.py  espeak-ng phoneme timing bridge (scripts/ keeps a shim)
 ├── frontend/
+│   ├── index.template.html   repo-agnostic dashboard scaffold ({{MODEL_URL}}/{{ENGINE_*}})
 │   └── core/
+│       ├── renderer.js            createMascotRenderer(config) — engine bootstrap factory
 │       ├── state_machine.js       idle/talking/listening/thinking + WS triggers
 │       ├── emotion_transitions.js lerp transitions between 7 emotions
 │       ├── expressions.js         f00-f06 slot mapping + 300ms fade
@@ -46,7 +48,9 @@ shared/live2d_mascot/
 ├── docs/
 │   └── ARCHITECTURE.md    (this file)
 └── tests/
-    └── test_shared_smoke.py
+    ├── test_shared_smoke.py
+    ├── test_renderer.py
+    └── test_vesta_consumption.py
 ```
 
 ---
@@ -152,6 +156,9 @@ _ws_core.app.title = "vesta-mascot-ws"
 
 `shared/live2d_mascot` follows semver:
 - **v1.0.0** (2026-05-18): initial extraction — WS server, state machine, 7 emotions, phoneme sync
+- **v1.1.0** (2026-06-18): renderer factory (`createMascotRenderer`) extracted from app.js,
+  shared `index.template.html`, `tts_phoneme_export.py` moved into the package (scripts/ shim).
+  Calliope now consumes the shared renderer; verified live in-browser (stato-risultante).
 - **v1.x**: minor additions (new event types, additional states)
 - **v2.0**: breaking change in WS protocol requires consumer updates
 

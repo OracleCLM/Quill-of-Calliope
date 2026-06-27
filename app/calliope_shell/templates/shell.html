@@ -38,7 +38,9 @@
         /* ── Scenes panel ── */
         #scenes-panel { display:none; flex-direction:row; height:calc(100vh - 60px); overflow:hidden; }
         #scenes-list-col { width:320px; background:#111827; border-right:1px solid #223; display:flex; flex-direction:column; flex-shrink:0; }
-        #scenes-filter-bar { padding:10px 12px; border-bottom:1px solid #223; }
+        #scenes-filter-bar { padding:10px 12px; border-bottom:1px solid #223; display:flex; gap:8px; align-items:center; }
+        #scene-new-btn { background:#1e2f5a; color:#cde; border:1px solid #2a4a7a; border-radius:6px; padding:7px 10px; cursor:pointer; font-size:.8em; white-space:nowrap; }
+        #scene-new-btn:hover { background:#26407a; }
         #scene-filter { width:100%; background:#0d1117; color:#eee; border:1px solid #2a3a5a; border-radius:6px; padding:7px 10px; font-size:.88em; box-sizing:border-box; }
         #scenes-list { list-style:none; margin:0; padding:0; overflow-y:auto; flex:1; }
         #scenes-list li { padding:10px 12px; border-bottom:1px solid #1a2440; cursor:pointer; }
@@ -49,10 +51,7 @@
         #scene-detail { display:none; }
         #scene-detail h2 { margin:0 0 6px; color:#aac; font-size:1.1em; }
         .scene-detail-meta { font-size:.8em; color:#667; margin-bottom:12px; }
-        #chat-thread { display:flex; flex-direction:column; gap:8px; max-height:420px; overflow-y:auto; padding:8px 0; margin-bottom:10px; border-bottom:1px solid #1a2440; }
-        .chat-msg { display:flex; flex-direction:column; }
-        .chat-msg-author { font-size:.75em; color:#6688aa; margin-bottom:3px; font-weight:bold; }
-        .chat-msg-content { background:#111827; border:1px solid #1e2f4a; border-radius:8px; padding:8px 12px; font-size:.87em; color:#ccd; white-space:pre-wrap; line-height:1.5; }
+        .scene-excerpt { background:#111827; border:1px solid #223; border-radius:6px; padding:10px; font-size:.85em; color:#aab; white-space:pre-wrap; margin:8px 0; }
         #scene-empty-state { color:#334; margin-top:60px; text-align:center; font-size:.9em; }
         #scenes-continue-area { margin-top:16px; padding-top:14px; border-top:1px solid #223; }
         #scene-char-select { background:#111827; color:#eee; border:1px solid #2a3a5a; border-radius:6px; padding:6px 10px; font-size:.88em; }
@@ -61,6 +60,48 @@
         #continue-btn:hover { background:#2a6a2a; }
         #continue-btn:disabled { opacity:.4; cursor:not-allowed; }
         #gen-output { display:none; background:#111827; border:1px solid #2a4; border-radius:6px; padding:14px; margin-top:12px; font-size:.88em; color:#cde; white-space:pre-wrap; line-height:1.55; }
+        /* C1: chat-thread JanitorAI-minimal (bolle + avatar-placeholder = goal evolutivo pieno) */
+        .scene-thread { display:flex; flex-direction:column; gap:10px; margin:10px 0; }
+        .msg-bubble { display:flex; gap:10px; align-items:flex-start; }
+        .msg-avatar { width:34px; height:34px; border-radius:50%; background:#2a3a5a; color:#cde; display:flex; align-items:center; justify-content:center; font-size:.9em; flex-shrink:0; font-weight:bold; }
+        .msg-body { background:#111827; border:1px solid #223; border-radius:8px; padding:8px 12px; flex:1; min-width:0; }
+        .msg-author { font-size:.78em; color:#88aaff; font-weight:bold; margin-bottom:3px; }
+        .msg-text { font-size:.9em; color:#cde; white-space:pre-wrap; line-height:1.5; word-wrap:break-word; }
+        .msg-narrator .msg-body { background:#0f1a14; border-color:#1e3a24; }
+        .msg-narrator .msg-avatar { background:#1e3a24; color:#8f8; }
+        .msg-narrator .msg-author { color:#7c7; }
+        /* R2: pulsante "raffina" + pannello originale/raffinato (toggle) */
+        .msg-actions { margin-top:5px; display:flex; gap:8px; align-items:center; }
+        .msg-refine-btn { background:#2a2440; color:#bba6ff; border:1px solid #443a6a; border-radius:5px; padding:3px 10px; cursor:pointer; font-size:.72em; }
+        .msg-refine-btn:hover { background:#3a3360; }
+        .msg-refine-btn:disabled { opacity:.5; cursor:wait; }
+        .msg-refined-tag { font-size:.7em; color:#7c7; }
+        .msg-refined { margin-top:7px; background:#0f1320; border:1px solid #2a3358; border-radius:6px; padding:8px 10px; }
+        .msg-refined-label { font-size:.74em; color:#bba6ff; margin-bottom:4px; }
+        .msg-refined-label a { color:#88aaff; }
+        .msg-refined-text { font-size:.88em; color:#dde; white-space:pre-wrap; line-height:1.5; }
+        .msg-refined-error { font-size:.82em; color:#f3b0b0; }
+        .msg-refine-retry { background:#3a2430; color:#ffc; border:1px solid #6a3a4a; border-radius:5px; padding:2px 9px; cursor:pointer; font-size:.92em; margin-left:6px; }
+        .msg-refine-retry:hover { background:#5a3444; }
+        #scene-roster-bar { display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin:8px 0; padding-bottom:8px; border-bottom:1px solid #1a2440; }
+        .roster-label { font-size:.78em; color:#667; }
+        #scene-roster-chips { display:flex; gap:6px; flex-wrap:wrap; }
+        .roster-chip { background:#1e2f5a; color:#cde; border-radius:12px; padding:2px 10px; font-size:.78em; display:inline-flex; align-items:center; gap:5px; }
+        .roster-chip .chip-x { cursor:pointer; color:#9ab; font-weight:bold; }
+        .roster-chip .chip-x:hover { color:#f88; }
+        .roster-empty { font-size:.76em; color:#445; font-style:italic; }
+        #roster-add-select { background:#111827; color:#cde; border:1px solid #2a4a7a; border-radius:6px; padding:4px 8px; font-size:.78em; cursor:pointer; }
+        #scene-compose { margin-top:14px; border-top:1px solid #223; padding-top:12px; }
+        .compose-role-row { display:flex; gap:14px; align-items:center; margin-bottom:8px; font-size:.85em; color:#aab; flex-wrap:wrap; }
+        #compose-char-select { background:#111827; color:#eee; border:1px solid #2a3a5a; border-radius:6px; padding:6px 10px; font-size:.85em; }
+        #scene-compose-text { width:100%; min-height:70px; background:#0d1117; color:#eee; border:1px solid #2a3a5a; border-radius:6px; padding:8px; box-sizing:border-box; font-family:inherit; font-size:.9em; resize:vertical; }
+        #scene-send-btn { margin-top:8px; background:#1e4a1e; color:#8f8; border:none; border-radius:6px; padding:9px 22px; cursor:pointer; font-size:.9em; }
+        #scene-send-btn:hover { background:#2a6a2a; }
+        #scene-send-btn:disabled { opacity:.4; cursor:not-allowed; }
+        #scene-compose-status { font-size:.8em; color:#88aaff; margin-top:6px; min-height:1em; }
+        #write-model-ctl { margin-left:auto; font-size:.76em; color:#778; display:inline-flex; align-items:center; gap:5px; }
+        #write-profile-select { background:#111827; color:#cde; border:1px solid #2a3a5a; border-radius:5px; padding:3px 6px; font-size:.92em; }
+        #write-model-label { color:#556; }
 
         /* ── Messages panel ── */
         #messages-panel { display:none; flex-direction:column; padding:20px; max-width:900px; margin:0 auto; width:100%; height:calc(100vh - 60px); box-sizing:border-box; overflow-y:auto; }
@@ -279,12 +320,12 @@
                  the <a> links below. Lore points at loresearch for now; P5c
                  repoints it to the KB-first surface. -->
             <a id="nav-dashboard" class="active" onclick="showView('dashboard')">◈ Dashboard</a> |
+            <a id="nav-home" onclick="showView('home')">⌂ Home</a> |
             <a id="nav-scenes" onclick="showView('scenes')">◆ Scenes</a> |
-            <a id="nav-characters" onclick="showView('characters')">👤 Chars</a> |
             <a id="nav-messages" onclick="showView('messages')">◇ Messages</a> |
             <a id="nav-lorekb" onclick="showView('lorekb')">📖 Lore</a> |
-            <a id="nav-arc" onclick="showView('arc')">◈ Archi</a> |
-            <a id="nav-tools" onclick="showView('tools')">✦ Strumenti</a>
+                <a id="nav-arc" onclick="showView('arc')">◈ Archi</a> |
+                <a id="nav-tools" onclick="showView('tools')">✦ Strumenti</a>
             <span id="privacy-badge" class="privacy-badge" role="status"
                   aria-label="Privacy: local-only, no cloud upload of RP data">
                 <span class="pb-icon" aria-hidden="true">🔒</span>
@@ -337,18 +378,22 @@
             </div>
 
             <div class="dash-card" id="dash-card-shortcuts">
-                <h3>Accesso rapido</h3>
+                <h3>Scorciatoie</h3>
                 <div class="shortcut-grid">
-                    <button id="shortcut-scenes" class="shortcut-btn" onclick="showView('scenes')">
-                        <span class="sc-icon">◆</span><span>Scene</span></button>
-                    <button id="shortcut-characters" class="shortcut-btn" onclick="showView('characters')">
-                        <span class="sc-icon">👤</span><span>Personaggi</span></button>
-                    <button id="shortcut-lorekb" class="shortcut-btn" onclick="showView('lorekb')">
-                        <span class="sc-icon">📖</span><span>Lore KB</span></button>
-                    <button id="shortcut-messages" class="shortcut-btn" onclick="showView('messages')">
-                        <span class="sc-icon">◇</span><span>Messaggi</span></button>
-                    <button id="shortcut-import" class="shortcut-btn" onclick="_discordImport(false)">
-                        <span class="sc-icon">↓</span><span>Importa Discord</span></button>
+                    <button class="shortcut-btn" onclick="showView('draft')">
+                        <span class="sc-icon">✦</span><span>Genera draft (varianti)</span></button>
+                    <button class="shortcut-btn" onclick="showView('refine')">
+                        <span class="sc-icon">✎</span><span>Rifinisci scena</span></button>
+                    <button class="shortcut-btn" onclick="showView('translate')">
+                        <span class="sc-icon">⇄</span><span>Traduci IT ↔ EN</span></button>
+                    <button class="shortcut-btn" onclick="showView('arc')">
+                        <span class="sc-icon">◈</span><span>Continua plot arc</span></button>
+                    <button class="shortcut-btn" onclick="showView('smartdraft')">
+                        <span class="sc-icon">⚡</span><span>Smart Draft (IT→EN)</span></button>
+                    <button class="shortcut-btn" onclick="showView('summarize')">
+                        <span class="sc-icon">∑</span><span>Summarize paste</span></button>
+                    <button class="shortcut-btn" onclick="showView('lorecheck')">
+                        <span class="sc-icon">⊘</span><span>Lore coherence check</span></button>
                 </div>
             </div>
 
@@ -397,15 +442,6 @@
                     <span id="dash-discord-cta-text"></span>
                 </div>
             </div>
-
-            <div class="dash-card" id="dash-card-recent-scenes">
-                <h3>Scene recenti</h3>
-                <ul id="dash-recent-scenes-list" style="margin:0;padding:0;list-style:none;"></ul>
-            </div>
-            <div class="dash-card" id="dash-card-recent-discord">
-                <h3>Messaggi Discord recenti <span style="font-size:.75em;color:#556;font-weight:normal">(source=discord)</span></h3>
-                <ul id="dash-recent-discord-list" style="margin:0;padding:0;list-style:none;"></ul>
-            </div>
         </div>
         <div class="dash-snapshot-meta">
             <span id="dash-snapshot-status">…</span>
@@ -424,33 +460,58 @@
             <div style="text-align:center;">
                 <div style="font-size:2.5em; margin-bottom:8px;">✦</div>
                 <h2 style="margin:0; color:#aac; font-size:1.4em;">Quill of Calliope</h2>
-                <p style="color:#445; font-size:.9em; margin-top:6px;">Seleziona una sezione dal menu — o scegli una scorciatoia</p>
+                <p style="color:#8899bb; font-size:.92em; margin-top:6px;">Roleplay narrativo a scena-come-chat. Inizia da qui:</p>
             </div>
             <div class="welcome-cards">
-                <div class="welcome-card" onclick="showView('scenes')">
+                <div class="welcome-card" onclick="showView('scenes')" style="border-color:#3a5a8a;">
                     <div class="wc-icon">◆</div>
-                    <div class="wc-title">Scene</div>
-                    <div class="wc-desc">Chat multi-personaggio, Smart Draft, revive</div>
+                    <div class="wc-title">Apri Scene-Chat</div>
+                    <div class="wc-desc">Lista scene + thread + scrivi come narratore/personaggio</div>
                 </div>
-                <div class="welcome-card" onclick="showView('characters')">
-                    <div class="wc-icon">👤</div>
-                    <div class="wc-title">Personaggi</div>
-                    <div class="wc-desc">Schede, avatar, scrivi a scena</div>
+                <div class="welcome-card" onclick="showView('scenes'); _createScene()">
+                    <div class="wc-icon">＋</div>
+                    <div class="wc-title">Nuova scena</div>
+                    <div class="wc-desc">Crea una scena RP da zero</div>
+                </div>
+                <div class="welcome-card" onclick="showView('characters'); _createCharacter()">
+                    <div class="wc-icon">☺</div>
+                    <div class="wc-title">Nuovo personaggio</div>
+                    <div class="wc-desc">Crea un PG/PNG o la scheda di altro giocatore</div>
+                </div>
+                <div class="welcome-card" onclick="showView('import')">
+                    <div class="wc-icon">⇪</div>
+                    <div class="wc-title">Importa da Discord</div>
+                    <div class="wc-desc">Export per-canale → seleziona → importa in scena</div>
                 </div>
                 <div class="welcome-card" onclick="showView('messages')">
                     <div class="wc-icon">◇</div>
-                    <div class="wc-title">Messaggi</div>
-                    <div class="wc-desc">Recenti, filtra per Discord, importa</div>
+                    <div class="wc-title">Messaggi recenti</div>
+                    <div class="wc-desc">Recupera gli ultimi N messaggi</div>
                 </div>
-                <div class="welcome-card" onclick="showView('lorekb')">
-                    <div class="wc-icon">📖</div>
-                    <div class="wc-title">Lore KB</div>
-                    <div class="wc-desc">Knowledge base, categorie, ricerca</div>
+                <div class="welcome-card" onclick="showView('draft')">
+                    <div class="wc-icon">✦</div>
+                    <div class="wc-title">Genera varianti</div>
+                    <div class="wc-desc">Draft con stili differenti</div>
                 </div>
-                <div class="welcome-card" onclick="showView('dashboard')">
+                <div class="welcome-card" onclick="showView('arc')">
                     <div class="wc-icon">◈</div>
-                    <div class="wc-title">Dashboard</div>
-                    <div class="wc-desc">Stato sistema, scene recenti, Discord</div>
+                    <div class="wc-title">Plot Arcs</div>
+                    <div class="wc-desc">Continua un arco narrativo</div>
+                </div>
+                <div class="welcome-card" onclick="showView('smartdraft')">
+                    <div class="wc-icon">⚡</div>
+                    <div class="wc-title">Smart Draft</div>
+                    <div class="wc-desc">Intento IT → draft letterario EN</div>
+                </div>
+                <div class="welcome-card" onclick="showView('summarize')">
+                    <div class="wc-icon">∑</div>
+                    <div class="wc-title">Summarize</div>
+                    <div class="wc-desc">Discord paste → key facts</div>
+                </div>
+                <div class="welcome-card" onclick="showView('lorecheck')">
+                    <div class="wc-icon">⊘</div>
+                    <div class="wc-title">Lore Check</div>
+                    <div class="wc-desc">Verifica coerenza col lore</div>
                 </div>
             </div>
         </div>
@@ -498,15 +559,14 @@
                 </label>
                 <button id="btn-new-scene" onclick="_newSceneInline()" style="margin-top:6px;width:100%;background:#1a3a1a;color:#8f8;border:1px solid #2a5a2a;border-radius:6px;padding:6px 10px;cursor:pointer;font-size:.82em;">+ Nuova scena</button>
                 <button id="btn-clean-fixtures" onclick="_cleanFixtureScenes()" style="margin-top:4px;width:100%;background:#2a1a1a;color:#c66;border:1px solid #4a2a2a;border-radius:6px;padding:5px 10px;cursor:pointer;font-size:.78em;">🗑 Pulisci fixture test</button>
-                <div id="new-scene-form" style="display:none;margin-top:6px;">
-                    <input id="new-scene-title" placeholder="Titolo scena..." style="width:100%;box-sizing:border-box;background:#111827;color:#eee;border:1px solid #2a3a5a;border-radius:6px;padding:6px 10px;font-size:.85em;">
-                    <input id="new-scene-location" placeholder="Location (opzionale)..." style="width:100%;box-sizing:border-box;background:#111827;color:#aab;border:1px solid #2a3a5a;border-radius:6px;padding:6px 10px;font-size:.83em;margin-top:4px;">
-                    <div style="display:flex;gap:6px;margin-top:6px;">
+                <div id="new-scene-inline-form" style="display:none;margin-top:6px;gap:4px;flex-direction:column;">
+                    <input id="new-scene-title-input" placeholder="Titolo scena..." style="width:100%;box-sizing:border-box;background:#111827;color:#eee;border:1px solid #2a3a5a;border-radius:6px;padding:5px 8px;font-size:.82em;">
+                    <div style="display:flex;gap:4px;">
                         <button id="btn-scene-submit" onclick="_submitNewScene()" style="flex:1;background:#1a3a1a;color:#8f8;border:1px solid #2a5a2a;border-radius:6px;padding:5px;cursor:pointer;font-size:.82em;">✓ Crea</button>
                         <button id="btn-scene-cancel" onclick="_cancelNewScene()" style="flex:1;background:#1a2a3a;color:#aab;border:1px solid #2a3a5a;border-radius:6px;padding:5px;cursor:pointer;font-size:.82em;">✕</button>
                     </div>
-                    <div id="new-scene-status" style="font-size:.78em;color:#88aaff;min-height:1em;margin-top:4px;"></div>
                 </div>
+                <button id="scene-new-btn" onclick="_createScene()" title="Crea una nuova scena">＋ Nuova scena</button>
             </div>
             <ul id="scenes-list" data-empty-state="scenes"><li style="color:#334;padding:12px">Caricamento...</li></ul>
             <div id="scenes-load-more" style="display:none;padding:8px;text-align:center;">
@@ -517,61 +577,43 @@
         <div id="scenes-detail-col">
             <div id="scene-empty-state">← Seleziona una scena dalla lista</div>
             <div id="scene-detail">
-                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-                    <h2 id="scene-detail-title" style="margin:0;flex:1;"></h2>
-                    <button id="btn-scene-edit-toggle" onclick="_toggleSceneEdit()" style="background:#1a2a4a;color:#aac;border:1px solid #2a3a5a;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:.78em;white-space:nowrap;">✎ Modifica</button>
-                    <button id="btn-scene-delete" onclick="_deleteScene()" style="background:#2a1a1a;color:#c66;border:1px solid #4a2a2a;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:.78em;white-space:nowrap;">✕ Elimina</button>
-                </div>
+                <h2 id="scene-detail-title"></h2>
                 <div class="scene-detail-meta" id="scene-detail-meta"></div>
-                <div id="scene-arc-badge" style="display:none;margin-bottom:6px;"></div>
-                <div id="scene-edit-form" style="display:none;flex-direction:column;gap:6px;margin:8px 0;padding:10px;background:#0d1420;border:1px solid #2a3a5a;border-radius:8px;">
-                    <input id="scene-edit-title" placeholder="Titolo scena..." style="background:#111827;color:#eee;border:1px solid #2a3a5a;border-radius:6px;padding:6px 10px;font-size:.85em;">
-                    <input id="scene-edit-location" placeholder="Location..." style="background:#111827;color:#eee;border:1px solid #2a3a5a;border-radius:6px;padding:6px 10px;font-size:.85em;">
-                    <select id="scene-edit-arc" style="background:#111827;color:#aab;border:1px solid #2a3a5a;border-radius:6px;padding:6px 10px;font-size:.85em;cursor:pointer;">
-                        <option value="">— Nessun arco —</option>
+                <!-- Roster scena (binding manuale): personaggi-in-scena + aggiungi -->
+                <div id="scene-roster-bar">
+                    <span class="roster-label">Personaggi in scena:</span>
+                    <span id="scene-roster-chips"></span>
+                    <select id="roster-add-select" onchange="_addCharToScene(this.value)" title="Aggiungi un personaggio al roster della scena">
+                        <option value="">＋ Aggiungi personaggio…</option>
                     </select>
-                    <div style="display:flex;gap:8px;">
-                        <button id="btn-scene-edit-save" onclick="_saveSceneEdit()" style="background:#1a3a1a;color:#8f8;border:1px solid #2a5a2a;border-radius:6px;padding:5px 16px;cursor:pointer;font-size:.82em;">✓ Salva</button>
-                        <button id="btn-scene-edit-cancel" onclick="_toggleSceneEdit()" style="background:#1a2a3a;color:#aab;border:1px solid #2a3a5a;border-radius:6px;padding:5px 12px;cursor:pointer;font-size:.82em;">✕</button>
-                        <span id="scene-edit-status" style="font-size:.78em;color:#88aaff;align-self:center;"></span>
-                    </div>
                 </div>
-                <div id="chat-thread"></div>
-                <div id="scenes-continue-area">
-                    <div style="font-size:.85em;color:#8899cc;margin-bottom:8px;font-weight:bold;">▶ Genera prossimo messaggio</div>
-                    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-                        <select id="scene-char-select"><option value="">— Seleziona personaggio —</option></select>
-                        <button id="btn-add-roster" onclick="_showAddRoster()" style="background:#162216;color:#8f8;border:1px solid #2a5a2a;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:.78em;white-space:nowrap;">+ Roster</button>
+                <!-- C1: vista chat JanitorAI-minimal — thread bolle + compose narratore/personaggio -->
+                <div id="scene-thread" class="scene-thread"></div>
+                <div id="scene-compose">
+                    <div class="compose-role-row">
+                        <label><input type="radio" name="compose-role" value="narrator" checked onclick="_setComposeRole('narrator')"> Narratore</label>
+                        <label><input type="radio" name="compose-role" value="character" onclick="_setComposeRole('character')"> Personaggio</label>
+                        <select id="compose-char-select" disabled><option value="">— Personaggio —</option></select>
+                        <span id="write-model-ctl" title="Modello usato per la rifinitura (✦ raffina): Cloud=strong+veloce, Locale=privacy ma lento/da-testare">
+                            ✎ Scrittura:
+                            <select id="write-profile-select" onchange="_setWriteProfile(this.value)">
+                                <option value="cloud">Cloud</option>
+                                <option value="local">Locale</option>
+                            </select>
+                            <span id="write-model-label"></span>
+                        </span>
                     </div>
-                    <div id="roster-list" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;min-height:0;"></div>
-                    <div id="add-roster-form" style="display:none;margin-top:6px;gap:6px;align-items:center;flex-wrap:wrap;">
-                        <select id="add-roster-char-sel" style="background:#111827;color:#aab;border:1px solid #2a3a5a;border-radius:6px;padding:4px 8px;font-size:.82em;cursor:pointer;min-width:140px;"><option value="">— Personaggio —</option></select>
-                        <select id="add-roster-role-sel" style="background:#111827;color:#aab;border:1px solid #2a3a5a;border-radius:6px;padding:4px 8px;font-size:.82em;cursor:pointer;">
-                            <option value="participant">participant</option>
-                            <option value="player">player</option>
-                            <option value="narrator">narrator</option>
-                            <option value="npc">npc</option>
-                        </select>
-                        <button id="btn-roster-confirm" onclick="_addToRoster()" style="background:#1a3a1a;color:#8f8;border:1px solid #2a5a2a;border-radius:5px;padding:4px 10px;cursor:pointer;font-size:.78em;">✓</button>
-                        <button id="btn-roster-cancel" onclick="document.getElementById('add-roster-form').style.display='none'" style="background:#1a2a3a;color:#aab;border:1px solid #2a3a5a;border-radius:5px;padding:4px 8px;cursor:pointer;font-size:.78em;">✕</button>
-                        <span id="add-roster-status" style="font-size:.75em;color:#88aaff;"></span>
-                    </div>
-                    <div style="display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap;">
-                        <input id="scene-ctx-hint" placeholder="Intento / hint contestuale (opzionale)..." style="flex:1;min-width:180px;">
-                        <button id="continue-btn" onclick="_smartDraftFromScene()" disabled style="white-space:nowrap;">▶ Genera</button>
-                    </div>
-                    <div id="continue-status" style="font-size:.8em;color:#88aaff;margin-top:6px;min-height:1em;"></div>
-                    <div id="gen-output" class="gen-output"></div>
+                    <textarea id="scene-compose-text" placeholder="Scrivi come narratore o personaggio…"></textarea>
+                    <button id="scene-send-btn" onclick="_sendSceneMessage()">Invia</button>
+                    <div id="scene-compose-status"></div>
                 </div>
-                <!-- FE-3: compose nuovo messaggio → POST /api/db/scenes/<id>/messages -->
-                <div id="scene-compose-area" style="margin-top:14px; padding-top:10px; border-top:1px solid #1a2a3a;">
-                    <div style="font-size:.85em;color:#8899cc;margin-bottom:8px;font-weight:bold;">✏ Nuovo messaggio</div>
-                    <select id="compose-who" style="background:#111827;color:#aab;border:1px solid #2a3a5a;border-radius:6px;padding:6px 10px;font-size:.85em;margin-right:8px;cursor:pointer;"><option value="">— Chi scrive —</option><option value="Narratore">Narratore</option></select>
-                    <input id="compose-author" placeholder="Autore..." style="width:34%;background:#111827;color:#eee;border:1px solid #2a3a5a;border-radius:6px;padding:6px 10px;font-size:.85em;margin-right:8px;">
-                    <textarea id="compose-content" placeholder="Testo del messaggio..." rows="3" style="width:100%;box-sizing:border-box;background:#111827;color:#eee;border:1px solid #2a3a5a;border-radius:6px;padding:8px 10px;font-size:.85em;margin-top:6px;resize:vertical;"></textarea>
-                    <button id="btn-compose-send" onclick="_appendMessage()" style="margin-top:6px;background:#1a3a1a;color:#8f8;border:1px solid #2a5a2a;border-radius:6px;padding:7px 18px;cursor:pointer;font-size:.85em;">Invia</button>
-                    <span id="compose-status" style="font-size:.8em;color:#88aaff;margin-left:10px;"></span>
-                </div>
+                <details style="margin-top:10px"><summary style="cursor:pointer;font-size:.78em;color:#556">Dettagli scena (sommario / primo / ultimo)</summary>
+                <div class="scene-excerpt" id="scene-detail-summary"></div>
+                <div style="font-size:.8em;color:#667;margin-top:8px">Primo messaggio:</div>
+                <div class="scene-excerpt" id="scene-detail-first"></div>
+                <div style="font-size:.8em;color:#667;margin-top:4px">Ultimo messaggio:</div>
+                <div class="scene-excerpt" id="scene-detail-last"></div>
+                </details>
                 <div style="margin-top:14px; padding-top:10px; border-top:1px solid #1a2a3a;">
                     <button id="btn-scene-revive" onclick="_reviveScene()" style="background:#2a2a1e; color:#cc8; border:1px solid #3a3a2a; border-radius:6px; padding:8px 18px; cursor:pointer; font-size:.85em;">🔄 Revive Scene</button>
                     <button id="btn-scene-smartdraft" onclick="_smartDraftFromScene()" style="background:#1a2a4a; color:#aac; border:1px solid #2a3a5a; border-radius:6px; padding:8px 18px; cursor:pointer; font-size:.85em; margin-left:6px;">⚡ Smart Draft</button>
@@ -585,15 +627,12 @@
                 <div style="margin-top:14px; padding-top:10px; border-top:1px solid #1a2a3a;">
                     <div style="font-size:.85em; color:#8899cc; margin-bottom:8px; font-weight:bold;">⚙ Azioni scena</div>
                     <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                        <button id="btn-scene-action-draft" onclick="_sceneAction('draft')" style="background:#16223a; color:#aac; border:1px solid #2a3a5a; border-radius:6px; padding:7px 14px; cursor:pointer; font-size:.82em;">✦ Draft</button>
-                        <button id="btn-scene-action-refine" onclick="_sceneAction('refine')" style="background:#16223a; color:#aac; border:1px solid #2a3a5a; border-radius:6px; padding:7px 14px; cursor:pointer; font-size:.82em;">✎ Refine</button>
-                        <button id="btn-scene-action-translate" onclick="_sceneAction('translate')" style="background:#16223a; color:#aac; border:1px solid #2a3a5a; border-radius:6px; padding:7px 14px; cursor:pointer; font-size:.82em;">⇄ Translate</button>
-                        <button id="btn-scene-action-summarize" onclick="_sceneAction('summarize')" style="background:#16223a; color:#aac; border:1px solid #2a3a5a; border-radius:6px; padding:7px 14px; cursor:pointer; font-size:.82em;">∑ Summarize</button>
-                        <button id="btn-scene-action-lorecheck" onclick="_sceneAction('lorecheck')" style="background:#16223a; color:#aac; border:1px solid #2a3a5a; border-radius:6px; padding:7px 14px; cursor:pointer; font-size:.82em;">⊘ Lore Check</button>
-                        <button onclick="_copyLastMsg()" id="btn-copy-last" style="background:#162216; color:#8f8; border:1px solid #2a5a2a; border-radius:6px; padding:7px 14px; cursor:pointer; font-size:.82em;">📋 Copia ultimo</button>
-                        <button onclick="_copyFullScene()" id="btn-copy-scene" style="background:#162216; color:#8f8; border:1px solid #2a5a2a; border-radius:6px; padding:7px 14px; cursor:pointer; font-size:.82em;">📄 Copia scena</button>
+                        <button onclick="_sceneAction('draft')" style="background:#16223a; color:#aac; border:1px solid #2a3a5a; border-radius:6px; padding:7px 14px; cursor:pointer; font-size:.82em;">✦ Draft</button>
+                        <button onclick="_sceneAction('refine')" style="background:#16223a; color:#aac; border:1px solid #2a3a5a; border-radius:6px; padding:7px 14px; cursor:pointer; font-size:.82em;">✎ Refine</button>
+                        <button onclick="_sceneAction('translate')" style="background:#16223a; color:#aac; border:1px solid #2a3a5a; border-radius:6px; padding:7px 14px; cursor:pointer; font-size:.82em;">⇄ Translate</button>
+                        <button onclick="_sceneAction('summarize')" style="background:#16223a; color:#aac; border:1px solid #2a3a5a; border-radius:6px; padding:7px 14px; cursor:pointer; font-size:.82em;">∑ Summarize</button>
+                        <button onclick="_sceneAction('lorecheck')" style="background:#16223a; color:#aac; border:1px solid #2a3a5a; border-radius:6px; padding:7px 14px; cursor:pointer; font-size:.82em;">⊘ Lore Check</button>
                     </div>
-                    <span id="copy-last-status" style="font-size:.76em;color:#88aaff;margin-top:4px;display:block;min-height:1em;"></span>
                 </div>
             </div>
         </div>
@@ -604,21 +643,7 @@
         <h2>◇ Messaggi recenti</h2>
         <div class="msg-filter-bar">
             <input id="msg-char-filter" placeholder="Filtra per personaggio (es. Aurora)...">
-            <label style="font-size:.82em;color:#8899aa;display:flex;align-items:center;gap:5px;cursor:pointer;">
-                <input type="checkbox" id="msg-discord-only" style="cursor:pointer;"> Solo Discord
-            </label>
             <span id="msg-status" style="font-size:.82em;color:#88aaff;"></span>
-        </div>
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
-            <span style="font-size:.82em;color:#667;">→ Aggiungi a scena:</span>
-            <select id="msg-target-scene" style="background:#111827;color:#aab;border:1px solid #2a3a5a;border-radius:6px;padding:5px 8px;font-size:.82em;cursor:pointer;min-width:160px;">
-                <option value="">— Seleziona scena —</option>
-            </select>
-        </div>
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
-            <button id="btn-discord-import" onclick="_discordImport(false)" style="background:#1a1a3a;color:#88aaff;border:1px solid #2a3a6a;border-radius:6px;padding:5px 12px;cursor:pointer;font-size:.8em;">↓ Importa Discord</button>
-            <button onclick="_discordImport(true)" style="background:#111;color:#556;border:1px solid #222;border-radius:6px;padding:5px 12px;cursor:pointer;font-size:.8em;">↓ Dry-run</button>
-            <span id="discord-import-status" style="font-size:.78em;color:#8899aa;"></span>
         </div>
         <ul id="message-list" class="message-list" data-empty-state="messages"><li style="color:#334;padding:12px">Caricamento messaggi recenti…</li></ul>
     </div>
@@ -626,14 +651,14 @@
     <!-- ── CHARACTERS PANEL (P5a — redesign) ── -->
     <section id="characters-panel" style="display:none; flex-direction:column; padding:24px; height:calc(100vh - 60px); box-sizing:border-box;">
         <h2>☺ Personaggi</h2>
-        <div id="chars-sync-banner" style="display:none;background:#2a1a0a;color:#f9c74f;border:1px solid #5a3a0a;border-radius:6px;padding:8px 14px;margin-bottom:10px;font-size:.85em;align-items:center;gap:12px;flex-wrap:wrap;">
-            <span id="chars-sync-msg">⚠ Personaggi YAML non nel DB</span>
-            <button id="btn-chars-sync" onclick="_importYamlChars()" style="background:#3a2a0a;color:#f9c74f;border:1px solid #5a3a0a;border-radius:5px;padding:4px 12px;cursor:pointer;font-size:.85em;white-space:nowrap;">Importa da YAML</button>
-            <span id="chars-sync-status" style="font-size:.8em;color:#88aaff;"></span>
-        </div>
+            <div id="chars-sync-banner" style="display:none;background:#2a1a0a;color:#f9c74f;border:1px solid #5a3a0a;border-radius:6px;padding:8px 14px;margin-bottom:10px;font-size:.85em;align-items:center;gap:12px;flex-wrap:wrap;">
+                <span id="chars-sync-msg">⚠ Personaggi YAML non nel DB</span>
+                <button id="btn-chars-sync" onclick="_importYamlChars()" style="background:#3a2a0a;color:#f9c74f;border:1px solid #7a5a1a;border-radius:5px;padding:3px 12px;cursor:pointer;font-size:.82em;">Importa da YAML</button>
+                <span id="chars-sync-status" style="font-size:.8em;color:#88aaff;"></span>
+            </div>
         <div style="margin-bottom:12px; display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
             <input id="char-search" placeholder="Filtra per nome, persona, tag..." style="flex:1; min-width:200px; max-width:420px; background:#0d1117; color:#dde; border:1px solid #2a3a5a; border-radius:6px; padding:8px 12px; font-size:.9em; box-sizing:border-box;">
-            <button id="btn-char-create" onclick="createCharacterInline()" style="background:#1a3a1a;color:#8f8;border:1px solid #2a5a2a;border-radius:6px;padding:7px 14px;cursor:pointer;font-size:.84em;white-space:nowrap;">+ Nuovo personaggio</button>
+            <button id="char-new-btn" onclick="_createCharacter()" title="Crea un nuovo personaggio (anche scheda di altro giocatore)" style="background:#1e2f5a; color:#cde; border:1px solid #2a4a7a; border-radius:6px; padding:8px 16px; cursor:pointer; font-size:.88em; white-space:nowrap;">＋ Nuovo personaggio</button>
         </div>
         <div style="display:flex; gap:20px; flex:1; min-height:0;">
             <div id="characters-grid" style="flex:1.4; min-width:0;"></div>
@@ -641,9 +666,30 @@
         </div>
     </section>
 
+    <!-- ── IMPORT DISCORD PANEL (GAP-4) ── -->
+    <section id="import-panel" style="display:none; flex-direction:column; padding:24px; height:calc(100vh - 60px); box-sizing:border-box; overflow-y:auto;">
+        <h2>⇪ Importa storico Discord</h2>
+        <p style="color:#778; font-size:.85em; margin:0 0 12px;">Scansiona una cartella di export DiscordChatExporter (*.json), anteprima per-canale, seleziona i messaggi e importali in una scena.</p>
+        <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:12px;">
+            <input id="import-dir" placeholder="Percorso cartella export (es. /tmp/discord_import/raw)" style="flex:1; min-width:280px; background:#0d1117; color:#dde; border:1px solid #2a3a5a; border-radius:6px; padding:8px 12px; font-size:.88em;">
+            <button onclick="_importScan()" style="background:#1e2f5a; color:#cde; border:1px solid #2a4a7a; border-radius:6px; padding:8px 16px; cursor:pointer; font-size:.88em;">Scansiona</button>
+        </div>
+        <div id="import-files" style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px;"></div>
+        <div id="import-preview-area" style="display:none; flex:1; min-height:0; display:none; flex-direction:column;">
+            <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom:8px;">
+                <input id="import-filter" placeholder="Filtra (autore/testo)…" oninput="_importFilter()" style="flex:1; min-width:200px; background:#0d1117; color:#dde; border:1px solid #2a3a5a; border-radius:6px; padding:6px 10px; font-size:.84em;">
+                <button onclick="_importToggleAll(true)" style="background:#222b3a; color:#cde; border:1px solid #2a3a5a; border-radius:6px; padding:6px 10px; cursor:pointer; font-size:.8em;">Seleziona tutti</button>
+                <button onclick="_importToggleAll(false)" style="background:#222b3a; color:#cde; border:1px solid #2a3a5a; border-radius:6px; padding:6px 10px; cursor:pointer; font-size:.8em;">Nessuno</button>
+                <select id="import-target-scene" style="background:#111827; color:#cde; border:1px solid #2a4a7a; border-radius:6px; padding:6px 10px; font-size:.84em;"><option value="">— Scena destinazione —</option></select>
+                <button id="import-do-btn" onclick="_importSelected()" style="background:#1e4a1e; color:#8f8; border:none; border-radius:6px; padding:7px 16px; cursor:pointer; font-size:.85em;">Importa selezionati</button>
+            </div>
+            <div id="import-status" style="font-size:.82em; color:#88aaff; min-height:1em; margin-bottom:6px;"></div>
+            <div id="import-messages" style="flex:1; overflow-y:auto; border:1px solid #1a2a3a; border-radius:8px; padding:8px; background:#0d1117;"></div>
+        </div>
+    </section>
+
     <!-- ── TRANSLATE PANEL ── -->
     <section id="translate-panel">
-        <div class="gw-down-banner" style="display:none;background:#2a1a1a;color:#f88;border:1px solid #4a2a2a;border-radius:6px;padding:8px 14px;margin-bottom:12px;font-size:.85em;">⚠ Gateway LLM offline — la traduzione AI non è disponibile. <a onclick="showView('dashboard')" style="color:#f88;cursor:pointer;text-decoration:underline;">Vedi Dashboard</a></div>
         <h2>Traduzione Bilingual IT ↔ EN</h2>
         <div class="translate-controls">
             <label><input type="radio" name="translate-direction" value="IT_to_EN" checked> 🇮🇹 → 🇬🇧 IT→EN</label>
@@ -665,7 +711,6 @@
 
     <!-- ── DRAFT PANEL ── -->
     <section id="draft-panel" style="display:none; flex-direction:column; padding:24px; max-width:800px; margin:0 auto; width:100%; height:calc(100vh - 60px); box-sizing:border-box; overflow-y:auto;">
-        <div class="gw-down-banner" style="display:none;background:#2a1a1a;color:#f88;border:1px solid #4a2a2a;border-radius:6px;padding:8px 14px;margin-bottom:12px;font-size:.85em;">⚠ Gateway LLM offline — il Draft non è disponibile. <a onclick="showView('dashboard')" style="color:#f88;cursor:pointer;text-decoration:underline;">Vedi Dashboard</a></div>
         <h2 style="margin:0 0 16px; color:#aac;">✦ Draft — Variant Generator</h2>
         <div style="display:flex; gap:12px; margin-bottom:12px; flex-wrap:wrap;">
             <div style="flex:2; min-width:280px;">
@@ -708,7 +753,6 @@
 
     <!-- ── REFINE PANEL ── -->
     <section id="refine-panel">
-        <div class="gw-down-banner" style="display:none;background:#2a1a1a;color:#f88;border:1px solid #4a2a2a;border-radius:6px;padding:8px 14px;margin-bottom:12px;font-size:.85em;">⚠ Gateway LLM offline — il Refine non è disponibile. <a onclick="showView('dashboard')" style="color:#f88;cursor:pointer;text-decoration:underline;">Vedi Dashboard</a></div>
         <h2>✎ Refine Scene — iterative feedback</h2>
         <div class="refine-row">
             <label for="refine-scene-input">Scena originale (incolla testo o path file):</label>
@@ -737,7 +781,6 @@
 
     <!-- ── SMART DRAFT PANEL (Sprint E — /api/draft) ── -->
     <section id="smartdraft-panel" style="display:none; flex-direction:column; padding:24px; max-width:800px; margin:0 auto; width:100%; height:calc(100vh - 60px); box-sizing:border-box; overflow-y:auto;">
-        <div class="gw-down-banner" style="display:none;background:#2a1a1a;color:#f88;border:1px solid #4a2a2a;border-radius:6px;padding:8px 14px;margin-bottom:12px;font-size:.85em;">⚠ Gateway LLM offline — lo Smart Draft non è disponibile. <a onclick="showView('dashboard')" style="color:#f88;cursor:pointer;text-decoration:underline;">Vedi Dashboard</a></div>
         <h2 style="margin:0 0 16px; color:#aac;">⚡ Smart Draft — Context-Aware Literate Draft</h2>
         <p style="color:#667; font-size:.82em; margin:0 0 12px;">Scrivi il tuo intento in italiano. Calliope carica scene + personaggi + lore e genera un draft letterario in inglese.</p>
         <div style="display:flex; gap:12px; margin-bottom:12px; flex-wrap:wrap;">
@@ -767,17 +810,14 @@
         <div id="sd-context-info" style="display:none; font-size:.8em; color:#667; margin-bottom:8px; padding:6px 10px; background:#0d1117; border-radius:4px;"></div>
         <div id="sd-output" style="display:none; background:#111827; border:1px solid #2a3a5a; border-radius:6px; padding:14px; font-size:.9em; color:#dde; white-space:pre-wrap; line-height:1.6;"></div>
         <div id="sd-lint" style="display:none; font-size:.78em; color:#c90; margin-top:6px;"></div>
-        <div id="sd-actions" style="display:none; margin-top:10px; display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+        <div id="sd-actions" style="display:none; margin-top:10px; display:flex; gap:8px;">
             <button id="btn-sd-copy" style="background:#1a2a4a; color:#aac; border:1px solid #2a3a5a; border-radius:4px; padding:6px 14px; cursor:pointer; font-size:.82em;">📋 Copy</button>
-            <button id="btn-sd-save-scene" style="background:#1a3a1a; color:#8f8; border:1px solid #2a5a2a; border-radius:4px; padding:6px 14px; cursor:pointer; font-size:.82em;">→ Salva in scena</button>
             <button id="btn-sd-lorecheck" style="background:#2a1a1a; color:#c99; border:1px solid #3a2a2a; border-radius:4px; padding:6px 14px; cursor:pointer; font-size:.82em;">⊘ Lore Check</button>
-            <span id="sd-save-status" style="font-size:.78em;color:#88aaff;"></span>
         </div>
     </section>
 
     <!-- ── SUMMARIZE PANEL (Sprint E — /api/summarize) ── -->
     <section id="summarize-panel" style="display:none; flex-direction:column; padding:24px; max-width:800px; margin:0 auto; width:100%; height:calc(100vh - 60px); box-sizing:border-box; overflow-y:auto;">
-        <div class="gw-down-banner" style="display:none;background:#2a1a1a;color:#f88;border:1px solid #4a2a2a;border-radius:6px;padding:8px 14px;margin-bottom:12px;font-size:.85em;">⚠ Gateway LLM offline — il Summarize non è disponibile. <a onclick="showView('dashboard')" style="color:#f88;cursor:pointer;text-decoration:underline;">Vedi Dashboard</a></div>
         <h2 style="margin:0 0 16px; color:#aac;">∑ Summarize — Discord Paste → Key Facts</h2>
         <div style="margin-bottom:12px;">
             <label style="font-size:.85em; color:#889; display:block; margin-bottom:4px;">Incolla testo Discord / scene log</label>
@@ -795,31 +835,51 @@
                 <ul id="sum-facts" style="color:#bbc; font-size:.85em; line-height:1.5; padding-left:20px;"></ul>
             </div>
             <div style="font-size:.78em; color:#556; margin-top:6px;" id="sum-meta"></div>
-            <div id="sum-save-to-scene-area" style="margin-top:12px;display:none;">
-                <button id="btn-sum-save-to-scene" style="background:#1a3a1a;color:#8f8;border:1px solid #2a5a2a;border-radius:6px;padding:7px 16px;cursor:pointer;font-size:.85em;">→ Salva in scena</button>
-                <span id="sum-save-status" style="font-size:.8em;color:#88aaff;margin-left:10px;"></span>
-            </div>
         </div>
     </section>
 
-    <!-- ── LORE KB PANEL (P5c.1b — KB-first, browse/edit 5 categories; semantic search = 2nd step) ── -->
-    <section id="lorekb-panel" style="display:none; flex-direction:column; padding:24px; height:calc(100vh - 60px); box-sizing:border-box; overflow-y:auto;">
-        <div style="display:flex; align-items:center; gap:16px; margin-bottom:12px;">
-            <h2 style="margin:0; color:#aac;">📖 Lore — Knowledge Base</h2>
-            <button id="lorekb-new-btn" style="background:#1e3a6e; color:#fff; border:none; border-radius:6px; padding:8px 14px; cursor:pointer;">+ Nuova voce</button>
+    <!-- ── LORE PANEL (R-CALLIOPE-MC-LORE-SPLIT — two tabs: Personaggi (DB store) vs Eventi & World-Info (LoreEntry)) ── -->
+    <section id="lorekb-panel" style="display:none; flex-direction:column; padding:24px; height:calc(100vh - 60px); box-sizing:border-box;">
+        <!-- Tab bar: clear split between the two distinct stores -->
+        <div id="lore-tabs" style="display:flex; gap:4px; margin-bottom:16px; border-bottom:1px solid #1a2a3a;">
+            <button id="lore-tab-chars" onclick="showLoreTab('chars')"
+                style="background:none; border:none; border-bottom:2px solid #88aaff; color:#cde; padding:10px 18px; cursor:pointer; font-size:.95em;">☺ Personaggi</button>
+            <button id="lore-tab-events" onclick="showLoreTab('events')"
+                style="background:none; border:none; border-bottom:2px solid transparent; color:#8899aa; padding:10px 18px; cursor:pointer; font-size:.95em;">📖 Eventi &amp; World-Info</button>
         </div>
-        <div id="lorekb-categories" style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px;"></div>
-        <div style="display:flex; gap:20px; flex:1; min-height:0;">
-            <div id="lorekb-entries" style="flex:1; min-width:0; overflow-y:auto;"></div>
-            <div id="lorekb-detail" style="flex:1.3; min-width:0; overflow-y:auto; background:#0d1117; border:1px solid #1a2a3a; border-radius:8px; padding:16px; color:#8899aa;">← Seleziona una voce o creane una nuova</div>
-        </div>
-        <div style="margin-top:14px; border-top:1px solid #1a2a3a; padding-top:10px;">
-            <div style="font-size:.85em; color:#88aaff; margin-bottom:8px; font-weight:bold;">🔍 Ricerca semantica</div>
-            <div style="display:flex; gap:8px;">
-                <input id="lorekb-search-input" placeholder="Cerca nei dataset / messaggi scraped..." style="flex:1; background:#0d1117; color:#dde; border:1px solid #2a3a5a; border-radius:6px; padding:8px;">
-                <button id="lorekb-search-btn" style="background:#1e3a6e; color:#fff; border:none; border-radius:6px; padding:8px 16px; cursor:pointer;">Cerca</button>
+
+        <!-- ── PERSONAGGI sub-view — reads the DB `characters` store (same as chat) ── -->
+        <div id="lore-chars-view" style="display:flex; flex-direction:column; flex:1; min-height:0;">
+            <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">
+                <span style="color:#8899aa; font-size:.85em;">Schede dal DB <code style="color:#88aaff;">characters</code> (stessa fonte della chat). Sempre iniettati i char attivi in scena.</span>
+                <input id="lore-chars-search" placeholder="Filtra per nome, descrizione, tag…" style="margin-left:auto; flex:0 1 280px; background:#0d1117; color:#dde; border:1px solid #2a3a5a; border-radius:6px; padding:8px;">
             </div>
-            <div id="lorekb-search-results" style="margin-top:10px;"></div>
+            <div style="display:flex; gap:20px; flex:1; min-height:0;">
+                <div id="lore-chars-grid" style="flex:1.4; min-width:0;"></div>
+                <div id="lore-chars-detail" style="flex:1; min-width:0; overflow-y:auto; background:#0d1117; border:1px solid #1a2a3a; border-radius:8px; padding:16px; color:#8899aa;">← Seleziona un personaggio</div>
+            </div>
+        </div>
+
+        <!-- ── EVENTI & WORLD-INFO sub-view — key-triggered LoreEntry (lore_kb) ── -->
+        <div id="lore-events-view" style="display:none; flex-direction:column; flex:1; min-height:0;">
+            <div style="display:flex; align-items:center; gap:16px; margin-bottom:12px;">
+                <h2 style="margin:0; color:#aac; font-size:1.1em;">📖 Eventi &amp; World-Info</h2>
+                <span style="color:#8899aa; font-size:.82em;">Voci key-triggered: mondo, luoghi, meccaniche, eventi.</span>
+                <button id="lorekb-new-btn" style="margin-left:auto; background:#1e3a6e; color:#fff; border:none; border-radius:6px; padding:8px 14px; cursor:pointer;">+ Nuova voce</button>
+            </div>
+            <div id="lorekb-categories" style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px;"></div>
+            <div style="display:flex; gap:20px; flex:1; min-height:0;">
+                <div id="lorekb-entries" style="flex:1; min-width:0; overflow-y:auto;"></div>
+                <div id="lorekb-detail" style="flex:1.3; min-width:0; overflow-y:auto; background:#0d1117; border:1px solid #1a2a3a; border-radius:8px; padding:16px; color:#8899aa;">← Seleziona una voce o creane una nuova</div>
+            </div>
+            <details style="margin-top:14px; border-top:1px solid #1a2a3a; padding-top:10px;">
+                <summary style="cursor:pointer; color:#88aaff; font-size:.9em;">🔍 Ricerca semantica profonda (2° passo — dataset/messaggi)</summary>
+                <div style="display:flex; gap:8px; margin-top:10px;">
+                    <input id="lorekb-search-input" placeholder="Cerca nei dataset / messaggi scraped..." style="flex:1; background:#0d1117; color:#dde; border:1px solid #2a3a5a; border-radius:6px; padding:8px;">
+                    <button id="lorekb-search-btn" style="background:#1e3a6e; color:#fff; border:none; border-radius:6px; padding:8px 16px; cursor:pointer;">Cerca</button>
+                </div>
+                <div id="lorekb-search-results" style="margin-top:10px;"></div>
+            </details>
         </div>
     </section>
 
@@ -836,7 +896,6 @@
 
     <!-- ── LORE CHECK PANEL (Sprint E — /api/lore/check) ── -->
     <section id="lorecheck-panel" style="display:none; flex-direction:column; padding:24px; max-width:800px; margin:0 auto; width:100%; height:calc(100vh - 60px); box-sizing:border-box; overflow-y:auto;">
-        <div class="gw-down-banner" style="display:none;background:#2a1a1a;color:#f88;border:1px solid #4a2a2a;border-radius:6px;padding:8px 14px;margin-bottom:12px;font-size:.85em;">⚠ Gateway LLM offline — il Lore Check non è disponibile. <a onclick="showView('dashboard')" style="color:#f88;cursor:pointer;text-decoration:underline;">Vedi Dashboard</a></div>
         <h2 style="margin:0 0 16px; color:#aac;">⊘ Lore Check — Coherence Gate</h2>
         <p style="color:#667; font-size:.82em; margin:0 0 12px;">Verifica che un testo draft sia coerente con il lore del mondo. ChromaDB cerca frammenti rilevanti, LLM controlla contraddizioni.</p>
         <div style="margin-bottom:12px;">
@@ -865,17 +924,6 @@
     <div id="arc-panel">
         <div id="arc-list-col">
             <h3>◈ Plot Arcs</h3>
-            <button id="btn-arc-new" onclick="_arcNewInline()" style="width:100%;background:#1a3a1a;color:#8f8;border:1px solid #2a5a2a;border-radius:6px;padding:6px 10px;cursor:pointer;font-size:.8em;margin-bottom:8px;">+ Nuovo arco</button>
-            <div id="arc-new-form" style="display:none;margin-bottom:10px;">
-                <input id="arc-new-id" placeholder="ID (es. arc_001)" style="width:100%;box-sizing:border-box;background:#111827;color:#eee;border:1px solid #2a3a5a;border-radius:6px;padding:5px 8px;font-size:.82em;margin-bottom:5px;">
-                <input id="arc-new-title" placeholder="Titolo" style="width:100%;box-sizing:border-box;background:#111827;color:#eee;border:1px solid #2a3a5a;border-radius:6px;padding:5px 8px;font-size:.82em;margin-bottom:5px;">
-                <input id="arc-new-chars" placeholder="Personaggi (Aurora,Philly,...)" style="width:100%;box-sizing:border-box;background:#111827;color:#eee;border:1px solid #2a3a5a;border-radius:6px;padding:5px 8px;font-size:.82em;margin-bottom:5px;">
-                <div style="display:flex;gap:5px;">
-                    <button id="btn-arc-submit-new" onclick="_arcSubmitNew()" style="flex:1;background:#1a3a1a;color:#8f8;border:1px solid #2a5a2a;border-radius:5px;padding:5px 8px;cursor:pointer;font-size:.78em;">✓ Crea</button>
-                    <button id="btn-arc-cancel-new" onclick="_arcCancelNew()" style="flex:1;background:#1a2a3a;color:#aab;border:1px solid #2a3a5a;border-radius:5px;padding:5px 8px;cursor:pointer;font-size:.78em;">✕</button>
-                </div>
-                <div id="arc-new-status" style="font-size:.75em;color:#88aaff;min-height:1em;margin-top:4px;"></div>
-            </div>
             <ul id="arc-ul" data-empty-state="arc"><li style="color:#555">Caricamento...</li></ul>
         </div>
         <div id="arc-detail-col">
@@ -903,45 +951,6 @@
             </div>
         </div>
     </div>
-
-    <!-- ── TOOLS PANEL (SPEC-1 — palette tool scrittura ≤2 click) ── -->
-    <section id="tools-panel" style="display:none; flex-direction:column; padding:24px; height:calc(100vh - 60px); box-sizing:border-box; overflow-y:auto;">
-        <div class="gw-down-banner" style="display:none;background:#2a1a1a;color:#f88;border:1px solid #4a2a2a;border-radius:6px;padding:8px 14px;margin-bottom:16px;font-size:.85em;">⚠ Gateway LLM offline — i tool AI non sono disponibili. <a onclick="showView('dashboard')" style="color:#f88;cursor:pointer;text-decoration:underline;">Vedi Dashboard</a></div>
-        <h2 style="margin:0 0 6px; color:#aac;">✦ Strumenti di scrittura</h2>
-        <p style="color:#556; font-size:.82em; margin:0 0 20px;">Seleziona un tool di scrittura. Tutti richiedono gateway LLM attivo.</p>
-        <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:16px;">
-            <div onclick="showView('draft')" class="tool-card" style="background:#111827;border:1px solid #2a3a5a;border-radius:10px;padding:18px;cursor:pointer;transition:border-color .2s;" onmouseenter="this.style.borderColor='#4a6aaa'" onmouseleave="this.style.borderColor='#2a3a5a'">
-                <div style="font-size:1.4em; margin-bottom:8px;">✦</div>
-                <div style="font-weight:bold; color:#aac; margin-bottom:4px;">Draft</div>
-                <div style="font-size:.8em; color:#556;">Genera varianti di testo RP da un prompt. Blending multi-variante.</div>
-            </div>
-            <div onclick="showView('smartdraft')" class="tool-card" style="background:#111827;border:1px solid #2a3a5a;border-radius:10px;padding:18px;cursor:pointer;transition:border-color .2s;" onmouseenter="this.style.borderColor='#4a6aaa'" onmouseleave="this.style.borderColor='#2a3a5a'">
-                <div style="font-size:1.4em; margin-bottom:8px;">⚡</div>
-                <div style="font-weight:bold; color:#aac; margin-bottom:4px;">Smart Draft</div>
-                <div style="font-size:.8em; color:#556;">Draft context-aware con scene + personaggio + lore. Intento in italiano.</div>
-            </div>
-            <div onclick="showView('translate')" class="tool-card" style="background:#111827;border:1px solid #2a3a5a;border-radius:10px;padding:18px;cursor:pointer;transition:border-color .2s;" onmouseenter="this.style.borderColor='#4a6aaa'" onmouseleave="this.style.borderColor='#2a3a5a'">
-                <div style="font-size:1.4em; margin-bottom:8px;">⇄</div>
-                <div style="font-weight:bold; color:#aac; margin-bottom:4px;">Traduzione</div>
-                <div style="font-size:.8em; color:#556;">Traduzione bilingual IT↔EN letteraria di alta qualità.</div>
-            </div>
-            <div onclick="showView('refine')" class="tool-card" style="background:#111827;border:1px solid #2a3a5a;border-radius:10px;padding:18px;cursor:pointer;transition:border-color .2s;" onmouseenter="this.style.borderColor='#4a6aaa'" onmouseleave="this.style.borderColor='#2a3a5a'">
-                <div style="font-size:1.4em; margin-bottom:8px;">✎</div>
-                <div style="font-weight:bold; color:#aac; margin-bottom:4px;">Refine</div>
-                <div style="font-size:.8em; color:#556;">Revisione iterativa della scena con feedback in linguaggio naturale.</div>
-            </div>
-            <div onclick="showView('summarize')" class="tool-card" style="background:#111827;border:1px solid #2a3a5a;border-radius:10px;padding:18px;cursor:pointer;transition:border-color .2s;" onmouseenter="this.style.borderColor='#4a6aaa'" onmouseleave="this.style.borderColor='#2a3a5a'">
-                <div style="font-size:1.4em; margin-bottom:8px;">∑</div>
-                <div style="font-weight:bold; color:#aac; margin-bottom:4px;">Summarize</div>
-                <div style="font-size:.8em; color:#556;">Riassunto Discord paste → key facts strutturati.</div>
-            </div>
-            <div onclick="showView('lorecheck')" class="tool-card" style="background:#111827;border:1px solid #2a3a5a;border-radius:10px;padding:18px;cursor:pointer;transition:border-color .2s;" onmouseenter="this.style.borderColor='#4a6aaa'" onmouseleave="this.style.borderColor='#2a3a5a'">
-                <div style="font-size:1.4em; margin-bottom:8px;">⊘</div>
-                <div style="font-weight:bold; color:#aac; margin-bottom:4px;">Lore Check</div>
-                <div style="font-size:.8em; color:#556;">Verifica coerenza lore di un draft via ChromaDB + LLM.</div>
-            </div>
-        </div>
-    </section>
 
     <script>
         window.MASCOT_WS_URL = "{{ MASCOT_WS_URL }}";
@@ -1038,119 +1047,68 @@
         }
 
         // ── View routing ──
-        const _ALL_PANELS = ['dashboard','main','characters','scenes','messages','translate','draft','refine','arc','smartdraft','summarize','lorekb','loresearch','lorecheck','tools'];
-        const _NAV_PARENT = {draft:'scenes', refine:'scenes', smartdraft:'scenes', summarize:'scenes', translate:'scenes', loresearch:'lorekb', lorecheck:'lorekb'};
+        const _ALL_PANELS = ['dashboard','main','characters','scenes','messages','translate','draft','refine','arc','smartdraft','summarize','lorekb','loresearch','lorecheck','import', 'tools'];
         function showView(view) {
+            // 'home' is the nav label for the 'main' panel (#main-view: scene shell
+            // + mascot sidebar). Without this alias, showView('home') matches no
+            // panel and hides EVERYTHING — the Home renders blank (mascot included).
+            const panelKey = (view === 'home') ? 'main' : view;
             _ALL_PANELS.forEach(v => {
                 const el = document.getElementById(v === 'main' ? 'main-view' : v + '-panel');
-                const nav = document.getElementById('nav-' + v);
-                if (el) el.style.display = (v === view) ? 'flex' : 'none';
-                if (nav) nav.classList.toggle('active', v === view);
+                if (el) el.style.display = (v === panelKey) ? 'flex' : 'none';
             });
-            const parentKey = _NAV_PARENT[view];
-            if (parentKey) { const pn = document.getElementById('nav-' + parentKey); if (pn) pn.classList.add('active'); }
-            if (view === 'arc') loadArcList();
-            if (view === 'scenes') _loadScenes();
-            if (view === 'dashboard') { loadDashboardSnapshot(); _loadRecentScenes(); _loadRecentDiscordMsgs(); }
-            if (view === 'smartdraft') _loadCharDropdown();
-            if (view === 'characters') loadCharactersPanel();
-            if (view === 'lorekb') loadLoreKB();
-            if (view === 'messages') { loadRecentMessages(); _loadMsgTargetScene(); }
-            if (['draft','translate','refine','smartdraft','summarize','lorecheck','tools'].includes(view)) _checkGatewayBanner();
+            // Nav highlight by the clicked label (nav-home maps to the 'main' panel).
+            document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
+            const navEl = document.getElementById('nav-' + view);
+            if (navEl) navEl.classList.add('active');
+            if (panelKey === 'arc') loadArcList();
+            if (panelKey === 'scenes') _loadScenes();
+            if (panelKey === 'dashboard') loadDashboardSnapshot();
+            if (panelKey === 'smartdraft') _loadCharDropdown();
+            if (panelKey === 'characters') loadCharactersPanel();
+            if (panelKey === 'lorekb') showLoreTab(_loreActiveTab);
+            if (panelKey === 'messages') loadRecentMessages();
+            if (['draft','translate','refine','smartdraft','summarize','lorecheck','tools'].includes(panelKey)) _checkGatewayBanner();
+        }
+
+        // Lore split (R-CALLIOPE-MC-LORE-SPLIT): two distinct stores in one panel.
+        //  - 'chars'  → DB `characters` (same source as the chat) via loadLoreCharacters()
+        //  - 'events' → key-triggered LoreEntry via loadLoreKB()
+        let _loreActiveTab = 'chars';
+        function showLoreTab(tab) {
+            _loreActiveTab = (tab === 'events') ? 'events' : 'chars';
+            const charsView = document.getElementById('lore-chars-view');
+            const eventsView = document.getElementById('lore-events-view');
+            const charsTab = document.getElementById('lore-tab-chars');
+            const eventsTab = document.getElementById('lore-tab-events');
+            const isChars = _loreActiveTab === 'chars';
+            if (charsView) charsView.style.display = isChars ? 'flex' : 'none';
+            if (eventsView) eventsView.style.display = isChars ? 'none' : 'flex';
+            if (charsTab) {
+                charsTab.style.borderBottomColor = isChars ? '#88aaff' : 'transparent';
+                charsTab.style.color = isChars ? '#cde' : '#8899aa';
+            }
+            if (eventsTab) {
+                eventsTab.style.borderBottomColor = isChars ? 'transparent' : '#88aaff';
+                eventsTab.style.color = isChars ? '#8899aa' : '#cde';
+            }
+            if (isChars) {
+                if (window.loadLoreCharacters) loadLoreCharacters();
+            } else if (window.loadLoreKB) {
+                loadLoreKB();
+            }
         }
 
         // nav-messages ricablato al DB (WI-NAVMSG-1, post-import): mostra i recent-messages reali.
-        async function _loadMsgTargetScene() {
-            const sel = document.getElementById('msg-target-scene');
-            if (!sel) return;
-            try {
-                const r = await fetch('/api/db/scenes');
-                const d = await r.json();
-                sel.innerHTML = '<option value="">— Seleziona scena —</option>';
-                (d.scenes || []).forEach(s => {
-                    const opt = document.createElement('option');
-                    opt.value = s.id;
-                    opt.textContent = (s.title || s.id).slice(0, 48);
-                    sel.appendChild(opt);
-                });
-            } catch(_) {}
-        }
-
-        // SPEC-4: banner gateway DOWN nei pannelli AI. Cache 30s per evitare flood.
-        let _gwUp = null, _gwCheckTs = 0;
-        async function _checkGatewayBanner() {
-            const now = Date.now();
-            if (_gwUp === null || now - _gwCheckTs > 30000) {
-                try {
-                    const r = await fetch('/api/dashboard/snapshot');
-                    const d = await r.json();
-                    _gwUp = !!(d.daemons && d.daemons.llm_gateway && d.daemons.llm_gateway.up);
-                } catch (_) { _gwUp = false; }
-                _gwCheckTs = now;
-            }
-            const show = _gwUp ? 'none' : 'flex';
-            document.querySelectorAll('.gw-down-banner').forEach(el => el.style.display = show);
-        }
-
-        // SPEC-2: importa chars YAML → DB
-        async function _importYamlChars() {
-            const statusEl = document.getElementById('chars-sync-status');
-            const btn = document.getElementById('btn-chars-sync');
-            if (statusEl) statusEl.textContent = 'Import in corso…';
-            if (btn) btn.disabled = true;
-            try {
-                const r = await fetch('/api/db/characters/sync-yaml', {method: 'POST'});
-                const d = await r.json();
-                if (statusEl) statusEl.textContent = `✓ ${d.created} importati`;
-                if (d.created > 0) {
-                    _gwUp = null; // reset cache
-                    if (window.loadCharactersPanel) loadCharactersPanel();
-                }
-            } catch(e) {
-                if (statusEl) statusEl.textContent = '✗ ' + e.message;
-            } finally {
-                if (btn) btn.disabled = false;
-            }
-        }
-
-        async function _appendMsgToScene(author, content) {
-            const sel = document.getElementById('msg-target-scene');
-            const statusEl = document.getElementById('msg-status');
-            const sceneId = sel && sel.value;
-            if (!sceneId) { if (statusEl) statusEl.textContent = '⚠ Seleziona una scena.'; return; }
-            try {
-                const r = await fetch('/api/db/scenes/' + encodeURIComponent(sceneId) + '/messages', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({author_name: author, content_original: content}),
-                });
-                if (statusEl) statusEl.textContent = r.ok ? '✓ Aggiunto' : '✗ Errore ' + r.status;
-            } catch(e) {
-                if (statusEl) statusEl.textContent = '✗ ' + e.message;
-            }
-        }
-
-        function _msgToCharPanel(authorName) {
-            showView('characters');
-            const searchEl = document.getElementById('char-search');
-            if (searchEl && authorName) {
-                searchEl.value = authorName;
-                searchEl.dispatchEvent(new Event('input'));
-            }
-        }
-
         async function loadRecentMessages() {
             const ul = document.getElementById('message-list');
             const charEl = document.getElementById('msg-char-filter');
-            const discordEl = document.getElementById('msg-discord-only');
             const statusEl = document.getElementById('msg-status');
             const char = (charEl && charEl.value.trim()) || '';
-            const discordOnly = discordEl && discordEl.checked;
             if (statusEl) statusEl.textContent = 'Caricamento…';
             try {
                 let url = '/api/db/messages/recent?limit=50';
                 if (char) url += '&char=' + encodeURIComponent(char);
-                if (discordOnly) url += '&source=discord';
                 const r = await fetch(url);
                 const data = await r.json();
                 const msgs = (data && data.messages) || [];
@@ -1160,22 +1118,12 @@
                     if (statusEl) statusEl.textContent = '';
                     return;
                 }
-                ul.innerHTML = msgs.map((m, idx) => {
-                    const srcBadge = (m.source === 'discord') ? '<span style="font-size:.7em;color:#7788cc;margin-left:5px">discord</span>' : '';
-                    const esc = (s) => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;');
-                    const encA = encodeURIComponent(m.author_name || '');
-                    const encC = encodeURIComponent(m.content_original || '');
-                    return '<li style="padding:8px 12px;background:#0d1117;border:1px solid #1a2a3a;border-radius:6px;display:flex;gap:8px;align-items:flex-start;">' +
-                        '<div style="flex:1;min-width:0;">' +
-                        '<b style="color:#88aaff">' + esc(m.author_name) + '</b>' + srcBadge +
-                        ' <span style="color:#566;font-size:.78em">' + esc(m.ts) + '</span><br>' +
-                        '<span style="color:#cdd">' + esc(m.content_original) + '</span></div>' +
-                        '<button id="msg-to-scene-' + idx + '" onclick="_appendMsgToScene(decodeURIComponent(\'' + encA + '\'),decodeURIComponent(\'' + encC + '\'))" ' +
-                        'style="flex-shrink:0;background:#1a2a4a;color:#aac;border:1px solid #2a3a5a;border-radius:5px;padding:4px 8px;cursor:pointer;font-size:.75em;white-space:nowrap">→ Scena</button>' +
-                        '<button id="msg-to-char-' + idx + '" onclick="_msgToCharPanel(decodeURIComponent(\'' + encA + '\'))" ' +
-                        'style="flex-shrink:0;background:#1a2a1a;color:#8f8;border:1px solid #2a5a2a;border-radius:5px;padding:4px 8px;cursor:pointer;font-size:.75em;white-space:nowrap">→ Personaggio</button>' +
-                        '</li>';
-                }).join('');
+                ul.innerHTML = msgs.map(m =>
+                    '<li style="padding:8px 12px;background:#0d1117;border:1px solid #1a2a3a;border-radius:6px">' +
+                    '<b style="color:#88aaff">' + (m.author_name || '—') + '</b> ' +
+                    '<span style="color:#566;font-size:.78em">' + (m.ts || '') + '</span><br>' +
+                    '<span style="color:#cdd">' + (m.content_original || '').replace(/</g, '&lt;') + '</span></li>'
+                ).join('');
                 if (statusEl) statusEl.textContent = msgs.length + ' messaggi';
             } catch (e) {
                 if (statusEl) statusEl.textContent = 'Errore caricamento';
@@ -1183,35 +1131,8 @@
         }
         document.addEventListener('DOMContentLoaded', function() {
             const f = document.getElementById('msg-char-filter');
-            if (f) { f.addEventListener('input', loadRecentMessages); f.addEventListener('change', loadRecentMessages); }
-            const d = document.getElementById('msg-discord-only');
-            if (d) d.addEventListener('change', loadRecentMessages);
+            if (f) f.addEventListener('change', loadRecentMessages);
         });
-
-        async function _discordImport(dryRun) {
-            const statusEl = document.getElementById('discord-import-status');
-            const btn = document.getElementById('btn-discord-import');
-            if (statusEl) statusEl.textContent = '…importazione in corso…';
-            if (btn) btn.disabled = true;
-            try {
-                const r = await fetch('/api/discord/import', {
-                    method: 'POST', headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({dry_run: dryRun}),
-                });
-                const d = await r.json();
-                if (r.ok) {
-                    const s = d.stats || {};
-                    const msg = `${dryRun ? '[dry-run] ' : ''}inseriti=${s.inserted||0} skip-dedup=${s.skipped_dedup||0} skip-tag=${s.skipped_tag||0} errori=${s.errors||0}`;
-                    if (statusEl) statusEl.textContent = '✓ ' + msg;
-                    if (!dryRun) loadRecentMessages();
-                } else {
-                    if (statusEl) statusEl.textContent = '✗ ' + (d.error || r.status);
-                }
-            } catch(e) {
-                if (statusEl) statusEl.textContent = '✗ ' + e.message;
-            }
-            if (btn) btn.disabled = false;
-        }
 
         // Scene/Messages panel JS → /static/js/scenes.js (FE-0 estratto 2026-06-11)
         // ── Draft / Variant handler ──
@@ -1571,54 +1492,6 @@
             }, 30000);
         });
 
-        async function _loadRecentDiscordMsgs() {
-            const ul = document.getElementById('dash-recent-discord-list');
-            if (!ul) return;
-            ul.innerHTML = '<li style="color:#334;font-size:.82em;padding:4px 0">Caricamento…</li>';
-            try {
-                const resp = await fetch('/api/db/messages/recent?source=discord&limit=5');
-                const data = await resp.json();
-                const msgs = (data.messages || []);
-                if (!msgs.length) {
-                    ul.innerHTML = '<li style="color:#334;font-size:.82em;padding:4px 0">Nessun messaggio Discord importato</li>';
-                    return;
-                }
-                const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;');
-                ul.innerHTML = msgs.map(m =>
-                    `<li style="padding:5px 0;border-bottom:1px solid #1a2440;font-size:.82em;">` +
-                    `<span style="color:#7788cc;font-weight:bold">${esc(m.author_name)}</span>` +
-                    ` <span style="color:#445;font-size:.78em">${esc((m.ts||'').slice(0,16))}</span><br>` +
-                    `<span style="color:#889;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block;max-width:100%">${esc((m.content_original||'').slice(0,80))}</span></li>`
-                ).join('');
-            } catch(e) {
-                ul.innerHTML = `<li style="color:#f66;font-size:.82em">✗ ${e.message}</li>`;
-            }
-        }
-
-        async function _loadRecentScenes() {
-            const ul = document.getElementById('dash-recent-scenes-list');
-            if (!ul) return;
-            ul.innerHTML = '<li style="color:#334;font-size:.82em;padding:4px 0">Caricamento…</li>';
-            try {
-                const resp = await fetch('/api/db/scenes');
-                const data = await resp.json();
-                const scenes = (data.scenes || []).filter(s => (s.message_count || 0) > 0).slice(0, 6);
-                if (!scenes.length) {
-                    ul.innerHTML = '<li style="color:#334;font-size:.82em;padding:4px 0">Nessuna scena con messaggi</li>';
-                    return;
-                }
-                ul.innerHTML = scenes.map(s => {
-                    const col = s.is_readonly ? '#556' : '#4c8';
-                    const cnt = s.message_count != null ? ` <span style="color:#445;font-size:.78em">· ${s.message_count} msg</span>` : '';
-                    return `<li onclick="showView('scenes');_loadSceneDetail('${s.id}')" style="padding:5px 0;border-bottom:1px solid #1a2440;cursor:pointer;display:flex;align-items:center;gap:6px;">
-                        <span style="width:7px;height:7px;border-radius:50%;background:${col};flex-shrink:0;display:inline-block;"></span>
-                        <span style="font-size:.83em;color:#ccd;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${s.title || s.id}</span>${cnt}</li>`;
-                }).join('');
-            } catch(e) {
-                ul.innerHTML = `<li style="color:#f66;font-size:.82em">✗ ${e.message}</li>`;
-            }
-        }
-
         function _startDashSnapshotPoll() {
             if (_dashSnapshotTimer) clearInterval(_dashSnapshotTimer);
             _dashSnapshotTimer = setInterval(() => {
@@ -1635,37 +1508,6 @@
 
         // ── Arc panel logic ──
         let _currentArcId = null;
-
-        function _arcNewInline() {
-            document.getElementById('arc-new-form').style.display = 'block';
-            document.getElementById('arc-new-id').focus();
-        }
-        function _arcCancelNew() {
-            document.getElementById('arc-new-form').style.display = 'none';
-            ['arc-new-id','arc-new-title','arc-new-chars'].forEach(id => { const el = document.getElementById(id); if(el) el.value=''; });
-            document.getElementById('arc-new-status').textContent = '';
-        }
-        async function _arcSubmitNew() {
-            const arcId = (document.getElementById('arc-new-id').value||'').trim();
-            const title = (document.getElementById('arc-new-title').value||'').trim();
-            const charsRaw = (document.getElementById('arc-new-chars').value||'').trim();
-            const statusEl = document.getElementById('arc-new-status');
-            if (!arcId || !title) { statusEl.textContent = '⚠ ID e titolo obbligatori.'; return; }
-            const chars = charsRaw ? charsRaw.split(',').map(c=>c.trim()).filter(Boolean) : [];
-            statusEl.textContent = 'Creazione…';
-            try {
-                const r = await fetch('/api/arc', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({arc_id: arcId, title, chars}),
-                });
-                const d = await r.json();
-                if (!r.ok) { statusEl.textContent = '✗ ' + (d.error || r.status); return; }
-                _arcCancelNew();
-                await loadArcList();
-                loadArcDetail(arcId);
-            } catch(e) { statusEl.textContent = '✗ ' + e.message; }
-        }
 
         async function loadArcList() {
             const ul = document.getElementById('arc-ul');
@@ -1811,29 +1653,6 @@
             navigator.clipboard.writeText(text).then(() => { this.textContent = '✓ Copied!'; setTimeout(() => { this.textContent = '📋 Copy'; }, 1500); });
         });
 
-        // Salva draft in scena
-        const saveSceneBtn = document.getElementById('btn-sd-save-scene');
-        if (saveSceneBtn) saveSceneBtn.addEventListener('click', async function() {
-            const sceneId = (document.getElementById('sd-scene-id').value || '').trim();
-            const statusEl = document.getElementById('sd-save-status');
-            if (!sceneId) { if (statusEl) statusEl.textContent = '⚠ Imposta Scene ID prima'; return; }
-            const text = document.getElementById('sd-output').textContent;
-            if (!text) return;
-            const charSel = document.getElementById('sd-char-focus');
-            const authorName = (charSel && charSel.value) ? charSel.options[charSel.selectedIndex].textContent : 'Calliope';
-            if (statusEl) statusEl.textContent = 'Salvataggio…';
-            try {
-                const r = await fetch('/api/db/scenes/' + encodeURIComponent(sceneId) + '/messages', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({author_name: authorName, content_original: text, content_enhanced: text}),
-                });
-                if (statusEl) statusEl.textContent = r.ok ? '✓ Salvato in scena' : '✗ Errore ' + r.status;
-            } catch(e) {
-                if (statusEl) statusEl.textContent = '✗ ' + e.message;
-            }
-        });
-
         // Lore check from smart draft
         const lcFromDraft = document.getElementById('btn-sd-lorecheck');
         if (lcFromDraft) lcFromDraft.addEventListener('click', function() {
@@ -1847,7 +1666,7 @@
 
         // ── Char dropdown loader (Smart Draft) ──
         let _charDropdownLoaded = false;
-        window._loadCharDropdown = async function() {
+        async function _loadCharDropdown() {
             if (_charDropdownLoaded) return;
             const sel = document.getElementById('sd-char-focus');
             try {
@@ -1861,7 +1680,7 @@
                     _charDropdownLoaded = true;
                 }
             } catch(e) { /* non-fatal */ }
-        };
+        }
 
         // ── Scene Revive (from scene detail) ──
         window._reviveScene = async function() {
@@ -1895,10 +1714,6 @@
                     text += '\n--- Lore References ---\n';
                     data.lore_refs.forEach(l => { text += `• ${l.slice(0,150)}\n`; });
                 }
-                if (data.recent_messages && data.recent_messages.length) {
-                    text += '\n--- Ultimi scambi (ChromaDB) ---\n';
-                    data.recent_messages.forEach(m => { text += `• ${m.slice(0,200)}\n`; });
-                }
                 output.textContent = text;
                 output.style.display = 'block';
                 status.textContent = '✓ Scene revived — context loaded.';
@@ -1913,8 +1728,6 @@
             if (sceneId) document.getElementById('sd-scene-id').value = sceneId;
             const charSel = document.getElementById('scene-char-select');
             if (charSel && charSel.value) document.getElementById('sd-char-focus').value = charSel.value;
-            const hintEl = document.getElementById('scene-ctx-hint');
-            if (hintEl && hintEl.value.trim()) document.getElementById('sd-intent').value = hintEl.value.trim();
             showView('smartdraft');
         };
 
@@ -1923,113 +1736,14 @@
         window._sceneAction = function(tool) {
             const sceneId = window._currentSceneId;
             if (!sceneId) return;
-            const msgs = window._currentSceneMessages || [];
-            const sceneText = msgs.map(m => (m.author_name || '?') + ': ' + (m.content_original || '')).join('\n\n');
-            const lastMsg = msgs.length ? (msgs[msgs.length - 1].content_original || '') : '';
+            const scene = (_allScenes || []).find(s => s.scene_id === sceneId) || {};
+            const sceneText = [scene.summary, scene.first_msg_excerpt, scene.last_msg_excerpt]
+                .filter(Boolean).join('\n\n');
             const setVal = (id, v) => { const el = document.getElementById(id); if (el && v != null) el.value = v; };
-            if (tool === 'draft') { setVal('draft-prompt', lastMsg || sceneText); showView(tool); return; }
-            if (tool === 'refine') { setVal('refine-scene-input', lastMsg || sceneText); showView(tool); return; }
-            if (tool === 'translate') { setVal('translate-input', lastMsg || sceneText); showView(tool); return; }
-            if (tool === 'lorecheck') { setVal('lc-text', lastMsg || ''); setVal('lc-scene-id', sceneId); showView(tool); return; }
-            if (tool === 'summarize') { _sceneInlineSummarize(sceneId, sceneText); return; }
+            if (tool === 'refine') setVal('refine-scene-input', scene.last_msg_excerpt || sceneText);
+            if (tool === 'summarize') setVal('sum-text', sceneText);
+            if (tool === 'lorecheck') { setVal('lc-text', scene.last_msg_excerpt || ''); setVal('lc-scene-id', sceneId); }
             showView(tool);
-        };
-
-        async function _sceneInlineSummarize(sceneId, sceneText) {
-            let area = document.getElementById('scene-inline-summarize');
-            if (!area) {
-                area = document.createElement('div');
-                area.id = 'scene-inline-summarize';
-                area.style.cssText = 'margin-top:12px;padding:12px;background:#0d1117;border:1px solid #2a3a5a;border-radius:8px;';
-                const detail = document.getElementById('scene-detail-inner') || document.querySelector('#scene-detail .scene-detail-body');
-                if (detail) detail.appendChild(area);
-                else { const sd = document.getElementById('scene-detail'); if (sd) sd.appendChild(area); }
-            }
-            area.innerHTML = '<span style="color:#88aaff;font-size:.85em;">∑ Summarize in corso…</span>';
-            try {
-                const r = await fetch('/api/summarize', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({text: sceneText, scene_id: sceneId}),
-                });
-                const d = await r.json();
-                const summary = d.summary || '';
-                area.innerHTML = '';
-                const pre = document.createElement('div');
-                pre.style.cssText = 'font-size:.83em;color:#cde;white-space:pre-wrap;line-height:1.5;margin-bottom:8px;max-height:200px;overflow-y:auto;';
-                pre.textContent = summary;
-                area.appendChild(pre);
-                const saveBtn = document.createElement('button');
-                saveBtn.textContent = '→ Salva come is_summary';
-                saveBtn.style.cssText = 'background:#1a3a1a;color:#8f8;border:1px solid #2a5a2a;border-radius:6px;padding:5px 12px;cursor:pointer;font-size:.8em;margin-right:6px;';
-                saveBtn.onclick = async () => {
-                    const r2 = await fetch('/api/db/scenes/' + encodeURIComponent(sceneId) + '/messages', {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({author_name: 'Sistema', content_original: summary, is_summary: true}),
-                    });
-                    saveBtn.textContent = r2.ok ? '✓ Salvato' : ('✗ ' + r2.status);
-                    saveBtn.disabled = true;
-                };
-                const closeBtn = document.createElement('button');
-                closeBtn.textContent = '✕';
-                closeBtn.style.cssText = 'background:#1a1a2a;color:#888;border:1px solid #2a2a4a;border-radius:6px;padding:5px 10px;cursor:pointer;font-size:.8em;';
-                closeBtn.onclick = () => area.remove();
-                area.appendChild(saveBtn);
-                area.appendChild(closeBtn);
-            } catch(e) {
-                area.innerHTML = '<span style="color:#f66;font-size:.82em;">✗ ' + e.message + '</span>';
-            }
-        }
-
-        window._copyLastMsg = function() {
-            const msgs = window._currentSceneMessages || [];
-            if (!msgs.length) return;
-            const last = msgs[msgs.length - 1];
-            const text = (last.content_enhanced && last.content_enhanced !== last.content_original)
-                ? last.content_enhanced : (last.content_original || '');
-            const statusEl = document.getElementById('copy-last-status');
-            navigator.clipboard.writeText(text).then(() => {
-                if (statusEl) { statusEl.textContent = '✓ Copiato negli appunti'; setTimeout(() => { statusEl.textContent = ''; }, 2000); }
-            }).catch(() => {
-                if (statusEl) statusEl.textContent = '✗ Clipboard non disponibile';
-            });
-        };
-
-        window._deleteScene = async function() {
-            const sid = window._currentSceneId;
-            const scene = window._currentScene || {};
-            if (!sid) return;
-            if (!confirm('Eliminare la scena "' + (scene.title || sid) + '"? I messaggi verranno cancellati.')) return;
-            const r = await fetch('/api/db/scenes/' + encodeURIComponent(sid), {method: 'DELETE'});
-            if (r.ok || r.status === 204) {
-                document.getElementById('scene-detail').style.display = 'none';
-                document.getElementById('scene-empty-state').style.display = '';
-                window._currentSceneId = null;
-                window._currentScene = null;
-                if (window._loadScenesList) _loadScenesList();
-            } else {
-                alert('Errore eliminazione scena: ' + r.status);
-            }
-        };
-
-        window._copyFullScene = function() {
-            const msgs = window._currentSceneMessages || [];
-            const scene = window._currentScene || {};
-            const statusEl = document.getElementById('copy-last-status');
-            if (!msgs.length) { if (statusEl) statusEl.textContent = '⚠ Nessun messaggio'; return; }
-            const header = [scene.title || '', scene.location || ''].filter(Boolean).join(' — ');
-            const body = msgs.map(m => {
-                const txt = (m.content_enhanced && m.content_enhanced !== m.content_original)
-                    ? m.content_enhanced : (m.content_original || '');
-                return (m.author_name || '?') + ': ' + txt;
-            }).join('\n\n');
-            const full = (header ? header + '\n' + '─'.repeat(header.length) + '\n\n' : '') + body;
-            navigator.clipboard.writeText(full).then(() => {
-                if (statusEl) { statusEl.textContent = '✓ Scena copiata (' + msgs.length + ' msg)'; setTimeout(() => { statusEl.textContent = ''; }, 2500); }
-            }).catch(() => {
-                if (statusEl) statusEl.textContent = '✗ Clipboard non disponibile';
-            });
         };
 
         // ── Summarize ──
@@ -2054,33 +1768,9 @@
                 document.getElementById('sum-meta').textContent = `${data.word_count} words | Model: ${data.model_used}`;
                 document.getElementById('sum-output').style.display = 'block';
                 document.getElementById('sum-status').textContent = '✓ Summary generato.';
-                // mostra il pulsante "salva in scena" solo se c'è una scena attiva
-                const saveArea = document.getElementById('sum-save-to-scene-area');
-                if (saveArea) saveArea.style.display = window._currentSceneId ? 'block' : 'none';
             } catch(e) {
                 document.getElementById('sum-status').textContent = '✗ ' + e.message;
             } finally { btn.disabled = false; }
-        });
-
-        // ── Salva Summary in scena ──
-        document.getElementById('btn-sum-save-to-scene').addEventListener('click', async function() {
-            const sceneId = window._currentSceneId;
-            const summary = (document.getElementById('sum-summary').textContent || '').trim();
-            const saveStatus = document.getElementById('sum-save-status');
-            if (!sceneId) { saveStatus.textContent = '✗ Nessuna scena attiva.'; return; }
-            if (!summary) { saveStatus.textContent = '✗ Genera prima il summary.'; return; }
-            saveStatus.textContent = 'Salvataggio…';
-            try {
-                const resp = await fetch('/api/db/scenes/' + encodeURIComponent(sceneId) + '/messages', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({author_name: 'Sistema', content_original: summary, is_summary: 1, source: 'summary'}),
-                });
-                if (!resp.ok) { const d = await resp.json(); throw new Error(d.error || resp.status); }
-                saveStatus.textContent = '✓ Salvato in scena.';
-            } catch(e) {
-                saveStatus.textContent = '✗ ' + e.message;
-            }
         });
 
         // ── Lore Search ──
@@ -2175,15 +1865,68 @@
             } finally { btn.disabled = false; }
         });
     });
-    </script>
+
+        // SPEC-4: banner gateway DOWN nei pannelli AI.
+        let _gwUp = null, _gwCheckTs = 0;
+        async function _checkGatewayBanner() {
+            const now = Date.now();
+            if (_gwUp === null || now - _gwCheckTs > 30000) {
+                try {
+                    const r = await fetch('/api/dashboard/snapshot');
+                    const d = await r.json();
+                    _gwUp = !!(d.daemons && d.daemons.llm_gateway && d.daemons.llm_gateway.up);
+                } catch (_) { _gwUp = false; }
+                _gwCheckTs = now;
+            }
+            const show = _gwUp ? 'none' : 'flex';
+            document.querySelectorAll('.gw-down-banner').forEach(el => el.style.display = show);
+        }
+
+        // SPEC-2: importa chars YAML → DB
+        async function _importYamlChars() {
+            const statusEl = document.getElementById('chars-sync-status');
+            const btn = document.getElementById('btn-chars-sync');
+            if (statusEl) statusEl.textContent = 'Import in corso\u2026';
+            if (btn) btn.disabled = true;
+            try {
+                const r = await fetch('/api/db/characters/sync-yaml', {method: 'POST'});
+                const d = await r.json();
+                if (statusEl) statusEl.textContent = `\u2713 ${d.created} importati`;
+                if (d.created > 0 && window.loadCharactersPanel) loadCharactersPanel();
+            } catch(e) {
+                if (statusEl) statusEl.textContent = '\u2717 ' + e.message;
+            } finally {
+                if (btn) btn.disabled = false;
+            }
+        }
+
+        </script>
 
     <script src="/static/js/vendor/live2dcubismcore.min.js"></script>
     <script src="/static/js/vendor/pixi.min.js"></script>
     <script src="/static/js/vendor/pixi-live2d-cubism4.min.js"></script>
+    <!-- Shared, repo-agnostic renderer factory (single source of truth, also used by the dev dashboard) -->
+    <script src="/shared/live2d_mascot/frontend/core/renderer.js"></script>
     <script src="/static/js/mascot.js"></script>
     <script src="/static/js/translate.js"></script>
+
+    <!-- ── TOOLS PANEL (SPEC-1) ── -->
+    <section id="tools-panel" style="display:none; flex-direction:column; padding:16px; max-width:900px; margin:0 auto;">
+        <div class="gw-down-banner" style="display:none;background:#1a0a0a;color:#f66;border:1px solid #4a1a1a;border-radius:6px;padding:8px 14px;margin-bottom:10px;font-size:.85em;align-items:center;gap:8px;">⚠ Gateway LLM offline — le funzioni AI non sono disponibili.</div>
+        <h2 style="color:#aac;font-size:1.3em;margin-bottom:4px;">✦ Strumenti di scrittura</h2>
+        <p style="color:#556;font-size:.88em;margin-bottom:16px;">Seleziona un tool di scrittura.</p>
+        <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:16px;">
+            <div onclick="showView('draft')" style="cursor:pointer;background:#1a1a2e;border:1px solid #2a3a5a;border-radius:8px;padding:16px;"><div style="font-size:1.4em;margin-bottom:6px;">✦</div><div style="color:#aac;font-weight:bold;margin-bottom:4px;">Draft</div><div style="color:#556;font-size:.82em;">Genera varianti narrative</div></div>
+            <div onclick="showView('smartdraft')" style="cursor:pointer;background:#1a1a2e;border:1px solid #2a3a5a;border-radius:8px;padding:16px;"><div style="font-size:1.4em;margin-bottom:6px;">⚡</div><div style="color:#aac;font-weight:bold;margin-bottom:4px;">Smart Draft</div><div style="color:#556;font-size:.82em;">Draft contestuale</div></div>
+            <div onclick="showView('translate')" style="cursor:pointer;background:#1a1a2e;border:1px solid #2a3a5a;border-radius:8px;padding:16px;"><div style="font-size:1.4em;margin-bottom:6px;">⇄</div><div style="color:#aac;font-weight:bold;margin-bottom:4px;">Traduzione</div><div style="color:#556;font-size:.82em;">Traduci testi RP</div></div>
+            <div onclick="showView('refine')" style="cursor:pointer;background:#1a1a2e;border:1px solid #2a3a5a;border-radius:8px;padding:16px;"><div style="font-size:1.4em;margin-bottom:6px;">✎</div><div style="color:#aac;font-weight:bold;margin-bottom:4px;">Refine</div><div style="color:#556;font-size:.82em;">Migliora stile e ritmo</div></div>
+            <div onclick="showView('summarize')" style="cursor:pointer;background:#1a1a2e;border:1px solid #2a3a5a;border-radius:8px;padding:16px;"><div style="font-size:1.4em;margin-bottom:6px;">◈</div><div style="color:#aac;font-weight:bold;margin-bottom:4px;">Sommario</div><div style="color:#556;font-size:.82em;">Riassumi scene/archi</div></div>
+            <div onclick="showView('lorecheck')" style="cursor:pointer;background:#1a1a2e;border:1px solid #2a3a5a;border-radius:8px;padding:16px;"><div style="font-size:1.4em;margin-bottom:6px;">📖</div><div style="color:#aac;font-weight:bold;margin-bottom:4px;">Lore Check</div><div style="color:#556;font-size:.82em;">Verifica coerenza KB</div></div>
+        </div>
+    </section>
     <script src="/static/js/scenes.js"></script>
     <script src="/static/js/characters.js"></script>
     <script src="/static/js/lore_kb.js"></script>
+    <script src="/static/js/lore_characters.js"></script>
 </body>
 </html>

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<!--
+  Shared mascot dashboard TEMPLATE — repo-agnostic.
+
+  Each consuming repo derives its own index.html from this scaffold. The only
+  per-repo differences are:
+    1. window.MASCOT_CONFIG (model URL / canvas id / idle motion) — set in the inline
+       <script id="mascot-config"> block below.
+    2. The mascot art asset the modelUrl points to (operator aesthetic choice).
+
+  The engine scripts (cubismcore + pixi + pixi-live2d-display) SHOULD be served from
+  a local vendor path per the privacy policy (no CDN trace). Replace the {{ENGINE_*}}
+  placeholders with the consuming repo's vendored paths. The renderer + 6 core JS are
+  loaded from this shared package and are identical across repos.
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mascot Dashboard</title>
+</head>
+<body>
+  <div id="ui-overlay">
+    <div id="status-bar">
+      <span id="state-label">idle</span>
+      <span id="engine-label">tts-engine</span>
+    </div>
+    <div id="controls">
+      <button onclick="setMascotState('idle')">Idle</button>
+      <button onclick="setMascotState('talking')">Talk</button>
+      <button onclick="setMascotState('listening')">Listen</button>
+      <button onclick="setMascotState('thinking')">Think</button>
+    </div>
+  </div>
+
+  <div id="error-banner" style="display:none"></div>
+
+  <canvas id="live2d-canvas"></canvas>
+
+  <!-- Per-repo config — override before the core scripts load. -->
+  <script id="mascot-config">
+    window.MASCOT_CONFIG = {
+      modelUrl: '{{MODEL_URL}}',   // operator aesthetic choice — repo-specific
+      canvasId: 'live2d-canvas',
+      idleMotion: 'Idle',
+    };
+  </script>
+
+  <!-- Engine scripts — vendored locally per privacy policy (no CDN trace). -->
+  <script src="{{ENGINE_CUBISM_CORE}}"></script>
+  <script src="{{ENGINE_PIXI}}"></script>
+  <script src="{{ENGINE_PIXI_LIVE2D}}"></script>
+
+  <!-- Shared, repo-agnostic core (single source of truth). -->
+  <script src="core/state_machine.js"></script>
+  <script src="core/tts_sync.js"></script>
+  <script src="core/expressions.js"></script>
+  <script src="core/renderer.js"></script>
+
+  <!-- Bootstrap: the renderer reads window.MASCOT_CONFIG. -->
+  <script>
+    window.addEventListener('stateChanged', (e) => {
+      const el = document.getElementById('state-label');
+      if (el) el.textContent = e.detail.state;
+    });
+    document.addEventListener('DOMContentLoaded', () => {
+      if (typeof createMascotRenderer === 'function' && window.MASCOT_CONFIG) {
+        createMascotRenderer(window.MASCOT_CONFIG).catch(
+          (err) => console.error('[mascot] init failed:', err)
+        );
+      }
+    });
+  </script>
+</body>
+</html>

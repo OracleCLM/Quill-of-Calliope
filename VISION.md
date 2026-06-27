@@ -6,6 +6,61 @@
 
 ---
 
+## 🟢 Scene-Chat (JanitorAI-style) — FOCUS ATTIVO, decisioni LOCKED 2026-06-16
+
+> Feature-cardine corrente: la **scena = chat multi-personaggio stile JanitorAI**. Questa
+> sezione **supera, per lo scene-chat, la foundation legacy SillyTavern** (vendor messo da
+> parte). Grounding: `.planning/SCENE_CHAT_GAP_MAP_2026-06-16.md` + `.planning/VISION_SCENE_CHAT_DRAFT.md`.
+
+**Obiettivo**: roleplay narrativo a scena-come-chat. nic scrive come **narratore** o **suoi
+personaggi**; i messaggi degli **altri personaggi** sono **importati** dallo storico Discord
+(scraping per-canale/data, **selezione manuale**); i modelli di scrittura producono testo di
+**qualità** consultando contesto pertinente. Principio: **qualità narrativa > automazione cieca**.
+
+**Decisioni LOCKED (nic 2026-06-16)**:
+1. **Retrieval-mirato**: i modelli-scrittura (riassunto, generazione-su-indicazioni, traduzione,
+   rifinitura) consultano **schede dei personaggi ATTIVI in scena + lore per key-match**
+   (`triggered_entries()` base) iniettati nel prompt. NON meccanico-cieco, NON decisore-autonomo.
+   Filtro-rilevanza-fine = evoluzione futura.
+2. **Binding personaggio↔scheda = MANUALE** (definitivo; auto-binding Tupperbox→character_id
+   **fuori scope**, inaffidabile).
+3. **UI = MINIMALE-prima** (lista scene + compose narratore/personaggio + render-thread);
+   **bolle + avatar JanitorAI-pieno = GOAL evolutivo** (non subito).
+4. **Modello-scrittura = gateway cloud STRONG + UNCENSORED, configurabile** (qualità, NON cost-zero).
+   ⚠️ **Cambio postura privacy** (operator-locked): l'hardware NM-portatile è insufficiente per un
+   modello-forte locale (T500 2GB-VRAM, RAM satura) → la scrittura passa per un **gateway cloud
+   configurabile**; **pod/SL-hosted resta opzione-privacy FUTURA**, non su questo portatile. Questo
+   **supera** la postura legacy "local-only / NO-cloud / MCP-first" della VISION **per la scrittura
+   scene-chat** (il resto della privacy locale — dati RP, ChromaDB — resta invariato).
+
+**ESISTE (≈90% core)**: scraping Discord (`scripts/import_discord_history.py`), scraper-schede,
+schema characters/sheets + lore-KB (`lore_kb.py`/`triggered_entries`), scene-as-chat backend
+completo+verde (`/api/db/scenes*`, `scenes.js` base), LLM gateway (`plot_arc._groq_ask`).
+
+**DA-COSTRUIRE (3 gap, owner-mapped)**:
+1. **Assistenza-scrittura con retrieval** (cuore-qualità): `summarizer.py` è deterministico,
+   `messages.content_enhanced` mai popolata, nessun context-injection. → retrieval-helper
+   (schede-attive + lore key-match) + refine-fn (chiama gateway-strong, popola `content_enhanced`).
+   **Owner: EFESTO** (pezzi single-function backend + gate).
+2. **Binding manuale** (nessuna automazione — chiuso per decisione).
+3. **UI chat JanitorAI minimal-first**. **Owner: Claude/NM** (UI + browser-verify + design-retrieval;
+   instruction-heavy, non-Efesto).
+
+**Strategia-modello scrittura — SWITCH locale/cloud (nic 2026-06-16)**:
+Il modello-scrittura è **configurabile** tra due backend, selezionabili via switch:
+- **CLOUD** (default attuale): gateway **strong + uncensored**, **veloce**. Vedi decisione #4.
+- **LOCALE** (opzione-privacy, ceiling DA TESTARE): modelli grossi **quantizzati**
+  (**TurboQuant**) + **compressione KV-cache** + **caricamento layer-by-layer**. L'inferenza
+  **lenta è ACCETTABILE** perché la scrittura RP **non è real-time**. Uncensored via
+  **Obliteratus** (repo open in `~/Scrivania/Repo_open`) applicato ai modelli scaricati.
+  RAM liberata **on-demand** chiudendo i processi non-necessari prima dell'inferenza.
+  Onestà-hardware: NM-portatile **15GB-RAM / 2GB-VRAM** → locale **possibile ma lento/RAM-bound**;
+  il **ceiling reale va testato** (quale taglia-modello regge). pod/SL-hosted = scaling futuro.
+
+Piano-lavoro dettagliato: `.planning/SCENE_CHAT_WORKPLAN_2026-06-16.md`.
+
+---
+
 ## Problema
 
 Operatore conduce sessioni RP testuali fantasy/folklore (multi-anno, ~100 personaggi, <10 giocatori) su Discord. Pain-points:

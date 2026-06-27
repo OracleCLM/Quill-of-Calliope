@@ -1,33 +1,38 @@
 # Calliope mascot Live2D emotion → expression/motion mapping
 # Used by mascot.js (fetch /api/mascot/emotion_map) and generate_scene.py inference
+#
+# Targets the SHIPPABLE model Mao (models/mao/Mao.model3.json):
+#   expressions = exp_01..exp_08 (real Expression Names in the model3.json)
+#   motions     = Idle | TapBody  (the only two motion groups Mao declares)
+# See frontend/live2d/app.js DEFAULT_EXPRESSIONS for the emotion→slot rationale.
 
 expressions:
-  determined: determined
-  joyful: joyful
-  celebratory: joyful
-  wounded: wounded
-  sorrowful: sorrowful
-  neutral: neutral
-  angry: determined
-  fearful: sorrowful
-  surprised: joyful
-  contemplative: neutral
-  triumphant: joyful
-  defiant: determined
+  determined: exp_07
+  joyful: exp_02
+  celebratory: exp_02
+  wounded: exp_05
+  sorrowful: exp_05
+  neutral: exp_01
+  angry: exp_07
+  fearful: exp_06
+  surprised: exp_03
+  contemplative: exp_01
+  triumphant: exp_02
+  defiant: exp_07
 
 motions:
-  determined: battle_cry
-  joyful: celebrating
-  celebratory: celebrating
-  wounded: idle
-  sorrowful: idle
-  neutral: idle
-  angry: battle_cry
-  fearful: idle
-  surprised: talking
-  contemplative: idle
-  triumphant: celebrating
-  defiant: battle_cry
+  determined: TapBody
+  joyful: TapBody
+  celebratory: TapBody
+  wounded: Idle
+  sorrowful: Idle
+  neutral: Idle
+  angry: TapBody
+  fearful: Idle
+  surprised: TapBody
+  contemplative: Idle
+  triumphant: TapBody
+  defiant: TapBody
 
 # Mapping from generate_scene.py scene_type → default emotion
 scene_type_emotion:
@@ -43,5 +48,5 @@ scene_type_emotion:
   romance: joyful
 
 # Default fallback
-default_expression: neutral
-default_motion: idle
+default_expression: exp_01
+default_motion: Idle

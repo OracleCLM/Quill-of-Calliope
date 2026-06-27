@@ -1,6 +1,18 @@
 # Quill of Calliope — privacy-aggressive gitignore
 # Dati RP NON commitabili (sensibili + privacy + multi-player content)
 
+# === LIVE2D DEV-MODELS license-restricted (MAI in git-history) ===
+# Koko = licenza no-redistribute; Tingyun = fan-IP HoYoverse. Solo dev-reference
+# locale, da sostituire con modello clean (Mao/Tororo) prima di open-source/deploy.
+shared/live2d_mascot/models/koko/
+shared/live2d_mascot/models/tingyun/
+
+# Mao (shippable sample model): keep the human-readable config (model3/exp3/
+# motion/physics JSON + README) in-repo, but EXCLUDE the heavy binaries — they
+# exceed the 500 KB large-file guard. Restore them with scripts/fetch_mao_model.sh.
+shared/live2d_mascot/models/mao/Mao.moc3
+shared/live2d_mascot/models/mao/Mao.2048/
+
 # === DATASETS (raw imports — NEVER commit) ===
 datasets/
 *.xls
@@ -130,3 +142,4 @@ shared/live2d_mascot/models/mao/Mao.2048/
 shared/live2d_mascot/models/koko/
 shared/live2d_mascot/models/tingyun/
 !.planning/CALLIOPE_GAP_REVIEW_2026-06-07.md
+data/backups/

@@ -6,7 +6,7 @@ from pathlib import Path
 import chromadb
 import requests
 import yaml
-from flask import Flask, jsonify, request, render_template
+from flask import Flask, jsonify, request, render_template, send_from_directory
 
 from app.calliope_shell.char_memory import get_char, list_chars, upsert_char
 from app.calliope_shell.char_memory_tools import (
@@ -17,14 +17,21 @@ from app.calliope_shell.char_memory_tools import (
 )
 from app.calliope_shell.characters_routes import register_character_routes
 from app.calliope_shell.characters_db_routes import register_characters_db_routes
+from app.calliope_shell.import_routes import register_import_routes
 from app.calliope_shell.lore_routes import register_lore_routes
 from app.calliope_shell.scenes_db_routes import register_scenes_db_routes
 from app.calliope_shell.arcs_db_routes import register_arcs_db_routes
+from app.calliope_shell.write_routes import register_write_routes
 from app.scene_context import resolve_scene_context
 
 logger = logging.getLogger(__name__)
 
 _mascot_state: dict = {"emotion": "neutral", "intensity": 1.0, "scene_id": None}
+
+# Shared Live2D mascot assets (renderer factory + model binaries) live outside the
+# Flask static dir so the dev dashboard and the product shell consume the SAME
+# single source of truth. Served read-only under /shared/live2d_mascot/...
+_SHARED_MASCOT_DIR = Path(__file__).parents[2] / "shared" / "live2d_mascot"
 
 _CHROMA_PATH = str(Path(__file__).parents[2] / ".chroma_calliope")
 _SCENES_DIR = Path(__file__).parents[2] / "scenes"
@@ -213,14 +220,18 @@ def _load_emotion_map() -> dict:
 def create_app():
     app = Flask(__name__)
     register_character_routes(app)
+    register_characters_db_routes(app, db_path=None)
+    register_import_routes(app, db_path=None)
     register_lore_routes(app)
     register_scenes_db_routes(app)
     register_arcs_db_routes(app)
-    register_characters_db_routes(app)
+    register_write_routes(app)
 
     FLASK_PORT = os.getenv("FLASK_PORT", "5000")
     ST_URL = os.getenv("ST_URL", "http://localhost:8001")
-    MASCOT_WS_URL = os.getenv("MASCOT_WS_URL", "ws://localhost:9876")
+    # Must include the /mascot path: the WS daemon registers @app.websocket("/mascot")
+    # (shared/live2d_mascot/server/ws_server.py). A bare ws://host:9876 → 403 handshake.
+    MASCOT_WS_URL = os.getenv("MASCOT_WS_URL", "ws://localhost:9876/mascot")
     MASCOT_REST_URL = os.getenv("MASCOT_REST_URL", "http://localhost:9876")
     GATEWAY_URL = os.getenv("GATEWAY_URL", "http://localhost:8766")
 
@@ -228,14 +239,29 @@ def create_app():
 
     @app.route("/")
     def index():
-        # Gap D: detect ST liveness for empty-state fallback
+        # VISION: scene-as-chat è nativo; SillyTavern è legacy "morto" → default
+        # disabilitato. L'iframe ST viene embeddato SOLO se l'operatore opta-in
+        # esplicitamente (CALLIOPE_EMBED_ST=1) E ST risponde <500. Senza opt-in,
+        # st_alive resta sempre False → render del welcome-panel nativo (ramo
+        # {% else %} in shell.html). Reversibile: nessun codice ST rimosso, solo
+        # gated. Bug R-CALLIOPE-BUG-HOME-ST-IFRAME: un ST half-init che rispondeva
+        # <500 faceva embeddare l'iframe rotto ("inizializzazione" + toast
+        # "Settings could not be saved") al posto della home nativa.
+        embed_st = os.getenv("CALLIOPE_EMBED_ST", "0") == "1"
         st_alive = False
-        try:
-            r = requests.head(ST_URL, timeout=1)
-            st_alive = r.status_code < 500
-        except Exception:
-            st_alive = False
+        if embed_st:
+            try:
+                r = requests.head(ST_URL, timeout=1)
+                st_alive = r.status_code < 500
+            except Exception:
+                st_alive = False
         return render_template("shell.html", ST_URL=ST_URL, MASCOT_WS_URL=MASCOT_WS_URL, st_alive=st_alive)
+
+    @app.route("/shared/live2d_mascot/<path:filename>")
+    def shared_mascot(filename):
+        # Serves the shared renderer factory + Live2D model assets (mao/koko/tingyun).
+        # send_from_directory guards against path traversal.
+        return send_from_directory(_SHARED_MASCOT_DIR, filename)
 
     @app.route("/health")
     def health():
@@ -302,6 +328,34 @@ def create_app():
             "active_provider": _llm_routing_state["provider"],
             "active_model": _llm_routing_state["model"],
             "uncensored_active": _llm_routing_state["uncensored"],
+        })
+
+    @app.route("/api/scene-chat/write-model", methods=["GET"])
+    def scene_chat_write_model_get():
+        # GAP-5: switch modello-scrittura cloud/locale (VISION decisione #4 + strategia-switch).
+        from app.calliope_shell.scene_refine import (  # noqa: PLC0415
+            active_write_profile, resolve_write_model, write_profiles,
+        )
+        provider, model = resolve_write_model()
+        profiles = {k: {"provider": v[0], "model": v[1]} for k, v in write_profiles().items()}
+        return jsonify({
+            "profile": active_write_profile(), "provider": provider,
+            "model": model, "profiles": profiles,
+        })
+
+    @app.route("/api/scene-chat/write-model", methods=["POST"])
+    def scene_chat_write_model_post():
+        from app.calliope_shell.scene_refine import (  # noqa: PLC0415
+            active_write_profile, resolve_write_model, set_write_profile,
+        )
+        body = request.get_json(silent=True) or {}
+        try:
+            set_write_profile(body.get("profile"))
+        except ValueError:
+            return jsonify({"error": "profile must be 'cloud' or 'local'"}), 400
+        provider, model = resolve_write_model()
+        return jsonify({
+            "profile": active_write_profile(), "provider": provider, "model": model,
         })
 
     @app.route("/api/dashboard/activity", methods=["GET"])
@@ -1079,9 +1133,14 @@ def create_app():
             if persist and scene_id:
                 try:
                     from app.db import get_db as _get_db  # noqa: PLC0415
-                    from app.db.messages import add_message as _add_message  # noqa: PLC0415
+                    from app.db.messages import (  # noqa: PLC0415
+                        add_message as _add_message,
+                        list_messages_for_scene as _list_msgs,
+                    )
                     _pconn = _get_db()
-                    _add_message(_pconn, scene_id=scene_id, author_name=char, content_original=next_msg)
+                    _pos = len(_list_msgs(_pconn, scene_id))
+                    _add_message(_pconn, scene_id=scene_id, author_name=char,
+                                 content_original=next_msg, position_order=_pos)
                     _pconn.commit()
                     _pconn.close()
                 except Exception as _exc:
@@ -1234,9 +1293,14 @@ def create_app():
         if persist and scene_id:
             try:
                 from app.db import get_db as _get_db  # noqa: PLC0415
-                from app.db.messages import add_message as _add_message  # noqa: PLC0415
+                from app.db.messages import (  # noqa: PLC0415
+                    add_message as _add_message,
+                    list_messages_for_scene as _list_msgs,
+                )
                 _pconn = _get_db()
-                _add_message(_pconn, scene_id=scene_id, author_name=char_focus, content_original=draft_text)
+                _pos = len(_list_msgs(_pconn, scene_id))
+                _add_message(_pconn, scene_id=scene_id, author_name=char_focus,
+                             content_original=draft_text, position_order=_pos)
                 _pconn.commit()
                 _pconn.close()
             except Exception as _exc:

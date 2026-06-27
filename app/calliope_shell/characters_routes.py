@@ -12,8 +12,8 @@ def register_character_routes(app):
 
     @app.route("/api/characters", methods=["POST"])
     def characters_create():
-        data = request.get_json(silent=True) or {}
-        name = (data.get("name") or "").strip()
+        body = request.get_json(silent=True) or {}
+        name = (body.get("name") or "").strip()
         if not name:
             return jsonify({"error": "name required"}), 400
         stem = re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-")
@@ -23,11 +23,11 @@ def register_character_routes(app):
         draft_path = chars_path / f"{stem}.draft.yaml"
         if draft_path.exists():
             return jsonify({"error": "already exists", "stem": stem}), 409
-        kind = data.get("kind", "npc")
+        kind = body.get("kind", "npc")
         card_data = {
             "name": name,
-            "description": (data.get("description") or "").strip(),
-            "personality": (data.get("personality") or "").strip(),
+            "description": (body.get("description") or "").strip(),
+            "personality": (body.get("personality") or "").strip(),
             "tags": [kind],
         }
         draft_path.write_text(yaml.dump(card_data, allow_unicode=True), encoding="utf-8")

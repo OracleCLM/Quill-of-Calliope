@@ -143,18 +143,23 @@ def register_messages_db_routes(app, db_path=None):
         if not author_name or content_original is None:
             conn.close()
             return jsonify({"error": "bad_request"}), 400
-        max_pos_row = conn.execute(
-            "SELECT COALESCE(MAX(position_order), -1) FROM messages WHERE scene_id = ?",
+        # BUG-FIX (message-render): usare MAX(position_order)+1, NON len(messages).
+        # Le scene importate da Discord hanno position_order non-contigui (es. 66..16541);
+        # con len() il nuovo turno riceveva una position bassa e si ordinava a META'/IN-CIMA
+        # al thread invece che in fondo -> "il messaggio non appare nella scena" (era persistito
+        # ma sepolto in alto). MAX+1 garantisce l'append in coda con qualunque distribuzione.
+        row = conn.execute(
+            "SELECT COALESCE(MAX(position_order), -1) + 1 FROM messages WHERE scene_id = ?",
             (scene_id,),
         ).fetchone()
-        next_pos = max_pos_row[0] + 1
+        position_order = row[0]
         mid = db_messages.add_message(conn, scene_id=scene_id,
             author_name=author_name, content_original=content_original,
             character_id=body.get("character_id"),
             content_enhanced=body.get("content_enhanced"),
             source=body.get("source", "manual"),
             is_summary=body.get("is_summary", 0),
-            position_order=next_pos)
+            position_order=position_order)
         # traccia ultima attività scena per sorting recente nel dashboard (WI-48).
         # Precisione al ms (strftime %f) per ordinamento deterministico fra append ravvicinati.
         conn.execute(
@@ -165,6 +170,51 @@ def register_messages_db_routes(app, db_path=None):
         conn.close()
         return jsonify({"id": mid}), 201
 
+    @app.route("/api/db/scenes/<scene_id>/messages/<message_id>/refine", methods=["POST"])
+    def db_refine_message(scene_id, message_id):
+        # Wiring refine end-to-end: invoca la refine-fn E3 (gateway-strong +
+        # retrieval schede-attive+lore via build_refine_prompt) e ritorna
+        # content_original + content_enhanced (E3 popola gia content_enhanced nel DB).
+        conn = _conn(db_path)
+        if conn.execute("SELECT 1 FROM scenes WHERE id = ?", (scene_id,)).fetchone() is None:
+            conn.close()
+            return jsonify({"error": "not_found"}), 404
+        row = conn.execute(
+            "SELECT content_original FROM messages WHERE id = ? AND scene_id = ?",
+            (message_id, scene_id),
+        ).fetchone()
+        if row is None:
+            conn.close()
+            return jsonify({"error": "not_found"}), 404
+        from app.calliope_shell.lore_kb import LoreStore
+        from app.calliope_shell.scene_refine import WriteModelError, refine_message
+        content_original = row[0]
+        try:
+            enhanced = refine_message(message_id, scene_id, conn, LoreStore())
+        except WriteModelError as exc:
+            # Resilienza-503: messaggio-utente pulito, NON errore grezzo, NON clobber.
+            conn.close()
+            if exc.kind == "bad_request":
+                return jsonify({
+                    "error": "bad_request",
+                    "message": "Il testo del messaggio non è valido per il raffinamento.",
+                }), 400
+            if exc.kind == "auth":
+                return jsonify({
+                    "error": "gateway_auth",
+                    "message": "Configurazione del modello di scrittura non valida (credenziali). Controlla il gateway.",
+                }), 502
+            return jsonify({
+                "error": "gateway_overloaded",
+                "message": "Il modello di scrittura è momentaneamente sovraccarico. Riprova tra qualche secondo.",
+            }), 503
+        conn.close()
+        return jsonify({
+            "message_id": message_id,
+            "content_original": content_original,
+            "content_enhanced": enhanced,
+        }), 200
+
     @app.route("/api/db/scenes/<scene_id>/messages", methods=["GET"])
     def get_scene_messages_paginated(scene_id):
         conn = _conn(db_path)
@@ -173,8 +223,12 @@ def register_messages_db_routes(app, db_path=None):
         if not scene_row:
             conn.close()
             return jsonify({"error": "not found"}), 404
-        page = int(request.args.get("page", 1))
-        per_page = int(request.args.get("per_page", 50))
+        try:
+            page = int(request.args.get("page", 1))
+            per_page = int(request.args.get("per_page", 50))
+        except (ValueError, TypeError):
+            conn.close()
+            return jsonify({"error": "bad_request"}), 400
         # page è 1-based, per_page deve essere positivo (evita div-by-zero nel calcolo pages)
         if page < 1 or per_page < 1:
             conn.close()
