@@ -246,8 +246,21 @@
     ]).then(([yamlData, dbData]) => {
         if (!Array.isArray(yamlData)) throw new Error('Invalid response');
         const imgByName = {};
-        (dbData.characters || []).forEach(c => { if (c.image_path) imgByName[c.name] = c.image_path; });
+        const dbChars = dbData.characters || [];
+        dbChars.forEach(c => { if (c.image_path) imgByName[c.name] = c.image_path; });
         cached = yamlData.map(c => Object.assign({}, c, {image_path: imgByName[c.name] || null}));
+        // SPEC-2: mostra banner se ci sono personaggi YAML non ancora nel DB
+        const archiveCount = Math.max(0, yamlData.length - dbChars.length);
+        const banner = document.getElementById('chars-sync-banner');
+        const msg = document.getElementById('chars-sync-msg');
+        if (banner) {
+          if (archiveCount > 0) {
+            if (msg) msg.textContent = `⚠ ${archiveCount} personaggi YAML non nel DB`;
+            banner.style.display = 'flex';
+          } else {
+            banner.style.display = 'none';
+          }
+        }
         if (cached.length === 0) {
           showEmpty(grid, 'Nessun personaggio');
         } else {

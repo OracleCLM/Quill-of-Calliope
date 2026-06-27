@@ -10,18 +10,76 @@ function _escHtml(s) {
 // ── Scenes panel (Gap B) ──
 window._currentSceneId = null;
 let _allScenes = [];
+let _scenesOffset = 0;
+let _scenesTotal = 0;
+const _SCENES_PAGE = 50;
 
 async function _loadScenes() {
     const ul = document.getElementById('scenes-list');
     ul.innerHTML = '<li style="color:#334;padding:12px">Caricamento scene...</li>';
+    _scenesOffset = 0;
     try {
-        const resp = await fetch('/api/db/scenes');
+        const resp = await fetch('/api/db/scenes?limit=' + _SCENES_PAGE + '&offset=0');
         const data = await resp.json();
         _allScenes = data.scenes || [];
+        _scenesTotal = data.total || _allScenes.length;
         _renderSceneList(_allScenes);
+        _updateLoadMoreBtn();
         _loadArcFilterOptions();
     } catch(e) {
         ul.innerHTML = '<li style="color:#f66;padding:12px">Errore: ' + e.message + '</li>';
+    }
+}
+
+async function _loadMoreScenes() {
+    _scenesOffset += _SCENES_PAGE;
+    try {
+        const resp = await fetch('/api/db/scenes?limit=' + _SCENES_PAGE + '&offset=' + _scenesOffset);
+        const data = await resp.json();
+        const more = data.scenes || [];
+        _allScenes = _allScenes.concat(more);
+        _scenesTotal = data.total || _scenesTotal;
+        _renderSceneList(_getActiveSceneFilters());
+        _updateLoadMoreBtn();
+    } catch(e) {
+        const info = document.getElementById('scenes-count-info');
+        if (info) info.textContent = 'Errore: ' + e.message;
+    }
+}
+
+function _updateLoadMoreBtn() {
+    const div = document.getElementById('scenes-load-more');
+    const info = document.getElementById('scenes-count-info');
+    if (!div) return;
+    const hasMore = _allScenes.length < _scenesTotal;
+    div.style.display = hasMore ? 'block' : 'none';
+    if (info) info.textContent = `Mostrate ${_allScenes.length} di ${_scenesTotal} scene`;
+}
+
+async function _cleanFixtureScenes() {
+    const patterns = ['flow3', 'test_scene', 'fixture_'];
+    if (!confirm(`Eliminare tutte le scene fixture test? (prefissi: ${patterns.join(', ')})`)) return;
+    const btn = document.getElementById('btn-clean-fixtures');
+    if (btn) btn.disabled = true;
+    let total = 0;
+    try {
+        for (const p of patterns) {
+            const r = await fetch('/api/db/scenes/batch-delete', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({pattern: p}),
+            });
+            if (r.ok) {
+                const d = await r.json();
+                total += d.deleted || 0;
+            }
+        }
+        alert(`✓ Eliminate ${total} scene fixture. Ricarico lista.`);
+        await _loadScenes();
+    } catch(e) {
+        alert('Errore: ' + e.message);
+    } finally {
+        if (btn) btn.disabled = false;
     }
 }
 

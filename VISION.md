@@ -195,6 +195,26 @@ Operator-mandate: scene RP duraturanno settimane/mesi tipicamente. Design implic
 
 ---
 
+## SPEC-MINIME-UI approvate (2026-06-27)
+
+> Audit Playwright su flussi reali. 7 gap trovati, 6 spec approvate (SPEC-7 mobile droppata — desktop basta).
+> Implementazione su branch `efesto/redesign-p6-ui-refinements`.
+
+| SPEC | Titolo | Decisione / Dettaglio |
+|------|--------|-----------------------|
+| SPEC-1 | Tool scrittura ≤2 click | **Tab "✦ Strumenti" top-level** — palette 6 tool: Draft, Smart Draft, Translate, Refine, Summarize, Lore Check |
+| SPEC-2 | Chars DB sync — warning azionabile | Banner in Characters panel se `archive > 0` + bottone "Importa da YAML" |
+| SPEC-3 | Scene list — batch-delete fixture + paginazione | Batch-delete fixture `flow3x-*` → paginazione max-50 + sort `last_activity_at DESC` |
+| SPEC-4 | Gateway DOWN — banner nei pannelli AI | Banner inline in Draft/Translate/Refine/SmartDraft/Summarize/LoreCheck se gateway offline |
+| SPEC-5 | Lore semantic search sempre visibile | Rimuovere `<details>` collapse; semantic search è primo elemento visibile nel tab Lore |
+| SPEC-6 | Arc nella nav primaria | **Tab "◈ Archi" come 6° tab top-level** (16 archi attivi → first-class) |
+| ~~SPEC-7~~ | ~~Mobile responsivo~~ | **DROPPATA** — desktop basta |
+
+**Sidebar destra (mascot + counters + #char-list-panel)**: rimane visibile ambient in tutte le view.
+**#char-list-panel**: TENUTO — wired via `/api/chars/<name>/memory` (quick char-memory lookup, funzione distinta dal Characters panel P5a).
+
+---
+
 ## Integrazioni candidate (stato: 2026-06-06)
 
 | Integrazione | Stato | Note |

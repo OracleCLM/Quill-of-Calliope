@@ -45,17 +45,39 @@ def register_scenes_db_routes(app, db_path=None):
     register_messages_db_routes(app, db_path=db_path)
     register_scene_characters_db_routes(app, db_path=db_path)
 
+    @app.route("/api/db/scenes/batch-delete", methods=["POST"])
+    def db_batch_delete_scenes():
+        """Cancella in bulk le scene il cui titolo inizia con `pattern` (min 3 char)."""
+        body = request.get_json(silent=True) or {}
+        pattern = (body.get("pattern") or "").strip()
+        if len(pattern) < 3:
+            return jsonify({"error": "pattern too short (min 3 chars)"}), 400
+        conn = _conn(db_path)
+        cur = conn.execute("DELETE FROM scenes WHERE title LIKE ?", (pattern + "%",))
+        deleted = cur.rowcount
+        conn.commit()
+        conn.close()
+        return jsonify({"deleted": deleted}), 200
+
     @app.route("/api/db/scenes", methods=["GET"])
     def db_list_scenes():
         # WI-44: filtro opzionale ?arc_id=<id> (assente → tutte le scene).
         # WI-35: filtro opzionale ?title=<substr> (LIKE case-insensitive).
+        # SPEC-3: paginazione opzionale ?limit=N (max 200) + ?offset=N.
+        #         Senza ?limit il comportamento legacy è preservato (nessun cap).
         conn = _conn(db_path)
         title = request.args.get("title")
         if title is not None:
             scenes = db_scenes.list_scenes(conn, title_contains=title)
             conn.close()
-            return jsonify({"scenes": scenes}), 200
+            return jsonify({"scenes": scenes, "total": len(scenes)}), 200
         arc_id = request.args.get("arc_id")
+        raw_limit = request.args.get("limit")
+        try:
+            limit = min(int(raw_limit), 200) if raw_limit is not None else None
+            offset = max(int(request.args.get("offset", 0)), 0)
+        except (ValueError, TypeError):
+            limit, offset = None, 0
         select = (
             "SELECT s.id, s.title, s.arc_id, s.location, s.is_readonly, "
             "s.last_activity_at, s.updated_at, COUNT(m.id) AS message_count "
@@ -63,13 +85,15 @@ def register_scenes_db_routes(app, db_path=None):
         )
         group = " GROUP BY s.id"
         order = " ORDER BY COALESCE(s.last_activity_at, s.updated_at) DESC"
-        if arc_id is not None:
-            cur = conn.execute(select + " WHERE s.arc_id = ?" + group + order, (arc_id,))
-        else:
-            cur = conn.execute(select + group + order)
+        where = " WHERE s.arc_id = ?" if arc_id is not None else ""
+        params = (arc_id,) if arc_id is not None else ()
+        total_sql = "SELECT COUNT(*) FROM scenes" + (" WHERE arc_id = ?" if arc_id else "")
+        total = conn.execute(total_sql, params).fetchone()[0]
+        page_clause = f" LIMIT {limit} OFFSET {offset}" if limit is not None else ""
+        cur = conn.execute(select + where + group + order + page_clause, params)
         scenes = [dict(zip([d[0] for d in cur.description], r)) for r in cur.fetchall()]
         conn.close()
-        return jsonify({"scenes": scenes}), 200
+        return jsonify({"scenes": scenes, "total": total}), 200
 
     @app.route("/api/db/scenes/<scene_id>/arc", methods=["PATCH"])
     def db_assign_scene_arc(scene_id):

@@ -53,7 +53,7 @@ def _screenshot(url: str, path: str, budget_ms: int = 4000) -> bool:
 # ── Step 1: Open UI ──────────────────────────────────────────────────────────
 
 def test_step1_open_ui():
-    """UI loads with correct title and nav tabs visible."""
+    """UI loads with correct title and nav tabs visible (SPEC-1/6: arc + tools tabs)."""
     r = requests.get("http://127.0.0.1:5000/", timeout=5)
     assert r.status_code == 200
     body = r.text
@@ -62,6 +62,11 @@ def test_step1_open_ui():
     assert "nav-scenes" in body, "Scenes nav tab missing"
     assert "nav-characters" in body, "Characters nav tab missing"
     assert "nav-lorekb" in body, "Lore nav tab missing"
+    assert "nav-arc" in body, "SPEC-6: Arc nav tab missing"
+    assert "nav-tools" in body, "SPEC-1: Strumenti nav tab missing"
+    assert "gw-down-banner" in body, "SPEC-4: gateway banner class missing"
+    assert "chars-sync-banner" in body, "SPEC-2: chars sync banner missing"
+    assert "tools-panel" in body, "SPEC-1: tools panel missing"
 
 
 # ── Step 2: Retrieve recent messages ─────────────────────────────────────────

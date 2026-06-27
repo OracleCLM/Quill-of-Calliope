@@ -1,6 +1,7 @@
 from flask import jsonify, request
 from app.db import get_db
 from app.db import characters as db_chars
+from app.calliope_shell import characters_service
 
 VALID_KINDS = {"operator", "player", "npc"}
 
@@ -89,6 +90,29 @@ def register_characters_db_routes(app, *, db_path=None) -> None:
             return "", 204
         conn.close()
         return jsonify({"error": "not found"}), 404
+
+    @app.route("/api/db/characters/sync-yaml", methods=["POST"])
+    def sync_yaml_to_db():
+        """Importa nel DB i personaggi YAML non ancora presenti (match per nome)."""
+        yaml_cards = characters_service.list_cards()
+        conn = _conn(db_path)
+        existing = {c["name"].lower() for c in db_chars.list_characters(conn)}
+        created, skipped = [], []
+        for card in yaml_cards:
+            name = card.get("name", "").strip()
+            if not name or name.lower() in existing:
+                skipped.append(name)
+                continue
+            tags = card.get("tags") or []
+            kind = next((t for t in tags if t in VALID_KINDS), "npc")
+            try:
+                char_id = db_chars.add_character(conn, name=name, kind=kind)
+                created.append({"id": char_id, "name": name})
+                existing.add(name.lower())
+            except Exception:
+                skipped.append(name)
+        conn.close()
+        return jsonify({"created": len(created), "skipped": len(skipped), "chars": created}), 200
 
     @app.route("/api/db/characters/<char_id>/scenes", methods=["GET"])
     def list_scenes_for_character(char_id):
