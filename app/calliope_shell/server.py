@@ -1133,12 +1133,13 @@ def create_app():
             if persist and scene_id:
                 try:
                     from app.db import get_db as _get_db  # noqa: PLC0415
-                    from app.db.messages import (  # noqa: PLC0415
-                        add_message as _add_message,
-                        list_messages_for_scene as _list_msgs,
-                    )
+                    from app.db.messages import add_message as _add_message  # noqa: PLC0415
                     _pconn = _get_db()
-                    _pos = len(_list_msgs(_pconn, scene_id))
+                    _pos_row = _pconn.execute(
+                        "SELECT COALESCE(MAX(position_order), -1) + 1 FROM messages WHERE scene_id = ?",
+                        (scene_id,),
+                    ).fetchone()
+                    _pos = _pos_row[0] if _pos_row else 0
                     _add_message(_pconn, scene_id=scene_id, author_name=char,
                                  content_original=next_msg, position_order=_pos)
                     _pconn.commit()
@@ -1293,12 +1294,13 @@ def create_app():
         if persist and scene_id:
             try:
                 from app.db import get_db as _get_db  # noqa: PLC0415
-                from app.db.messages import (  # noqa: PLC0415
-                    add_message as _add_message,
-                    list_messages_for_scene as _list_msgs,
-                )
+                from app.db.messages import add_message as _add_message  # noqa: PLC0415
                 _pconn = _get_db()
-                _pos = len(_list_msgs(_pconn, scene_id))
+                _pos_row = _pconn.execute(
+                    "SELECT COALESCE(MAX(position_order), -1) + 1 FROM messages WHERE scene_id = ?",
+                    (scene_id,),
+                ).fetchone()
+                _pos = _pos_row[0] if _pos_row else 0
                 _add_message(_pconn, scene_id=scene_id, author_name=char_focus,
                              content_original=draft_text, position_order=_pos)
                 _pconn.commit()
@@ -1428,14 +1430,44 @@ def create_app():
         if not scene_id:
             return jsonify({"error": "scene_id is required"}), 400
 
+        # GAP-19: DB-FIRST — cerca nel DB SQLite prima del fallback YAML.
         scene_data = None
-        for p in _SCENES_DIR.glob("*.yaml"):
-            if scene_id in p.stem:
-                scene_data = _parse_scene_yaml(p)
-                if scene_data:
-                    break
+        _db_tried = False
+        try:
+            from app.db import get_db as _get_db  # noqa: PLC0415
+            from app.db.characters import list_characters_in_scene  # noqa: PLC0415
+            _db_conn = _get_db()
+            _db_tried = True
+            _row = _db_conn.execute("SELECT * FROM scenes WHERE id = ?", (scene_id,)).fetchone()
+            if _row:
+                _s = dict(_row)
+                _chars = [c["name"] for c in list_characters_in_scene(_db_conn, scene_id)]
+                _last = _db_conn.execute(
+                    "SELECT content_original FROM messages WHERE scene_id = ? "
+                    "ORDER BY position_order DESC LIMIT 1",
+                    (scene_id,),
+                ).fetchone()
+                scene_data = {
+                    "scene_id": scene_id,
+                    "title": _s.get("title", ""),
+                    "status": _s.get("status", "active"),
+                    "summary": _s.get("location", ""),
+                    "participants": _chars,
+                    "last_msg_excerpt": (_last[0][:200] if _last else ""),
+                    "operator_notes": None,
+                }
+            _db_conn.close()
+        except Exception:
+            pass
 
         if not scene_data:
+            for p in _SCENES_DIR.glob("*.yaml"):
+                if scene_id in p.stem:
+                    scene_data = _parse_scene_yaml(p)
+                    if scene_data:
+                        break
+
+        if not scene_data and not _db_tried:
             try:
                 from app.db import get_db as _get_db  # noqa: PLC0415
                 from app.db import messages as _db_msg  # noqa: PLC0415
@@ -1629,12 +1661,27 @@ def create_app():
 
         search_query = text[:500]
         if scene_id:
-            for p in _SCENES_DIR.glob("*.yaml"):
-                if scene_id in p.stem:
-                    d = _parse_scene_yaml(p)
-                    if d:
-                        search_query = f"{d.get('title', '')} {text[:300]}"
-                    break
+            _scene_title = None
+            try:
+                from app.db import get_db as _get_db  # noqa: PLC0415
+                _lc_conn = _get_db()
+                _lc_row = _lc_conn.execute(
+                    "SELECT title FROM scenes WHERE id = ?", (scene_id,)
+                ).fetchone()
+                if _lc_row:
+                    _scene_title = _lc_row[0]
+                _lc_conn.close()
+            except Exception:
+                pass
+            if not _scene_title:
+                for p in _SCENES_DIR.glob("*.yaml"):
+                    if scene_id in p.stem:
+                        d = _parse_scene_yaml(p)
+                        if d:
+                            _scene_title = d.get("title", "")
+                        break
+            if _scene_title:
+                search_query = f"{_scene_title} {text[:300]}"
 
         lore_snippets = _search_lore(search_query, n=5)
 

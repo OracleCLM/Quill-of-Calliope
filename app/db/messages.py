@@ -335,6 +335,7 @@ def update_message(
     *,
     content_original: Optional[str] = None,
     author_name: Optional[str] = None,
+    content_enhanced: Optional[str] = None,
 ) -> bool:
     """
     Aggiorna i campi non-None di un messaggio (patch parziale).
@@ -349,6 +350,8 @@ def update_message(
         Nuovo contenuto originale (aggiornato solo se non-None).
     author_name:
         Nuovo nome autore (aggiornato solo se non-None).
+    content_enhanced:
+        Testo raffinato (aggiornato solo se non-None).
 
     Returns
     -------
@@ -358,7 +361,7 @@ def update_message(
     Raises
     ------
     ValueError
-        Se nessun campo è fornito (entrambi None).
+        Se nessun campo è fornito (tutti None).
     """
     fields: list[str] = []
     params: list[object] = []
@@ -368,6 +371,9 @@ def update_message(
     if author_name is not None:
         fields.append("author_name = ?")
         params.append(author_name)
+    if content_enhanced is not None:
+        fields.append("content_enhanced = ?")
+        params.append(content_enhanced)
     if not fields:
         raise ValueError("nessun campo da aggiornare")
     params.append(message_id)

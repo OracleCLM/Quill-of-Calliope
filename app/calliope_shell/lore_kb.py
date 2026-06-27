@@ -277,11 +277,14 @@ class LoreStore:
                 result.append(e)
                 seen_ids.add(e.id)
 
-        # 2) Entry attivate dalle chiavi
+        # 2) Entry attivate dalle chiavi — whole-word match (case-insensitive).
+        # Usa lookbehind/lookahead su \w per evitare falsi positivi da substring
+        # (es. chiave "Ra" NON matcha "narrator"; "on" NON matcha "monster").
         non_const = [e for e in self._entries if not e.constant]
         for entry in non_const:
             for key in entry.keys:
-                if key.lower() in lowered:
+                _k = key.lower()
+                if re.search(r"(?<!\w)" + re.escape(_k) + r"(?!\w)", lowered):
                     if entry.id not in seen_ids:
                         result.append(entry)
                         seen_ids.add(entry.id)

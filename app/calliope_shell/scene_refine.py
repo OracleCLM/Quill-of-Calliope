@@ -363,22 +363,57 @@ def refine_message(
     max_lore: int = 20,
 ) -> str:
     from app.db.messages import get_message_by_id
-
-    from app.calliope_shell.scene_retrieval import (
-        retrieve_scene_lore,
-        retrieve_scene_sheets,
-    )
+    from app.db.characters import list_characters_in_scene
+    from app.calliope_shell.scene_retrieval import retrieve_scene_lore
+    from app.calliope_shell.prompt_assembler import assemble
 
     msg = get_message_by_id(conn, message_id)
     if msg is None:
         return ""
     content = msg["content_original"] or ""
     speaker = msg["author_name"]
-    sheets = retrieve_scene_sheets(scene_id, conn)
-    lore = retrieve_scene_lore(content, store, max_entries=max_lore)
-    prompt = build_refine_prompt(
-        content, sheets=sheets, lore=lore, speaker=speaker
+
+    # Char attivi dalla scena → Card V2 SSOT via assemble()
+    char_names = [r["name"] for r in list_characters_in_scene(conn, scene_id)]
+
+    # Lore triggerata dal testo (whole-word match, GAP-1 fix)
+    lore_entries = retrieve_scene_lore(content, store, max_entries=max_lore)
+    lore_blocks = [
+        (f"[{e.title}] {e.content}" if getattr(e, "title", None) else e.content)
+        for e in lore_entries if e.content
+    ]
+
+    # Char memory (opzionale)
+    memory_blocks: list = []
+    for cn in char_names[:3]:
+        try:
+            from app.calliope_shell.char_memory import retrieve_multi_signal  # noqa: PLC0415
+            hits = retrieve_multi_signal(cn, content, top_k=3)
+            memory_blocks.extend(
+                f"{cn}: {h['fact_text']}" for h in hits[:2] if h.get("fact_text")
+            )
+        except Exception:
+            pass
+
+    verb_instruction = (
+        f"Speaker/narrator: {speaker}.\n"
+        "Refine the following text elevating literary quality in English. "
+        "Preserve EXACTLY meaning, intent, and actions. "
+        "Respond ONLY with refined prose, no preamble.\n\n"
+        f"Text:\n{content}"
     )
+
+    active_model = model or resolve_write_model()[1]
+    ctx = assemble(
+        conn=conn,
+        active_char_names=char_names,
+        lore_blocks=lore_blocks,
+        memory_blocks=memory_blocks,
+        verb_instruction=verb_instruction,
+        model=active_model,
+    )
+    prompt = ctx.full_prompt
+
     if ask is not None:
         enhanced = ask(prompt) or ""
     elif provider and model:

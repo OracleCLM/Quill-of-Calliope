@@ -89,3 +89,33 @@ def test_update_message_empty_body_returns_400(client):
     c, s = client
     r = c.patch(f"/api/db/messages/{s['msg_id']}", json={})
     assert r.status_code == 400
+
+
+# --- GAP-25: content_enhanced in PATCH (WI-40 esteso) -----------------------
+
+def test_update_content_enhanced_returns_200(client):
+    c, s = client
+    r = c.patch(f"/api/db/messages/{s['msg_id']}", json={"content_enhanced": "English translation."})
+    assert r.status_code == 200
+
+
+def test_update_content_enhanced_reflected(client):
+    c, s = client
+    c.patch(f"/api/db/messages/{s['msg_id']}", json={"content_enhanced": "Literary English."})
+    data = c.get(f"/api/db/messages/{s['msg_id']}").get_json()
+    assert data["content_enhanced"] == "Literary English."
+
+
+def test_update_content_enhanced_does_not_overwrite_original(client):
+    c, s = client
+    c.patch(f"/api/db/messages/{s['msg_id']}", json={"content_enhanced": "English version."})
+    data = c.get(f"/api/db/messages/{s['msg_id']}").get_json()
+    assert data["content_original"] == "testo originale"
+    assert data["content_enhanced"] == "English version."
+
+
+def test_update_content_enhanced_only_no_other_field_required(client):
+    """content_enhanced da solo è sufficiente — non richiede content_original."""
+    c, s = client
+    r = c.patch(f"/api/db/messages/{s['msg_id']}", json={"content_enhanced": "Solo enhanced."})
+    assert r.status_code == 200

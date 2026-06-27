@@ -37,8 +37,8 @@ def register_messages_db_routes(app, db_path=None):
         where: list[str] = []
         params: list = []
         if char:
-            where.append("LOWER(author_name) = LOWER(?)")
-            params.append(char)
+            where.append("author_name LIKE ? COLLATE NOCASE")
+            params.append(f"%{char}%")
         if source:
             where.append("source = ?")
             params.append(source)
@@ -50,7 +50,7 @@ def register_messages_db_routes(app, db_path=None):
         conn.close()
         cols = ("id", "scene_id", "author_name", "content_original", "ts", "source")
         messages = [dict(zip(cols, tuple(r))) for r in rows]
-        return jsonify({"messages": messages}), 200
+        return jsonify({"messages": messages, "count": len(messages)}), 200
 
     @app.route("/api/db/messages/<message_id>/position", methods=["PATCH"])
     def db_update_message_position(message_id):
@@ -98,13 +98,15 @@ def register_messages_db_routes(app, db_path=None):
         body = request.get_json(force=True) or {}
         content_original = body.get("content_original")
         author_name = body.get("author_name")
-        if content_original is None and author_name is None:
+        content_enhanced = body.get("content_enhanced")
+        if content_original is None and author_name is None and content_enhanced is None:
             return jsonify({"error": "bad_request"}), 400
         conn = _conn(db_path)
         updated = db_messages.update_message(
             conn, message_id,
             content_original=content_original,
             author_name=author_name,
+            content_enhanced=content_enhanced,
         )
         conn.close()
         if not updated:
