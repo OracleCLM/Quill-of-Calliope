@@ -41,10 +41,13 @@ def test_scene_arc_filter_inside_scenes_panel():
 
 
 def test_nav_parent_map_defined():
-    """P6: _NAV_PARENT mappa panel secondari → nav parent (coerenza navbar)."""
+    """P6: _NAV_PARENT esiste per panel secondari; arc è ora top-level (SPEC-6)."""
     html = _html()
     assert "_NAV_PARENT" in html
-    assert "arc:'scenes'" in html or "arc: 'scenes'" in html
+    # arc è top-level tab dal SPEC-6 (2026-06-27) — non più figlio di scenes
+    assert "arc:'scenes'" not in html and "arc: 'scenes'" not in html, (
+        "arc non deve essere child di scenes (SPEC-6: tab top-level)"
+    )
 
 
 def test_nav_parent_covers_secondary_panels():
